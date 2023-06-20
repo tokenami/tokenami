@@ -1,0 +1,26 @@
+{
+  "name": "@tokenami/cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "sideEffects": false,
+  "bin": {
+    "tokenami": "bin.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "bin.js"
+  ],
+  "scripts": {
+    "build": "tsup src --format=esm,cjs --dts --no-splitting --shims",
+    "build-fast": "tsup src --format=esm,cjs --no-dts --no-splitting --shims",
+    "dev": "pnpm build-fast --watch src"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.3"
+  }
+}
