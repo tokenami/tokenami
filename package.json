@@ -14,6 +14,9 @@
     "tsup": "^7.0.0",
     "typescript": "^5.1.3"
   },
+  "engines": {
+    "pnpm": ">= 8"
+  },
   "prettier": {
     "singleQuote": true,
     "printWidth": 100
