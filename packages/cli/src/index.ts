@@ -59,49 +59,58 @@ const ALIASES = {
   'background-color': ['bg-color', 'background-color'],
   'column-gap': ['gap', 'column-gap'],
   'row-gap': ['gap', 'row-gap'],
-  'margin-left': ['m', 'mx', 'ml', 'margin-left'],
-  'margin-right': ['m', 'mx', 'mr', 'margin-right'],
-  'margin-top': ['m', 'my', 'mt', 'margin-top'],
-  'margin-bottom': ['m', 'my', 'mb', 'margin-bottom'],
-  'padding-left': ['p', 'px', 'pl', 'padding-left'],
-  'padding-right': ['p', 'px', 'pr', 'padding-right'],
-  'padding-top': ['p', 'py', 'pt', 'padding-top'],
-  'padding-bottom': ['p', 'py', 'pb', 'padding-bottom'],
+  'margin-left': ['margin', 'm', 'mx', 'ml', 'margin-left'],
+  'margin-right': ['margin', 'm', 'mx', 'mr', 'margin-right'],
+  'margin-top': ['margin', 'm', 'my', 'mt', 'margin-top'],
+  'margin-bottom': ['margin', 'm', 'my', 'mb', 'margin-bottom'],
+  'padding-left': ['padding', 'p', 'px', 'pl', 'padding-left'],
+  'padding-right': ['padding', 'p', 'px', 'pr', 'padding-right'],
+  'padding-top': ['padding', 'p', 'py', 'pt', 'padding-top'],
+  'padding-bottom': ['padding', 'p', 'py', 'pb', 'padding-bottom'],
 };
 
 type Theme = typeof theme;
 
 function privateVar(property: string) {
-  return `--_${property}`;
+  return `--_tk-${property}`;
+}
+
+function initialVar(property: string) {
+  return privateVar(`i_${property}`);
 }
 
 function getVars(themeProperty: Theme[keyof Theme], prefix: string) {
   return Object.entries(themeProperty).map(([name, value]) => `--${prefix}-${name}: ${value};`);
 }
 
-function getPropertyInitialVars(property: string, initial: string) {
+function getPropertyInitialVars(property: string) {
   const propertyAliases: string[] = ALIASES[property] || [property];
-  return propertyAliases.reduce((fallback, alias) => `var(--${alias},${fallback})`, initial);
+  const initial = PROPERTIES.space.includes(property) ? '0' : 'initial';
+  return `${initialVar(property)}: ${propertyAliases.reduce(
+    (fallback, alias) => `var(--${alias},${fallback})`,
+    initial
+  )};`;
+}
+
+function getPropertyVars(property: string) {
+  const variable = privateVar(property);
+  const initial = initialVar(property);
+  if (PROPERTIES.space.includes(property)) {
+    return `${variable}: var(${initial}); ${property}: calc(var(--space) * var(${variable}));`;
+  } else {
+    return `${variable}: var(${initial}); ${property}: var(${variable});`;
+  }
 }
 
 function getVariantVars(property: string, variant: string) {
   const propertyAliases: string[] = ALIASES[property] || [property];
-  return propertyAliases.reduce((fallback, alias) => `var(--${variant}_${alias},${fallback})`, '');
-}
-
-function getPropertyVars(property: string) {
-  // prevent inheriting from parent elements
-  const propertyAliases: string[] = ALIASES[property] || [property];
-  const lastAlias = propertyAliases[propertyAliases.length - 1];
-  const variable = privateVar(property);
-
-  if (PROPERTIES.space.includes(property)) {
-    const value = getPropertyInitialVars(property, '0');
-    return `--${lastAlias}: initial; ${variable}: ${value}; ${property}: calc(var(--space) * var(${variable}));`;
-  } else {
-    const value = getPropertyInitialVars(property, 'initial');
-    return `--${lastAlias}: initial; ${variable}: ${value}; ${property}: var(${variable});`;
-  }
+  const initial = initialVar(property);
+  return `${privateVar(property)}: ${propertyAliases.reduce(
+    (fallback, alias) => `var(--${variant}_${alias},${fallback})`,
+    // we fallback to initital in case the variant is deselected in dev tools
+    // it will fall back to any non-variant values applied to the same element
+    `var(${initial})`
+  )};`;
 }
 
 function getPropertyStyles(property: string) {
@@ -110,19 +119,12 @@ function getPropertyStyles(property: string) {
   return `${selector} { ${getPropertyVars(property)} }`;
 }
 
-function getPseudoStyles(property: string, pseudo: string) {
+function getVariantStyles(property: string, variant: string, reducer = (s: string) => s) {
   const propertyAliases: string[] = ALIASES[property] || [property];
   const selector = propertyAliases
-    .map((alias) => `[style*="--${pseudo}_${alias}:"]:${pseudo}`)
+    .map((alias) => reducer(`[style*="--${variant}_${alias}:"]`))
     .join(',');
-
-  return `${selector} { ${privateVar(property)}: ${getVariantVars(property, pseudo)} }`;
-}
-
-function getBreakpointStyles(property: string, name: string) {
-  const propertyAliases: string[] = ALIASES[property] || [property];
-  const selector = propertyAliases.map((alias) => `[style*="--${name}_${alias}:"]`).join(',');
-  return `${selector} { ${privateVar(property)}: ${getVariantVars(property, name)} }`;
+  return `${selector} { ${getVariantVars(property, variant)} }`;
 }
 
 const sheet = `
@@ -132,17 +134,24 @@ const sheet = `
     ${getVars(theme.radii, 'radii').join('\n')}
   }
 
+  * {
+    ${ALL_PROPERTIES.map((property) => getPropertyInitialVars(property)).join('\n')}
+  }
+
   ${ALL_PROPERTIES.map((property) => getPropertyStyles(property)).join('\n')}
 
   ${PSEUDO.map((pseudo) => {
-    return ALL_PROPERTIES.map((property) => getPseudoStyles(property, pseudo)).join('\n');
+    return ALL_PROPERTIES.map((property) => {
+      const appendPseudo = (selector: string) => `${selector}:${pseudo}`;
+      return getVariantStyles(property, pseudo, appendPseudo);
+    }).join('\n');
   }).join('\n')}
 
   ${Object.entries(theme.breakpoints)
     .map(([name, breakpoint]) => {
       return `@media ${breakpoint} {
-        ${ALL_PROPERTIES.map((property) => getBreakpointStyles(property, name)).join('\n')}
-      } `;
+        ${ALL_PROPERTIES.map((property) => getVariantStyles(property, name)).join('\n')}
+      }`;
     })
     .join('\n')}
 `;
