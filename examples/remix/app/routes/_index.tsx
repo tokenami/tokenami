@@ -24,7 +24,7 @@ export default function Index() {
         hello
       </button>
 
-      <div style={{ '--background-color': 'red' }}>
+      <div style={{ '--background-color': 'blue', '--color': 'white', '--mt': 10 }}>
         <div style={{ '--pt': 30, '--p': 5 }}>foo</div>
       </div>
     </div>
