@@ -1,9 +1,15 @@
 {
-  "include": ["src"],
   "exclude": ["node_modules"],
   "compilerOptions": {
+    "outDir": "dist",
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node"
+    "strict": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "noUncheckedIndexedAccess": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   }
 }
