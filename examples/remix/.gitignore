@@ -3,5 +3,7 @@ node_modules
 /.cache
 /build
 /public/build
-/public/styles
 .env
+
+# temp
+tokenami.css
