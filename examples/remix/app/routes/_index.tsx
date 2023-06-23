@@ -1,6 +1,6 @@
 import type { V2_MetaFunction } from '@remix-run/node';
 
-export const links = () => [{ rel: 'stylesheet', href: '/styles/tokenami.css' }];
+export const links = () => [{ rel: 'stylesheet', href: '/tokenami.css' }];
 
 export const meta: V2_MetaFunction = () => {
   return [{ title: 'New Remix App' }, { name: 'description', content: 'Welcome to Remix!' }];
