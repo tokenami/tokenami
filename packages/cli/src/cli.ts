@@ -19,26 +19,22 @@ cli
   .option('-o, --output [path]', 'Output file', { default: 'public/tokenami.css' })
   .option('-w, --watch', 'Watch for changes and rebuild as needed')
   .action(async (_, flags) => {
-    const outDir = pathe.join(cwd, pathe.dirname(flags.output));
-    const outPath = pathe.join(cwd, flags.output);
     const configPath = pathe.join(cwd, flags.config);
     const config = await getConfig(configPath, flags.files);
-
-    if (!config.include?.length) log.error('Provide a glob pattern to include files');
-
     const tokens = sheet.configTokens(config);
-    const usedTokens = await findUsedTokens(tokens, cwd, config.include, config.exclude);
-    const output = sheet.generate(usedTokens, config);
 
-    try {
-      fs.mkdirSync(outDir, { recursive: true });
-      fs.writeFileSync(outPath, output, { flag: 'w' });
-    } catch (err) {
-      console.log(err);
-    }
+    if (!config.include.length) log.error('Provide a glob pattern to include files');
+
+    generate(flags.output, tokens, config);
 
     if (flags.watch) {
       const watcher = watch(config.include, config.exclude);
+
+      watcher.on('all', (_, file) => {
+        log.debug(`Generated styles from: ${file}`);
+        generate(flags.output, tokens, config);
+      });
+
       process.once('SIGINT', async () => {
         await watcher.close();
       });
@@ -51,9 +47,31 @@ cli.parse();
 
 /* ---------------------------------------------------------------------------------------------- */
 
+async function generate(out: string, tokens: string[], config: Config) {
+  const outDir = pathe.join(cwd, pathe.dirname(out));
+  const outPath = pathe.join(cwd, out);
+  const usedTokens = await findUsedTokens(tokens, cwd, config.include, config.exclude);
+  const output = sheet.generate(usedTokens, config);
+
+  try {
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(outPath, output, { flag: 'w' });
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+// TODO: figure out another way of pulling in the user's config to avoid script injection.
+// this will do for now because dynamic imports are not working
+// https://github.com/webpack/webpack/issues/6680#issuecomment-644910348
+async function requireDynamically(path: string) {
+  path = path.split('\\').join('/');
+  return eval(`import('${path}').then(m => m.default);`);
+}
+
 async function getConfig(path: string, include: string[]) {
   const ours = { ...defaultConfig, include: include || defaultConfig.include };
-  const theirs = fs.existsSync(path) ? await import(path).then((m) => m.default) : {};
+  const theirs = fs.existsSync(path) ? await requireDynamically(path) : {};
   return deepmerge(ours, theirs) as Config;
 }
 
@@ -65,9 +83,6 @@ function watch(include: string[], exclude?: string[]) {
     ignoreInitial: true,
     ignorePermissionErrors: true,
     ignored: exclude,
-  });
-  watcher.on('all', (_, file) => {
-    log.debug(`Generated styles from: ${file}`);
   });
   return watcher;
 }

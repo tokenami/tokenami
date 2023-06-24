@@ -13,6 +13,8 @@ function generate(usedTokens: string[], config: Config) {
   const resetStyles: Record<string, any> = {};
   const baseStyles: Record<string, any> = {};
 
+  if (!usedTokens.length) return '';
+
   const root = {
     ':root': {
       '--space': config.theme.space,
