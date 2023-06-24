@@ -14,10 +14,7 @@
   --_tk-i_border-radius: var(--border-radius, 0);
   --_tk-i_text-align: var(--text-align, revert);
   --_tk-i_overflow: var(--overflow, revert);
-  --_tk-i_margin-left: var(--margin-left, var(--ml, var(--mx, var(--m, var(--margin, 0)))));
-  --_tk-i_margin-right: var(--margin-right, var(--mr, var(--mx, var(--m, var(--margin, 0)))));
-  --_tk-i_margin-top: var(--margin-top, var(--mt, var(--my, var(--m, var(--margin, 0)))));
-  --_tk-i_margin-bottom: var(--margin-bottom, var(--mb, var(--my, var(--m, var(--margin, 0)))));
+  --_tk-i_margin: var(--margin, var(--m, 0));
   --_tk-i_padding: var(--padding, var(--p, 0));
   --_tk-i_display: var(--display, revert);
   --_tk-i_width: var(--width, revert);
@@ -59,24 +56,9 @@
   overflow: var(--_tk-overflow, revert);
 }
 
-[style*="--margin-left:"], [style*="_margin-left:"], [style*="--ml:"], [style*="_ml:"], [style*="--mx:"], [style*="_mx:"], [style*="--m:"], [style*="_m:"], [style*="--margin:"], [style*="_margin:"] {
-  --_tk-margin-left: var(--_tk-i_margin-left);
-  margin-left: calc(var(--space) * var(--_tk-margin-left));
-}
-
-[style*="--margin-right:"], [style*="_margin-right:"], [style*="--mr:"], [style*="_mr:"], [style*="--mx:"], [style*="_mx:"], [style*="--m:"], [style*="_m:"], [style*="--margin:"], [style*="_margin:"] {
-  --_tk-margin-right: var(--_tk-i_margin-right);
-  margin-right: calc(var(--space) * var(--_tk-margin-right));
-}
-
-[style*="--margin-top:"], [style*="_margin-top:"], [style*="--mt:"], [style*="_mt:"], [style*="--my:"], [style*="_my:"], [style*="--m:"], [style*="_m:"], [style*="--margin:"], [style*="_margin:"] {
-  --_tk-margin-top: var(--_tk-i_margin-top);
-  margin-top: calc(var(--space) * var(--_tk-margin-top));
-}
-
-[style*="--margin-bottom:"], [style*="_margin-bottom:"], [style*="--mb:"], [style*="_mb:"], [style*="--my:"], [style*="_my:"], [style*="--m:"], [style*="_m:"], [style*="--margin:"], [style*="_margin:"] {
-  --_tk-margin-bottom: var(--_tk-i_margin-bottom);
-  margin-bottom: calc(var(--space) * var(--_tk-margin-bottom));
+[style*="--margin:"], [style*="_margin:"], [style*="--m:"], [style*="_m:"] {
+  --_tk-margin: var(--_tk-i_margin);
+  margin: calc(var(--space) * var(--_tk-margin));
 }
 
 [style*="--padding:"], [style*="_padding:"], [style*="--p:"], [style*="_p:"] {
