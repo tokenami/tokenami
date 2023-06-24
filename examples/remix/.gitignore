@@ -4,6 +4,3 @@ node_modules
 /build
 /public/build
 .env
-
-# temp
-tokenami.css

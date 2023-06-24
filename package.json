@@ -4,13 +4,13 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "prepare": "pnpm build",
+    "prepare": "pnpm build-fast",
     "dev": "pnpm --filter=./examples/remix dev",
-    "build": "pnpm -r --parallel --filter=./packages/** build"
+    "build": "pnpm -r --parallel --filter=./packages/** build",
+    "build-fast": "pnpm -r --parallel --filter=./packages/** build-fast"
   },
   "devDependencies": {
     "prettier": "^2.8.8",
-    "tsup": "^7.0.0",
     "typescript": "^5.1.3"
   },
   "engines": {

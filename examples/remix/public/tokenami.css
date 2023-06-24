@@ -1,0 +1,133 @@
+:root {
+  --space: .23rem;
+  --color-slate-100: #f1f5f9;
+  --color-slate-700: #334155;
+  --color-sky-500: #0ea5e9;
+  --radii-rounded: 10px;
+  --radii-circle: 9999px;
+}
+
+* {
+  --_tk-i_min-width: var(--min-width, revert);
+  --_tk-i_background-color: var(--background-color, var(--bg-color, revert));
+  --_tk-i_color: var(--color, revert);
+  --_tk-i_border-radius: var(--border-radius, 0);
+  --_tk-i_text-align: var(--text-align, revert);
+  --_tk-i_overflow: var(--overflow, revert);
+  --_tk-i_margin: var(--margin, var(--m, 0));
+  --_tk-i_padding: var(--padding, var(--p, 0));
+  --_tk-i_display: var(--display, revert);
+  --_tk-i_width: var(--width, revert);
+  --_tk-i_height: var(--height, revert);
+  --_tk-i_object-fit: var(--object-fit, revert);
+  --_tk-i_padding-top: var(--padding-top, var(--pt, var(--py, 0)));
+  --_tk-i_font-size: var(--font-size, revert);
+  --_tk-i_line-height: var(--line-height, revert);
+  --_tk-i_font-weight: var(--font-weight, revert);
+}
+
+[style*="--min-width:"], [style*="_min-width:"] {
+  --_tk-min-width: var(--_tk-i_min-width);
+  min-width: var(--_tk-min-width, revert);
+}
+
+[style*="--background-color:"], [style*="_background-color:"], [style*="--bg-color:"], [style*="_bg-color:"] {
+  --_tk-background-color: var(--_tk-i_background-color);
+  background-color: var(--_tk-background-color, revert);
+}
+
+[style*="--color:"], [style*="_color:"] {
+  --_tk-color: var(--_tk-i_color);
+  color: var(--_tk-color, revert);
+}
+
+[style*="--border-radius:"], [style*="_border-radius:"] {
+  --_tk-border-radius: var(--_tk-i_border-radius);
+  border-radius: var(--_tk-border-radius, revert);
+}
+
+[style*="--text-align:"], [style*="_text-align:"] {
+  --_tk-text-align: var(--_tk-i_text-align);
+  text-align: var(--_tk-text-align, revert);
+}
+
+[style*="--overflow:"], [style*="_overflow:"] {
+  --_tk-overflow: var(--_tk-i_overflow);
+  overflow: var(--_tk-overflow, revert);
+}
+
+[style*="--margin:"], [style*="_margin:"], [style*="--m:"], [style*="_m:"] {
+  --_tk-margin: var(--_tk-i_margin);
+  margin: calc(var(--space) * var(--_tk-margin));
+}
+
+[style*="--padding:"], [style*="_padding:"], [style*="--p:"], [style*="_p:"] {
+  --_tk-padding: var(--_tk-i_padding);
+  padding: calc(var(--space) * var(--_tk-padding));
+}
+
+[style*="--display:"], [style*="_display:"] {
+  --_tk-display: var(--_tk-i_display);
+  display: var(--_tk-display, revert);
+}
+
+[style*="--width:"], [style*="_width:"] {
+  --_tk-width: var(--_tk-i_width);
+  width: var(--_tk-width, revert);
+}
+
+[style*="--height:"], [style*="_height:"] {
+  --_tk-height: var(--_tk-i_height);
+  height: var(--_tk-height, revert);
+}
+
+[style*="--object-fit:"], [style*="_object-fit:"] {
+  --_tk-object-fit: var(--_tk-i_object-fit);
+  object-fit: var(--_tk-object-fit, revert);
+}
+
+[style*="--padding-top:"], [style*="_padding-top:"], [style*="--pt:"], [style*="_pt:"], [style*="--py:"], [style*="_py:"] {
+  --_tk-padding-top: var(--_tk-i_padding-top);
+  padding-top: calc(var(--space) * var(--_tk-padding-top));
+}
+
+[style*="--font-size:"], [style*="_font-size:"] {
+  --_tk-font-size: var(--_tk-i_font-size);
+  font-size: var(--_tk-font-size, revert);
+}
+
+[style*="--line-height:"], [style*="_line-height:"] {
+  --_tk-line-height: var(--_tk-i_line-height);
+  line-height: var(--_tk-line-height, revert);
+}
+
+[style*="--font-weight:"], [style*="_font-weight:"] {
+  --_tk-font-weight: var(--_tk-i_font-weight);
+  font-weight: var(--_tk-font-weight, revert);
+}
+
+@media (width >= 700px) {
+  [style*="--md_display:"] {
+    --_tk-display: var(--md_display, var(--_tk-i_display));
+  }
+
+  [style*="--md_p:"] {
+    --_tk-padding: var(--md_p, var(--_tk-i_padding));
+  }
+
+  [style*="--md_text-align:"] {
+    --_tk-text-align: var(--md_text-align, var(--_tk-i_text-align));
+  }
+
+  [style*="--md_width:"] {
+    --_tk-width: var(--md_width, var(--_tk-i_width));
+  }
+
+  [style*="--md_height:"] {
+    --_tk-height: var(--md_height, var(--_tk-i_height));
+  }
+
+  [style*="--md_border-radius:"] {
+    --_tk-border-radius: var(--md_border-radius, var(--_tk-i_border-radius));
+  }
+}
