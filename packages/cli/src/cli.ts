@@ -48,10 +48,10 @@ cli.parse();
 /* ---------------------------------------------------------------------------------------------- */
 
 async function generate(out: string, tokens: string[], config: Config) {
+  const usedTokens = await findUsedTokens(tokens, cwd, config.include, config.exclude);
   const outDir = pathe.join(cwd, pathe.dirname(out));
   const outPath = pathe.join(cwd, out);
-  const usedTokens = await findUsedTokens(tokens, cwd, config.include, config.exclude);
-  const output = sheet.generate(usedTokens, config);
+  const output = sheet.generate(usedTokens, outPath, config);
 
   try {
     fs.mkdirSync(outDir, { recursive: true });
@@ -61,17 +61,9 @@ async function generate(out: string, tokens: string[], config: Config) {
   }
 }
 
-// TODO: figure out another way of pulling in the user's config to avoid script injection.
-// this will do for now because dynamic imports are not working
-// https://github.com/webpack/webpack/issues/6680#issuecomment-644910348
-async function requireDynamically(path: string) {
-  path = path.split('\\').join('/');
-  return eval(`import('${path}').then(m => m.default);`);
-}
-
 async function getConfig(path: string, include: string[]) {
   const ours = { ...defaultConfig, include: include || defaultConfig.include };
-  const theirs = fs.existsSync(path) ? await requireDynamically(path) : {};
+  const theirs = fs.existsSync(path) ? await import(path).then((m) => m.default) : {};
   return deepmerge(ours, theirs) as Config;
 }
 

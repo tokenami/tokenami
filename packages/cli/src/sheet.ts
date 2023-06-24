@@ -1,5 +1,6 @@
 import type { Config } from './config';
 import { stringify } from '@stitches/stringify';
+import * as lightning from 'lightningcss';
 import { PROPERTY_TO_TYPE, ALL_PSEUDO } from './config';
 
 type Theme = Config['theme'];
@@ -8,7 +9,7 @@ type Theme = Config['theme'];
  * generate
  * -----------------------------------------------------------------------------------------------*/
 
-function generate(usedTokens: string[], config: Config) {
+function generate(usedTokens: string[], output: string, config: Config) {
   const variantStyles: Record<'pseudo' | string, any> = {};
   const resetStyles: Record<string, any> = {};
   const baseStyles: Record<string, any> = {};
@@ -66,7 +67,10 @@ function generate(usedTokens: string[], config: Config) {
   }
 
   const { pseudo, ...bpStyles } = variantStyles;
-  return stringify({ ...root, ...resetStyles, ...baseStyles, ...pseudo, ...bpStyles });
+  const sheet = stringify({ ...root, ...resetStyles, ...baseStyles, ...pseudo, ...bpStyles });
+  const code = Buffer.from(sheet);
+  const transformed = lightning.transform({ filename: output, code, minify: false });
+  return transformed.code.toString();
 }
 
 /* -------------------------------------------------------------------------------------------------
