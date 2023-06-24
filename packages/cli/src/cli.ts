@@ -1,63 +1,98 @@
-import cac from 'cac';
+import type { Config } from './config';
 import * as fs from 'fs';
 import * as pathe from 'pathe';
-import * as utils from './utils';
-import { ALL_PROPERTIES, PSEUDO } from './constants';
-import { defaultConfig } from './config';
+import glob from 'fast-glob';
+import cac from 'cac';
+import deepmerge from 'deepmerge';
+import * as chokidar from 'chokidar';
+import * as sheet from './sheet';
+import * as log from './log';
+import pkgJson from '../package.json' assert { type: 'json' };
+import defaultConfig from '../tokenami.config';
 
-const cli = cac('tokenami');
+const cli = cac('✨ tokenami');
 const cwd = process.cwd();
-const pkgPath = pathe.join(__dirname, '../package.json');
-const pkgJson = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 
 cli
-  .command('[...files]', 'Include file glob')
+  .command('[files]', 'Include file glob')
   .option('-c, --config [path]', 'Path to a custom config file', { default: 'tokenami.config.js' })
   .option('-o, --output [path]', 'Output file', { default: 'public/tokenami.css' })
-  .action(async (_, options) => {
-    const config = await import(pathe.join(cwd, options.config));
-    const outDir = pathe.join(cwd, pathe.dirname(options.output));
-    const outPath = pathe.join(cwd, options.output);
-    const theme = { ...defaultConfig.theme, ...config.default.theme };
+  .option('-w, --watch', 'Watch for changes and rebuild as needed')
+  .action(async (_, flags) => {
+    const configPath = pathe.join(cwd, flags.config);
+    const config = await getConfig(configPath, flags.files);
+    const tokens = sheet.configTokens(config);
 
-    const sheet = `
-      :root {
-        --space: ${theme.space};
-        ${utils.getVars(theme.colors, 'color').join('\n')}
-        ${utils.getVars(theme.radii, 'radii').join('\n')}
-      }
+    if (!config.include.length) log.error('Provide a glob pattern to include files');
 
-      * {
-        ${ALL_PROPERTIES.map((property) => utils.getPropertyInitialVars(property)).join('\n')}
-      }
+    generate(flags.output, tokens, config);
 
-      ${ALL_PROPERTIES.map((property) => utils.getPropertyStyles(property)).join('\n')}
+    if (flags.watch) {
+      const watcher = watch(config.include, config.exclude);
 
-      ${PSEUDO.map((pseudo) => {
-        return ALL_PROPERTIES.map((property) => {
-          const appendPseudo = (selector: string) => `${selector}:${pseudo}`;
-          return utils.getVariantStyles(property, pseudo, appendPseudo);
-        }).join('\n');
-      }).join('\n')}
+      watcher.on('all', (_, file) => {
+        log.debug(`Generated styles from: ${file}`);
+        generate(flags.output, tokens, config);
+      });
 
-      ${Object.entries(theme.breakpoints)
-        .map(([name, breakpoint]) => {
-          return `@media ${breakpoint} {
-            ${ALL_PROPERTIES.map((property) => utils.getVariantStyles(property, name)).join('\n')}
-          }`;
-        })
-        .join('\n')}
-    `;
-
-    try {
-      fs.mkdirSync(outDir, { recursive: true });
-      fs.writeFileSync(outPath, sheet, { flag: 'w' });
-    } catch (err) {
-      console.log(err);
+      process.once('SIGINT', async () => {
+        await watcher.close();
+      });
     }
   });
 
 cli.help();
 cli.version(pkgJson.version);
-cli.parse(process.argv, { run: false });
-await cli.runMatchedCommand();
+cli.parse();
+
+/* ---------------------------------------------------------------------------------------------- */
+
+async function generate(out: string, tokens: string[], config: Config) {
+  const usedTokens = await findUsedTokens(tokens, cwd, config.include, config.exclude);
+  const outDir = pathe.join(cwd, pathe.dirname(out));
+  const outPath = pathe.join(cwd, out);
+  const output = sheet.generate(usedTokens, outPath, config);
+
+  try {
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(outPath, output, { flag: 'w' });
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function getConfig(path: string, include: string[]) {
+  const ours = { ...defaultConfig, include: include || defaultConfig.include };
+  const theirs = fs.existsSync(path) ? await import(path).then((m) => m.default) : {};
+  return deepmerge(ours, theirs) as Config;
+}
+
+function watch(include: string[], exclude?: string[]) {
+  log.debug(`Watching for changes to: ${include}`);
+  const watcher = chokidar.watch(include, {
+    cwd,
+    persistent: true,
+    ignoreInitial: true,
+    ignorePermissionErrors: true,
+    ignored: exclude,
+  });
+  return watcher;
+}
+
+async function findUsedTokens(
+  properties: string[],
+  dir: string,
+  include: string[],
+  ignore?: string[]
+) {
+  const entries = await glob(include, { cwd: dir, onlyFiles: true, stats: false, ignore });
+  const regex = new RegExp(properties.join('\\b|'), 'g');
+  const matches = entries.reduce((acc, entry) => {
+    const fileContent = fs.readFileSync(entry, 'utf8');
+    const matchingProperties = fileContent.match(regex);
+    if (matchingProperties) return new Set([...acc, ...matchingProperties]);
+    return acc;
+  }, new Set<string>());
+
+  return Array.from(matches);
+}
