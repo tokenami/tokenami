@@ -1,21 +1,7 @@
 import type * as CSS from 'csstype';
+import type { Config } from '~/config';
 
-type BpMinWidth = `min-width: ${string}`;
-type BpMaxWidth = `max-width: ${string}`;
-type Breakpoint = `(${BpMinWidth}) | (${BpMaxWidth}) | (${BpMinWidth} and ${BpMaxWidth})`;
 type PropertyDef = { themeKey: keyof Config['theme'] | 'unknown'; initialValue: string };
-
-interface Config {
-  include: string[];
-  exclude?: string[];
-  aliases?: Partial<Record<keyof CSS.PropertiesHyphen, string[]>>;
-  theme: {
-    space: string;
-    breakpoints: Record<string, Breakpoint>;
-    colors: Record<string, string>;
-    radii: Record<string, string>;
-  };
-}
 
 const ALL_PSEUDO = ['hover', 'focus', 'active', 'disabled'];
 
@@ -57,5 +43,4 @@ const PROPERTY_TO_TYPE: Partial<Record<keyof CSS.PropertiesHyphen, PropertyDef>>
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { Config };
 export { PROPERTY_TO_TYPE, ALL_PSEUDO };

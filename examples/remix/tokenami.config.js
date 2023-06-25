@@ -1,4 +1,4 @@
-/** @type {import('@tokenami/cli').Config} */
+/** @type {import('@tokenami/dev').Config} */
 module.exports = {
   include: ['./app/**/*.{ts,tsx}'],
   theme: {

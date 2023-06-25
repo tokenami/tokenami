@@ -7,7 +7,8 @@
     "dev:app": "remix dev",
     "dev:css": "tokenami --watch",
     "start": "remix-serve build",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@remix-run/css-bundle": "^1.17.1",
@@ -21,13 +22,19 @@
   "devDependencies": {
     "@remix-run/dev": "^1.17.1",
     "@remix-run/eslint-config": "^1.17.1",
-    "@tokenami/cli": "workspace:*",
+    "@tokenami/dev": "workspace:*",
+    "@tokenami/eslint-plugin-dev": "workspace:*",
     "@types/react": "^18.0.35",
     "@types/react-dom": "^18.0.11",
     "concurrently": "^8.2.0",
-    "eslint": "^8.38.0",
+    "eslint": "^8.43.0",
     "typescript": "^5.0.4"
   },
+  "eslintIgnore": [
+    "/node_modules",
+    "/build",
+    "/public/build"
+  ],
   "engines": {
     "node": ">=14.0.0"
   }
