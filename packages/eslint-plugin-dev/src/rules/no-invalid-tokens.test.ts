@@ -1,5 +1,5 @@
 import { ESLintUtils } from '@typescript-eslint/utils';
-import * as NoInvalidTokens from './no-invalid-tokens';
+import { rule, MESSAGE_INVALID_TOKEN } from './no-invalid-tokens';
 
 const ruleTester = new ESLintUtils.RuleTester({
   parser: '@typescript-eslint/parser',
@@ -28,10 +28,10 @@ const invalidStatments = [
   `,
 ];
 
-ruleTester.run(NoInvalidTokens.RULE_NAME, NoInvalidTokens.rule, {
+ruleTester.run('no-invalid-tokens', rule, {
   valid: validStatements,
   invalid: [
-    { code: invalidStatments[0], errors: [{ messageId: NoInvalidTokens.MESSAGE_INVALID_TOKEN }] },
-    { code: invalidStatments[1], errors: [{ messageId: NoInvalidTokens.MESSAGE_INVALID_TOKEN }] },
+    { code: invalidStatments[0], errors: [{ messageId: MESSAGE_INVALID_TOKEN }] },
+    { code: invalidStatments[1], errors: [{ messageId: MESSAGE_INVALID_TOKEN }] },
   ],
 });

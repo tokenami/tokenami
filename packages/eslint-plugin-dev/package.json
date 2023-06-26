@@ -2,22 +2,30 @@
   "name": "@tokenami/eslint-plugin-dev",
   "version": "1.0.0",
   "main": "./dist/index.js",
-  "exports": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "license": "MIT",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
   "keywords": [
     "eslint",
     "eslintplugin",
     "eslint-plugin"
   ],
   "scripts": {
-    "build": "tsup src/index.ts",
+    "build": "tsup --format=esm,cjs src/index.ts",
     "build-fast": "pnpm build",
     "test": "jest",
     "update-docs": "pnpm build && eslint-doc-generator"
   },
   "dependencies": {
+    "@typescript-eslint/parser": "^5.60.0",
     "@typescript-eslint/utils": "^5.60.0",
-    "@typescript-eslint/parser": "^5.60.0"
+    "pathe": "^1.1.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.2",

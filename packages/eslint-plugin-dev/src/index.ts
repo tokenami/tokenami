@@ -7,14 +7,14 @@ const meta = {
 };
 
 const rules = {
-  [NoInvalidTokens.RULE_NAME]: NoInvalidTokens.rule,
+  'no-invalid-tokens': NoInvalidTokens.rule,
 };
 
 const configs = {
   recommended: {
     plugins: ['@tokenami/dev'],
     rules: {
-      [`@tokenami/dev/${NoInvalidTokens.RULE_NAME}`]: 'error',
+      [`@tokenami/dev/no-invalid-tokens`]: 'error',
     },
   },
 };

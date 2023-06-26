@@ -5,4 +5,9 @@ module.exports = {
     '@remix-run/eslint-config/node',
     'plugin:@tokenami/dev/recommended',
   ],
+  settings: {
+    '@tokenami/dev': {
+      projectRoot: __dirname,
+    },
+  },
 };
