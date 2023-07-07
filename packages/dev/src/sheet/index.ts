@@ -1,7 +1,7 @@
-import type { Config } from './config';
+import type { Config } from '~/config';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
-import { PROPERTY_TO_TYPE, ALL_PSEUDO } from './config';
+import { PROPERTY_TO_TYPE, ALL_PSEUDO } from './constants';
 
 type Theme = Config['theme'];
 

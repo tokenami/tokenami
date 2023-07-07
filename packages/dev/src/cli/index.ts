@@ -1,14 +1,14 @@
-import type { Config } from './config';
+import type { Config } from '~/config';
 import * as fs from 'fs';
 import * as pathe from 'pathe';
 import glob from 'fast-glob';
 import cac from 'cac';
 import deepmerge from 'deepmerge';
 import * as chokidar from 'chokidar';
-import * as sheet from './sheet';
+import * as sheet from '~/sheet';
 import * as log from './log';
-import pkgJson from '../package.json' assert { type: 'json' };
-import defaultConfig from '../tokenami.config';
+import pkgJson from '~/../package.json';
+import defaultConfig from '~/../tokenami.config';
 
 const cli = cac('✨ tokenami');
 const cwd = process.cwd();
