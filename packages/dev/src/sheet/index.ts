@@ -1,9 +1,11 @@
 import type { Config } from '~/config';
+import type { TokenamiProperty } from './constants';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
-import { PROPERTY_TO_TYPE, ALL_PSEUDO } from './constants';
+import { PROPERTY_TO_TYPE, ALL_PROPERTIES, ALL_PSEUDO } from './constants';
 
 type Theme = Config['theme'];
+type Alias = string & {};
 
 /* -------------------------------------------------------------------------------------------------
  * generate
@@ -12,7 +14,7 @@ type Theme = Config['theme'];
 function generate(usedTokens: string[], output: string, config: Config) {
   const variantStyles: Record<'pseudo' | string, any> = {};
   const resetStyles: Record<string, any> = {};
-  const baseStyles: Record<string, any> = {};
+  const baseStyles: { aliases: Set<Alias>; styles: Record<string, any> }[] = [];
 
   if (!usedTokens.length) return '';
 
@@ -24,50 +26,69 @@ function generate(usedTokens: string[], output: string, config: Config) {
     },
   };
 
-  for (const token of usedTokens) {
-    const tokenName = token.replace(/^--/, '');
-    const [alias, variant] = tokenName.split('_').reverse() as [string, string?];
+  for (const usedToken of usedTokens) {
+    const usedTokenName = usedToken.replace(/^--/, '');
+    const [alias, variant] = usedTokenName.split('_').reverse() as [Alias, string?];
     const properties = findProperties(alias, config);
 
     for (const [prop, aliases] of properties) {
-      const isSpace = (PROPERTY_TO_TYPE as any)[prop]?.themeKey === 'space';
-      const baseSelector = aliases
-        .map((alias: string) => [selector(alias), _selector(alias)])
-        .flat()
-        .join(', ');
+      const sheetConfig = PROPERTY_TO_TYPE[prop];
+      const isSpace = sheetConfig.themeKey === 'space';
+      const baseSelectorOrder = ALL_PROPERTIES.indexOf(prop);
 
       resetStyles['*'] = {
         ...resetStyles['*'],
+        [usedToken]: 'var(--_tk-i)',
+      };
+
+      resetStyles['[style*="--"]'] = {
+        ...resetStyles['[style*="--"]'],
         [`--_tk-i_${prop}`]: createResetTokens(prop, aliases),
       };
 
-      baseStyles[baseSelector] = baseStyles[baseSelector] || {
-        [`--_tk-${prop}`]: `var(--_tk-i_${prop})`,
-        [prop]: isSpace ? `calc(var(--space) * var(--_tk-${prop}))` : `var(--_tk-${prop}, revert)`,
+      baseStyles[baseSelectorOrder] = baseStyles[baseSelectorOrder] || {
+        aliases: new Set(),
+        styles: {
+          [`--_tk-${prop}`]: `var(--_tk-i_${prop})`,
+          [prop]: isSpace ? `calc(var(--space) * var(--_tk-${prop}))` : `var(--_tk-${prop})`,
+        },
       };
+      baseStyles[baseSelectorOrder]?.aliases.add(alias);
 
       if (variant) {
         const [bpOrPseudo, maybePseudo] = variant.split('-') as [string, string?];
         const pseudo = maybePseudo || bpOrPseudo;
-        const variantSelector = selector(tokenName);
+        const variantSelector = selector(usedTokenName);
         const pseudoSelector = variantSelector + ':' + pseudo;
         const breakpoint = config.theme.breakpoints[bpOrPseudo];
         const key = breakpoint ? `@media ${breakpoint}` : 'pseudo';
         const keySelector = ALL_PSEUDO.includes(pseudo) ? pseudoSelector : variantSelector;
+        const value = `var(${usedToken}, var(--_tk-i_${prop}))`;
 
         variantStyles[key] = variantStyles[key] || {};
         variantStyles[key][keySelector] = {
           ...variantStyles[key][keySelector],
           // we fallback to initital in case the variant is deselected in dev tools
           // it will fall back to any non-variant values applied to the same element
-          [`--_tk-${prop}`]: `var(--${tokenName}, var(--_tk-i_${prop}))`,
+          [prop]: isSpace ? `calc(var(--space) * ${value})` : value,
         };
       }
     }
   }
 
   const { pseudo, ...bpStyles } = variantStyles;
-  const sheet = stringify({ ...root, ...resetStyles, ...baseStyles, ...pseudo, ...bpStyles });
+
+  const sheet = stringify({
+    ...root,
+    ...resetStyles,
+    ...baseStyles.reduce((acc, { aliases, styles }) => {
+      const selector = createBaseSelector([...aliases]);
+      return { ...acc, [selector]: { ...(acc as any)[selector], ...styles } };
+    }, {}),
+    ...pseudo,
+    ...bpStyles,
+  });
+
   const code = Buffer.from(sheet);
   const transformed = lightning.transform({ filename: output, code, minify: false });
   return transformed.code.toString();
@@ -80,7 +101,7 @@ function generate(usedTokens: string[], output: string, config: Config) {
 function configTokens(config: Config) {
   const configBreakpoints = Object.keys(config.theme.breakpoints);
   const allAliases = Object.values(config.aliases || {}).flat();
-  const allProperties = [...Object.keys(PROPERTY_TO_TYPE), ...allAliases];
+  const allProperties = [...ALL_PROPERTIES, ...allAliases];
   const tokens = allProperties.map((prop) => {
     const pseudoTokens = ALL_PSEUDO.map((pseudo) => `--${pseudo}_${prop}`);
     const bpTokens = configBreakpoints.map((breakpoint) => `--${breakpoint}_${prop}`);
@@ -91,12 +112,8 @@ function configTokens(config: Config) {
 
 /* ---------------------------------------------------------------------------------------------- */
 
-function selector(prop: string) {
-  return `[style*="--${prop}:"]`;
-}
-
-function _selector(prop: string) {
-  return `[style*="_${prop}:"]`;
+function selector(alias: Alias) {
+  return `[style*="--${alias}:"]`;
 }
 
 function getTokens(themeProperty: Theme[keyof Theme], prefix: string) {
@@ -106,14 +123,21 @@ function getTokens(themeProperty: Theme[keyof Theme], prefix: string) {
   );
 }
 
-function findProperties(alias: string, config: Config): [string, string[]][] {
+// an alias can be used for multiple properties
+function findProperties(alias: Alias, config: Config) {
   const result = Object.entries(config.aliases || {}).filter(([_, value]) => value.includes(alias));
-  return result.length ? result : [[alias, [alias]]];
+  return (result.length ? result : [[alias, [alias]]]) as [TokenamiProperty, Alias[]][];
 }
 
-function createResetTokens(property: string, aliases: string[]) {
-  const initial = (PROPERTY_TO_TYPE as any)[property]?.initialValue || 'revert';
-  return aliases.reduceRight((fallback, alias) => `var(--${alias},${fallback})`, initial as string);
+function createBaseSelector(aliases: Alias[]) {
+  const selectors = aliases.map((alias) => selector(alias));
+  return selectors.join(', ');
+}
+
+function createResetTokens(property: TokenamiProperty, aliases: Alias[]): string {
+  const sheetConfig = PROPERTY_TO_TYPE[property];
+  const initial = 'initial' in sheetConfig ? sheetConfig.initial : '';
+  return aliases.reduceRight((fallback, alias) => `var(--${alias}, ${fallback}) `, initial);
 }
 
 export { configTokens, generate };
