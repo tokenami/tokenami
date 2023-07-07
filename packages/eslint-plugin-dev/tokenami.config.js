@@ -8,9 +8,7 @@ module.exports = {
       lg: '(min-width: 1024px)',
     },
     colors: {
-      'slate-100': '#f1f5f9',
-      'slate-700': '#334155',
-      'sky-500': '#0ea5e9',
+      red: 'red',
     },
     radii: {
       rounded: '10px',
