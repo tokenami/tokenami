@@ -7,7 +7,7 @@ const chalk = new Chalk({ level: 1 });
  * -----------------------------------------------------------------------------------------------*/
 
 function error(str: string) {
-  console.error(`${chalk.bgRed(' TOKENAMI ')} ${chalk.red(str)}`);
+  console.error(`${chalk.bgRed(' tokenami ')} ${chalk.red(str)}`);
   process.exit(1);
 }
 
@@ -16,7 +16,7 @@ function error(str: string) {
  * -----------------------------------------------------------------------------------------------*/
 
 function debug(str: string) {
-  console.debug(`${chalk.bgYellow(' TOKENAMI ')} ${chalk.yellow(str)}`);
+  console.debug(`${chalk.bgYellow(' tokenami ')} ${chalk.yellow(str)}`);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
