@@ -1,7 +1,6 @@
 import type * as CSS from 'csstype';
 import type { Theme } from '~/theme';
 
-type TokenamiProperty = keyof typeof PROPERTY_TO_TYPE & {};
 type PropertyConfig = { themeKey: keyof Theme | 'unknown'; initial?: string };
 
 const PROPERTY_TO_TYPE = {
@@ -41,7 +40,8 @@ const PROPERTY_TO_TYPE = {
   overflow: { themeKey: 'unknown' },
 } satisfies Partial<Record<keyof CSS.PropertiesHyphen, PropertyConfig>>;
 
-const ALL_PROPERTIES = Object.keys(PROPERTY_TO_TYPE) as (keyof typeof PROPERTY_TO_TYPE)[];
+type TokenamiProperty = keyof typeof PROPERTY_TO_TYPE & {};
+const ALL_PROPERTIES = Object.keys(PROPERTY_TO_TYPE) as TokenamiProperty[];
 const ALL_PSEUDO = ['hover', 'focus', 'active', 'disabled'];
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -1,8 +1,7 @@
-import type { Config } from '~/config';
-import type { TokenamiProperty } from './constants';
+import type { Config, TokenamiProperty } from '@tokenami/config';
+import { PROPERTY_TO_TYPE, ALL_PROPERTIES, ALL_PSEUDO } from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
-import { PROPERTY_TO_TYPE, ALL_PROPERTIES, ALL_PSEUDO } from './constants';
 
 type Theme = Config['theme'];
 type Alias = string & {};
@@ -94,22 +93,6 @@ function generate(usedTokens: string[], output: string, config: Config) {
   return transformed.code.toString();
 }
 
-/* -------------------------------------------------------------------------------------------------
- * configTokens
- * -----------------------------------------------------------------------------------------------*/
-
-function configTokens(config: Config) {
-  const configBreakpoints = Object.keys(config.theme.breakpoints);
-  const allAliases = Object.values(config.aliases || {}).flat();
-  const allProperties = [...ALL_PROPERTIES, ...allAliases];
-  const tokens = allProperties.map((prop) => {
-    const pseudoTokens = ALL_PSEUDO.map((pseudo) => `--${pseudo}_${prop}`);
-    const bpTokens = configBreakpoints.map((breakpoint) => `--${breakpoint}_${prop}`);
-    return [`--${prop}`, ...pseudoTokens, ...bpTokens];
-  });
-  return tokens.flat();
-}
-
 /* ---------------------------------------------------------------------------------------------- */
 
 function selector(alias: Alias) {
@@ -140,4 +123,4 @@ function createResetTokens(property: TokenamiProperty, aliases: Alias[]): string
   return aliases.reduceRight((fallback, alias) => `var(--${alias}, ${fallback}) `, initial);
 }
 
-export { configTokens, generate };
+export { generate };

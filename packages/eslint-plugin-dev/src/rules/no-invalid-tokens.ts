@@ -1,6 +1,5 @@
+import { getConfig } from '@tokenami/config';
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import * as pathe from 'pathe';
-import * as fs from 'fs';
 import pkgJson from '../../package.json';
 
 interface PluginSettings {
@@ -25,15 +24,14 @@ export const rule: TSESLint.RuleModule<typeof MESSAGE_INVALID_TOKEN> = {
   create(context) {
     const settings = getSettings(context.settings);
     const cwd = settings.projectRoot || context.getCwd?.() || process.cwd();
-    // TODO: move config related stuff to a config package which we can reuse here and in cli pkg
-    const path = pathe.join(cwd, 'tokenami.config.js');
-    const config = fs.existsSync(path) ? require(path) : {};
-    const theme = config.theme;
+    const configPromise = getConfig(cwd);
 
     return {
-      ['Property:matches([key.value=/^--/])'](node: TSESTree.Property) {
-        const colors = getTokens(theme?.colors, 'color');
-        const radii = getTokens(theme?.radii, 'radii');
+      async ['Property:matches([key.value=/^--/])'](node: TSESTree.Property) {
+        const config = await configPromise;
+        const theme = config.theme;
+        const colors = getTokens(theme.colors, 'color');
+        const radii = getTokens(theme.radii, 'radii');
         const valid = [...colors, ...radii];
         // TODO: check if key is a tokenami token e.g. `--border-radius` before validating value
         if (isLiteral(node.key) && isLiteral(node.value)) {

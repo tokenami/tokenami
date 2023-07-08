@@ -1,37 +1,36 @@
-import type { Config } from '~/config';
+import type { Config } from '@tokenami/config';
+import { getConfig, getAvailableTokenamiTokens } from '@tokenami/config';
 import * as fs from 'fs';
 import * as pathe from 'pathe';
 import glob from 'fast-glob';
 import cac from 'cac';
-import deepmerge from 'deepmerge';
 import * as chokidar from 'chokidar';
 import * as sheet from '~/sheet';
 import * as log from './log';
 import pkgJson from '~/../package.json';
-import defaultConfig from '~/../tokenami.config';
 
 const cli = cac('✨ tokenami');
 const cwd = process.cwd();
 
 cli
   .command('[files]', 'Include file glob')
-  .option('-c, --config [path]', 'Path to a custom config file', { default: 'tokenami.config.js' })
+  .option('-c, --config [path]', 'Path to a custom config file')
   .option('-o, --output [path]', 'Output file', { default: 'public/tokenami.css' })
   .option('-w, --watch', 'Watch for changes and rebuild as needed')
   .action(async (_, flags) => {
     const start = performance.now();
-    const configPath = pathe.join(cwd, flags.config);
-    const config = await getConfig(configPath, flags.files);
-    const tokens = sheet.configTokens(config);
+    const config = await getConfig(cwd, { path: flags.config, include: flags.files });
+    const tokens = getAvailableTokenamiTokens(config);
 
     if (!config.include.length) log.error('Provide a glob pattern to include files');
+    const usedTokens = await findUsedTokens(tokens, cwd, config.include, config.exclude);
 
     if (flags.watch) {
       const watcher = watch(config.include, config.exclude);
 
       watcher.on('all', (_, file) => {
         const start = performance.now();
-        generate(flags.output, tokens, config);
+        generate(flags.output, usedTokens, config);
         const stop = performance.now();
         const time = Math.round(stop - start);
         log.debug(`Generated styles from ${file} in ${time}ms.`);
@@ -42,7 +41,7 @@ cli
       });
     }
 
-    generate(flags.output, tokens, config);
+    generate(flags.output, usedTokens, config);
     const stop = performance.now();
     const time = Math.round(stop - start);
     log.debug(`Ready in ${time}ms.`);
@@ -54,8 +53,7 @@ cli.parse();
 
 /* ---------------------------------------------------------------------------------------------- */
 
-async function generate(out: string, tokens: string[], config: Config) {
-  const usedTokens = await findUsedTokens(tokens, cwd, config.include, config.exclude);
+async function generate(out: string, usedTokens: string[], config: Config) {
   const outDir = pathe.join(cwd, pathe.dirname(out));
   const outPath = pathe.join(cwd, out);
   const output = sheet.generate(usedTokens, outPath, config);
@@ -66,12 +64,6 @@ async function generate(out: string, tokens: string[], config: Config) {
   } catch (err) {
     console.log(err);
   }
-}
-
-async function getConfig(path: string, include: string[]) {
-  const ours = { ...defaultConfig, include: include || defaultConfig.include };
-  const theirs = fs.existsSync(path) ? await import(path).then((m) => m.default) : {};
-  return deepmerge(ours, theirs) as Config;
 }
 
 function watch(include: string[], exclude?: string[]) {
@@ -100,6 +92,5 @@ async function findUsedTokens(
     if (matchingProperties) return new Set([...acc, ...matchingProperties]);
     return acc;
   }, new Set<string>());
-
   return Array.from(matches);
 }
