@@ -1,10 +1,4 @@
-import type { V2_MetaFunction } from '@remix-run/node';
-
 export const links = () => [{ rel: 'stylesheet', href: '/tokenami.css' }];
-
-export const meta: V2_MetaFunction = () => {
-  return [{ title: 'New Remix App' }, { name: 'description', content: 'Welcome to Remix!' }];
-};
 
 export default function Index() {
   return (
@@ -40,7 +34,7 @@ export default function Index() {
             '--object-fit': 'cover',
             '--md_width': '11rem',
             '--md_height': 'auto',
-            '--md_border-radius': 0,
+            '--md_border-radius': 'none',
           }}
           src="/me.jpg"
           alt=""

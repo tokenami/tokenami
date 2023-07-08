@@ -1,10 +1,9 @@
 import type { Config, TokenamiProperty } from '@tokenami/config';
+import type { Alias } from '~/utils';
 import { PROPERTY_TO_TYPE, ALL_PROPERTIES, ALL_PSEUDO } from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
-
-type Theme = Config['theme'];
-type Alias = string & {};
+import { getTokens, findProperties } from '~/utils';
 
 /* -------------------------------------------------------------------------------------------------
  * generate
@@ -31,8 +30,8 @@ function generate(usedTokens: string[], output: string, config: Config) {
     const properties = findProperties(alias, config);
 
     for (const [prop, aliases] of properties) {
-      const sheetConfig = PROPERTY_TO_TYPE[prop];
-      const isSpace = sheetConfig.themeKey === 'space';
+      const propertyConfig = PROPERTY_TO_TYPE[prop];
+      const isSpace = propertyConfig.themeKey === 'space';
       const baseSelectorOrder = ALL_PROPERTIES.indexOf(prop);
 
       resetStyles['*'] = {
@@ -99,27 +98,14 @@ function selector(alias: Alias) {
   return `[style*="--${alias}:"]`;
 }
 
-function getTokens(themeProperty: Theme[keyof Theme], prefix: string) {
-  return Object.entries(themeProperty).reduce(
-    (acc, [name, value]) => ({ ...acc, [`--${prefix}-${name}`]: value }),
-    {} as Record<string, string>
-  );
-}
-
-// an alias can be used for multiple properties
-function findProperties(alias: Alias, config: Config) {
-  const result = Object.entries(config.aliases || {}).filter(([_, value]) => value.includes(alias));
-  return (result.length ? result : [[alias, [alias]]]) as [TokenamiProperty, Alias[]][];
-}
-
 function createBaseSelector(aliases: Alias[]) {
   const selectors = aliases.map((alias) => selector(alias));
   return selectors.join(', ');
 }
 
 function createResetTokens(property: TokenamiProperty, aliases: Alias[]): string {
-  const sheetConfig = PROPERTY_TO_TYPE[property];
-  const initial = 'initial' in sheetConfig ? sheetConfig.initial : '';
+  const propertyConfig = PROPERTY_TO_TYPE[property];
+  const initial = 'initial' in propertyConfig ? propertyConfig.initial : '';
   return aliases.reduceRight((fallback, alias) => `var(--${alias}, ${fallback}) `, initial);
 }
 

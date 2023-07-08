@@ -2,6 +2,7 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
+    "prepare": "tokenami",
     "build": "remix build",
     "dev": "concurrently \"pnpm:dev:*\"",
     "dev:app": "remix dev",
