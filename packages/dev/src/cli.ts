@@ -6,76 +6,84 @@ import glob from 'fast-glob';
 import cac from 'cac';
 import * as chokidar from 'chokidar';
 import * as sheet from '~/sheet';
+import * as intellisense from '~/intellisense';
 import * as log from './log';
 import pkgJson from '~/../package.json';
 
 const cli = cac('✨ tokenami');
 const cwd = process.cwd();
+const run = () => {
+  cli
+    .command('[files]', 'Include file glob')
+    .option('-c, --config [path]', 'Path to a custom config file')
+    .option('-o, --output [path]', 'Output file', { default: 'public/tokenami.css' })
+    .option('-w, --watch', 'Watch for changes and rebuild as needed')
+    .action(async (_, flags) => {
+      const startTime = startTimer();
+      const config = await getConfig(cwd, { path: flags.config, include: flags.files });
+      const availableTokens = getAvailableTokenamiTokens(config);
 
-cli
-  .command('[files]', 'Include file glob')
-  .option('-c, --config [path]', 'Path to a custom config file')
-  .option('-o, --output [path]', 'Output file', { default: 'public/tokenami.css' })
-  .option('-w, --watch', 'Watch for changes and rebuild as needed')
-  .action(async (_, flags) => {
-    const start = performance.now();
-    const config = await getConfig(cwd, { path: flags.config, include: flags.files });
-    const tokens = getAvailableTokenamiTokens(config);
+      if (!config.include.length) log.error('Provide a glob pattern to include files');
+      const usedTokens = await findUsedTokens(availableTokens, cwd, config.include, config.exclude);
 
-    if (!config.include.length) log.error('Provide a glob pattern to include files');
-    const usedTokens = await findUsedTokens(tokens, cwd, config.include, config.exclude);
+      if (flags.watch) {
+        const watcher = watch(config.include, config.exclude);
+        log.debug(`Watching for changes to ${config.include}.`);
 
-    if (flags.watch) {
-      const watcher = watch(config.include, config.exclude);
+        watcher.on('all', (_, file) => {
+          const generateTime = startTimer();
+          generateStyles(flags.output, usedTokens, config);
+          intellisense.generate(availableTokens, config);
+          log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
+        });
 
-      watcher.on('all', (_, file) => {
-        const start = performance.now();
-        generate(flags.output, usedTokens, config);
-        const stop = performance.now();
-        const time = Math.round(stop - start);
-        log.debug(`Generated styles from ${file} in ${time}ms.`);
-      });
+        process.once('SIGINT', async () => {
+          await watcher.close();
+        });
+      }
 
-      process.once('SIGINT', async () => {
-        await watcher.close();
-      });
-    }
+      generateStyles(flags.output, usedTokens, config);
+      intellisense.generate(availableTokens, config);
+      log.debug(`Ready in ${startTime()}ms.`);
+    });
 
-    generate(flags.output, usedTokens, config);
-    const stop = performance.now();
-    const time = Math.round(stop - start);
-    log.debug(`Ready in ${time}ms.`);
-  });
+  cli.help();
+  cli.version(pkgJson.version);
+  cli.parse();
+};
 
-cli.help();
-cli.version(pkgJson.version);
-cli.parse();
+try {
+  run();
+} catch (e) {
+  log.error(e instanceof Error ? e.message : 'Unknown error occurred.');
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 
-async function generate(out: string, usedTokens: string[], config: Config) {
+function startTimer() {
+  const start = performance.now();
+  return () => {
+    const stop = performance.now();
+    return Math.round(stop - start);
+  };
+}
+
+function generateStyles(out: string, usedTokens: string[], config: Config) {
   const outDir = pathe.join(cwd, pathe.dirname(out));
   const outPath = pathe.join(cwd, out);
   const output = sheet.generate(usedTokens, outPath, config);
-
-  try {
-    fs.mkdirSync(outDir, { recursive: true });
-    fs.writeFileSync(outPath, output, { flag: 'w' });
-  } catch (err) {
-    console.log(err);
-  }
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(outPath, output, { flag: 'w' });
 }
 
 function watch(include: string[], exclude?: string[]) {
-  log.debug(`Watching for changes to ${include}.`);
-  const watcher = chokidar.watch(include, {
+  return chokidar.watch(include, {
     cwd,
     persistent: true,
     ignoreInitial: true,
     ignorePermissionErrors: true,
     ignored: exclude,
   });
-  return watcher;
 }
 
 async function findUsedTokens(
