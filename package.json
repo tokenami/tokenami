@@ -6,7 +6,7 @@
   "scripts": {
     "prepare": "pnpm build-fast",
     "dev": "pnpm --filter=./examples/remix dev",
-    "build": "pnpm -r --parallel --filter=./packages/** build",
+    "build": "pnpm -r --filter=./packages/** build",
     "build-fast": "pnpm -r --parallel --filter=./packages/** build-fast"
   },
   "devDependencies": {

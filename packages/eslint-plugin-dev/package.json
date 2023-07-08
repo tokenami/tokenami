@@ -23,9 +23,9 @@
     "update-docs": "pnpm build && eslint-doc-generator"
   },
   "dependencies": {
+    "@tokenami/config": "workspace:*",
     "@typescript-eslint/parser": "^5.60.0",
-    "@typescript-eslint/utils": "^5.60.0",
-    "pathe": "^1.1.1"
+    "@typescript-eslint/utils": "^5.60.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.2",
