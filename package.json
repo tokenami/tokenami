@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "prepare": "pnpm build-fast",
+    "prepare": "pnpm build",
     "dev": "pnpm --filter=./examples/remix dev",
     "build": "pnpm -r --filter=./packages/** build",
     "build-fast": "pnpm -r --parallel --filter=./packages/** build-fast"
