@@ -67,11 +67,30 @@ importers:
         specifier: ^5.0.4
         version: 5.1.3
 
+  packages/config:
+    dependencies:
+      csstype:
+        specifier: ^3.1.2
+        version: 3.1.2
+      pathe:
+        specifier: ^1.1.1
+        version: 1.1.1
+    devDependencies:
+      tsup:
+        specifier: ^7.0.0
+        version: 7.0.0(typescript@5.1.3)
+      typescript:
+        specifier: ^5.1.3
+        version: 5.1.3
+
   packages/dev:
     dependencies:
       '@stitches/stringify':
         specifier: ^1.2.8
         version: 1.2.8
+      '@tokenami/config':
+        specifier: workspace:*
+        version: link:../config
       cac:
         specifier: ^6.7.14
         version: 6.7.14
@@ -84,9 +103,6 @@ importers:
       csstype:
         specifier: ^3.1.2
         version: 3.1.2
-      deepmerge:
-        specifier: ^4.3.1
-        version: 4.3.1
       fast-glob:
         specifier: ^3.2.12
         version: 3.2.12
@@ -112,6 +128,9 @@ importers:
 
   packages/eslint-plugin-dev:
     dependencies:
+      '@tokenami/config':
+        specifier: workspace:*
+        version: link:../config
       '@typescript-eslint/parser':
         specifier: ^5.60.0
         version: 5.60.0(eslint@8.43.0)(typescript@5.1.3)
@@ -121,9 +140,6 @@ importers:
       eslint:
         specifier: '>= 8'
         version: 8.43.0
-      pathe:
-        specifier: ^1.1.1
-        version: 1.1.1
     devDependencies:
       '@types/jest':
         specifier: ^29.5.2
@@ -3915,6 +3931,7 @@ packages:
   /deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
+    dev: true
 
   /default-browser-id@3.0.0:
     resolution: {integrity: sha512-OZ1y3y0SqSICtE8DE4S8YOE9UZOJ8wO16fKWVP5J1Qz42kV9jcnMVFrEE/noXb/ss3Q4pZIH79kxofzyNNtUNA==}

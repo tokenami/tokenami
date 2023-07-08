@@ -1,0 +1,20 @@
+{
+  "name": "@tokenami/config",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup src/index.ts --format=esm,cjs --dts",
+    "build-fast": "pnpm build"
+  },
+  "dependencies": {
+    "csstype": "^3.1.2",
+    "pathe": "^1.1.1"
+  },
+  "devDependencies": {
+    "tsup": "^7.0.0",
+    "typescript": "^5.1.3"
+  }
+}

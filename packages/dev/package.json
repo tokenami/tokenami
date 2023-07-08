@@ -2,9 +2,9 @@
   "name": "@tokenami/dev",
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "bin": {
     "tokenami": "bin.js"
   },
@@ -29,11 +29,11 @@
   },
   "dependencies": {
     "@stitches/stringify": "^1.2.8",
+    "@tokenami/config": "workspace:*",
     "cac": "^6.7.14",
     "chalk": "^5.2.0",
     "chokidar": "^3.5.3",
     "csstype": "^3.1.2",
-    "deepmerge": "^4.3.1",
     "fast-glob": "^3.2.12",
     "lightningcss": "^1.21.0",
     "pathe": "^1.1.1"
