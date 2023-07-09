@@ -1,8 +1,8 @@
 import type { Config, TokenamiProperty } from '@tokenami/config';
 import type { Alias } from '~/utils';
-import { PROPERTY_TO_TYPE, ALL_PROPERTIES, ALL_PSEUDO } from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
+import { SHEET_CONFIG } from '@tokenami/config';
 import { getTokens, findProperties } from '~/utils';
 
 /* -------------------------------------------------------------------------------------------------
@@ -30,9 +30,9 @@ function generate(usedTokens: string[], output: string, config: Config) {
     const properties = findProperties(alias, config);
 
     for (const [prop, aliases] of properties) {
-      const propertyConfig = PROPERTY_TO_TYPE[prop];
-      const isSpace = propertyConfig.themeKey === 'space';
-      const baseSelectorOrder = ALL_PROPERTIES.indexOf(prop);
+      const { themeKey } = SHEET_CONFIG.themeConfig[prop] || {};
+      const baseSelectorOrder = SHEET_CONFIG.properties.indexOf(prop);
+      const isSpace = themeKey === 'space';
 
       resetStyles['*'] = {
         ...resetStyles['*'],
@@ -58,10 +58,12 @@ function generate(usedTokens: string[], output: string, config: Config) {
         const pseudo = maybePseudo || bpOrPseudo;
         const variantSelector = selector(usedTokenName);
         const pseudoSelector = variantSelector + ':' + pseudo;
-        const breakpoint = config.theme.breakpoints[bpOrPseudo];
-        const key = breakpoint ? `@media ${breakpoint}` : 'pseudo';
-        const keySelector = ALL_PSEUDO.includes(pseudo) ? pseudoSelector : variantSelector;
+        const breakpoint = config.theme.breakpoints?.[bpOrPseudo];
         const value = `var(${usedToken}, var(--_tk-i_${prop}))`;
+        const key = breakpoint ? `@media ${breakpoint}` : 'pseudo';
+        const keySelector = (SHEET_CONFIG.pseudoClasses as any).includes(':' + pseudo)
+          ? pseudoSelector
+          : variantSelector;
 
         variantStyles[key] = variantStyles[key] || {};
         variantStyles[key][keySelector] = {
@@ -104,8 +106,7 @@ function createBaseSelector(aliases: Alias[]) {
 }
 
 function createResetTokens(property: TokenamiProperty, aliases: Alias[]): string {
-  const propertyConfig = PROPERTY_TO_TYPE[property];
-  const initial = 'initial' in propertyConfig ? propertyConfig.initial : '';
+  const { initial = '' } = SHEET_CONFIG.themeConfig[property] || {};
   return aliases.reduceRight((fallback, alias) => `var(--${alias}, ${fallback}) `, initial);
 }
 
