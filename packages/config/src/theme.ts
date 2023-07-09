@@ -1,6 +1,21 @@
-export type Theme = {
-  space: string;
-  breakpoints: Record<string, string>;
-  colors: Record<string, string>;
-  radii: Record<string, string>;
-};
+export type Theme = Partial<
+  { space: string } & Record<
+    | 'breakpoints'
+    | 'borders'
+    | 'borderStyles'
+    | 'borderWidths'
+    | 'colors'
+    | 'fonts'
+    | 'fontSizes'
+    | 'fontWeights'
+    | 'letterSpacings'
+    | 'lineHeights'
+    | 'opacities'
+    | 'radii'
+    | 'shadows'
+    | 'sizes'
+    | 'transitions'
+    | 'zIndices',
+    Record<string, string>
+  >
+>;
