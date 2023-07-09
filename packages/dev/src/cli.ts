@@ -1,5 +1,5 @@
 import type { Config } from '@tokenami/config';
-import { getConfig, getAvailableTokenamiTokens } from '@tokenami/config';
+import { getConfig } from '@tokenami/config';
 import * as fs from 'fs';
 import * as pathe from 'pathe';
 import glob from 'fast-glob';
@@ -21,10 +21,9 @@ const run = () => {
     .action(async (_, flags) => {
       const startTime = startTimer();
       const config = await getConfig(cwd, { path: flags.config, include: flags.files });
-      const availableTokens = getAvailableTokenamiTokens(config);
 
       if (!config.include.length) log.error('Provide a glob pattern to include files');
-      const usedTokens = await findUsedTokens(availableTokens, cwd, config.include, config.exclude);
+      const usedTokens = await findUsedTokenProperties(cwd, config.include, config.exclude);
 
       if (flags.watch) {
         const watcher = watch(config.include, config.exclude);
@@ -33,7 +32,6 @@ const run = () => {
         watcher.on('all', (_, file) => {
           const generateTime = startTimer();
           generateStyles(flags.output, usedTokens, config);
-          intellisense.generate(availableTokens, config);
           log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
         });
 
@@ -43,7 +41,8 @@ const run = () => {
       }
 
       generateStyles(flags.output, usedTokens, config);
-      intellisense.generate(availableTokens, config);
+      // TODO: regenerate intellisense on tokenami.config.js changes
+      intellisense.generate(config);
       log.debug(`Ready in ${startTime()}ms.`);
     });
 
@@ -86,17 +85,12 @@ function watch(include: string[], exclude?: string[]) {
   });
 }
 
-async function findUsedTokens(
-  properties: string[],
-  dir: string,
-  include: string[],
-  ignore?: string[]
-) {
+async function findUsedTokenProperties(dir: string, include: string[], ignore?: string[]) {
   const entries = await glob(include, { cwd: dir, onlyFiles: true, stats: false, ignore });
-  const regex = new RegExp(properties.join('\\b|'), 'g');
   const matches = entries.reduce((acc, entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
-    const matchingProperties = fileContent.match(regex);
+    const matches = fileContent.matchAll(/(?<token>--[a-z-_]+)("|')?\:/g);
+    const matchingProperties = [...matches].map((match) => match.groups!.token!);
     if (matchingProperties) return new Set([...acc, ...matchingProperties]);
     return acc;
   }, new Set<string>());

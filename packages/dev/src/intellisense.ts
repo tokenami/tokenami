@@ -1,6 +1,6 @@
 import type { Config } from '@tokenami/config';
 import type { Alias } from '~/utils';
-import { PROPERTY_TO_TYPE } from '@tokenami/config';
+import { SHEET_CONFIG } from '@tokenami/config';
 import * as fs from 'fs';
 import * as url from 'url';
 import * as pathe from 'pathe';
@@ -19,10 +19,11 @@ declare module 'csstype' {
 }
 `;
 
-function generate(availableTokens: string[], config: Config, path = './dev.d.ts') {
+function generate(config: Config, path = './dev.d.ts') {
+  const availableTokens = getAvailableTokenamiProperties(config);
   const outputProperties = {} as Record<string, string | number>;
-  const outputColors = createUnion(config.theme.colors);
-  const outputRadii = createUnion(config.theme.radii);
+  const outputColors = createUnion(config.theme.colors || {});
+  const outputRadii = createUnion(config.theme.radii || {});
   let output = template;
 
   for (const token of availableTokens) {
@@ -31,11 +32,12 @@ function generate(availableTokens: string[], config: Config, path = './dev.d.ts'
     const properties = findProperties(alias, config);
 
     for (const [prop] of properties) {
-      if (PROPERTY_TO_TYPE[prop].themeKey === 'colors') {
+      const { themeKey } = SHEET_CONFIG.themeConfig[prop] || {};
+      if (themeKey === 'colors') {
         outputProperties[token] = '`var(--color-${Color})`';
-      } else if (PROPERTY_TO_TYPE[prop].themeKey === 'radii') {
+      } else if (themeKey === 'radii') {
         outputProperties[token] = "`var(--radii-${Radii})` | 'none'";
-      } else if (PROPERTY_TO_TYPE[prop].themeKey === 'space') {
+      } else if (themeKey === 'space') {
         outputProperties[token] = 'number';
       } else {
         outputProperties[token] = `CSS.PropertiesHyphen['${prop}']`;
@@ -60,10 +62,28 @@ function generate(availableTokens: string[], config: Config, path = './dev.d.ts'
 
 /* ---------------------------------------------------------------------------------------------- */
 
+function getAvailableTokenamiProperties(config: Config) {
+  const { properties, pseudoClasses } = SHEET_CONFIG;
+  const configBreakpoints = Object.keys(config.theme.breakpoints || {});
+  const allAliases = Object.values(config.aliases || {}).flat();
+  const allProperties = [...properties, ...allAliases] as string[];
+  let tokens = [];
+
+  for (const prop of allProperties) {
+    tokens.push(`--${prop}`);
+    for (const pseudo of pseudoClasses) {
+      tokens.push(`--${pseudo.replace(':', '')}_${prop}`);
+    }
+    for (const breakpoint of configBreakpoints) {
+      tokens.push(`--${breakpoint}_${prop}`);
+    }
+  }
+  return tokens;
+}
+
 function createUnion(values: Record<string, string>) {
-  return Object.keys(values)
-    .map((value) => `'${value}'`)
-    .join(' | ');
+  const valueStrings = Object.keys(values).map((value) => `'${value}'`);
+  return valueStrings.join(' | ');
 }
 
 export { generate };
