@@ -38,6 +38,7 @@ On the flip side, their atomic classes come with the following inconveniences:
 - Developers must learn Tailwind's custom class names which spawns things like the [Tailwind Cheatsheet](https://tailwindcomponents.com/cheatsheet/)
 - Styling inline all the time can sometimes be unpleasant to maintain, resulting in third-party packages like [cva](https://cva.style/docs)
 - Classes must exist as complete strings so `className={'bg-slate-' + isDark ? 200 : 100}` will not work
+- Debugging in dev tools is trickier because styles are spread across many separate atomic classes
 
 ### How tokenami helps
 
@@ -59,6 +60,7 @@ With a strong focus on simplicity for ease of use, it gives consumers:
 - Built-in style deduping thanks to object merging and token-based atomic CSS e.g passing color through style prop will overwrite internal declaration: `style={{ '--color': 'red', ...props.style }}`
 - Styles can be dynamic so `style={{ '--margin-top': size === 'lg' ? '22px' : '17px' }}` works
 - Styles can be shorthand with custom aliases if preferred e.g. `style={{ '--c': 'red' }}` for color
+- Debugging in dev tools is simpler because style attribute styles are grouped
 - Smaller stylesheet thanks to token-based atomic CSS
 
 ![CleanShot 2023-06-19 at 15 31 01](https://github.com/jjenzz/tokenami/assets/175330/59286ddf-19e3-41a8-aeb7-7726c48a6775)
