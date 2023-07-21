@@ -87,12 +87,11 @@ function watch(include: string[], exclude?: string[]) {
 
 async function findUsedTokenProperties(dir: string, include: string[], ignore?: string[]) {
   const entries = await glob(include, { cwd: dir, onlyFiles: true, stats: false, ignore });
-  const matches = entries.reduce((acc, entry) => {
+  const matches = entries.flatMap((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
     const matches = fileContent.matchAll(/(?<token>--[a-z-_]+)("|')?\:/g);
-    const matchingProperties = [...matches].map((match) => match.groups!.token!);
-    if (matchingProperties) return new Set([...acc, ...matchingProperties]);
-    return acc;
-  }, new Set<string>());
-  return Array.from(matches);
+    return Array.from(matches).map((match) => match.groups!.token!);
+  });
+  const uniqueMatches = new Set(matches);
+  return Array.from(uniqueMatches);
 }

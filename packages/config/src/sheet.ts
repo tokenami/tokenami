@@ -3,7 +3,7 @@ import type { Theme } from '~/theme';
 
 type PropertyConfig = { themeKey: keyof Theme | 'unknown'; initial?: string };
 
-const themeConfig: Partial<Record<keyof CSS.PropertiesHyphen, PropertyConfig>> = {
+const themeConfig = {
   '-webkit-line-clamp': { themeKey: 'unknown', initial: '' },
   'accent-color': { themeKey: 'unknown', initial: '' },
   'align-content': { themeKey: 'unknown', initial: '' },
@@ -418,7 +418,7 @@ const themeConfig: Partial<Record<keyof CSS.PropertiesHyphen, PropertyConfig>> =
   'writing-mode': { themeKey: 'unknown', initial: '' },
   'z-index': { themeKey: 'zIndices', initial: '' },
   zoom: { themeKey: 'unknown', initial: '' },
-};
+} satisfies Partial<Record<keyof CSS.PropertiesHyphen, PropertyConfig>>;
 
 const pseudoClasses: CSS.SimplePseudos[] = [
   ':active',

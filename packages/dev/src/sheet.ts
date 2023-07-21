@@ -2,8 +2,8 @@ import type { Config, TokenamiProperty } from '@tokenami/config';
 import type { Alias } from '~/utils';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
-import { SHEET_CONFIG } from '@tokenami/config';
-import { getTokens, findProperties } from '~/utils';
+import { SHEET_CONFIG, THEME_CONFIG } from '@tokenami/config';
+import { getRootTokens, findProperties } from '~/utils';
 
 /* -------------------------------------------------------------------------------------------------
  * generate
@@ -16,11 +16,14 @@ function generate(usedTokens: string[], output: string, config: Config) {
 
   if (!usedTokens.length) return '';
 
+  const rootTokens = Object.entries(THEME_CONFIG).map(([key, { prefix }]) => {
+    return getRootTokens(config.theme[key as keyof typeof THEME_CONFIG], prefix);
+  });
+
   const root = {
     ':root': {
       '--space': config.theme.space,
-      ...getTokens(config.theme.colors, 'color'),
-      ...getTokens(config.theme.radii, 'radii'),
+      ...Object.assign({}, ...rootTokens),
     },
   };
 
@@ -82,7 +85,7 @@ function generate(usedTokens: string[], output: string, config: Config) {
     ...root,
     ...resetStyles,
     ...baseStyles.reduce((acc, { aliases, styles }) => {
-      const selector = createBaseSelector([...aliases]);
+      const selector = createBaseSelector(Array.from(aliases));
       return { ...acc, [selector]: { ...(acc as any)[selector], ...styles } };
     }, {}),
     ...pseudo,
