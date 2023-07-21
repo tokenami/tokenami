@@ -50,8 +50,7 @@ function generate(usedTokens: string[], output: string, config: Config) {
       baseStyles[baseSelectorOrder] = baseStyles[baseSelectorOrder] || {
         aliases: new Set(),
         styles: {
-          [`--_tk-${prop}`]: `var(--_tk-i_${prop})`,
-          [prop]: isSpace ? `calc(var(--space) * var(--_tk-${prop}))` : `var(--_tk-${prop})`,
+          [prop]: isSpace ? `calc(var(--space) * var(--_tk-i_${prop}))` : `var(--_tk-i_${prop})`,
         },
       };
       baseStyles[baseSelectorOrder]?.aliases.add(alias);
