@@ -4,7 +4,7 @@ export default function Index() {
   return (
     <div
       style={{
-        '--font-family': 'system-ui, sans-serif',
+        '--font-family': 'var(--font-sans)',
         '--line-height': '1.8',
         '--min-width': '300px',
         '--display': 'flex',
