@@ -4,11 +4,12 @@ import type { Theme, TokenamiProperty, Config } from '@tokenami/config';
  * getTokens
  * -----------------------------------------------------------------------------------------------*/
 
-function getTokens(themeProperty: Theme[keyof Theme], prefix: string) {
-  return Object.entries(themeProperty).reduce(
-    (acc, [name, value]) => ({ ...acc, [`--${prefix}-${name}`]: value }),
-    {} as Record<string, string>
-  );
+type ThemeValues = Exclude<Theme[keyof Theme], string>;
+
+function getRootTokens(values: ThemeValues, prefix: string): Record<string, string> {
+  if (!values) return {};
+  const entries = Object.entries(values).map(([name, value]) => [`--${prefix}-${name}`, value]);
+  return Object.fromEntries(entries);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -26,4 +27,4 @@ function findProperties(alias: Alias, config: Config) {
 /* ---------------------------------------------------------------------------------------------- */
 
 export type { Alias };
-export { getTokens, findProperties };
+export { getRootTokens, findProperties };

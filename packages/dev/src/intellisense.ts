@@ -1,30 +1,19 @@
 import type { Config } from '@tokenami/config';
 import type { Alias } from '~/utils';
-import { SHEET_CONFIG } from '@tokenami/config';
+import { SHEET_CONFIG, THEME_CONFIG } from '@tokenami/config';
 import * as fs from 'fs';
 import * as url from 'url';
 import * as pathe from 'pathe';
 import { findProperties } from '~/utils';
 
-const template = `
-import * as CSS from 'csstype';
-
-type Color = {{COLORS}};
-type Radii = {{RADII}};
-
-declare module 'csstype' {
-  interface Properties {
-    {{PROPERTIES}}
-  }
-}
-`;
-
 function generate(config: Config, path = './dev.d.ts') {
+  const outDir = pathe.dirname(url.fileURLToPath(import.meta.url));
   const availableTokens = getAvailableTokenamiProperties(config);
-  const outputProperties = {} as Record<string, string | number>;
-  const outputColors = createUnion(config.theme.colors || {});
-  const outputRadii = createUnion(config.theme.radii || {});
-  let output = template;
+  const outputProperties = new Set<string>();
+  const outFile = pathe.join(outDir, path);
+  let output = fs.readFileSync(outFile, 'utf8');
+
+  output = output.replace('interface Theme {}', `interface Theme ${JSON.stringify(config.theme)}`);
 
   for (const token of availableTokens) {
     const tokenName = token.replace(/^--/, '');
@@ -32,32 +21,24 @@ function generate(config: Config, path = './dev.d.ts') {
     const properties = findProperties(alias, config);
 
     for (const [prop] of properties) {
-      const { themeKey } = SHEET_CONFIG.themeConfig[prop] || {};
-      if (themeKey === 'colors') {
-        outputProperties[token] = '`var(--color-${Color})`';
-      } else if (themeKey === 'radii') {
-        outputProperties[token] = "`var(--radii-${Radii})` | 'none'";
-      } else if (themeKey === 'space') {
-        outputProperties[token] = 'number';
+      const themeKey = SHEET_CONFIG.themeConfig[prop]?.themeKey;
+      const prefix = themeKey ? (THEME_CONFIG as any)[themeKey]?.prefix : undefined;
+      const values = themeKey ? Boolean((config.theme as any)[themeKey]) : undefined;
+      if (themeKey === 'space') {
+        outputProperties.add(`'--${prop}'?: number;`);
+      } else if (prefix && values) {
+        outputProperties.add(`'--${prop}'?: ThemeValue<'${prop}'>;`);
       } else {
-        outputProperties[token] = `CSS.PropertiesHyphen['${prop}']`;
+        outputProperties.add(`'--${prop}'?: GenericValue<'${prop}'>;`);
       }
     }
   }
 
-  output = output.replace('{{COLORS}}', outputColors);
-  output = output.replace('{{RADII}}', outputRadii);
   output = output.replace(
-    '{{PROPERTIES}}',
-    Object.entries(outputProperties).reduce(
-      (acc, [key, value]) => `${acc}\n'${key}'?: ${value};`,
-      '[index: `--${string}`]: string | number;'
-    )
+    /\/\/ TOKENAMI_TOKENS_START(.*)\/\/ TOKENAMI_TOKENS_END/s,
+    `// TOKENAMI_TOKENS_START\n${Array.from(outputProperties).join('\n')}\n// TOKENAMI_TOKENS_END`
   );
-
-  const outDir = pathe.dirname(url.fileURLToPath(import.meta.url));
-  const filePath = pathe.join(outDir, path);
-  fs.writeFileSync(filePath, output, { flag: 'w' });
+  fs.writeFileSync(outFile, output, { flag: 'w' });
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -79,11 +60,6 @@ function getAvailableTokenamiProperties(config: Config) {
     }
   }
   return tokens;
-}
-
-function createUnion(values: Record<string, string>) {
-  const valueStrings = Object.keys(values).map((value) => `'${value}'`);
-  return valueStrings.join(' | ');
 }
 
 export { generate };

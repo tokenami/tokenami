@@ -17,5 +17,9 @@ module.exports = {
       rounded: '10px',
       circle: '9999px',
     },
+    fonts: {
+      serif: 'serif',
+      sans: 'sans-serif',
+    },
   },
 };
