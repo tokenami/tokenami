@@ -1,8 +1,11 @@
-![image](https://github.com/jjenzz/tokenami/assets/175330/a4c61842-b0bb-421d-b4cb-4bc7f6894aa9)
+![image](https://github.com/jjenzz/pretty-cache-header/assets/175330/860e7ff1-e5c0-48c6-a361-4b828998fdb9)
 
-# tokenami
-
-Like Tailwind, but atomic tokens.
+<div align="center">
+  <h3 align="center">tokenami</h3>
+  <p align="center">
+    Like Tailwind, but atomic tokens.
+  </p>
+</div>
 
 ## Description
 
