@@ -6,11 +6,11 @@ export default function Index() {
       style={{
         '--font-family': 'var(--font-sans)',
         '--line-height': '1.8',
-        '--min-width': '300px',
+        '--min-width': 75,
         '--display': 'flex',
         '--align-items': 'center',
         '--justify-content': 'center',
-        '--height': '100vh',
+        '--height': 'var(--size-screen-h)',
       }}
     >
       <figure
@@ -28,13 +28,13 @@ export default function Index() {
       >
         <img
           style={{
-            '--width': '96px',
-            '--height': '96px',
+            '--width': 24,
+            '--height': 24,
             '--border-radius': 'var(--radii-circle)',
             '--object-fit': 'cover',
-            '--md_width': '11rem',
-            '--md_height': 'auto',
-            '--md_border-radius': 'none',
+            '--md_width': 'var(---,11rem)',
+            '--md_height': 'var(--size-auto)',
+            '--md_border-radius': 'var(--radii-none)',
           }}
           src="/me.jpg"
           alt=""

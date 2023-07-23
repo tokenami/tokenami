@@ -10,7 +10,8 @@ type Prefix<P> = ThemeKey<P> extends keyof TokensConfig
   ? TokensConfig[ThemeKey<P>]['prefix']
   : never;
 
-type GenericValue<P extends keyof CSS.PropertiesHyphen> = CSS.PropertiesHyphen[P];
+type ArbitraryValue = `var(---,${string})`;
+type GenericValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.PropertiesHyphen[P] : never;
 type ThemeValue<P> = Prefix<P> extends string
   ? Values<P> extends string
     ? `var(--${Prefix<P>}-${Values<P>})`
