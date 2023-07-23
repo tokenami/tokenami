@@ -1,7 +1,15 @@
 import type { Theme } from '~/theme';
 import type { TokenamiProperty } from '~/sheet';
+import { createRequire } from 'module';
 import * as fs from 'fs';
 import * as pathe from 'pathe';
+
+const require = createRequire(import.meta.url);
+
+function reloadModule(moduleName: string) {
+  delete require.cache[require.resolve(moduleName)];
+  return require(moduleName);
+}
 
 interface Config {
   include: string[];
@@ -35,6 +43,14 @@ const DEFAULT_CONFIG = {
 } satisfies Config;
 
 /* -------------------------------------------------------------------------------------------------
+ * getConfigPath
+ * -----------------------------------------------------------------------------------------------*/
+
+function getConfigPath(cwd: string, path = DEFAULT_PATH) {
+  return pathe.join(cwd, path);
+}
+
+/* -------------------------------------------------------------------------------------------------
  * getConfig
  * -----------------------------------------------------------------------------------------------*/
 
@@ -44,9 +60,8 @@ interface GetConfigOptions {
 }
 
 async function getConfig(cwd: string, opts: GetConfigOptions = {}): Promise<Config> {
-  const { path = DEFAULT_PATH } = opts;
-  const configPath = pathe.join(cwd, path);
-  const theirs = fs.existsSync(configPath) ? await import(configPath).then((m) => m.default) : {};
+  const configPath = getConfigPath(cwd, opts.path);
+  const theirs = fs.existsSync(configPath) ? await reloadModule(configPath) : {};
   return {
     ...DEFAULT_CONFIG,
     ...theirs,
@@ -58,4 +73,4 @@ async function getConfig(cwd: string, opts: GetConfigOptions = {}): Promise<Conf
 /* ---------------------------------------------------------------------------------------------- */
 
 export type { Config };
-export { DEFAULT_PATH, getConfig };
+export { DEFAULT_PATH, getConfigPath, getConfig };

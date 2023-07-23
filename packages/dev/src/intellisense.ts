@@ -30,7 +30,7 @@ function generate(config: Config, path = './dev.d.ts') {
         value = `ArbitraryValue | number`;
       } else if (themeKey === 'sizes') {
         value = `ArbitraryValue | ThemeValue<'${prop}'> | number`;
-      } else if (themeKey || !prefix || !values) {
+      } else if (themeKey && prefix && values) {
         value = `ArbitraryValue | ThemeValue<'${prop}'>`;
       } else {
         value = `ArbitraryValue`;
