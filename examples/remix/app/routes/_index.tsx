@@ -77,6 +77,7 @@ export default function Index() {
           '--border': 'var(--_) none',
           '--font-family': 'var(---font-sans)',
           '--font-size': 'var(--_) 20px',
+          '--bg-color': 'var(---color-slate-100)',
           '--hover_background-color': 'var(---color-slate-700)',
           '--hover_color': 'var(--_) white',
           '--transition': 'var(--_) all 150ms',
