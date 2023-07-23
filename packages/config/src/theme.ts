@@ -20,6 +20,6 @@ type ThemeValues = Record<string, string> | undefined;
 
 export interface Theme
   extends Partial<
-    { space: string } & Record<'breakpoints', ThemeValues> &
+    { grid: string } & Record<'breakpoints', ThemeValues> &
       Record<keyof typeof THEME_CONFIG, ThemeValues>
   > {}
