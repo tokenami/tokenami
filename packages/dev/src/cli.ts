@@ -1,5 +1,5 @@
 import type { Config } from '@tokenami/config';
-import { getConfig } from '@tokenami/config';
+import { getConfigPath, getConfig } from '@tokenami/config';
 import * as fs from 'fs';
 import * as pathe from 'pathe';
 import glob from 'fast-glob';
@@ -10,11 +10,13 @@ import * as intellisense from '~/intellisense';
 import * as log from './log';
 import pkgJson from '~/../package.json';
 
-const cli = cac('✨ tokenami');
-const cwd = process.cwd();
 const run = () => {
+  const cli = cac('✨ tokenami');
+  const cwd = process.cwd();
+
   cli
     .command('[files]', 'Include file glob')
+    .option('-c, --config [path]', 'Path to a custom config file')
     .option('-c, --config [path]', 'Path to a custom config file')
     .option('-o, --output [path]', 'Output file', { default: 'public/tokenami.css' })
     .option('-w, --watch', 'Watch for changes and rebuild as needed')
@@ -23,26 +25,35 @@ const run = () => {
       const config = await getConfig(cwd, { path: flags.config, include: flags.files });
 
       if (!config.include.length) log.error('Provide a glob pattern to include files');
-      const usedTokens = await findUsedTokenProperties(cwd, config.include, config.exclude);
+
+      async function regenerateStylesheet(file: string, config: Config) {
+        const generateTime = startTimer();
+        const usedTokens = await findUsedTokenProperties(cwd, config.include, config.exclude);
+        generateStyles(cwd, flags.output, usedTokens, config);
+        log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
+      }
 
       if (flags.watch) {
-        const watcher = watch(config.include, config.exclude);
+        const configWatcher = watch(cwd, [getConfigPath(cwd, flags.config)]);
+        const tokenWatcher = watch(cwd, config.include, config.exclude);
         log.debug(`Watching for changes to ${config.include}.`);
 
-        watcher.on('all', async (_, file) => {
-          const generateTime = startTimer();
-          const usedTokens = await findUsedTokenProperties(cwd, config.include, config.exclude);
-          generateStyles(flags.output, usedTokens, config);
-          log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
+        tokenWatcher.on('all', (_, file) => regenerateStylesheet(file, config));
+
+        configWatcher.on('all', async (_, file) => {
+          const updatedConfig = await getConfig(cwd, { path: file, include: flags.files });
+          regenerateStylesheet(file, updatedConfig);
+          intellisense.generate(updatedConfig);
         });
 
         process.once('SIGINT', async () => {
-          await watcher.close();
+          await tokenWatcher.close();
+          await configWatcher.close();
         });
       }
 
-      generateStyles(flags.output, usedTokens, config);
-      // TODO: regenerate intellisense on tokenami.config.js changes
+      const usedTokens = await findUsedTokenProperties(cwd, config.include, config.exclude);
+      generateStyles(cwd, flags.output, usedTokens, config);
       intellisense.generate(config);
       log.debug(`Ready in ${startTime()}ms.`);
     });
@@ -68,7 +79,7 @@ function startTimer() {
   };
 }
 
-function generateStyles(out: string, usedTokens: string[], config: Config) {
+function generateStyles(cwd: string, out: string, usedTokens: string[], config: Config) {
   const outDir = pathe.join(cwd, pathe.dirname(out));
   const outPath = pathe.join(cwd, out);
   const output = sheet.generate(usedTokens, outPath, config);
@@ -76,7 +87,7 @@ function generateStyles(out: string, usedTokens: string[], config: Config) {
   fs.writeFileSync(outPath, output, { flag: 'w' });
 }
 
-function watch(include: string[], exclude?: string[]) {
+function watch(cwd: string, include: string[], exclude?: string[]) {
   return chokidar.watch(include, {
     cwd,
     persistent: true,
