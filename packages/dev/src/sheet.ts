@@ -28,7 +28,8 @@ function generate(usedTokens: string[], output: string, config: Config) {
 
   const root = {
     ':root': {
-      '--grid': config.theme.grid,
+      '--_': '/**/',
+      '---grid': config.theme.grid,
       ...Object.assign({}, ...rootTokens),
     },
   };
@@ -53,14 +54,14 @@ function generate(usedTokens: string[], output: string, config: Config) {
       atomicStyles[specificityOrder] = {
         ...atomicStyles[specificityOrder],
         [`/*${prop}*/${selector(alias)}`]: {
-          [prop]: isNumericProp ? `calc(var(--grid) * ${value})` : value,
+          [prop]: isNumericProp ? `calc(var(---grid) * ${value})` : value,
         },
       };
 
       if (isNumericProp) {
         atomicVarStyles[specificityOrder] = {
           ...atomicVarStyles[specificityOrder],
-          [`/*${prop}*/${varSelector(alias)}`]: { [prop]: value },
+          [`/*${prop}*/${arbitraryNumericSelector(alias)}`]: { [prop]: value },
         };
       }
 
@@ -70,7 +71,7 @@ function generate(usedTokens: string[], output: string, config: Config) {
         // we fallback to initital in case the variant is deselected in dev tools.
         // it will fall back to any non-variant values applied to the same element
         const value = `var(${usedToken}, var(--_tk-i_${prop}))`;
-        const gridValue = isNumericProp ? `calc(var(--grid) * ${value})` : value;
+        const gridValue = isNumericProp ? `calc(var(---grid) * ${value})` : value;
 
         if (breakpoint) {
           const breakpointKey = `@media ${breakpoint}`;
@@ -84,7 +85,7 @@ function generate(usedTokens: string[], output: string, config: Config) {
             breakpointVarStyles[breakpointKey] = breakpointVarStyles[breakpointKey] || [];
             breakpointVarStyles[breakpointKey]![specificityOrder] = {
               ...breakpointVarStyles[breakpointKey]![specificityOrder],
-              [`/*${prop}*/${varSelector(usedTokenName)}`]: { [prop]: value },
+              [`/*${prop}*/${arbitraryNumericSelector(usedTokenName)}`]: { [prop]: value },
             };
           }
         } else {
@@ -97,7 +98,7 @@ function generate(usedTokens: string[], output: string, config: Config) {
           if (isNumericProp) {
             pseudoVarStyles[specificityOrder] = {
               ...pseudoVarStyles[specificityOrder],
-              [`/*${prop}*/${varSelector(usedTokenName, pseudo)}`]: { [prop]: value },
+              [`/*${prop}*/${arbitraryNumericSelector(usedTokenName, pseudo)}`]: { [prop]: value },
             };
           }
         }
@@ -138,7 +139,7 @@ function selector(alias: Alias, pseudo?: string) {
   return `[style*="--${alias}:"]${pseudoSelector}`;
 }
 
-function varSelector(alias: Alias, pseudo?: string) {
+function arbitraryNumericSelector(alias: Alias, pseudo?: string) {
   const pseudoSelector = pseudo ? `:${pseudo}` : '';
   return `[style*="--${alias}:var"]${pseudoSelector}, [style*="--${alias}: var"]${pseudoSelector}`;
 }

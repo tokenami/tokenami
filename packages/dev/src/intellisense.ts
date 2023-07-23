@@ -25,16 +25,17 @@ function generate(config: Config, path = './dev.d.ts') {
       const prefix = themeKey ? (THEME_CONFIG as any)[themeKey]?.prefix : undefined;
       const values = themeKey ? Boolean((config.theme as any)[themeKey]) : undefined;
       let value: string;
+
       if (themeKey === 'grid') {
-        value = `'--${tokenName}'?: number | ArbitraryValue;`;
+        value = `ArbitraryValue | number`;
       } else if (themeKey === 'sizes') {
-        value = `'--${tokenName}'?: ThemeValue<'${prop}'> | number | ArbitraryValue;`;
-      } else if (prefix && values) {
-        value = `'--${tokenName}'?: ThemeValue<'${prop}'> | ArbitraryValue;`;
+        value = `ArbitraryValue | ThemeValue<'${prop}'> | number`;
+      } else if (themeKey || !prefix || !values) {
+        value = `ArbitraryValue | ThemeValue<'${prop}'>`;
       } else {
-        value = `'--${tokenName}'?: GenericValue<'${prop}'>;`;
+        value = `ArbitraryValue`;
       }
-      outputProperties.add(value);
+      outputProperties.add(`'--${tokenName}'?: ${value};`);
     }
   }
 

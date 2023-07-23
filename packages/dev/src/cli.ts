@@ -29,8 +29,9 @@ const run = () => {
         const watcher = watch(config.include, config.exclude);
         log.debug(`Watching for changes to ${config.include}.`);
 
-        watcher.on('all', (_, file) => {
+        watcher.on('all', async (_, file) => {
           const generateTime = startTimer();
+          const usedTokens = await findUsedTokenProperties(cwd, config.include, config.exclude);
           generateStyles(flags.output, usedTokens, config);
           log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
         });
