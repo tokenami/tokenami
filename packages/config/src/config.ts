@@ -27,7 +27,7 @@ const DEFAULT_CONFIG = {
     'padding-bottom': ['padding-bottom', 'pb', 'py', 'p'],
   },
   theme: {
-    space: '1px',
+    grid: '1px',
     breakpoints: {},
     colors: {},
     radii: {},

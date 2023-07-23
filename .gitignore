@@ -3,3 +3,4 @@ node_modules
 public/styles
 **/dist
 **/bin
+.env

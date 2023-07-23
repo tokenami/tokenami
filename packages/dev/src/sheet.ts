@@ -1,5 +1,6 @@
 import type { Config, TokenamiProperty } from '@tokenami/config';
 import type { Alias } from '~/utils';
+import deepmerge from 'deepmerge';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
 import { SHEET_CONFIG, THEME_CONFIG } from '@tokenami/config';
@@ -10,9 +11,14 @@ import { getRootTokens, findProperties } from '~/utils';
  * -----------------------------------------------------------------------------------------------*/
 
 function generate(usedTokens: string[], output: string, config: Config) {
-  const variantStyles: Record<'pseudo' | string, any> = {};
   const resetStyles: Record<string, any> = {};
-  const baseStyles: { aliases: Set<Alias>; styles: Record<string, any> }[] = [];
+  const initialStyles: Record<string, any> = {};
+  const atomicStyles: Record<string, any>[] = [];
+  const atomicVarStyles: Record<string, any>[] = [];
+  const breakpointStyles: Record<string, Record<string, any>[]> = {};
+  const breakpointVarStyles: Record<string, Record<string, any>[]> = {};
+  const pseudoStyles: Record<string, any>[] = [];
+  const pseudoVarStyles: Record<string, any>[] = [];
 
   if (!usedTokens.length) return '';
 
@@ -22,7 +28,8 @@ function generate(usedTokens: string[], output: string, config: Config) {
 
   const root = {
     ':root': {
-      '--space': config.theme.space,
+      '--_': '/**/',
+      '---grid': config.theme.grid,
       ...Object.assign({}, ...rootTokens),
     },
   };
@@ -32,63 +39,92 @@ function generate(usedTokens: string[], output: string, config: Config) {
     const [alias, variant] = usedTokenName.split('_').reverse() as [Alias, string?];
     const properties = findProperties(alias, config);
 
+    resetStyles[`/*${usedToken}*/ *`] = { [usedToken]: 'var(--_tk-i)' };
+
     for (const [prop, aliases] of properties) {
       const { themeKey } = SHEET_CONFIG.themeConfig[prop] || {};
-      const baseSelectorOrder = SHEET_CONFIG.properties.indexOf(prop);
-      const isSpace = themeKey === 'space';
+      const specificityOrder = SHEET_CONFIG.properties.indexOf(prop);
+      const isNumericProp = ['sizes', 'grid'].includes(themeKey);
+      const value = `var(--_tk-i_${prop})`;
 
-      resetStyles['*'] = {
-        ...resetStyles['*'],
-        [usedToken]: 'var(--_tk-i)',
-      };
-
-      resetStyles['[style*="--"]'] = {
-        ...resetStyles['[style*="--"]'],
+      initialStyles[`/*${prop}*/[style*="--"]`] = {
         [`--_tk-i_${prop}`]: createResetTokens(prop, aliases),
       };
 
-      baseStyles[baseSelectorOrder] = baseStyles[baseSelectorOrder] || {
-        aliases: new Set(),
-        styles: {
-          [prop]: isSpace ? `calc(var(--space) * var(--_tk-i_${prop}))` : `var(--_tk-i_${prop})`,
+      atomicStyles[specificityOrder] = {
+        ...atomicStyles[specificityOrder],
+        [`/*${prop}*/${selector(alias)}`]: {
+          [prop]: isNumericProp ? `calc(var(---grid) * ${value})` : value,
         },
       };
-      baseStyles[baseSelectorOrder]?.aliases.add(alias);
+
+      if (isNumericProp) {
+        atomicVarStyles[specificityOrder] = {
+          ...atomicVarStyles[specificityOrder],
+          [`/*${prop}*/${arbitraryNumericSelector(alias)}`]: { [prop]: value },
+        };
+      }
 
       if (variant) {
         const [bpOrPseudo, maybePseudo] = variant.split('-') as [string, string?];
-        const pseudo = maybePseudo || bpOrPseudo;
-        const variantSelector = selector(usedTokenName);
-        const pseudoSelector = variantSelector + ':' + pseudo;
         const breakpoint = config.theme.breakpoints?.[bpOrPseudo];
+        // we fallback to initital in case the variant is deselected in dev tools.
+        // it will fall back to any non-variant values applied to the same element
         const value = `var(${usedToken}, var(--_tk-i_${prop}))`;
-        const key = breakpoint ? `@media ${breakpoint}` : 'pseudo';
-        const keySelector = (SHEET_CONFIG.pseudoClasses as any).includes(':' + pseudo)
-          ? pseudoSelector
-          : variantSelector;
+        const gridValue = isNumericProp ? `calc(var(---grid) * ${value})` : value;
 
-        variantStyles[key] = variantStyles[key] || {};
-        variantStyles[key][keySelector] = {
-          ...variantStyles[key][keySelector],
-          // we fallback to initital in case the variant is deselected in dev tools
-          // it will fall back to any non-variant values applied to the same element
-          [prop]: isSpace ? `calc(var(--space) * ${value})` : value,
-        };
+        if (breakpoint) {
+          const breakpointKey = `@media ${breakpoint}`;
+          breakpointStyles[breakpointKey] = breakpointStyles[breakpointKey] || [];
+          breakpointStyles[breakpointKey]![specificityOrder] = {
+            ...breakpointStyles[breakpointKey]![specificityOrder],
+            [`/*${prop}*/${selector(usedTokenName)}`]: { [prop]: gridValue },
+          };
+
+          if (isNumericProp) {
+            breakpointVarStyles[breakpointKey] = breakpointVarStyles[breakpointKey] || [];
+            breakpointVarStyles[breakpointKey]![specificityOrder] = {
+              ...breakpointVarStyles[breakpointKey]![specificityOrder],
+              [`/*${prop}*/${arbitraryNumericSelector(usedTokenName)}`]: { [prop]: value },
+            };
+          }
+        } else {
+          const pseudo = maybePseudo || bpOrPseudo;
+          pseudoStyles[specificityOrder] = {
+            ...pseudoStyles[specificityOrder],
+            [`/*${prop}*/${selector(usedTokenName, pseudo)}`]: { [prop]: gridValue },
+          };
+
+          if (isNumericProp) {
+            pseudoVarStyles[specificityOrder] = {
+              ...pseudoVarStyles[specificityOrder],
+              [`/*${prop}*/${arbitraryNumericSelector(usedTokenName, pseudo)}`]: { [prop]: value },
+            };
+          }
+        }
       }
     }
   }
 
-  const { pseudo, ...bpStyles } = variantStyles;
+  const flattenedBpStyles = Object.entries(breakpointStyles).map(([breakpoint, styles]) => [
+    breakpoint,
+    Object.assign({}, ...styles),
+  ]);
+
+  const flattenedBpVarStyles = Object.entries(breakpointVarStyles).map(([breakpoint, styles]) => [
+    breakpoint,
+    Object.assign({}, ...styles),
+  ]);
 
   const sheet = stringify({
     ...root,
     ...resetStyles,
-    ...baseStyles.reduce((acc, { aliases, styles }) => {
-      const selector = createBaseSelector(Array.from(aliases));
-      return { ...acc, [selector]: { ...(acc as any)[selector], ...styles } };
-    }, {}),
-    ...pseudo,
-    ...bpStyles,
+    ...initialStyles,
+    ...Object.assign({}, ...atomicStyles),
+    ...Object.assign({}, ...atomicVarStyles),
+    ...Object.assign({}, ...pseudoStyles),
+    ...Object.assign({}, ...pseudoVarStyles),
+    ...deepmerge(Object.fromEntries(flattenedBpStyles), Object.fromEntries(flattenedBpVarStyles)),
   });
 
   const code = Buffer.from(sheet);
@@ -98,13 +134,14 @@ function generate(usedTokens: string[], output: string, config: Config) {
 
 /* ---------------------------------------------------------------------------------------------- */
 
-function selector(alias: Alias) {
-  return `[style*="--${alias}:"]`;
+function selector(alias: Alias, pseudo?: string) {
+  const pseudoSelector = pseudo ? `:${pseudo}` : '';
+  return `[style*="--${alias}:"]${pseudoSelector}`;
 }
 
-function createBaseSelector(aliases: Alias[]) {
-  const selectors = aliases.map((alias) => selector(alias));
-  return selectors.join(', ');
+function arbitraryNumericSelector(alias: Alias, pseudo?: string) {
+  const pseudoSelector = pseudo ? `:${pseudo}` : '';
+  return `[style*="--${alias}:var"]${pseudoSelector}, [style*="--${alias}: var"]${pseudoSelector}`;
 }
 
 function createResetTokens(property: TokenamiProperty, aliases: Alias[]): string {

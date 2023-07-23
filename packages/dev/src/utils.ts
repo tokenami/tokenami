@@ -8,7 +8,7 @@ type ThemeValues = Exclude<Theme[keyof Theme], string>;
 
 function getRootTokens(values: ThemeValues, prefix: string): Record<string, string> {
   if (!values) return {};
-  const entries = Object.entries(values).map(([name, value]) => [`--${prefix}-${name}`, value]);
+  const entries = Object.entries(values).map(([name, value]) => [`---${prefix}-${name}`, value]);
   return Object.fromEntries(entries);
 }
 

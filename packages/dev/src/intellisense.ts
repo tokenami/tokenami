@@ -24,13 +24,18 @@ function generate(config: Config, path = './dev.d.ts') {
       const themeKey = SHEET_CONFIG.themeConfig[prop]?.themeKey;
       const prefix = themeKey ? (THEME_CONFIG as any)[themeKey]?.prefix : undefined;
       const values = themeKey ? Boolean((config.theme as any)[themeKey]) : undefined;
-      if (themeKey === 'space') {
-        outputProperties.add(`'--${prop}'?: number;`);
-      } else if (prefix && values) {
-        outputProperties.add(`'--${prop}'?: ThemeValue<'${prop}'>;`);
+      let value: string;
+
+      if (themeKey === 'grid') {
+        value = `ArbitraryValue | number`;
+      } else if (themeKey === 'sizes') {
+        value = `ArbitraryValue | ThemeValue<'${prop}'> | number`;
+      } else if (themeKey || !prefix || !values) {
+        value = `ArbitraryValue | ThemeValue<'${prop}'>`;
       } else {
-        outputProperties.add(`'--${prop}'?: GenericValue<'${prop}'>;`);
+        value = `ArbitraryValue`;
       }
+      outputProperties.add(`'--${tokenName}'?: ${value};`);
     }
   }
 
@@ -38,6 +43,7 @@ function generate(config: Config, path = './dev.d.ts') {
     /\/\/ TOKENAMI_TOKENS_START(.*)\/\/ TOKENAMI_TOKENS_END/s,
     `// TOKENAMI_TOKENS_START\n${Array.from(outputProperties).join('\n')}\n// TOKENAMI_TOKENS_END`
   );
+
   fs.writeFileSync(outFile, output, { flag: 'w' });
 }
 

@@ -3,7 +3,7 @@ module.exports = {
   include: ['./app/**/*.{ts,tsx}'],
   exclude: ['./app/routes/original.tsx'],
   theme: {
-    space: '0.23rem',
+    grid: '4px',
     breakpoints: {
       md: '(min-width: 700px)',
       lg: '(min-width: 1024px)',
@@ -16,10 +16,17 @@ module.exports = {
     radii: {
       rounded: '10px',
       circle: '9999px',
+      none: 'none',
     },
     fonts: {
       serif: 'serif',
       sans: 'sans-serif',
+    },
+    sizes: {
+      auto: 'auto',
+      'full-w': '100%',
+      'full-h': '100%',
+      'screen-h': '100vh',
     },
   },
 };

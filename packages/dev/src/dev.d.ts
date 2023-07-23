@@ -1,4 +1,4 @@
-import * as CSS from 'csstype';
+import 'csstype';
 import { type TokenamiProperty, SHEET_CONFIG, THEME_CONFIG } from '@tokenami/config';
 
 interface Theme {}
@@ -10,10 +10,10 @@ type Prefix<P> = ThemeKey<P> extends keyof TokensConfig
   ? TokensConfig[ThemeKey<P>]['prefix']
   : never;
 
-type GenericValue<P extends keyof CSS.PropertiesHyphen> = CSS.PropertiesHyphen[P];
+type ArbitraryValue = `var(--_)` | `var(--_) ${string}`;
 type ThemeValue<P> = Prefix<P> extends string
   ? Values<P> extends string
-    ? `var(--${Prefix<P>}-${Values<P>})`
+    ? `var(---${Prefix<P>}-${Values<P>})`
     : never
   : never;
 
