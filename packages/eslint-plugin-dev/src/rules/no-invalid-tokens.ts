@@ -1,6 +1,7 @@
-import { getConfig } from '@tokenami/config';
+import { getConfigPath, mergedConfigs, getTokenValues } from '@tokenami/config';
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import pkgJson from '../../package.json';
+import * as fs from 'fs';
 
 interface PluginSettings {
   projectRoot?: string;
@@ -24,19 +25,17 @@ export const rule: TSESLint.RuleModule<typeof MESSAGE_INVALID_TOKEN> = {
   create(context) {
     const settings = getSettings(context.settings);
     const cwd = settings.projectRoot || context.getCwd?.() || process.cwd();
-    const configPromise = getConfig(cwd);
+    const configPath = getConfigPath(cwd);
+    const config = mergedConfigs(fs.existsSync(configPath) ? require(configPath) : {});
 
     return {
       async ['Property:matches([key.value=/^--/])'](node: TSESTree.Property) {
-        const config = await configPromise;
-        const theme = config.theme;
-        const colors = getTokens(theme.colors, 'color');
-        const radii = getTokens(theme.radii, 'radii');
-        const valid = [...colors, ...radii];
-        // TODO: check if key is a tokenami token e.g. `--border-radius` before validating value
+        const tokenValues = getTokenValues(config.theme);
+        const valid = Object.keys(tokenValues).map((token) => `var(${token})`);
         if (isLiteral(node.key) && isLiteral(node.value)) {
           const key = node.key.value;
           const value = node.value.value;
+          // TODO: check if key is a tokenami token e.g. `--border-radius` before validating value
           if (isToken(key) && isTokenValue(value) && !valid.includes(value)) {
             context.report({ node: node.value, messageId: MESSAGE_INVALID_TOKEN, data: { value } });
           }
@@ -63,8 +62,4 @@ function isTokenValue(value: TSESTree.Literal['value']): value is TokenValue {
 
 function isLiteral(node: TSESTree.Node): node is TSESTree.Literal {
   return node.type === 'Literal';
-}
-
-function getTokens(themeProperty: Record<string, string> = {}, prefix: string) {
-  return Object.keys(themeProperty).map((key) => `var(--${prefix}-${key})`);
 }

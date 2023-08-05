@@ -1,5 +1,6 @@
 import type { Config } from '@tokenami/config';
-import { getConfigPath, getConfig } from '@tokenami/config';
+import { getConfigPath, mergedConfigs } from '@tokenami/config';
+import { createRequire } from 'module';
 import * as fs from 'fs';
 import * as pathe from 'pathe';
 import glob from 'fast-glob';
@@ -9,6 +10,8 @@ import * as sheet from '~/sheet';
 import * as intellisense from '~/intellisense';
 import * as log from './log';
 import pkgJson from '~/../package.json';
+
+const require = createRequire(import.meta.url);
 
 const run = () => {
   const cli = cac('✨ tokenami');
@@ -22,7 +25,7 @@ const run = () => {
     .option('-w, --watch', 'Watch for changes and rebuild as needed')
     .action(async (_, flags) => {
       const startTime = startTimer();
-      const config = await getConfig(cwd, { path: flags.config, include: flags.files });
+      const config = getConfig(cwd, { path: flags.config, include: flags.files });
 
       if (!config.include.length) log.error('Provide a glob pattern to include files');
 
@@ -41,7 +44,7 @@ const run = () => {
         tokenWatcher.on('all', (_, file) => regenerateStylesheet(file, config));
 
         configWatcher.on('all', async (_, file) => {
-          const updatedConfig = await getConfig(cwd, { path: file, include: flags.files });
+          const updatedConfig = getConfig(cwd, { path: file, include: flags.files });
           regenerateStylesheet(file, updatedConfig);
           intellisense.generate(updatedConfig);
         });
@@ -106,4 +109,22 @@ async function findUsedTokenProperties(dir: string, include: string[], ignore?: 
   });
   const uniqueMatches = new Set(matches);
   return Array.from(uniqueMatches);
+}
+
+interface GetConfigOptions {
+  path?: string;
+  include?: string[];
+}
+
+function reloadModule(moduleName: string) {
+  if (require.cache) {
+    delete require.cache[require.resolve(moduleName)];
+  }
+  return require(moduleName);
+}
+
+function getConfig(cwd: string, opts: GetConfigOptions = {}): Config {
+  const configPath = getConfigPath(cwd, opts.path);
+  const theirs = fs.existsSync(configPath) ? reloadModule(configPath) : {};
+  return mergedConfigs(theirs);
 }

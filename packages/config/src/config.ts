@@ -1,15 +1,6 @@
 import type { Theme } from '~/theme';
 import type { TokenamiProperty } from '~/sheet';
-import { createRequire } from 'module';
-import * as fs from 'fs';
 import * as pathe from 'pathe';
-
-const require = createRequire(import.meta.url);
-
-function reloadModule(moduleName: string) {
-  delete require.cache[require.resolve(moduleName)];
-  return require(moduleName);
-}
 
 interface Config {
   include: string[];
@@ -51,7 +42,7 @@ function getConfigPath(cwd: string, path = DEFAULT_PATH) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getConfig
+ * getMergedConfig
  * -----------------------------------------------------------------------------------------------*/
 
 interface GetConfigOptions {
@@ -59,9 +50,7 @@ interface GetConfigOptions {
   include?: string[];
 }
 
-async function getConfig(cwd: string, opts: GetConfigOptions = {}): Promise<Config> {
-  const configPath = getConfigPath(cwd, opts.path);
-  const theirs = fs.existsSync(configPath) ? await reloadModule(configPath) : {};
+function mergedConfigs(theirs: Config, opts: GetConfigOptions = {}): Config {
   return {
     ...DEFAULT_CONFIG,
     ...theirs,
@@ -73,4 +62,4 @@ async function getConfig(cwd: string, opts: GetConfigOptions = {}): Promise<Conf
 /* ---------------------------------------------------------------------------------------------- */
 
 export type { Config };
-export { DEFAULT_PATH, getConfigPath, getConfig };
+export { DEFAULT_PATH, getConfigPath, mergedConfigs };
