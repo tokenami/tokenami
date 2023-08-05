@@ -4,7 +4,6 @@ import * as fs from 'fs';
 import {
   getConfigPath,
   mergedConfigs,
-  getTokenValues,
   getAvailableTokenPropertiesWithVariants,
 } from '@tokenami/config';
 import pkgJson from '../../package.json';
@@ -13,19 +12,24 @@ interface PluginSettings {
   projectRoot?: string;
 }
 
-export const MESSAGE_INVALID_TOKEN = 'INVALID_TOKEN';
+export const MESSAGE_HAS_ARBITRARY_VALUE = 'ARBITRARY_VALUE';
+const MESSAGE_REMOVE_ARBITRARY_VALUE = 'REMOVE_ARBITRARY_VALUE';
 
-export const rule: TSESLint.RuleModule<typeof MESSAGE_INVALID_TOKEN> = {
+export const rule: TSESLint.RuleModule<
+  typeof MESSAGE_HAS_ARBITRARY_VALUE | typeof MESSAGE_REMOVE_ARBITRARY_VALUE
+> = {
   defaultOptions: [],
   meta: {
     type: 'problem',
     schema: [],
+    hasSuggestions: true,
     docs: {
-      description: 'Disallow invalid token values based on theme',
-      recommended: 'error',
+      description: 'Disallow arbitrary values',
+      recommended: 'warn',
     },
     messages: {
-      [MESSAGE_INVALID_TOKEN]: `Token value '{{value}}' does not exist in theme.`,
+      [MESSAGE_HAS_ARBITRARY_VALUE]: `Update theme or use "var(---,{{value}})" to mark as arbitrary.`,
+      [MESSAGE_REMOVE_ARBITRARY_VALUE]: `Use "var(---,{{value}})" to mark as arbitrary.`,
     },
   },
   create(context) {
@@ -36,14 +40,22 @@ export const rule: TSESLint.RuleModule<typeof MESSAGE_INVALID_TOKEN> = {
 
     return {
       async ['Property:matches([key.value=/^--/])'](node: TSESTree.Property) {
-        const tokenValues = getTokenValues(config.theme);
-        const valid = Object.keys(tokenValues).map((token) => `var(${token})`);
-
         if (isLiteral(node.key) && isLiteral(node.value)) {
           const key = node.key.value;
           const value = node.value.value;
-          if (isTokenamiToken(key, config) && isVariableValue(value) && !valid.includes(value)) {
-            context.report({ node: node.value, messageId: MESSAGE_INVALID_TOKEN, data: { value } });
+          if (isTokenamiToken(key, config) && !isArbitraryValue(value) && !isVariableValue(value)) {
+            context.report({
+              node: node.value,
+              messageId: MESSAGE_HAS_ARBITRARY_VALUE,
+              data: { value },
+              suggest: [
+                {
+                  messageId: MESSAGE_REMOVE_ARBITRARY_VALUE,
+                  data: { value },
+                  fix: (fixer) => fixer.replaceText(node.value, `"var(---,${value})"`),
+                },
+              ],
+            });
           }
         }
       },
@@ -58,10 +70,14 @@ function getSettings(settings: TSESLint.SharedConfigurationSettings): PluginSett
 type Token = `--${string})`;
 type TokenValue = `var(---${string})`;
 
-function isTokenamiToken(value: TSESTree.Literal['value'], config: Config): value is Token {
+function isTokenamiToken(key: TSESTree.Literal['value'], config: Config): key is Token {
   const availableTokens = getAvailableTokenPropertiesWithVariants(config);
-  if (typeof value !== 'string') return false;
-  return availableTokens.includes(value);
+  if (typeof key !== 'string') return false;
+  return availableTokens.includes(key);
+}
+
+function isArbitraryValue(value: TSESTree.Literal['value']): value is string {
+  return typeof value === 'string' && /var\(---,.+\)/.test(value);
 }
 
 function isVariableValue(value: TSESTree.Literal['value']): value is TokenValue {

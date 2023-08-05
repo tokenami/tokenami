@@ -4,33 +4,33 @@ export default function Index() {
   return (
     <div
       style={{
-        '--radial-gradient': 'radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)',
-        '--grid-bg-size': 'calc(var(---grid) * 5)',
-        '--background-size': 'var(--_) var(--grid-bg-size) var(--grid-bg-size)',
-        '--background-image': 'var(--_) var(--radial-gradient)',
+        '--_radial-gradient': 'radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)',
+        '--_grid-bg-size': 'calc(var(---grid) * 5)',
+        '--background-size': 'var(---,var(--_grid-bg-size) var(--_grid-bg-size))',
+        '--background-image': 'var(---,var(--_radial-gradient))',
         '--background-color': 'var(---color-sky-500)',
         '--background-position-x': 1,
         '--background-position-y': 0.5,
         '--height': 'var(---size-screen-h)',
-        '--display': 'var(--_) flex',
-        '--flex-direction': 'var(--_) column',
-        '--align-items': 'var(--_) center',
-        '--justify-content': 'var(--_) center',
+        '--display': 'var(---,flex)',
+        '--flex-direction': 'var(---,column)',
+        '--align-items': 'var(---,center)',
+        '--justify-content': 'var(---,center)',
       }}
     >
       <figure
         style={{
           '--bg-color': 'var(---color-slate-100)',
           '--border-radius': 'var(---radii-rounded)',
-          '--text-align': 'var(--_) center',
-          '--overflow': 'var(--_) hidden',
+          '--text-align': 'var(---,center)',
+          '--overflow': 'var(---,hidden)',
           '--m': 10,
           '--p': 8,
-          '--md_display': 'var(--_) flex',
+          '--md_display': 'var(---,flex)',
           '--md_p': 0,
-          '--md_text-align': 'var(--_) left',
+          '--md_text-align': 'var(---,left)',
           '--font-family': 'var(---font-sans)',
-          '--line-height': 'var(--_) 1.8',
+          '--line-height': 'var(---,1.8)',
         }}
       >
         <img
@@ -38,8 +38,8 @@ export default function Index() {
             '--width': 24,
             '--height': 24,
             '--border-radius': 'var(---radii-circle)',
-            '--object-fit': 'var(--_) cover',
-            '--md_width': 'var(--_) 11rem',
+            '--object-fit': 'var(---,cover)',
+            '--md_width': 'var(---,11rem)',
             '--md_height': 'var(---size-auto)',
             '--md_border-radius': 'var(---radii-none)',
           }}
@@ -52,9 +52,9 @@ export default function Index() {
           <blockquote style={{ '--m': 0 }}>
             <p
               style={{
-                '--font-size': 'var(--_) 1.125rem',
-                '--line-height': 'var(--_) 1.75rem',
-                '--font-weight': 'var(--_) 500',
+                '--font-size': 'var(---,1.125rem)',
+                '--line-height': 'var(---,1.75rem)',
+                '--font-weight': 'var(---,500)',
                 '--m': 0,
                 '--mb': 4,
               }}
@@ -62,7 +62,7 @@ export default function Index() {
               "Like Tailwind, but atomic tokens."
             </p>
           </blockquote>
-          <figcaption style={{ '--font-weight': 'var(--_) 500' }}>
+          <figcaption style={{ '--font-weight': 'var(---,500)' }}>
             <div style={{ '--color': 'var(---color-sky-500)' }}>Jenna Smith</div>
             <div style={{ '--color': 'var(---color-slate-700)' }}>@jjenzz</div>
           </figcaption>
@@ -71,16 +71,18 @@ export default function Index() {
 
       <button
         style={{
-          '--width': 'var(--_) 180px',
+          '--width': 'var(---,180px)',
           '--height': 15,
           '--border-radius': 'var(---radii-rounded)',
-          '--border': 'var(--_) none',
+          '--border': 'var(---,none)',
           '--font-family': 'var(---font-sans)',
-          '--font-size': 'var(--_) 20px',
+          '--font-size': 'var(---,20px)',
           '--bg-color': 'var(---color-slate-100)',
           '--hover_background-color': 'var(---color-slate-700)',
-          '--hover_color': 'var(--_) white',
-          '--transition': 'var(--_) all 150ms',
+          '--hover_color': 'var(---,white)',
+          '--transition': 'var(---,all 150ms)',
+          // THIS SHOULD NOT BE POSSIBLE
+          '--page-break-after': 'var(---color-slate-100)',
         }}
       >
         Button

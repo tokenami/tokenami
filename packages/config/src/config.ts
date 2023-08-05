@@ -1,6 +1,9 @@
 import type { Theme } from '~/theme';
 import type { TokenamiProperty } from '~/sheet';
 import * as pathe from 'pathe';
+import { SHEET_CONFIG } from '~/sheet';
+
+type Validator = (value: unknown, values: string[]) => boolean;
 
 interface Config {
   include: string[];
@@ -59,7 +62,47 @@ function mergedConfigs(theirs: Config, opts: GetConfigOptions = {}): Config {
   };
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * getConfigPropertiesForAlias
+ * -----------------------------------------------------------------------------------------------*/
+
+// an alias can be used for multiple properties
+function getConfigPropertiesForAlias(alias: string, config: Config) {
+  const aliases = config.aliases || {};
+  const result = Object.entries(aliases).filter(([_, aliases]) => aliases.includes(alias));
+  return (result.length ? result : [[alias, [alias]]]) as [TokenamiProperty, string[]][];
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getAvailableTokenPropertiesWithVariants
+ * -----------------------------------------------------------------------------------------------*/
+
+function getAvailableTokenPropertiesWithVariants(config: Config) {
+  const { properties, pseudoClasses } = SHEET_CONFIG;
+  const configBreakpoints = Object.keys(config.theme.breakpoints || {});
+  const allAliases = Object.values(config.aliases || {}).flat();
+  const allProperties = [...properties, ...allAliases] as string[];
+  let availableProperties = [];
+
+  for (const prop of allProperties) {
+    availableProperties.push(`--${prop}`);
+    for (const pseudo of pseudoClasses) {
+      availableProperties.push(`--${pseudo.replace(':', '')}_${prop}`);
+    }
+    for (const breakpoint of configBreakpoints) {
+      availableProperties.push(`--${breakpoint}_${prop}`);
+    }
+  }
+  return availableProperties;
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
 export type { Config };
-export { DEFAULT_PATH, getConfigPath, mergedConfigs };
+export {
+  DEFAULT_PATH,
+  getConfigPath,
+  mergedConfigs,
+  getConfigPropertiesForAlias,
+  getAvailableTokenPropertiesWithVariants,
+};

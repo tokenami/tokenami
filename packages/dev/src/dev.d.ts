@@ -3,14 +3,12 @@ import { type TokenamiProperty, SHEET_CONFIG, THEME_CONFIG } from '@tokenami/con
 
 interface Theme {}
 type SheetConfig = typeof SHEET_CONFIG;
-type TokensConfig = typeof THEME_CONFIG;
+type ThemeConfig = typeof THEME_CONFIG;
 type ThemeKey<P> = P extends TokenamiProperty ? SheetConfig['themeConfig'][P]['themeKey'] : never;
 type Values<P> = ThemeKey<P> extends keyof Theme ? keyof Theme[ThemeKey<P>] : never;
-type Prefix<P> = ThemeKey<P> extends keyof TokensConfig
-  ? TokensConfig[ThemeKey<P>]['prefix']
-  : never;
+type Prefix<P> = ThemeKey<P> extends keyof ThemeConfig ? ThemeConfig[ThemeKey<P>]['prefix'] : never;
 
-type ArbitraryValue = `var(--_)` | `var(--_) ${string}`;
+type ArbitraryValue = string & {};
 type ThemeValue<P> = Prefix<P> extends string
   ? Values<P> extends string
     ? `var(---${Prefix<P>}-${Values<P>})`

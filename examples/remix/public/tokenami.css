@@ -1,5 +1,4 @@
 :root {
-  --_: ;
   ---grid: 4px;
   ---color-slate-100: #f1f5f9;
   ---color-slate-700: #334155;
@@ -20,8 +19,8 @@
   --min-height: var(--_tk-i);
   --m: var(--_tk-i);
   --p: var(--_tk-i);
-  --radial-gradient: var(--_tk-i);
-  --grid-bg-size: var(--_tk-i);
+  --_radial-gradient: var(--_tk-i);
+  --_grid-bg-size: var(--_tk-i);
   --background-size: var(--_tk-i);
   --background-image: var(--_tk-i);
   --background-color: var(--_tk-i);
@@ -54,6 +53,7 @@
   --hover_background-color: var(--_tk-i);
   --hover_color: var(--_tk-i);
   --transition: var(--_tk-i);
+  --page-break-after: var(--_tk-i);
 }
 
 [style*="--"] {
@@ -90,6 +90,7 @@
   --_tk-i_color: var(--color, );
   --_tk-i_border: var(--border, );
   --_tk-i_transition: var(--transition, );
+  --_tk-i_page-break-after: var(--page-break-after, );
 }
 
 [style*="--align-items:"] {
@@ -191,6 +192,10 @@
 
 [style*="--pt:"] {
   padding-top: calc(var(---grid) * var(--_tk-i_padding-top));
+}
+
+[style*="--page-break-after:"] {
+  page-break-after: var(--_tk-i_page-break-after);
 }
 
 [style*="--text-align:"] {

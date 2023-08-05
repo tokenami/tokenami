@@ -1,14 +1,17 @@
 import type { Config } from '@tokenami/config';
-import type { Alias } from '~/utils';
-import { SHEET_CONFIG, THEME_CONFIG } from '@tokenami/config';
+import {
+  SHEET_CONFIG,
+  THEME_CONFIG,
+  getConfigPropertiesForAlias,
+  getAvailableTokenPropertiesWithVariants,
+} from '@tokenami/config';
 import * as fs from 'fs';
 import * as url from 'url';
 import * as pathe from 'pathe';
-import { findProperties } from '~/utils';
 
 function generate(config: Config, path = './dev.d.ts') {
   const outDir = pathe.dirname(url.fileURLToPath(import.meta.url));
-  const availableTokens = getAvailableTokenamiProperties(config);
+  const availableTokens = getAvailableTokenPropertiesWithVariants(config);
   const outputProperties = new Set<string>();
   const outFile = pathe.join(outDir, path);
   let output = fs.readFileSync(outFile, 'utf8');
@@ -17,8 +20,8 @@ function generate(config: Config, path = './dev.d.ts') {
 
   for (const token of availableTokens) {
     const tokenName = token.replace(/^--/, '');
-    const [alias] = tokenName.split('_').reverse() as [Alias, string?];
-    const properties = findProperties(alias, config);
+    const [alias] = tokenName.split('_').reverse() as [string, string?];
+    const properties = getConfigPropertiesForAlias(alias, config);
 
     for (const [prop] of properties) {
       const themeKey = SHEET_CONFIG.themeConfig[prop]?.themeKey;
@@ -29,7 +32,7 @@ function generate(config: Config, path = './dev.d.ts') {
       if (themeKey === 'grid') {
         value = `ArbitraryValue | number`;
       } else if (themeKey === 'sizes') {
-        value = `ArbitraryValue | ThemeValue<'${prop}'> | number`;
+        value = `ArbitraryValue | number | ThemeValue<'${prop}'>`;
       } else if (themeKey && prefix && values) {
         value = `ArbitraryValue | ThemeValue<'${prop}'>`;
       } else {
@@ -48,24 +51,5 @@ function generate(config: Config, path = './dev.d.ts') {
 }
 
 /* ---------------------------------------------------------------------------------------------- */
-
-function getAvailableTokenamiProperties(config: Config) {
-  const { properties, pseudoClasses } = SHEET_CONFIG;
-  const configBreakpoints = Object.keys(config.theme.breakpoints || {});
-  const allAliases = Object.values(config.aliases || {}).flat();
-  const allProperties = [...properties, ...allAliases] as string[];
-  let tokens = [];
-
-  for (const prop of allProperties) {
-    tokens.push(`--${prop}`);
-    for (const pseudo of pseudoClasses) {
-      tokens.push(`--${pseudo.replace(':', '')}_${prop}`);
-    }
-    for (const breakpoint of configBreakpoints) {
-      tokens.push(`--${breakpoint}_${prop}`);
-    }
-  }
-  return tokens;
-}
 
 export { generate };

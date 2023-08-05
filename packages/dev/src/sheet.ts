@@ -1,10 +1,8 @@
 import type { Config, TokenamiProperty } from '@tokenami/config';
-import type { Alias } from '~/utils';
 import deepmerge from 'deepmerge';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
-import { SHEET_CONFIG, getTokenValues } from '@tokenami/config';
-import { findProperties } from '~/utils';
+import { SHEET_CONFIG, getTokenValues, getConfigPropertiesForAlias } from '@tokenami/config';
 
 /* -------------------------------------------------------------------------------------------------
  * generate
@@ -24,7 +22,6 @@ function generate(usedTokens: string[], output: string, config: Config) {
 
   const root = {
     ':root': {
-      '--_': '/**/',
       '---grid': config.theme.grid,
       ...getTokenValues(config.theme),
     },
@@ -32,8 +29,8 @@ function generate(usedTokens: string[], output: string, config: Config) {
 
   for (const usedToken of usedTokens) {
     const usedTokenName = usedToken.replace(/^--/, '');
-    const [alias, variant] = usedTokenName.split('_').reverse() as [Alias, string?];
-    const properties = findProperties(alias, config);
+    const [alias, variant] = usedTokenName.split('_').reverse() as [string, string?];
+    const properties = getConfigPropertiesForAlias(alias, config);
 
     resetStyles[`/*${usedToken}*/ *`] = { [usedToken]: 'var(--_tk-i)' };
 
@@ -130,17 +127,17 @@ function generate(usedTokens: string[], output: string, config: Config) {
 
 /* ---------------------------------------------------------------------------------------------- */
 
-function selector(alias: Alias, pseudo?: string) {
+function selector(alias: string, pseudo?: string) {
   const pseudoSelector = pseudo ? `:${pseudo}` : '';
   return `[style*="--${alias}:"]${pseudoSelector}`;
 }
 
-function arbitraryNumericSelector(alias: Alias, pseudo?: string) {
+function arbitraryNumericSelector(alias: string, pseudo?: string) {
   const pseudoSelector = pseudo ? `:${pseudo}` : '';
   return `[style*="--${alias}:var"]${pseudoSelector}, [style*="--${alias}: var"]${pseudoSelector}`;
 }
 
-function createResetTokens(property: TokenamiProperty, aliases: Alias[]): string {
+function createResetTokens(property: TokenamiProperty, aliases: string[]): string {
   const { initial = '' } = SHEET_CONFIG.themeConfig[property] || {};
   return aliases.reduceRight((fallback, alias) => `var(--${alias}, ${fallback}) `, initial);
 }
