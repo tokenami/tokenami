@@ -6,8 +6,7 @@
   "scripts": {
     "prepare": "pnpm build",
     "dev": "pnpm --filter=./examples/remix dev",
-    "build": "pnpm -r --filter=./packages/** build",
-    "build-fast": "pnpm -r --parallel --filter=./packages/** build-fast"
+    "build": "pnpm -r --filter=./packages/** build"
   },
   "devDependencies": {
     "prettier": "^2.8.8",

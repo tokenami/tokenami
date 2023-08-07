@@ -1,18 +1,8 @@
 {
-  "exclude": ["node_modules", "dist"],
+  "extends": "../../tsconfig.json",
   "include": ["src"],
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "strict": true,
-    "allowSyntheticDefaultImports": true,
-    "noUncheckedIndexedAccess": true,
-    "isolatedModules": true,
-    "resolveJsonModule": true,
-    "allowJs": false,
     "paths": {
       "~/*": ["src/*"]
     }

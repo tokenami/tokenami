@@ -1,3 +1,3 @@
-export * from '~/config';
-export * from '~/sheet';
-export { THEME_CONFIG } from '~/theme';
+export * from './config';
+export * from './utils';
+export * from './supports';

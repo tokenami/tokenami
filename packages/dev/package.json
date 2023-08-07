@@ -15,8 +15,7 @@
   ],
   "scripts": {
     "build": "tsup --format=esm,cjs && cp src/dev.d.ts ./dist",
-    "build-fast": "pnpm build",
-    "dev": "pnpm build-fast --watch src"
+    "dev": "pnpm build --watch src"
   },
   "engines": {
     "node": ">= 14.0.0"

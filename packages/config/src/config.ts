@@ -1,76 +1,83 @@
-import type { Theme } from '~/theme';
-import type { TokenamiProperty } from '~/sheet';
-import { createRequire } from 'module';
-import * as fs from 'fs';
-import * as pathe from 'pathe';
+import { z } from 'zod';
+import * as CSS from 'csstype';
+import * as Supports from './supports';
 
-const require = createRequire(import.meta.url);
+const tokenProperty = (name: string) => `---${name}`;
+const tokenValue = (themeKey: string, name: string) => `var(---${themeKey}-${name})`;
+const anyValue = (value: string) => `var(---,${value})`;
+const themeValues = (theme: Theme) => (themeKey: ThemeKey) => theme[themeKey];
 
-function reloadModule(moduleName: string) {
-  delete require.cache[require.resolve(moduleName)];
-  return require(moduleName);
-}
+const tokenPropertyRegex = /---([a-z]+)/;
+const tokenValueRegex = /var\(---([\w-]+)-([\w-]+)\)/;
+const anyValueRegex = /var\(---,(.+)\)/;
+
+const GridValue = z.number();
+
+const TokenProperty = z.string().refine((value) => {
+  return tokenPropertyRegex.test(value);
+});
+
+const TokenValue = z.string().refine((value) => {
+  return tokenValueRegex.test(value);
+});
+
+const AnyValue = z.string().refine((value) => {
+  return anyValueRegex.test(value);
+});
+
+type GridValue = z.infer<typeof GridValue>;
+type TokenProperty<P extends string = string> = `---${P}`;
+type TokenValue<TK extends string = string, V extends string = string> = `var(---${TK}-${V})`;
+type AnyValue = string & {};
+
+type ThemeKey =
+  | 'alpha'
+  | 'border'
+  | 'color'
+  | 'ease'
+  | 'font-size'
+  | 'leading'
+  | 'line-style'
+  | 'radii'
+  | 'size'
+  | 'shadow'
+  | 'tracking'
+  | 'transition'
+  | 'weight'
+  | 'z'
+  | (string & {});
+
+type ThemeValues = Record<string, string | number>;
+type Theme = Partial<Record<ThemeKey, ThemeValues>>;
+type Aliases = Partial<Record<keyof CSS.StandardLonghandPropertiesHyphen, string[]>>;
+type PropertiesOptions = readonly ('grid' | ThemeKey)[];
 
 interface Config {
   include: string[];
   exclude?: string[];
-  aliases?: Partial<Record<TokenamiProperty, string[]>>;
+  media?: { [name: string]: string | number };
+  aliases?: Aliases;
+  grid: string;
   theme: Theme;
-}
-
-const DEFAULT_PATH = './tokenami.config.js';
-const DEFAULT_CONFIG = {
-  include: [],
-  aliases: {
-    'background-color': ['background-color', 'bg-color'],
-    'column-gap': ['column-gap', 'gap'],
-    'row-gap': ['row-gap', 'gap'],
-    'margin-left': ['margin-left', 'ml', 'mx', 'm'],
-    'margin-right': ['margin-right', 'mr', 'mx', 'm'],
-    'margin-top': ['margin-top', 'mt', 'my', 'm'],
-    'margin-bottom': ['margin-bottom', 'mb', 'my', 'm'],
-    'padding-left': ['padding-left', 'pl', 'px', 'p'],
-    'padding-right': ['padding-right', 'pr', 'px', 'p'],
-    'padding-top': ['padding-top', 'pt', 'py', 'p'],
-    'padding-bottom': ['padding-bottom', 'pb', 'py', 'p'],
-  },
-  theme: {
-    grid: '1px',
-    breakpoints: {},
-    colors: {},
-    radii: {},
-  },
-} satisfies Config;
-
-/* -------------------------------------------------------------------------------------------------
- * getConfigPath
- * -----------------------------------------------------------------------------------------------*/
-
-function getConfigPath(cwd: string, path = DEFAULT_PATH) {
-  return pathe.join(cwd, path);
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getConfig
- * -----------------------------------------------------------------------------------------------*/
-
-interface GetConfigOptions {
-  path?: string;
-  include?: string[];
-}
-
-async function getConfig(cwd: string, opts: GetConfigOptions = {}): Promise<Config> {
-  const configPath = getConfigPath(cwd, opts.path);
-  const theirs = fs.existsSync(configPath) ? await reloadModule(configPath) : {};
-  return {
-    ...DEFAULT_CONFIG,
-    ...theirs,
-    include: opts.include || theirs.include || DEFAULT_CONFIG.include,
-    theme: { ...DEFAULT_CONFIG.theme, ...theirs.theme },
-  };
+  properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { Config };
-export { DEFAULT_PATH, getConfigPath, getConfig };
+function getTokenPropertyName(tokenProperty: TokenProperty) {
+  return tokenProperty.replace(tokenPropertyRegex, '$1');
+}
+
+export type { Config, Theme, Aliases };
+export {
+  TokenProperty,
+  TokenValue,
+  GridValue,
+  AnyValue,
+  //
+  tokenProperty,
+  tokenValue,
+  anyValue,
+  themeValues,
+  getTokenPropertyName,
+};
