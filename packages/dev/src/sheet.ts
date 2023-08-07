@@ -1,152 +1,191 @@
-import type { Config, TokenamiProperty } from '@tokenami/config';
-import type { Alias } from '~/utils';
-import deepmerge from 'deepmerge';
+import * as Tokenami from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
+import deepmerge from 'deepmerge';
 import * as lightning from 'lightningcss';
-import { SHEET_CONFIG, THEME_CONFIG } from '@tokenami/config';
-import { getRootTokens, findProperties } from '~/utils';
 
 /* -------------------------------------------------------------------------------------------------
  * generate
  * -----------------------------------------------------------------------------------------------*/
 
-function generate(usedTokens: string[], output: string, config: Config) {
-  const resetStyles: Record<string, any> = {};
-  const initialStyles: Record<string, any> = {};
-  const atomicStyles: Record<string, any>[] = [];
-  const atomicVarStyles: Record<string, any>[] = [];
-  const breakpointStyles: Record<string, Record<string, any>[]> = {};
-  const breakpointVarStyles: Record<string, Record<string, any>[]> = {};
-  const pseudoStyles: Record<string, any>[] = [];
-  const pseudoVarStyles: Record<string, any>[] = [];
-
-  if (!usedTokens.length) return '';
-
-  const rootTokens = Object.entries(THEME_CONFIG).map(([key, { prefix }]) => {
-    return getRootTokens(config.theme[key as keyof typeof THEME_CONFIG], prefix);
-  });
+function generate(
+  usedTokenProperties: Tokenami.TokenProperty[],
+  output: string,
+  config: Tokenami.Config
+) {
+  if (!usedTokenProperties.length) return '';
+  // styles are split into these groups so we can control order in stylesheet
+  const resetGroup: Record<string, any> = {};
+  const initialGroup: Record<string, any> = {};
+  const atomicList: Record<string, any>[] = [];
+  const atomicArbitraryList: Record<string, any>[] = [];
+  const breakpointGroup: Record<string, Record<string, any>[]> = {};
+  const breakpointArbitraryGroup: Record<string, Record<string, any>[]> = {};
+  const pseudoList: Record<string, any>[] = [];
+  const pseudoArbitraryList: Record<string, any>[] = [];
 
   const root = {
     ':root': {
-      '--_': '/**/',
-      '---grid': config.theme.grid,
-      ...Object.assign({}, ...rootTokens),
+      [Tokenami.tokenProperty('grid')]: config.grid,
+      ...Tokenami.getValuesByTokenValueProperty(config.theme),
     },
   };
 
-  for (const usedToken of usedTokens) {
-    const usedTokenName = usedToken.replace(/^--/, '');
-    const [alias, variant] = usedTokenName.split('_').reverse() as [Alias, string?];
-    const properties = findProperties(alias, config);
+  usedTokenProperties.forEach((tokenProperty) => {
+    const tokenPropertyName = Tokenami.getTokenPropertyName(tokenProperty);
+    const [alias, variant] = tokenPropertyName.split('_').reverse() as [string, string?];
+    const cssProperties = Tokenami.getCSSPropertiesForAlias(alias, config);
 
-    resetStyles[`/*${usedToken}*/ *`] = { [usedToken]: 'var(--_tk-i)' };
+    const resetSelector = uniqueSelector(tokenProperty);
+    resetGroup[resetSelector('*')] = { [tokenProperty]: 'var(--_tk-i)' };
 
-    for (const [prop, aliases] of properties) {
-      const { themeKey } = SHEET_CONFIG.themeConfig[prop] || {};
-      const specificityOrder = SHEET_CONFIG.properties.indexOf(prop);
-      const isNumericProp = ['sizes', 'grid'].includes(themeKey);
-      const value = `var(--_tk-i_${prop})`;
+    cssProperties.forEach((cssProperty: Tokenami.CSSProperty) => {
+      const specificity = Tokenami.getSpecifictyOrderForCSSProperty(cssProperty);
+      const cssPropertySelector = uniqueSelector(cssProperty);
+      const cssPropertyConfig = config.properties?.[cssProperty];
+      const isGridProperty = cssPropertyConfig?.includes('grid');
+      const gridVar = `var(${Tokenami.tokenProperty('grid')})`;
+      const valueVar = `var(--_tk-i_${cssProperty})`;
 
-      initialStyles[`/*${prop}*/[style*="--"]`] = {
-        [`--_tk-i_${prop}`]: createResetTokens(prop, aliases),
+      initialGroup[cssPropertySelector(selector())] = {
+        [`--_tk-i_${cssProperty}`]: getInitialTokenValueVars(cssProperty, config),
       };
 
-      atomicStyles[specificityOrder] = {
-        ...atomicStyles[specificityOrder],
-        [`/*${prop}*/${selector(alias)}`]: {
-          [prop]: isNumericProp ? `calc(var(---grid) * ${value})` : value,
+      atomicList[specificity] = {
+        ...atomicList[specificity],
+        [cssPropertySelector(selector(alias))]: {
+          [cssProperty]: isGridProperty ? `calc(${gridVar} * ${valueVar})` : valueVar,
         },
       };
 
-      if (isNumericProp) {
-        atomicVarStyles[specificityOrder] = {
-          ...atomicVarStyles[specificityOrder],
-          [`/*${prop}*/${arbitraryNumericSelector(alias)}`]: { [prop]: value },
+      if (isGridProperty) {
+        atomicArbitraryList[specificity] = {
+          ...atomicArbitraryList[specificity],
+          [cssPropertySelector(arbitraryVarSelector(alias))]: { [cssProperty]: valueVar },
         };
       }
 
       if (variant) {
         const [bpOrPseudo, maybePseudo] = variant.split('-') as [string, string?];
-        const breakpoint = config.theme.breakpoints?.[bpOrPseudo];
         // we fallback to initital in case the variant is deselected in dev tools.
         // it will fall back to any non-variant values applied to the same element
-        const value = `var(${usedToken}, var(--_tk-i_${prop}))`;
-        const gridValue = isNumericProp ? `calc(var(---grid) * ${value})` : value;
+        const valueVar = `var(${tokenProperty}, var(--_tk-i_${cssProperty}))`;
+        const maybeGridValueVar = isGridProperty ? `calc(${gridVar} * ${valueVar})` : valueVar;
+        const media = config.media?.[bpOrPseudo];
 
-        if (breakpoint) {
-          const breakpointKey = `@media ${breakpoint}`;
-          breakpointStyles[breakpointKey] = breakpointStyles[breakpointKey] || [];
-          breakpointStyles[breakpointKey]![specificityOrder] = {
-            ...breakpointStyles[breakpointKey]![specificityOrder],
-            [`/*${prop}*/${selector(usedTokenName)}`]: { [prop]: gridValue },
+        if (media) {
+          const breakpointKey = `@media ${media}`;
+          breakpointGroup[breakpointKey] = breakpointGroup[breakpointKey] || [];
+          breakpointGroup[breakpointKey]![specificity] = {
+            ...breakpointGroup[breakpointKey]![specificity],
+            [cssPropertySelector(selector(tokenPropertyName))]: {
+              [cssProperty]: maybeGridValueVar,
+            },
           };
 
-          if (isNumericProp) {
-            breakpointVarStyles[breakpointKey] = breakpointVarStyles[breakpointKey] || [];
-            breakpointVarStyles[breakpointKey]![specificityOrder] = {
-              ...breakpointVarStyles[breakpointKey]![specificityOrder],
-              [`/*${prop}*/${arbitraryNumericSelector(usedTokenName)}`]: { [prop]: value },
+          if (isGridProperty) {
+            breakpointArbitraryGroup[breakpointKey] = breakpointArbitraryGroup[breakpointKey] || [];
+            breakpointArbitraryGroup[breakpointKey]![specificity] = {
+              ...breakpointArbitraryGroup[breakpointKey]![specificity],
+              [cssPropertySelector(arbitraryVarSelector(tokenPropertyName))]: {
+                [cssProperty]: valueVar,
+              },
             };
           }
         } else {
-          const pseudo = maybePseudo || bpOrPseudo;
-          pseudoStyles[specificityOrder] = {
-            ...pseudoStyles[specificityOrder],
-            [`/*${prop}*/${selector(usedTokenName, pseudo)}`]: { [prop]: gridValue },
-          };
-
-          if (isNumericProp) {
-            pseudoVarStyles[specificityOrder] = {
-              ...pseudoVarStyles[specificityOrder],
-              [`/*${prop}*/${arbitraryNumericSelector(usedTokenName, pseudo)}`]: { [prop]: value },
+          const searchPseudo = maybePseudo || bpOrPseudo;
+          const pseudo = Tokenami.pseudoClasses.find((item) => item === `:${searchPseudo}`);
+          if (pseudo) {
+            pseudoList[specificity] = {
+              ...pseudoList[specificity],
+              [cssPropertySelector(selector(tokenPropertyName, pseudo))]: {
+                [cssProperty]: maybeGridValueVar,
+              },
             };
+
+            if (isGridProperty) {
+              pseudoArbitraryList[specificity] = {
+                ...pseudoArbitraryList[specificity],
+                [cssPropertySelector(arbitraryVarSelector(tokenPropertyName, pseudo))]: {
+                  [cssProperty]: valueVar,
+                },
+              };
+            }
           }
         }
       }
-    }
-  }
+    });
+  });
 
-  const flattenedBpStyles = Object.entries(breakpointStyles).map(([breakpoint, styles]) => [
-    breakpoint,
+  const mediaStyles = Object.entries(breakpointGroup).map(([media, styles]) => [
+    media,
     Object.assign({}, ...styles),
   ]);
 
-  const flattenedBpVarStyles = Object.entries(breakpointVarStyles).map(([breakpoint, styles]) => [
-    breakpoint,
+  const mediaArbitraryStyles = Object.entries(breakpointArbitraryGroup).map(([media, styles]) => [
+    media,
     Object.assign({}, ...styles),
   ]);
 
   const sheet = stringify({
     ...root,
-    ...resetStyles,
-    ...initialStyles,
-    ...Object.assign({}, ...atomicStyles),
-    ...Object.assign({}, ...atomicVarStyles),
-    ...Object.assign({}, ...pseudoStyles),
-    ...Object.assign({}, ...pseudoVarStyles),
-    ...deepmerge(Object.fromEntries(flattenedBpStyles), Object.fromEntries(flattenedBpVarStyles)),
+    ...resetGroup,
+    ...initialGroup,
+    ...Object.assign({}, ...atomicList),
+    ...Object.assign({}, ...atomicArbitraryList),
+    ...Object.assign({}, ...pseudoList),
+    ...Object.assign({}, ...pseudoArbitraryList),
+    ...deepmerge(Object.fromEntries(mediaStyles), Object.fromEntries(mediaArbitraryStyles)),
   });
+
+  // return sheet;
 
   const code = Buffer.from(sheet);
   const transformed = lightning.transform({ filename: output, code, minify: false });
   return transformed.code.toString();
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * selector
+ * -----------------------------------------------------------------------------------------------*/
+
+function selector(alias?: string, pseudo?: string) {
+  const tokenProperty = Tokenami.tokenProperty(alias ? `${alias}:` : '');
+  return `[style*="${tokenProperty}"]${pseudo || ''}`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * arbitraryVarSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function arbitraryVarSelector(alias: string, pseudo?: string) {
+  const tokenProperty = Tokenami.tokenProperty(alias ? `${alias}` : '');
+  const noSpace = `[style*="${tokenProperty}:var"]${pseudo || ''}`;
+  const withSpace = `[style*="${tokenProperty}: var"]${pseudo || ''}`;
+  return `${noSpace}, ${withSpace}`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * uniqueSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function uniqueSelector(cssProperty: string) {
+  return (selector: string) => `/*${cssProperty}*/ ${selector}`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getResetTokenValueVarForAliases
+ * -----------------------------------------------------------------------------------------------*/
+
+function getInitialTokenValueVars(cssProperty: Tokenami.CSSProperty, config: Tokenami.Config) {
+  const initial = config.properties?.[cssProperty]?.includes('grid') ? '0' : '';
+  const aliased = (config.aliases as any)?.[cssProperty] as string[] | undefined;
+  const aliases = aliased || [cssProperty];
+  return aliases.reduceRight(
+    (fallback, alias) => `var(${Tokenami.tokenProperty(alias)}, ${fallback})`,
+    initial
+  );
+}
+
 /* ---------------------------------------------------------------------------------------------- */
-
-function selector(alias: Alias, pseudo?: string) {
-  const pseudoSelector = pseudo ? `:${pseudo}` : '';
-  return `[style*="--${alias}:"]${pseudoSelector}`;
-}
-
-function arbitraryNumericSelector(alias: Alias, pseudo?: string) {
-  const pseudoSelector = pseudo ? `:${pseudo}` : '';
-  return `[style*="--${alias}:var"]${pseudoSelector}, [style*="--${alias}: var"]${pseudoSelector}`;
-}
-
-function createResetTokens(property: TokenamiProperty, aliases: Alias[]): string {
-  const { initial = '' } = SHEET_CONFIG.themeConfig[property] || {};
-  return aliases.reduceRight((fallback, alias) => `var(--${alias}, ${fallback}) `, initial);
-}
 
 export { generate };

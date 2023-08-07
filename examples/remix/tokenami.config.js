@@ -2,13 +2,13 @@
 module.exports = {
   include: ['./app/**/*.{ts,tsx}'],
   exclude: ['./app/routes/original.tsx'],
+  grid: '4px',
+  media: {
+    md: '(min-width: 700px)',
+    lg: '(min-width: 1024px)',
+  },
   theme: {
-    grid: '4px',
-    breakpoints: {
-      md: '(min-width: 700px)',
-      lg: '(min-width: 1024px)',
-    },
-    colors: {
+    color: {
       'slate-100': '#f1f5f9',
       'slate-700': '#334155',
       'sky-500': '#0ea5e9',
@@ -18,11 +18,11 @@ module.exports = {
       circle: '9999px',
       none: 'none',
     },
-    fonts: {
+    font: {
       serif: 'serif',
       sans: 'sans-serif',
     },
-    sizes: {
+    size: {
       auto: 'auto',
       'full-w': '100%',
       'full-h': '100%',

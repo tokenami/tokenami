@@ -1,9 +1,7 @@
 {
+  "extends": "../../tsconfig.json",
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"],
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "dist",
     "target": "es2019",
     "module": "commonjs",
     "sourceMap": false,
@@ -12,6 +10,8 @@
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "types": ["node"],
-    "resolveJsonModule": true
+    "paths": {
+      "@tokenami/config": ["../config/src"]
+    }
   }
 }

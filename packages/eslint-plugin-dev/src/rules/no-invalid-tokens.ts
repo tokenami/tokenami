@@ -1,5 +1,6 @@
-import { getConfig } from '@tokenami/config';
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import * as fs from 'fs';
+import * as Tokenami from '@tokenami/config';
 import pkgJson from '../../package.json';
 
 interface PluginSettings {
@@ -24,20 +25,18 @@ export const rule: TSESLint.RuleModule<typeof MESSAGE_INVALID_TOKEN> = {
   create(context) {
     const settings = getSettings(context.settings);
     const cwd = settings.projectRoot || context.getCwd?.() || process.cwd();
-    const configPromise = getConfig(cwd);
+    const configPath = Tokenami.getConfigPath(cwd);
+    const config = Tokenami.mergedConfigs(fs.existsSync(configPath) ? require(configPath) : {});
 
     return {
       async ['Property:matches([key.value=/^--/])'](node: TSESTree.Property) {
-        const config = await configPromise;
-        const theme = config.theme;
-        const colors = getTokens(theme.colors, 'color');
-        const radii = getTokens(theme.radii, 'radii');
-        const valid = [...colors, ...radii];
-        // TODO: check if key is a tokenami token e.g. `--border-radius` before validating value
+        const tokenValues = Tokenami.getValuesByTokenValueProperty(config.theme);
+        const valid = Object.keys(tokenValues).map((token) => `var(${token})`);
+
         if (isLiteral(node.key) && isLiteral(node.value)) {
           const key = node.key.value;
           const value = node.value.value;
-          if (isToken(key) && isTokenValue(value) && !valid.includes(value)) {
+          if (isTokenProperty(key) && isTokenValue(value) && !valid.includes(value)) {
             context.report({ node: node.value, messageId: MESSAGE_INVALID_TOKEN, data: { value } });
           }
         }
@@ -50,21 +49,14 @@ function getSettings(settings: TSESLint.SharedConfigurationSettings): PluginSett
   return settings[pkgJson.name.replace('eslint-plugin-', '')] || {};
 }
 
-type Token = `--${string})`;
-type TokenValue = `var(${string})`;
-
-function isToken(value: TSESTree.Literal['value']): value is Token {
-  return typeof value === 'string' && /--.*/.test(value);
+function isTokenProperty(key: TSESTree.Literal['value']): key is Tokenami.TokenProperty {
+  return Tokenami.TokenProperty.safeParse(key).success;
 }
 
-function isTokenValue(value: TSESTree.Literal['value']): value is TokenValue {
-  return typeof value === 'string' && /var\(.*\)/.test(value);
+function isTokenValue(value: TSESTree.Literal['value']): value is Tokenami.TokenValue {
+  return Tokenami.TokenValue.safeParse(value).success;
 }
 
 function isLiteral(node: TSESTree.Node): node is TSESTree.Literal {
   return node.type === 'Literal';
-}
-
-function getTokens(themeProperty: Record<string, string> = {}, prefix: string) {
-  return Object.keys(themeProperty).map((key) => `var(--${prefix}-${key})`);
 }
