@@ -9,24 +9,17 @@ type Prefix<P = any> = P extends keyof PropertyConfig
   ? Exclude<PropertyConfig[P][number], 'grid'>
   : never;
 
-type Values<Pfx extends Prefix> = Pfx extends keyof Config['theme']
-  ? keyof Config['theme'][Pfx]
-  : never;
+type Values<P> = P extends keyof Config['theme'] ? keyof Config['theme'][P] : never;
 
-type TokenValue<P> = Prefix<P> extends string
-  ? Values<Prefix<P>> extends string
-    ? Tokenami.TokenValue<Prefix<P>, Values<Prefix<P>>>
+type TokenValue<P, Pfx = Prefix<P>, V = Values<Pfx>> = Pfx extends string
+  ? V extends string
+    ? Tokenami.TokenValue<Pfx, V>
     : never
   : never;
 
-type AllProperties = Partial<{
-  [key in Tokenami.TokenProperty<Tokenami.CSSProperty>]: Tokenami.AnyValue;
-}>;
-
 declare module 'csstype' {
-  interface Properties extends AllProperties {
+  interface Properties {
     // TOKENAMI_TOKENS_START
     // TOKENAMI_TOKENS_END
-    [key: `--${string}`]: string | number;
   }
 }

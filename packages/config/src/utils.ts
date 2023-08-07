@@ -69,22 +69,22 @@ function getSpecifictyOrderForCSSProperty(cssProperty: Supports.CSSProperty) {
  * -----------------------------------------------------------------------------------------------*/
 
 function getAvailableTokenPropertiesWithVariants(config: Tokenami.Config) {
-  const configBreakpoints = Object.keys(config.theme.breakpoints || {});
-  const allAliases = Object.values(config.aliases || {}).flat();
-  const allProperties = unique([...Supports.properties, ...allAliases]);
-  let availableProperties = [];
+  const configMedia = Object.keys(config.media || {});
+  const allTokenAliases = Object.values(config.aliases || {}).flat();
+  const allTokenProperties = unique([...Supports.properties, ...allTokenAliases]);
+  let tokenProperties = [];
 
-  for (const cssProperty of allProperties) {
-    availableProperties.push(Tokenami.tokenProperty(cssProperty));
+  for (const tokenProperty of allTokenProperties) {
+    tokenProperties.push(Tokenami.tokenProperty(tokenProperty));
     for (const pseudo of Supports.pseudoClasses) {
       const rawPseudo = pseudo.replace(':', '');
-      availableProperties.push(Tokenami.tokenProperty(`${rawPseudo}_${cssProperty}`));
+      tokenProperties.push(Tokenami.tokenProperty(`${rawPseudo}_${tokenProperty}`));
     }
-    for (const breakpoint of configBreakpoints) {
-      availableProperties.push(Tokenami.tokenProperty(`${breakpoint}_${cssProperty}`));
+    for (const media of configMedia) {
+      tokenProperties.push(Tokenami.tokenProperty(`${media}_${tokenProperty}`));
     }
   }
-  return unique(availableProperties);
+  return unique(tokenProperties);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

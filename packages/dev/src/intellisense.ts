@@ -19,7 +19,7 @@ function generate(config: Tokenami.Config, path = './dev.d.ts') {
     `interface Config extends Tokenami.Config ${JSON.stringify(config)}`
   );
 
-  tokenProperties.forEach((tokenProperty) => {
+  tokenProperties.forEach((tokenProperty: Tokenami.TokenProperty) => {
     const tokenPropertyName = Tokenami.getTokenPropertyName(tokenProperty);
     const [alias] = tokenPropertyName.split('_').reverse() as [string, string?];
     const cssProperties = Tokenami.getCSSPropertiesForAlias(alias, config);
@@ -31,11 +31,11 @@ function generate(config: Tokenami.Config, path = './dev.d.ts') {
       if (cssPropertyConfig?.length) {
         schema = [`TokenValue<'${cssProperty}'>`, 'Tokenami.AnyValue'];
         if (cssPropertyConfig.includes('grid')) schema.push('Tokenami.GridValue');
+      } else {
+        schema = ['Tokenami.AnyValue'];
       }
 
-      if (schema.length) {
-        outputProperties[tokenProperty] = schema;
-      }
+      outputProperties[tokenProperty] = schema;
     });
   });
 
