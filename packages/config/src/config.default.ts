@@ -18,6 +18,7 @@ const defaultConfig = {
     radii: {},
     size: {},
     shadow: {},
+    surface: {},
     tracking: {},
     transition: {},
     weight: {},
@@ -38,8 +39,9 @@ const defaultConfig = {
   },
   properties: {
     'animation-timing-function': ['grid'],
-    background: ['color'],
+    background: ['color', 'surface'],
     'background-color': ['color'],
+    'background-image': ['surface'],
     'background-position': ['grid'],
     'background-position-x': ['grid'],
     'background-position-y': ['grid'],
