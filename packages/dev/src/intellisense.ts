@@ -1,50 +1,51 @@
-import type { Config } from '@tokenami/config';
-import {
-  SHEET_CONFIG,
-  THEME_CONFIG,
-  getConfigPropertiesForAlias,
-  getAvailableTokenPropertiesWithVariants,
-} from '@tokenami/config';
+import * as Tokenami from '@tokenami/config';
 import * as fs from 'fs';
 import * as url from 'url';
 import * as pathe from 'pathe';
 
-function generate(config: Config, path = './dev.d.ts') {
+/* -------------------------------------------------------------------------------------------------
+ * generate
+ * -----------------------------------------------------------------------------------------------*/
+
+function generate(config: Tokenami.Config, path = './dev.d.ts') {
   const outDir = pathe.dirname(url.fileURLToPath(import.meta.url));
-  const availableTokens = getAvailableTokenPropertiesWithVariants(config);
-  const outputProperties = new Set<string>();
+  const tokenProperties = Tokenami.getAvailableTokenPropertiesWithVariants(config);
+  const outputProperties: Record<string, string[]> = {};
   const outFile = pathe.join(outDir, path);
   let output = fs.readFileSync(outFile, 'utf8');
 
-  output = output.replace('interface Theme {}', `interface Theme ${JSON.stringify(config.theme)}`);
+  output = output.replace(
+    'interface Config extends Tokenami.Config {}',
+    `interface Config extends Tokenami.Config ${JSON.stringify(config)}`
+  );
 
-  for (const token of availableTokens) {
-    const tokenName = token.replace(/^--/, '');
-    const [alias] = tokenName.split('_').reverse() as [string, string?];
-    const properties = getConfigPropertiesForAlias(alias, config);
+  tokenProperties.forEach((tokenProperty) => {
+    const tokenPropertyName = Tokenami.getTokenPropertyName(tokenProperty);
+    const [alias] = tokenPropertyName.split('_').reverse() as [string, string?];
+    const cssProperties = Tokenami.getCSSPropertiesForAlias(alias, config);
 
-    for (const [prop] of properties) {
-      const themeKey = SHEET_CONFIG.themeConfig[prop]?.themeKey;
-      const prefix = themeKey ? (THEME_CONFIG as any)[themeKey]?.prefix : undefined;
-      const values = themeKey ? Boolean((config.theme as any)[themeKey]) : undefined;
-      let value: string;
+    cssProperties.forEach((cssProperty: Tokenami.CSSProperty) => {
+      const cssPropertyConfig = config.properties?.[cssProperty];
+      let schema: string[] = outputProperties[tokenProperty] || [];
 
-      if (themeKey === 'grid') {
-        value = `ArbitraryValue | number`;
-      } else if (themeKey === 'sizes') {
-        value = `ArbitraryValue | number | ThemeValue<'${prop}'>`;
-      } else if (themeKey && prefix && values) {
-        value = `ArbitraryValue | ThemeValue<'${prop}'>`;
-      } else {
-        value = `ArbitraryValue`;
+      if (cssPropertyConfig?.length) {
+        schema = [`TokenValue<'${cssProperty}'>`, 'Tokenami.AnyValue'];
+        if (cssPropertyConfig.includes('grid')) schema.push('Tokenami.GridValue');
       }
-      outputProperties.add(`'--${tokenName}'?: ${value};`);
-    }
-  }
+
+      if (schema.length) {
+        outputProperties[tokenProperty] = schema;
+      }
+    });
+  });
+
+  const outputPropertiesStrings = Object.entries(outputProperties).map(
+    ([tokenProperty, schema]) => `'${tokenProperty}'?: ${schema.join(' | ')};`
+  );
 
   output = output.replace(
     /\/\/ TOKENAMI_TOKENS_START(.*)\/\/ TOKENAMI_TOKENS_END/s,
-    `// TOKENAMI_TOKENS_START\n${Array.from(outputProperties).join('\n')}\n// TOKENAMI_TOKENS_END`
+    `// TOKENAMI_TOKENS_START\n${outputPropertiesStrings.join('\n')}\n// TOKENAMI_TOKENS_END`
   );
 
   fs.writeFileSync(outFile, output, { flag: 'w' });

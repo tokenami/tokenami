@@ -1,108 +1,83 @@
-import type { Theme } from '~/theme';
-import type { TokenamiProperty } from '~/sheet';
-import * as pathe from 'pathe';
-import { SHEET_CONFIG } from '~/sheet';
+import { z } from 'zod';
+import * as CSS from 'csstype';
+import * as Supports from './supports';
 
-type Validator = (value: unknown, values: string[]) => boolean;
+const tokenProperty = (name: string) => `---${name}`;
+const tokenValue = (themeKey: string, name: string) => `var(---${themeKey}-${name})`;
+const anyValue = (value: string) => `var(---,${value})`;
+const themeValues = (theme: Theme) => (themeKey: ThemeKey) => theme[themeKey];
+
+const tokenPropertyRegex = /---([a-z]+)/;
+const tokenValueRegex = /var\(---([\w-]+)-([\w-]+)\)/;
+const anyValueRegex = /var\(---,(.+)\)/;
+
+const GridValue = z.number();
+
+const TokenProperty = z.string().refine((value) => {
+  return tokenPropertyRegex.test(value);
+});
+
+const TokenValue = z.string().refine((value) => {
+  return tokenValueRegex.test(value);
+});
+
+const AnyValue = z.string().refine((value) => {
+  return anyValueRegex.test(value);
+});
+
+type GridValue = z.infer<typeof GridValue>;
+type TokenProperty<P extends string = string> = `---${P}`;
+type TokenValue<TK extends string = string, V extends string = string> = `var(---${TK}-${V})`;
+type AnyValue = string & {};
+
+type ThemeKey =
+  | 'alpha'
+  | 'border'
+  | 'color'
+  | 'ease'
+  | 'font-size'
+  | 'leading'
+  | 'line-style'
+  | 'radii'
+  | 'size'
+  | 'shadow'
+  | 'tracking'
+  | 'transition'
+  | 'weight'
+  | 'z'
+  | (string & {});
+
+type ThemeValues = Record<string, string | number>;
+type Theme = Partial<Record<ThemeKey, ThemeValues>>;
+type Aliases = Partial<Record<keyof CSS.StandardLonghandPropertiesHyphen, string[]>>;
+type PropertiesOptions = readonly ('grid' | ThemeKey)[];
 
 interface Config {
   include: string[];
   exclude?: string[];
-  aliases?: Partial<Record<TokenamiProperty, string[]>>;
+  media?: { [name: string]: string | number };
+  aliases?: Aliases;
+  grid: string;
   theme: Theme;
-}
-
-const DEFAULT_PATH = './tokenami.config.js';
-const DEFAULT_CONFIG = {
-  include: [],
-  aliases: {
-    'background-color': ['background-color', 'bg-color'],
-    'column-gap': ['column-gap', 'gap'],
-    'row-gap': ['row-gap', 'gap'],
-    'margin-left': ['margin-left', 'ml', 'mx', 'm'],
-    'margin-right': ['margin-right', 'mr', 'mx', 'm'],
-    'margin-top': ['margin-top', 'mt', 'my', 'm'],
-    'margin-bottom': ['margin-bottom', 'mb', 'my', 'm'],
-    'padding-left': ['padding-left', 'pl', 'px', 'p'],
-    'padding-right': ['padding-right', 'pr', 'px', 'p'],
-    'padding-top': ['padding-top', 'pt', 'py', 'p'],
-    'padding-bottom': ['padding-bottom', 'pb', 'py', 'p'],
-  },
-  theme: {
-    grid: '1px',
-    breakpoints: {},
-    colors: {},
-    radii: {},
-  },
-} satisfies Config;
-
-/* -------------------------------------------------------------------------------------------------
- * getConfigPath
- * -----------------------------------------------------------------------------------------------*/
-
-function getConfigPath(cwd: string, path = DEFAULT_PATH) {
-  return pathe.join(cwd, path);
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getMergedConfig
- * -----------------------------------------------------------------------------------------------*/
-
-interface GetConfigOptions {
-  path?: string;
-  include?: string[];
-}
-
-function mergedConfigs(theirs: Config, opts: GetConfigOptions = {}): Config {
-  return {
-    ...DEFAULT_CONFIG,
-    ...theirs,
-    include: opts.include || theirs.include || DEFAULT_CONFIG.include,
-    theme: { ...DEFAULT_CONFIG.theme, ...theirs.theme },
-  };
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getConfigPropertiesForAlias
- * -----------------------------------------------------------------------------------------------*/
-
-// an alias can be used for multiple properties
-function getConfigPropertiesForAlias(alias: string, config: Config) {
-  const aliases = config.aliases || {};
-  const result = Object.entries(aliases).filter(([_, aliases]) => aliases.includes(alias));
-  return (result.length ? result : [[alias, [alias]]]) as [TokenamiProperty, string[]][];
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getAvailableTokenPropertiesWithVariants
- * -----------------------------------------------------------------------------------------------*/
-
-function getAvailableTokenPropertiesWithVariants(config: Config) {
-  const { properties, pseudoClasses } = SHEET_CONFIG;
-  const configBreakpoints = Object.keys(config.theme.breakpoints || {});
-  const allAliases = Object.values(config.aliases || {}).flat();
-  const allProperties = [...properties, ...allAliases] as string[];
-  let availableProperties = [];
-
-  for (const prop of allProperties) {
-    availableProperties.push(`--${prop}`);
-    for (const pseudo of pseudoClasses) {
-      availableProperties.push(`--${pseudo.replace(':', '')}_${prop}`);
-    }
-    for (const breakpoint of configBreakpoints) {
-      availableProperties.push(`--${breakpoint}_${prop}`);
-    }
-  }
-  return availableProperties;
+  properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { Config };
+function getTokenPropertyName(tokenProperty: TokenProperty) {
+  return tokenProperty.replace(tokenPropertyRegex, '$1');
+}
+
+export type { Config, Theme, Aliases };
 export {
-  DEFAULT_PATH,
-  getConfigPath,
-  mergedConfigs,
-  getConfigPropertiesForAlias,
-  getAvailableTokenPropertiesWithVariants,
+  TokenProperty,
+  TokenValue,
+  GridValue,
+  AnyValue,
+  //
+  tokenProperty,
+  tokenValue,
+  anyValue,
+  themeValues,
+  getTokenPropertyName,
 };

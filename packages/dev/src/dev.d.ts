@@ -1,22 +1,30 @@
 import 'csstype';
-import { type TokenamiProperty, SHEET_CONFIG, THEME_CONFIG } from '@tokenami/config';
+import * as Tokenami from '@tokenami/config';
 
-interface Theme {}
-type SheetConfig = typeof SHEET_CONFIG;
-type ThemeConfig = typeof THEME_CONFIG;
-type ThemeKey<P> = P extends TokenamiProperty ? SheetConfig['themeConfig'][P]['themeKey'] : never;
-type Values<P> = ThemeKey<P> extends keyof Theme ? keyof Theme[ThemeKey<P>] : never;
-type Prefix<P> = ThemeKey<P> extends keyof ThemeConfig ? ThemeConfig[ThemeKey<P>]['prefix'] : never;
+interface Config extends Tokenami.Config {}
 
-type ArbitraryValue = string & {};
-type ThemeValue<P> = Prefix<P> extends string
-  ? Values<P> extends string
-    ? `var(---${Prefix<P>}-${Values<P>})`
+type PropertyConfig = Config['properties'];
+
+type Prefix<P = any> = P extends keyof PropertyConfig
+  ? Exclude<PropertyConfig[P][number], 'grid'>
+  : never;
+
+type Values<Pfx extends Prefix> = Pfx extends keyof Config['theme']
+  ? keyof Config['theme'][Pfx]
+  : never;
+
+type TokenValue<P> = Prefix<P> extends string
+  ? Values<Prefix<P>> extends string
+    ? Tokenami.TokenValue<Prefix<P>, Values<Prefix<P>>>
     : never
   : never;
 
+type AllProperties = Partial<{
+  [key in Tokenami.TokenProperty<Tokenami.CSSProperty>]: Tokenami.AnyValue;
+}>;
+
 declare module 'csstype' {
-  interface Properties {
+  interface Properties extends AllProperties {
     // TOKENAMI_TOKENS_START
     // TOKENAMI_TOKENS_END
     [key: `--${string}`]: string | number;

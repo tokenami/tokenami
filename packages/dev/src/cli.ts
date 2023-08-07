@@ -1,14 +1,13 @@
-import type { Config } from '@tokenami/config';
-import { getConfigPath, mergedConfigs } from '@tokenami/config';
-import { createRequire } from 'module';
-import * as fs from 'fs';
-import * as pathe from 'pathe';
-import glob from 'fast-glob';
+import * as Tokenami from '@tokenami/config';
 import cac from 'cac';
+import glob from 'fast-glob';
+import * as fs from 'fs';
+import { createRequire } from 'module';
 import * as chokidar from 'chokidar';
+import * as pathe from 'pathe';
 import * as sheet from '~/sheet';
 import * as intellisense from '~/intellisense';
-import * as log from './log';
+import * as log from '~/log';
 import pkgJson from '~/../package.json';
 
 const require = createRequire(import.meta.url);
@@ -23,21 +22,22 @@ const run = () => {
     .option('-c, --config [path]', 'Path to a custom config file')
     .option('-o, --output [path]', 'Output file', { default: 'public/tokenami.css' })
     .option('-w, --watch', 'Watch for changes and rebuild as needed')
+    .option('-w, --watch', 'Watch for changes and rebuild as needed')
     .action(async (_, flags) => {
       const startTime = startTimer();
       const config = getConfig(cwd, { path: flags.config, include: flags.files });
 
       if (!config.include.length) log.error('Provide a glob pattern to include files');
 
-      async function regenerateStylesheet(file: string, config: Config) {
+      async function regenerateStylesheet(file: string, config: Tokenami.Config) {
         const generateTime = startTimer();
-        const usedTokens = await findUsedTokenProperties(cwd, config.include, config.exclude);
-        generateStyles(cwd, flags.output, usedTokens, config);
+        const usedTokenProps = await findUsedTokenProperties(cwd, config.include, config.exclude);
+        generateStyles(cwd, flags.output, usedTokenProps, config);
         log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
       }
 
       if (flags.watch) {
-        const configWatcher = watch(cwd, [getConfigPath(cwd, flags.config)]);
+        const configWatcher = watch(cwd, [Tokenami.getConfigPath(cwd, flags.config)]);
         const tokenWatcher = watch(cwd, config.include, config.exclude);
         log.debug(`Watching for changes to ${config.include}.`);
 
@@ -66,29 +66,26 @@ const run = () => {
   cli.parse();
 };
 
-try {
-  run();
-} catch (e) {
-  log.error(e instanceof Error ? e.message : 'Unknown error occurred.');
-}
+/* -------------------------------------------------------------------------------------------------
+ * generateStyles
+ * -----------------------------------------------------------------------------------------------*/
 
-/* ---------------------------------------------------------------------------------------------- */
-
-function startTimer() {
-  const start = performance.now();
-  return () => {
-    const stop = performance.now();
-    return Math.round(stop - start);
-  };
-}
-
-function generateStyles(cwd: string, out: string, usedTokens: string[], config: Config) {
+function generateStyles(
+  cwd: string,
+  out: string,
+  usedTokens: Tokenami.TokenProperty[],
+  config: Tokenami.Config
+) {
   const outDir = pathe.join(cwd, pathe.dirname(out));
   const outPath = pathe.join(cwd, out);
   const output = sheet.generate(usedTokens, outPath, config);
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(outPath, output, { flag: 'w' });
 }
+
+/* -------------------------------------------------------------------------------------------------
+ * watch
+ * -----------------------------------------------------------------------------------------------*/
 
 function watch(cwd: string, include: string[], exclude?: string[]) {
   return chokidar.watch(include, {
@@ -100,31 +97,74 @@ function watch(cwd: string, include: string[], exclude?: string[]) {
   });
 }
 
-async function findUsedTokenProperties(dir: string, include: string[], ignore?: string[]) {
-  const entries = await glob(include, { cwd: dir, onlyFiles: true, stats: false, ignore });
-  const matches = entries.flatMap((entry) => {
+/* -------------------------------------------------------------------------------------------------
+ * findUsedCssVariables
+ * -----------------------------------------------------------------------------------------------*/
+
+async function findUsedCssVariables(cwd: string, include: string[], ignore?: string[]) {
+  const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore });
+  const allCssVariables = entries.flatMap((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
-    const matches = fileContent.matchAll(/(?<token>--[a-z-_]+)("|')?\:/g);
-    return Array.from(matches).map((match) => match.groups!.token!);
+    const matches = fileContent.matchAll(/(?<cssVar>--[a-z-_]+)("|')?\:/g);
+    return Array.from(matches, (match) => match.groups?.cssVar);
   });
-  const uniqueMatches = new Set(matches);
-  return Array.from(uniqueMatches);
+  const unique = new Set(allCssVariables);
+  return Array.from(unique);
 }
+
+/* -------------------------------------------------------------------------------------------------
+ * findUsedTokenProperties
+ * -----------------------------------------------------------------------------------------------*/
+
+async function findUsedTokenProperties(cwd: string, include: string[], ignore?: string[]) {
+  const cssVariables = await findUsedCssVariables(cwd, include, ignore);
+  const tokenamiProperties = cssVariables.map((variable) => {
+    const validated = Tokenami.TokenProperty.safeParse(variable);
+    return validated.success ? [validated.data] : [];
+  });
+  return tokenamiProperties.flat() as Tokenami.TokenProperty[];
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getConfig
+ * -----------------------------------------------------------------------------------------------*/
 
 interface GetConfigOptions {
   path?: string;
   include?: string[];
 }
 
+function getConfig(cwd: string, opts: GetConfigOptions = {}): Tokenami.Config {
+  const configPath = Tokenami.getConfigPath(cwd, opts.path);
+  const theirs = fs.existsSync(configPath) ? reloadModule(configPath) : {};
+  return Tokenami.mergedConfigs({ ...theirs, include: opts.include || theirs.include });
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * reloadModule
+ * -----------------------------------------------------------------------------------------------*/
+
 function reloadModule(moduleName: string) {
-  if (require.cache) {
-    delete require.cache[require.resolve(moduleName)];
-  }
+  delete require.cache[require.resolve(moduleName)];
   return require(moduleName);
 }
 
-function getConfig(cwd: string, opts: GetConfigOptions = {}): Config {
-  const configPath = getConfigPath(cwd, opts.path);
-  const theirs = fs.existsSync(configPath) ? reloadModule(configPath) : {};
-  return mergedConfigs(theirs);
+/* -------------------------------------------------------------------------------------------------
+ * startTimer
+ * -----------------------------------------------------------------------------------------------*/
+
+function startTimer() {
+  const start = performance.now();
+  return () => {
+    const stop = performance.now();
+    return Math.round(stop - start);
+  };
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+
+try {
+  run();
+} catch (e) {
+  log.error(e instanceof Error ? e.message : 'Unknown error occurred.');
 }

@@ -1,16 +1,5 @@
-import type { Config } from '@tokenami/config';
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import * as fs from 'fs';
-import {
-  getConfigPath,
-  mergedConfigs,
-  getAvailableTokenPropertiesWithVariants,
-} from '@tokenami/config';
-import pkgJson from '../../package.json';
-
-interface PluginSettings {
-  projectRoot?: string;
-}
+import * as Tokenami from '@tokenami/config';
 
 export const MESSAGE_HAS_ARBITRARY_VALUE = 'ARBITRARY_VALUE';
 const MESSAGE_REMOVE_ARBITRARY_VALUE = 'REMOVE_ARBITRARY_VALUE';
@@ -28,22 +17,23 @@ export const rule: TSESLint.RuleModule<
       recommended: 'warn',
     },
     messages: {
-      [MESSAGE_HAS_ARBITRARY_VALUE]: `Update theme or use "var(---,{{value}})" to mark as arbitrary.`,
-      [MESSAGE_REMOVE_ARBITRARY_VALUE]: `Use "var(---,{{value}})" to mark as arbitrary.`,
+      [MESSAGE_HAS_ARBITRARY_VALUE]: `Use a value from theme or mark as arbitrary with "var(---,{{value}})".`,
+      [MESSAGE_REMOVE_ARBITRARY_VALUE]: `Use "var(---,{{value}})" to mark as arbitrary`,
     },
   },
   create(context) {
-    const settings = getSettings(context.settings);
-    const cwd = settings.projectRoot || context.getCwd?.() || process.cwd();
-    const configPath = getConfigPath(cwd);
-    const config = mergedConfigs(fs.existsSync(configPath) ? require(configPath) : {});
-
     return {
       async ['Property:matches([key.value=/^--/])'](node: TSESTree.Property) {
         if (isLiteral(node.key) && isLiteral(node.value)) {
           const key = node.key.value;
           const value = node.value.value;
-          if (isTokenamiToken(key, config) && !isArbitraryValue(value) && !isVariableValue(value)) {
+
+          if (
+            isTokenProperty(key) &&
+            !isTokenValue(value) &&
+            !isArbitraryValue(value) &&
+            !isGridValue(value)
+          ) {
             context.report({
               node: node.value,
               messageId: MESSAGE_HAS_ARBITRARY_VALUE,
@@ -63,25 +53,20 @@ export const rule: TSESLint.RuleModule<
   },
 };
 
-function getSettings(settings: TSESLint.SharedConfigurationSettings): PluginSettings {
-  return settings[pkgJson.name.replace('eslint-plugin-', '')] || {};
+function isTokenProperty(key: TSESTree.Literal['value']): key is Tokenami.TokenProperty {
+  return Tokenami.TokenProperty.safeParse(key).success;
 }
 
-type Token = `--${string})`;
-type TokenValue = `var(---${string})`;
-
-function isTokenamiToken(key: TSESTree.Literal['value'], config: Config): key is Token {
-  const availableTokens = getAvailableTokenPropertiesWithVariants(config);
-  if (typeof key !== 'string') return false;
-  return availableTokens.includes(key);
+function isArbitraryValue(value: TSESTree.Literal['value']): value is Tokenami.AnyValue {
+  return Tokenami.AnyValue.safeParse(value).success;
 }
 
-function isArbitraryValue(value: TSESTree.Literal['value']): value is string {
-  return typeof value === 'string' && /var\(---,.+\)/.test(value);
+function isTokenValue(value: TSESTree.Literal['value']): value is Tokenami.TokenValue {
+  return Tokenami.TokenValue.safeParse(value).success;
 }
 
-function isVariableValue(value: TSESTree.Literal['value']): value is TokenValue {
-  return typeof value === 'string' && /var\(---[a-z-_].+\)/i.test(value);
+function isGridValue(value: TSESTree.Literal['value']): value is Tokenami.GridValue {
+  return Tokenami.GridValue.safeParse(value).success;
 }
 
 function isLiteral(node: TSESTree.Node): node is TSESTree.Literal {
