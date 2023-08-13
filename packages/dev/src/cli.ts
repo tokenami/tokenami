@@ -19,9 +19,7 @@ const run = () => {
   cli
     .command('[files]', 'Include file glob')
     .option('-c, --config [path]', 'Path to a custom config file')
-    .option('-c, --config [path]', 'Path to a custom config file')
     .option('-o, --output [path]', 'Output file', { default: 'public/tokenami.css' })
-    .option('-w, --watch', 'Watch for changes and rebuild as needed')
     .option('-w, --watch', 'Watch for changes and rebuild as needed')
     .action(async (_, flags) => {
       const startTime = startTimer();

@@ -17,8 +17,8 @@ export const rule: TSESLint.RuleModule<
       recommended: 'warn',
     },
     messages: {
-      [MESSAGE_HAS_ARBITRARY_VALUE]: `Use a value from theme or mark as arbitrary with "var(---,{{value}})".`,
-      [MESSAGE_REMOVE_ARBITRARY_VALUE]: `Use "var(---,{{value}})" to mark as arbitrary`,
+      [MESSAGE_HAS_ARBITRARY_VALUE]: `Use theme token or mark arbitrary with "var(---,{{value}})".`,
+      [MESSAGE_REMOVE_ARBITRARY_VALUE]: `Use "var(---,{{value}})"`,
     },
   },
   create(context) {
