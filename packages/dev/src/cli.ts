@@ -21,6 +21,7 @@ const run = () => {
     .option('-c, --config [path]', 'Path to a custom config file')
     .option('-o, --output [path]', 'Output file', { default: 'public/tokenami.css' })
     .option('-w, --watch', 'Watch for changes and rebuild as needed')
+    .option('--minify', 'Minify CSS output')
     .action(async (_, flags) => {
       const startTime = startTimer();
       const config = getConfig(cwd, { path: flags.config, include: flags.files });
@@ -30,7 +31,7 @@ const run = () => {
       async function regenerateStylesheet(file: string, config: Tokenami.Config) {
         const generateTime = startTimer();
         const usedTokenProps = await findUsedTokenProperties(cwd, config.include, config.exclude);
-        generateStyles(cwd, flags.output, usedTokenProps, config);
+        generateStyles(cwd, flags.output, usedTokenProps, config, flags.minify);
         log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
       }
 
@@ -54,7 +55,7 @@ const run = () => {
       }
 
       const usedTokens = await findUsedTokenProperties(cwd, config.include, config.exclude);
-      generateStyles(cwd, flags.output, usedTokens, config);
+      generateStyles(cwd, flags.output, usedTokens, config, flags.minify);
       intellisense.generate(config);
       log.debug(`Ready in ${startTime()}ms.`);
     });
@@ -72,11 +73,12 @@ function generateStyles(
   cwd: string,
   out: string,
   usedTokens: Tokenami.TokenProperty[],
-  config: Tokenami.Config
+  config: Tokenami.Config,
+  minify?: boolean
 ) {
   const outDir = pathe.join(cwd, pathe.dirname(out));
   const outPath = pathe.join(cwd, out);
-  const output = sheet.generate(usedTokens, outPath, config);
+  const output = sheet.generate(usedTokens, outPath, config, minify);
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(outPath, output, { flag: 'w' });
 }
