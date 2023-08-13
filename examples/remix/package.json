@@ -3,7 +3,7 @@
   "sideEffects": false,
   "scripts": {
     "prepare": "tokenami",
-    "build": "remix build",
+    "build": "tokenami --minify && remix build",
     "dev": "concurrently \"pnpm:dev:*\"",
     "dev:app": "remix dev",
     "dev:css": "tokenami --watch",
