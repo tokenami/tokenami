@@ -10,7 +10,8 @@ import * as lightning from 'lightningcss';
 function generate(
   usedTokenProperties: Tokenami.TokenProperty[],
   output: string,
-  config: Tokenami.Config
+  config: Tokenami.Config,
+  minify?: boolean
 ) {
   if (!usedTokenProperties.length) return '';
   // styles are split into these groups so we can control order in stylesheet
@@ -140,7 +141,7 @@ function generate(
   // return sheet;
 
   const code = Buffer.from(sheet);
-  const transformed = lightning.transform({ filename: output, code, minify: false });
+  const transformed = lightning.transform({ filename: output, code, minify });
   return transformed.code.toString();
 }
 
