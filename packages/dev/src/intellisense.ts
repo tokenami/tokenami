@@ -15,7 +15,7 @@ function generate(config: Tokenami.Config, path = './dev.d.ts') {
   let output = fs.readFileSync(outFile, 'utf8');
 
   output = output.replace(
-    'interface Config extends Tokenami.Config {}',
+    /interface Config extends Tokenami\.Config {(.+)?}/,
     `interface Config extends Tokenami.Config ${JSON.stringify(config)}`
   );
 
