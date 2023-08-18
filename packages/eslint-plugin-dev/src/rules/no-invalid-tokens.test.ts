@@ -15,7 +15,7 @@ const validStatements = [
     );
   }
   `,
-];
+] as const;
 
 const invalidStatments = [
   `const foo = { '--bg-color': 'var(--color-blue)' };`,
@@ -26,7 +26,7 @@ const invalidStatments = [
     );
   }
   `,
-];
+] as const;
 
 ruleTester.run('no-invalid-tokens', rule, {
   valid: validStatements,

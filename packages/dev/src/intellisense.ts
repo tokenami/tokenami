@@ -25,14 +25,14 @@ function generate(config: Tokenami.Config, path = './dev.d.ts') {
     const cssProperties = Tokenami.getCSSPropertiesForAlias(alias, config);
 
     cssProperties.forEach((cssProperty: Tokenami.CSSProperty) => {
-      const cssPropertyConfig = config.properties?.[cssProperty];
+      const themeKeys = config.properties?.[cssProperty] || [];
       let schema: string[] = outputProperties[tokenProperty] || [];
 
-      if (cssPropertyConfig?.length) {
-        schema = [`TokenValue<'${cssProperty}'>`, 'Tokenami.AnyValue'];
-        if (cssPropertyConfig.includes('grid')) schema.push('Tokenami.GridValue');
+      if (themeKeys.length) {
+        schema = [`TokenValue<'${cssProperty}'>`, 'Tokenami.ArbitraryValue'];
+        if (themeKeys.includes('grid')) schema.push('Tokenami.GridValue');
       } else {
-        schema = ['Tokenami.AnyValue'];
+        schema = [`CSSPropertyValue<'${cssProperty}'>`];
       }
 
       outputProperties[tokenProperty] = schema;
