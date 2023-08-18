@@ -8,6 +8,7 @@ import * as pathe from 'pathe';
 import * as sheet from '~/sheet';
 import * as intellisense from '~/intellisense';
 import * as log from '~/log';
+import { execSync } from 'child_process';
 import pkgJson from '~/../package.json';
 
 const require = createRequire(import.meta.url);
@@ -15,6 +16,25 @@ const require = createRequire(import.meta.url);
 const run = () => {
   const cli = cac('✨ tokenami');
   const cwd = process.cwd();
+
+  cli
+    .command('init')
+    .option('-c, --config [path]', 'Path to a custom config file')
+    .action((_, flags) => {
+      const configPath = Tokenami.getConfigPath(cwd, flags?.config);
+      const outDir = pathe.join(cwd, pathe.dirname(configPath));
+      const initialConfig = Tokenami.generateConfig();
+      const packageManager = detectPackageManager(cwd);
+
+      fs.mkdirSync(outDir, { recursive: true });
+      fs.writeFileSync(configPath, initialConfig, { flag: 'w' });
+
+      if (packageManager) {
+        installPackage('@tokenami/eslint-plugin-dev', packageManager);
+      } else {
+        log.error('Package manager not detected');
+      }
+    });
 
   cli
     .command('[files]', 'Include file glob')
@@ -137,7 +157,8 @@ interface GetConfigOptions {
 function getConfig(cwd: string, opts: GetConfigOptions = {}): Tokenami.Config {
   const configPath = Tokenami.getConfigPath(cwd, opts.path);
   const theirs = fs.existsSync(configPath) ? reloadModule(configPath) : {};
-  return Tokenami.mergedConfigs({ ...theirs, include: opts.include || theirs.include });
+  const include = opts.include || theirs.include;
+  return Tokenami.mergedConfigs({ ...theirs, ...(include && { include }) });
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -147,6 +168,53 @@ function getConfig(cwd: string, opts: GetConfigOptions = {}): Tokenami.Config {
 function reloadModule(moduleName: string) {
   delete require.cache[require.resolve(moduleName)];
   return require(moduleName);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * detectPackageManager
+ * -----------------------------------------------------------------------------------------------*/
+
+type PackageManager = 'npm' | 'pnpm' | 'yarn';
+
+const packageManagerFiles: Record<PackageManager, string> = {
+  npm: 'package-lock.json',
+  yarn: 'yarn.lock',
+  pnpm: 'pnpm-lock.yaml',
+};
+
+function detectPackageManager(cwd: string) {
+  const rootPath = pathe.parse(pathe.resolve(cwd)).root;
+  let packageManager = null;
+  let currentDir = cwd;
+
+  while (currentDir !== rootPath) {
+    for (const [manager, file] of Object.entries(packageManagerFiles)) {
+      const filePath = pathe.join(currentDir, file);
+      if (fs.existsSync(filePath)) {
+        packageManager = manager as PackageManager;
+        break;
+      }
+    }
+    currentDir = pathe.dirname(currentDir);
+  }
+
+  return packageManager;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * installPackage
+ * -----------------------------------------------------------------------------------------------*/
+
+const packageManagerCommands: Record<PackageManager, string> = {
+  npm: 'npm i -D',
+  yarn: 'yarn add -D',
+  pnpm: 'pnpm i -D',
+};
+
+function installPackage(packageName: string, packageManager: PackageManager) {
+  const installCommand = packageManagerCommands[packageManager];
+  if (!installCommand) log.error('Package manager not detected');
+  execSync(`${installCommand} ${packageName}`, { stdio: 'inherit' });
 }
 
 /* -------------------------------------------------------------------------------------------------

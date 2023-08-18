@@ -94,6 +94,9 @@ importers:
       '@tokenami/config':
         specifier: workspace:*
         version: link:../config
+      '@tokenami/eslint-plugin-dev':
+        specifier: workspace:*
+        version: link:../eslint-plugin-dev
       cac:
         specifier: ^6.7.14
         version: 6.7.14
@@ -109,6 +112,9 @@ importers:
       deepmerge:
         specifier: ^4.3.1
         version: 4.3.1
+      eslint:
+        specifier: '>= 8'
+        version: 8.43.0
       fast-glob:
         specifier: ^3.2.12
         version: 3.2.12
