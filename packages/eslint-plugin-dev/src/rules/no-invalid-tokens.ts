@@ -23,7 +23,7 @@ export const rule: TSESLint.RuleModule<
       recommended: 'error',
     },
     messages: {
-      [MESSAGE_INVALID_TOKEN]: `Use theme token or mark arbitrary with "var(---,{{value}})".`,
+      [MESSAGE_INVALID_TOKEN]: `Use theme value from {{keys}} or mark arbitrary with "var(---,{{value}})".`,
       [MESSAGE_MARK_ARBITRARY]: `Use "var(---,{{value}})"`,
     },
   },
@@ -59,18 +59,21 @@ export const rule: TSESLint.RuleModule<
             const isValidTokenValue = isTokenValue(value) && validTokenValues.includes(value);
 
             if (!isArbitraryValue(value) && !isValidTokenValue && !isThemedGridValue) {
+              const keys = themeKeys.join(', ') + ',';
               context.report({
                 node: node.value,
                 messageId: MESSAGE_INVALID_TOKEN,
-                data: { value },
+                data: { value, keys },
                 suggest: [
                   {
                     messageId: MESSAGE_MARK_ARBITRARY,
-                    data: { value },
+                    data: { value, keys },
                     fix: (fixer) => fixer.replaceText(node.value, `"var(---,${value})"`),
                   },
                 ],
               });
+              // we only want to report once per node
+              break;
             }
           }
         }
