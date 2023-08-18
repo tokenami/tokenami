@@ -4,10 +4,9 @@ const defaultConfig = {
   include: [],
   grid: '0.25rem',
   media: {},
-  keyframes: {
-  },
   theme: {
     alpha: {},
+    anim: {},
     border: {},
     color: {},
     ease: {},
@@ -38,6 +37,7 @@ const defaultConfig = {
   },
   properties: {
     'accent-color': ['color'],
+    animation: ['anim'],
     'animation-timing-function': ['ease'],
     background: ['color', 'surface'],
     'background-color': ['color'],
