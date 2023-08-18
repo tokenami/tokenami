@@ -56,21 +56,21 @@
 }
 
 [style*="---"] {
-  --_tk-i_height: var(---height, 0);
-  --_tk-i_min-height: var(---min-height, 0);
-  --_tk-i_margin-left: var(---margin-left, var(---ml, var(---mx, var(---m, 0))));
-  --_tk-i_margin-right: var(---margin-right, var(---mr, var(---mx, var(---m, 0))));
-  --_tk-i_margin-top: var(---margin-top, var(---mt, var(---my, var(---m, 0))));
-  --_tk-i_margin-bottom: var(---margin-bottom, var(---mb, var(---my, var(---m, 0))));
-  --_tk-i_padding-left: var(---padding-left, var(---pl, var(---px, var(---p, 0))));
-  --_tk-i_padding-right: var(---padding-right, var(---pr, var(---px, var(---p, 0))));
-  --_tk-i_padding-top: var(---padding-top, var(---pt, var(---py, var(---p, 0))));
-  --_tk-i_padding-bottom: var(---padding-bottom, var(---pb, var(---py, var(---p, 0))));
+  --_tk-i_height: var(---height, );
+  --_tk-i_min-height: var(---min-height, );
+  --_tk-i_margin-left: var(---margin-left, var(---ml, var(---mx, var(---m, ))));
+  --_tk-i_margin-right: var(---margin-right, var(---mr, var(---mx, var(---m, ))));
+  --_tk-i_margin-top: var(---margin-top, var(---mt, var(---my, var(---m, ))));
+  --_tk-i_margin-bottom: var(---margin-bottom, var(---mb, var(---my, var(---m, ))));
+  --_tk-i_padding-left: var(---padding-left, var(---pl, var(---px, var(---p, ))));
+  --_tk-i_padding-right: var(---padding-right, var(---pr, var(---px, var(---p, ))));
+  --_tk-i_padding-top: var(---padding-top, var(---pt, var(---py, var(---p, ))));
+  --_tk-i_padding-bottom: var(---padding-bottom, var(---pb, var(---py, var(---p, ))));
   --_tk-i_background-size: var(---background-size, );
   --_tk-i_background-image: var(---background-image, );
   --_tk-i_background-color: var(---background-color, var(---bg-color, ));
-  --_tk-i_background-position-x: var(---background-position-x, 0);
-  --_tk-i_background-position-y: var(---background-position-y, 0);
+  --_tk-i_background-position-x: var(---background-position-x, );
+  --_tk-i_background-position-y: var(---background-position-y, );
   --_tk-i_display: var(---display, );
   --_tk-i_flex-direction: var(---flex-direction, );
   --_tk-i_align-items: var(---align-items, );
@@ -80,7 +80,7 @@
   --_tk-i_overflow: var(---overflow, );
   --_tk-i_font-family: var(---font-family, );
   --_tk-i_line-height: var(---line-height, );
-  --_tk-i_width: var(---width, 0);
+  --_tk-i_width: var(---width, );
   --_tk-i_object-fit: var(---object-fit, );
   --_tk-i_font-size: var(---font-size, );
   --_tk-i_font-weight: var(---font-weight, );
