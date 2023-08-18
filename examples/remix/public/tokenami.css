@@ -1,5 +1,6 @@
 :root {
   ---grid: 4px;
+  ---anim-wiggle: wiggle 1s ease-in-out infinite;
   ---color-slate-100: #f1f5f9;
   ---color-slate-700: #334155;
   ---color-sky-500: #0ea5e9;
@@ -51,6 +52,7 @@
   ---hover_background-color: var(--_tk-i);
   ---hover_color: var(--_tk-i);
   ---transition: var(--_tk-i);
+  ---hover_animation: var(--_tk-i);
 }
 
 [style*="---"] {
@@ -85,10 +87,25 @@
   --_tk-i_color: var(---color, );
   --_tk-i_border: var(---border, );
   --_tk-i_transition: var(---transition, );
+  --_tk-i_animation: var(---animation, );
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+
+  50% {
+    transform: rotate(3deg);
+  }
 }
 
 [style*="---align-items:"] {
   align-items: var(--_tk-i_align-items);
+}
+
+[style*="---animation:"] {
+  animation: var(--_tk-i_animation);
 }
 
 [style*="---background-color:"], [style*="---bg-color:"] {
@@ -239,6 +256,10 @@
 
 [style*="---width:var"], [style*="---width: var"] {
   width: var(--_tk-i_width);
+}
+
+[style*="---hover_animation:"]:hover {
+  animation: var(---hover_animation, var(--_tk-i_animation));
 }
 
 [style*="---hover_background-color:"]:hover {

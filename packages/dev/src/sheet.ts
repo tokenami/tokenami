@@ -17,6 +17,7 @@ function generate(
   // styles are split into these groups so we can control order in stylesheet
   const resetGroup: Record<string, any> = {};
   const initialGroup: Record<string, any> = {};
+  const keyframesGroup: Record<string, any> = {};
   const atomicList: Record<string, any>[] = [];
   const atomicArbitraryList: Record<string, any>[] = [];
   const breakpointGroup: Record<string, Record<string, any>[]> = {};
@@ -30,6 +31,10 @@ function generate(
       ...Tokenami.getValuesByTokenValueProperty(config.theme),
     },
   };
+
+  Object.entries(config.keyframes || {}).forEach(([name, config]) => {
+    keyframesGroup[`@keyframes ${name}`] = config;
+  });
 
   usedTokenProperties.forEach((tokenProperty) => {
     const tokenPropertyName = Tokenami.getTokenPropertyName(tokenProperty);
@@ -131,6 +136,7 @@ function generate(
     ...root,
     ...resetGroup,
     ...initialGroup,
+    ...keyframesGroup,
     ...Object.assign({}, ...atomicList),
     ...Object.assign({}, ...atomicArbitraryList),
     ...Object.assign({}, ...pseudoList),
