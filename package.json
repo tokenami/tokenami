@@ -1,8 +1,7 @@
 {
   "name": "tokenami",
   "private": true,
-  "version": "1.0.0",
-  "description": "",
+  "license": "MIT",
   "scripts": {
     "prepare": "pnpm build",
     "dev": "pnpm --filter=./examples/remix dev",

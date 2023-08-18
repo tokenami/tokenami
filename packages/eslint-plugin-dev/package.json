@@ -1,9 +1,9 @@
 {
   "name": "@tokenami/eslint-plugin-dev",
-  "version": "1.0.0",
+  "version": "0.0.0",
+  "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
-  "license": "MIT",
   "exports": {
     ".": {
       "require": "./dist/index.js",
