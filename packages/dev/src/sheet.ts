@@ -184,12 +184,11 @@ function uniqueSelector(cssProperty: string) {
  * -----------------------------------------------------------------------------------------------*/
 
 function getInitialTokenValueVars(cssProperty: Tokenami.CSSProperty, config: Tokenami.Config) {
-  const initial = config.properties?.[cssProperty]?.includes('grid') ? '0' : '';
   const aliased = (config.aliases as any)?.[cssProperty] as string[] | undefined;
   const aliases = aliased || [cssProperty];
   return aliases.reduceRight(
     (fallback, alias) => `var(${Tokenami.tokenProperty(alias)}, ${fallback})`,
-    initial
+    ''
   );
 }
 
