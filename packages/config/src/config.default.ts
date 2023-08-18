@@ -2,10 +2,9 @@ import * as Tokenami from './config';
 
 const defaultConfig = {
   include: [],
-  grid: '0.2em',
-  media: {
-    sm: '(min-width: 300px)',
-    md: '(min-width: 700px)',
+  grid: '0.25rem',
+  media: {},
+  keyframes: {
   },
   theme: {
     alpha: {},
@@ -38,7 +37,8 @@ const defaultConfig = {
     'padding-bottom': ['padding-bottom', 'pb', 'py', 'p'],
   },
   properties: {
-    'animation-timing-function': ['grid'],
+    'accent-color': ['color'],
+    'animation-timing-function': ['ease'],
     background: ['color', 'surface'],
     'background-color': ['color'],
     'background-image': ['surface'],

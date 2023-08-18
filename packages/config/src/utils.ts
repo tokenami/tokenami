@@ -15,8 +15,9 @@ function getConfigPath(cwd: string, path = './tokenami.config.js') {
  * getValuesByTokenValueProperty
  * -----------------------------------------------------------------------------------------------*/
 
-function getValuesByTokenValueProperty(theme: Tokenami.Theme) {
-  const entries = Object.entries(theme).flatMap(([themeKey, values = []]) => {
+function getValuesByTokenValueProperty(theme: Tokenami.Theme, themeKeys?: string[]) {
+  const plucked = themeKeys ? Object.fromEntries(themeKeys.map((key) => [key, theme[key]])) : theme;
+  const entries = Object.entries(plucked).flatMap(([themeKey, values = []]) => {
     return Object.entries(values).map(([token, value]) => {
       const tokenValueProperty = Tokenami.tokenValue(themeKey, token).replace(/var\((.+)\)/, '$1');
       return [tokenValueProperty, value];

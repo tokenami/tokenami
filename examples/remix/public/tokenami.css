@@ -51,7 +51,6 @@
   ---hover_background-color: var(--_tk-i);
   ---hover_color: var(--_tk-i);
   ---transition: var(--_tk-i);
-  ---page-break-after: var(--_tk-i);
 }
 
 [style*="---"] {
@@ -86,7 +85,6 @@
   --_tk-i_color: var(---color, );
   --_tk-i_border: var(---border, );
   --_tk-i_transition: var(---transition, );
-  --_tk-i_page-break-after: var(---page-break-after, );
 }
 
 [style*="---align-items:"] {
@@ -188,10 +186,6 @@
 
 [style*="---pt:"] {
   padding-top: calc(var(---grid) * var(--_tk-i_padding-top));
-}
-
-[style*="---page-break-after:"] {
-  page-break-after: var(--_tk-i_page-break-after);
 }
 
 [style*="---text-align:"] {

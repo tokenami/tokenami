@@ -1,9 +1,10 @@
-import 'csstype';
+import * as CSS from 'csstype';
 import * as Tokenami from '@tokenami/config';
 
 interface Config extends Tokenami.Config {}
 
 type PropertyConfig = Config['properties'];
+type CSSPropertyValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.PropertiesHyphen[P] : never;
 
 type Prefix<P = any> = P extends keyof PropertyConfig
   ? Exclude<PropertyConfig[P][number], 'grid'>
