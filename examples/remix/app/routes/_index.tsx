@@ -12,23 +12,23 @@ export default function Index() {
         '---background-position-x': 1,
         '---background-position-y': 0.5,
         '---height': 'var(---size-screen-h)',
-        '---display': 'var(---,flex)',
-        '---flex-direction': 'var(---,column)',
-        '---align-items': 'var(---,center)',
-        '---justify-content': 'var(---,center)',
+        '---display': 'flex',
+        '---flex-direction': 'column',
+        '---align-items': 'center',
+        '---justify-content': 'center',
       }}
     >
       <figure
         style={{
           '---bg-color': 'var(---color-slate-100)',
           '---border-radius': 'var(---radii-rounded)',
-          '---text-align': 'var(---,center)',
-          '---overflow': 'var(---,hidden)',
+          '---text-align': 'center',
+          '---overflow': 'hidden',
           '---m': 10,
           '---p': 8,
-          '---md_display': 'var(---,flex)',
+          '---md_display': 'flex',
           '---md_p': 0,
-          '---md_text-align': 'var(---,left)',
+          '---md_text-align': 'left',
           '---font-family': 'var(---font-sans)',
           '---line-height': 'var(---,1.8)',
         }}
@@ -38,7 +38,7 @@ export default function Index() {
             '---width': 24,
             '---height': 24,
             '---border-radius': 'var(---radii-circle)',
-            '---object-fit': 'var(---,cover)',
+            '---object-fit': 'cover',
             '---md_width': 'var(---,11rem)',
             '---md_height': 'var(---size-auto)',
             '---md_border-radius': 'var(---radii-none)',
@@ -81,8 +81,6 @@ export default function Index() {
           '---hover_background-color': 'var(---color-slate-700)',
           '---hover_color': 'var(---,white)',
           '---transition': 'var(---,all 150ms)',
-          // TODO: THIS SHOULD NOT BE POSSIBLE
-          '---page-break-after': 'var(---color-slate-100)',
         }}
       >
         Button
