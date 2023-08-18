@@ -1,7 +1,9 @@
 import * as pathe from 'pathe';
-import defaultConfig from '~/config.default';
 import * as Tokenami from '~/config';
 import * as Supports from '~/supports';
+import defaultConfig from 'stubs/config.default';
+import path from 'path';
+import fs from 'fs';
 
 /* -------------------------------------------------------------------------------------------------
  * getConfigPath
@@ -41,6 +43,15 @@ function getCSSPropertiesForAlias(alias: string, config: Tokenami.Config): Suppo
   } else {
     return Supports.properties.includes(alias as any) ? [alias as Supports.CSSProperty] : [];
   }
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * generateConfig
+ * -----------------------------------------------------------------------------------------------*/
+
+function generateConfig() {
+  const initConfigPath = path.resolve(__dirname, '../stubs/config.init.cjs');
+  return fs.readFileSync(initConfigPath, 'utf8');
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -97,6 +108,7 @@ function unique<T>(array: T[]) {
 export {
   mergedConfigs,
   getConfigPath,
+  generateConfig,
   getValuesByTokenValueProperty,
   getCSSPropertiesForAlias,
   getSpecifictyOrderForCSSProperty,

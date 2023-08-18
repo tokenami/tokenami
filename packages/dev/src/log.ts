@@ -6,7 +6,7 @@ const chalk = new Chalk({ level: 1 });
  * error
  * -----------------------------------------------------------------------------------------------*/
 
-function error(str: string) {
+function error(str: string): never {
   console.error(`${chalk.bgRed(' tokenami ')} ${chalk.red(str)}`);
   process.exit(1);
 }

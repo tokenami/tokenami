@@ -1,4 +1,4 @@
-import * as Tokenami from './config';
+import * as Tokenami from '../src/config';
 
 const defaultConfig = {
   include: [],
