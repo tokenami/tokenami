@@ -35,8 +35,5 @@
     "/node_modules",
     "/build",
     "/public/build"
-  ],
-  "engines": {
-    "node": ">=14.0.0"
-  }
+  ]
 }
