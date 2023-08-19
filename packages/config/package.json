@@ -5,12 +5,13 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "repository": "https://github.com/tokenami/tokenami",
   "files": [
     "dist/*",
     "stubs/*"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format=esm,cjs --dts --shims"
+    "build": "tsup src/index.ts --format=esm,cjs --dts --shims --minify"
   },
   "dependencies": {
     "csstype": "^3.1.2",

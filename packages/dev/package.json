@@ -6,6 +6,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "repository": "https://github.com/tokenami/tokenami",
   "bin": {
     "tokenami": "bin.js"
   },
@@ -15,11 +16,8 @@
     "tokenami.config.js"
   ],
   "scripts": {
-    "build": "tsup --format=esm,cjs && cp src/dev.d.ts ./dist",
+    "build": "tsup --format=esm,cjs --minify && cp src/dev.d.ts ./dist",
     "dev": "pnpm build --watch src"
-  },
-  "engines": {
-    "node": ">= 14.0.0"
   },
   "devDependencies": {
     "@types/eslint": "^8.40.2",
