@@ -2,11 +2,6 @@ import { z } from 'zod';
 import * as CSS from 'csstype';
 import * as Supports from './supports';
 
-const tokenProperty = (name: string) => `---${name}`;
-const tokenValue = (themeKey: string, name: string) => `var(---${themeKey}-${name})`;
-const arbitraryValue = (value: string) => `var(---,${value})`;
-const themeValues = (theme: Theme) => (themeKey: ThemeKey) => theme[themeKey];
-
 const tokenPropertyRegex = /---([a-z]+)/;
 const tokenValueRegex = /var\(---([\w-]+)-([\w-]+)\)/;
 const aritraryValueRegex = /var\(---,(.+)\)/;
@@ -29,6 +24,23 @@ type GridValue = z.infer<typeof GridValue>;
 type TokenProperty<P extends string = string> = `---${P}`;
 type TokenValue<TK extends string = string, V extends string = string> = `var(---${TK}-${V})`;
 type ArbitraryValue = string & {};
+
+function tokenProperty(name: string): TokenProperty {
+  return `---${name}`;
+}
+
+function tokenValue<TK extends string, N extends string>(themeKey: TK, name: N): TokenValue<TK, N> {
+  return `var(---${themeKey}-${name})`;
+}
+
+function arbitraryValue(value: string): ArbitraryValue {
+  return `var(---,${value})`;
+}
+
+type S<P extends string, V> = { [key in `${P}`]?: V };
+type Selector<P extends string, M extends string, V> = S<`---${P}`, V> &
+  S<`---${M}_${P}`, V> &
+  S<`---${string}_${P}`, V>;
 
 type ThemeKey =
   | 'alpha'
@@ -69,7 +81,7 @@ function getTokenPropertyName(tokenProperty: TokenProperty) {
   return tokenProperty.replace(tokenPropertyRegex, '$1');
 }
 
-export type { Config, Theme, Aliases };
+export type { Config, Theme, Aliases, Selector };
 export {
   TokenProperty,
   TokenValue,
@@ -79,6 +91,5 @@ export {
   tokenProperty,
   tokenValue,
   arbitraryValue,
-  themeValues,
   getTokenPropertyName,
 };
