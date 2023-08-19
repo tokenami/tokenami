@@ -4,8 +4,8 @@ export default function Index() {
   return (
     <div
       style={{
-        ['--radial-gradient' as any]: 'radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)',
-        ['--grid-bg-size' as any]: 'calc(var(---grid) * 5)',
+        '--radial-gradient': 'radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)',
+        '--grid-bg-size': 'calc(var(---grid) * 5)',
         '---background-size': 'var(---,var(--grid-bg-size) var(--grid-bg-size))',
         '---background-image': 'var(---,var(--radial-gradient))',
         '---background-color': 'var(---color-sky-500)',

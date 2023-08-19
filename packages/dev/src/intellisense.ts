@@ -8,9 +8,8 @@ import * as pathe from 'pathe';
  * -----------------------------------------------------------------------------------------------*/
 
 function generate(config: Tokenami.Config, path = './dev.d.ts') {
+  const properties = getExtendedProperties(config);
   const outDir = pathe.dirname(url.fileURLToPath(import.meta.url));
-  const tokenProperties = Tokenami.getAvailableTokenPropertiesWithVariants(config);
-  const outputProperties: Record<string, string[]> = {};
   const outFile = pathe.join(outDir, path);
   let output = fs.readFileSync(outFile, 'utf8');
 
@@ -19,38 +18,35 @@ function generate(config: Tokenami.Config, path = './dev.d.ts') {
     `interface Config extends Tokenami.Config ${JSON.stringify(config)}`
   );
 
-  tokenProperties.forEach((tokenProperty: Tokenami.TokenProperty) => {
-    const tokenPropertyName = Tokenami.getTokenPropertyName(tokenProperty);
-    const [alias] = tokenPropertyName.split('_').reverse() as [string, string?];
-    const cssProperties = Tokenami.getCSSPropertiesForAlias(alias, config);
-
-    cssProperties.forEach((cssProperty: Tokenami.CSSProperty) => {
-      const themeKeys = config.properties?.[cssProperty] || [];
-      let schema: string[] = outputProperties[tokenProperty] || [];
-
-      if (themeKeys.length) {
-        schema = [`TokenValue<'${cssProperty}'>`, 'Tokenami.ArbitraryValue'];
-        if (themeKeys.includes('grid')) schema.push('Tokenami.GridValue');
-      } else {
-        schema = [`CSSPropertyValue<'${cssProperty}'>`];
-      }
-
-      outputProperties[tokenProperty] = schema;
-    });
-  });
-
-  const outputPropertiesStrings = Object.entries(outputProperties).map(
-    ([tokenProperty, schema]) => `'${tokenProperty}'?: ${schema.join(' | ')};`
-  );
-
   output = output.replace(
-    /\/\/ TOKENAMI_TOKENS_START(.*)\/\/ TOKENAMI_TOKENS_END/s,
-    `// TOKENAMI_TOKENS_START\n${outputPropertiesStrings.join('\n')}\n// TOKENAMI_TOKENS_END`
+    /interface Properties \/\*EXTENDS\*\/(.+)?{/,
+    `interface Properties /*EXTENDS*/ extends ${properties.join(',\n')} {`
   );
 
   fs.writeFileSync(outFile, output, { flag: 'w' });
 }
 
 /* ---------------------------------------------------------------------------------------------- */
+
+function getExtendedProperties(config: Tokenami.Config) {
+  const extendsProperties: Set<string> = new Set();
+
+  Tokenami.properties.forEach((cssProperty) => {
+    const themeKeys = config.properties?.[cssProperty] || [];
+    const aliases: string[] = (config.aliases as any)?.[cssProperty] || [];
+    const value = themeKeys.length
+      ? themeKeys.includes('grid')
+        ? `ThemedGridValue<'${cssProperty}'>`
+        : `ThemedValue<'${cssProperty}'>`
+      : `CSSPropertyValue<'${cssProperty}'>`;
+
+    extendsProperties.add(`Tokenami.Selector<'${cssProperty}', Media, ${value}>`);
+    aliases.forEach((alias) => {
+      extendsProperties.add(`Tokenami.Selector<'${alias}', Media, ${value}>`);
+    });
+  });
+
+  return Array.from(extendsProperties);
+}
 
 export { generate };
