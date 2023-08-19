@@ -8,10 +8,11 @@ interface PluginSettings {
 }
 
 export const MESSAGE_INVALID_TOKEN = 'INVALID_TOKEN';
+const MESSAGE_UNKNOWN_PROPERTY = 'UNKNOWN_PROPERTY';
 const MESSAGE_MARK_ARBITRARY = 'MARK_ARBITRARY_VALUE';
 
 export const rule: TSESLint.RuleModule<
-  typeof MESSAGE_INVALID_TOKEN | typeof MESSAGE_MARK_ARBITRARY
+  typeof MESSAGE_INVALID_TOKEN | typeof MESSAGE_UNKNOWN_PROPERTY | typeof MESSAGE_MARK_ARBITRARY
 > = {
   defaultOptions: [],
   meta: {
@@ -24,6 +25,7 @@ export const rule: TSESLint.RuleModule<
     },
     messages: {
       [MESSAGE_INVALID_TOKEN]: `Use theme value from {{keys}} or mark arbitrary with "var(---,{{value}})".`,
+      [MESSAGE_UNKNOWN_PROPERTY]: `Invalid token value "{{value}}" for property`,
       [MESSAGE_MARK_ARBITRARY]: `Use "var(---,{{value}})"`,
     },
   },
@@ -42,10 +44,9 @@ export const rule: TSESLint.RuleModule<
           if (!isTokenProperty(key)) return;
 
           const tokenPropertyName = Tokenami.getTokenPropertyName(key);
-          const [alias] = tokenPropertyName.split('_').reverse() as [string, string?];
-          const cssProperties = Tokenami.getCSSPropertiesForAlias(alias, config);
+          const tokenPropertyParts = Tokenami.getTokenPropertyParts(tokenPropertyName, config);
 
-          for (let cssProperty of cssProperties) {
+          for (let cssProperty of tokenPropertyParts.properties) {
             const themeKeys = config.properties?.[cssProperty] || [];
             const isThemedGridValue = themeKeys.includes('grid') && isGridValue(value);
 
@@ -62,7 +63,7 @@ export const rule: TSESLint.RuleModule<
               const keys = themeKeys.join(', ') + ',';
               context.report({
                 node: node.value,
-                messageId: MESSAGE_INVALID_TOKEN,
+                messageId: themeKeys.length ? MESSAGE_INVALID_TOKEN : MESSAGE_UNKNOWN_PROPERTY,
                 data: { value, keys },
                 suggest: [
                   {

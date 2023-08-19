@@ -77,26 +77,30 @@ function getSpecifictyOrderForCSSProperty(cssProperty: Supports.CSSProperty) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getAvailableTokenPropertiesWithVariants
+ * getTokenPropertyParts
  * -----------------------------------------------------------------------------------------------*/
 
-function getAvailableTokenPropertiesWithVariants(config: Tokenami.Config) {
-  const configMedia = Object.keys(config.media || {});
-  const allTokenAliases = Object.values(config.aliases || {}).flat();
-  const allTokenProperties = unique([...Supports.properties, ...allTokenAliases]);
-  let tokenProperties = [];
+function getTokenPropertyParts(tokenProperty: string, config: Tokenami.Config) {
+  const [alias, ...tokenVariants] = tokenProperty.split('_').reverse() as [string] & string[];
+  const properties = getCSSPropertiesForAlias(alias, config);
+  let media: string | undefined;
+  let pseudoClass: string | undefined;
+  let pseudoElement: string | undefined;
+  let variants: string[] = [];
 
-  for (const tokenProperty of allTokenProperties) {
-    tokenProperties.push(Tokenami.tokenProperty(tokenProperty));
-    for (const pseudo of Supports.pseudoClasses) {
-      const rawPseudo = pseudo.replace(':', '');
-      tokenProperties.push(Tokenami.tokenProperty(`${rawPseudo}_${tokenProperty}`));
+  tokenVariants.forEach((variant) => {
+    if (config.media?.[variant]) {
+      media = variant;
+    } else if (Supports.pseudoClasses.includes(variant as any)) {
+      pseudoClass = variant;
+    } else if (Supports.pseudoElements.includes(variant as any)) {
+      pseudoElement = variant;
+    } else {
+      variants.push(variant);
     }
-    for (const media of configMedia) {
-      tokenProperties.push(Tokenami.tokenProperty(`${media}_${tokenProperty}`));
-    }
-  }
-  return unique(tokenProperties);
+  });
+
+  return { alias, properties, media, pseudoClass, pseudoElement, variants };
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -110,7 +114,7 @@ export {
   getConfigPath,
   generateConfig,
   getValuesByTokenValueProperty,
+  getTokenPropertyParts,
   getCSSPropertiesForAlias,
   getSpecifictyOrderForCSSProperty,
-  getAvailableTokenPropertiesWithVariants,
 };
