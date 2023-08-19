@@ -4,6 +4,7 @@
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
+  "repository": "https://github.com/tokenami/tokenami",
   "exports": {
     ".": {
       "require": "./dist/index.js",
@@ -17,10 +18,8 @@
     "eslint-plugin"
   ],
   "scripts": {
-    "build": "tsup --format=esm,cjs src/index.ts",
-    "build-fast": "pnpm build",
-    "test": "jest",
-    "update-docs": "pnpm build && eslint-doc-generator"
+    "build": "tsup --format=esm,cjs src/index.ts --shims --minify",
+    "test": "jest"
   },
   "dependencies": {
     "@tokenami/config": "workspace:*",

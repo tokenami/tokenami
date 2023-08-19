@@ -5,7 +5,8 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["src/*"],
-      "stubs/*": ["stubs/*"]
+      "stubs/*": ["stubs/*"],
+      "@tokenami/dev": ["src/index.ts"]
     }
   }
 }

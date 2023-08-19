@@ -1,0 +1,26 @@
+name: Setup Repo
+description: Prepare and install everything for the repo
+
+inputs:
+  pnpm-version:
+    description: Version of pnpm to use
+    default: 8.x
+
+runs:
+  using: composite
+  steps:
+    - name: 🏗 Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: ${{ inputs.pnpm-version }}
+
+    - name: 🏗 Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version-file: '.nvmrc'
+        registry-url: 'https://npm.pkg.github.com'
+        cache: pnpm
+
+    - name: 📦 Install dependencies
+      run: pnpm install
+      shell: bash
