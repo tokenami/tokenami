@@ -1,5 +1,5 @@
 {
-  "name": "@tokenami/dev",
+  "name": "@tokenami/css",
   "version": "0.0.0",
   "license": "MIT",
   "type": "module",
@@ -39,7 +39,7 @@
     "pathe": "^1.1.1"
   },
   "peerDependencies": {
-    "@tokenami/eslint-plugin-dev": "workspace:*",
+    "@tokenami/eslint-plugin-css": "workspace:*",
     "eslint": ">= 8",
     "typescript": ">= 5"
   }

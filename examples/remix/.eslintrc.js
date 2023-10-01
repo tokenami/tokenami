@@ -3,10 +3,10 @@ module.exports = {
   extends: [
     '@remix-run/eslint-config',
     '@remix-run/eslint-config/node',
-    'plugin:@tokenami/dev/recommended',
+    'plugin:@tokenami/css/recommended',
   ],
   settings: {
-    '@tokenami/dev': {
+    '@tokenami/css': {
       projectRoot: __dirname,
     },
   },

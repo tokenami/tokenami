@@ -1,1 +1,0 @@
-# @tokenami/eslint-plugin-dev

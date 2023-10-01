@@ -7,7 +7,7 @@ import * as pathe from 'pathe';
  * generate
  * -----------------------------------------------------------------------------------------------*/
 
-function generate(config: ConfigUtils.Config, path = './dev.d.ts') {
+function generate(config: ConfigUtils.Config, path = './tokenami.d.ts') {
   const properties = getExtendedProperties(config);
   const outDir = pathe.dirname(url.fileURLToPath(import.meta.url));
   const outFile = pathe.join(outDir, path);

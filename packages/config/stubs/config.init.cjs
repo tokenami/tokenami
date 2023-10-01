@@ -1,4 +1,4 @@
-/** @satisfies {import('@tokenami/dev').Config} */
+/** @satisfies {import('@tokenami/css').Config} */
 module.exports = {
   include: [],
   grid: '0.25rem',

@@ -1,4 +1,4 @@
-import { css } from '@tokenami/dev';
+import { css } from '@tokenami/css';
 
 // TODO
 // - figure out why `dev.d.ts` isn't getting FinalConfig
