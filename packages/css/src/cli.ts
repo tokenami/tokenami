@@ -22,12 +22,15 @@ const run = () => {
     .option('-c, --config [path]', 'Path to a custom config file')
     .action((_, flags) => {
       const configPath = ConfigUtils.getConfigPath(cwd, flags?.config);
-      const outDir = pathe.join(cwd, pathe.dirname(configPath));
+      const typeDefsPath = ConfigUtils.getTypeDefsPath(configPath);
+      const outDir = pathe.dirname(configPath);
       const initialConfig = ConfigUtils.generateConfig();
+      const typeDefs = ConfigUtils.generateTypeDefs(configPath);
       const packageManager = detectPackageManager(cwd);
 
       fs.mkdirSync(outDir, { recursive: true });
       fs.writeFileSync(configPath, initialConfig, { flag: 'w' });
+      fs.writeFileSync(typeDefsPath, typeDefs, { flag: 'w' });
 
       if (packageManager) {
         installPackage('@tokenami/eslint-plugin-css', packageManager);

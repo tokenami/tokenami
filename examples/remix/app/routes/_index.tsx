@@ -2,7 +2,6 @@ import { css } from '@tokenami/css';
 
 // TODO
 // - figure out why `dev.d.ts` isn't getting FinalConfig
-// - figure out a way to hide the `declare global theme` stuff from consumer
 // - tokenami should generate responsive styles for `css` variants when { responsive: true }
 
 export const links = () => [{ rel: 'stylesheet', href: '/tokenami.css' }];
