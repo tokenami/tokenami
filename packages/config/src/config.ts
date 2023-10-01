@@ -65,7 +65,7 @@ type ThemeKey =
 
 type ThemeValues = Record<string, string | number>;
 type Theme = Partial<Record<ThemeKey, ThemeValues>>;
-type Aliases = Partial<Record<keyof CSS.StandardLonghandPropertiesHyphen, string[]>>;
+type Aliases = Partial<Record<keyof CSS.StandardPropertiesHyphen, string[]>>;
 type PropertiesOptions = readonly ('grid' | ThemeKey)[];
 
 interface Config {
