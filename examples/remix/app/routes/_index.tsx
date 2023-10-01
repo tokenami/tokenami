@@ -1,8 +1,7 @@
 import { css } from '@tokenami/css';
 
 // TODO
-// - figure out why `dev.d.ts` isn't getting FinalConfig
-// - tokenami should generate responsive styles for `css` variants when { responsive: true }
+// - figure out why `dev.d.ts` isn't getting FinalConfig/build TS Lang Server plugin
 
 export const links = () => [{ rel: 'stylesheet', href: '/tokenami.css' }];
 

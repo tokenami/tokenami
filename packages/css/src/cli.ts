@@ -53,7 +53,7 @@ const run = () => {
 
       async function regenerateStylesheet(file: string, config: ConfigUtils.Config) {
         const generateTime = startTimer();
-        const usedTokenProps = await findUsedTokenProperties(cwd, config.include, config.exclude);
+        const usedTokenProps = await findUsedTokenProperties(cwd, config);
         generateStyles(cwd, flags.output, usedTokenProps, config, flags.minify);
         log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
       }
@@ -77,7 +77,7 @@ const run = () => {
         });
       }
 
-      const usedTokens = await findUsedTokenProperties(cwd, config.include, config.exclude);
+      const usedTokens = await findUsedTokenProperties(cwd, config);
       generateStyles(cwd, flags.output, usedTokens, config, flags.minify);
       intellisense.generate(config);
       log.debug(`Ready in ${startTime()}ms.`);
@@ -121,31 +121,53 @@ function watch(cwd: string, include: string[], exclude?: string[]) {
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * findUsedTokenProperties
+ * -----------------------------------------------------------------------------------------------*/
+
+async function findUsedTokenProperties(cwd: string, config: ConfigUtils.Config) {
+  const cssVariables = await findUsedCssVariables(cwd, config);
+  const tokenamiProperties = cssVariables.flatMap((variable) => {
+    const validated = ConfigUtils.TokenProperty.safeParse(variable);
+    return validated.success ? [validated.data] : [];
+  });
+  return tokenamiProperties as ConfigUtils.TokenProperty[];
+}
+
+/* -------------------------------------------------------------------------------------------------
  * findUsedCssVariables
  * -----------------------------------------------------------------------------------------------*/
 
-async function findUsedCssVariables(cwd: string, include: string[], ignore?: string[]) {
-  const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore });
+async function findUsedCssVariables(cwd: string, config: ConfigUtils.Config) {
+  const { include, exclude } = config;
+  const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore: exclude });
+  const tokenPropertyRegex = /(?<cssVar>--[a-z-_]+)("|')?\:/g;
   const allCssVariables = entries.flatMap((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
-    const matches = fileContent.matchAll(/(?<cssVar>--[a-z-_]+)("|')?\:/g);
-    return Array.from(matches, (match) => match.groups?.cssVar);
+    const matches = fileContent.matchAll(tokenPropertyRegex);
+    const responsiveVariants = findResponsiveCSSUtilityVariables(fileContent, config);
+    return Array.from(matches, (match) => match.groups?.cssVar).concat(responsiveVariants);
   });
   const unique = new Set(allCssVariables);
   return Array.from(unique);
 }
 
 /* -------------------------------------------------------------------------------------------------
- * findUsedTokenProperties
+ * findResponsiveCSSUtilityVariables
  * -----------------------------------------------------------------------------------------------*/
 
-async function findUsedTokenProperties(cwd: string, include: string[], ignore?: string[]) {
-  const cssVariables = await findUsedCssVariables(cwd, include, ignore);
-  const tokenamiProperties = cssVariables.map((variable) => {
-    const validated = ConfigUtils.TokenProperty.safeParse(variable);
-    return validated.success ? [validated.data] : [];
+function findResponsiveCSSUtilityVariables(fileContent: string, config: ConfigUtils.Config) {
+  const responsiveCssBlockRegex = /css\(([\s\S]*?)\{([\s\S]*?)responsive:\strue([\s\S]*?)\}/g;
+  const responsiveCssBlocks = fileContent.match(responsiveCssBlockRegex);
+  const tokenPropertyRegex = /(--[a-z-_]+)('|")/g;
+  if (!responsiveCssBlocks) return [];
+  return responsiveCssBlocks.flatMap((block) => {
+    const matches = block.match(tokenPropertyRegex) || [];
+    const matchesWithoutQuoteMark = matches.map((match) => match.slice(0, -1));
+    const reponsiveVariants = matchesWithoutQuoteMark.flatMap((tokenProperty) => {
+      return ConfigUtils.getResponsivePropertyVariants(tokenProperty, config);
+    });
+    return reponsiveVariants || [];
   });
-  return tokenamiProperties.flat() as ConfigUtils.TokenProperty[];
 }
 
 /* -------------------------------------------------------------------------------------------------

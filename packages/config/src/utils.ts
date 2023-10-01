@@ -124,6 +124,20 @@ function getTokenPropertyParts(tokenProperty: string, config: Tokenami.Config) {
   return { alias, properties, media, pseudoClass, pseudoElement, variants };
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * getResponsivePropertyVariants
+ * -----------------------------------------------------------------------------------------------*/
+
+function getResponsivePropertyVariants(
+  tokenProperty: Tokenami.TokenProperty,
+  config: Tokenami.Config
+): string[] {
+  return Object.keys(config.media || {}).map((media) => {
+    const name = Tokenami.getTokenPropertyName(tokenProperty);
+    return Tokenami.variantProperty(media, name);
+  });
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
 export {
@@ -134,6 +148,7 @@ export {
   generateTypeDefs,
   getValuesByTokenValueProperty,
   getTokenPropertyParts,
+  getResponsivePropertyVariants,
   getCSSPropertiesForAlias,
   getSpecifictyOrderForCSSProperty,
 };

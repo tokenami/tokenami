@@ -50,6 +50,14 @@
   ---transition: var(--_tk-i);
   ---hover_animation: var(--_tk-i);
   ---object-fit: var(--_tk-i);
+  ---md_object-fit: var(--_tk-i);
+  ---lg_object-fit: var(--_tk-i);
+  ---md_width: var(--_tk-i);
+  ---lg_width: var(--_tk-i);
+  ---md_height: var(--_tk-i);
+  ---lg_height: var(--_tk-i);
+  ---md_border-radius: var(--_tk-i);
+  ---lg_border-radius: var(--_tk-i);
 }
 
 [style*="---"] {
@@ -268,8 +276,20 @@
 }
 
 @media (width >= 700px) {
+  [style*="---md_border-radius:"] {
+    border-radius: var(---md_border-radius, var(--_tk-i_border-radius));
+  }
+
   [style*="---md_display:"] {
     display: var(---md_display, var(--_tk-i_display));
+  }
+
+  [style*="---md_height:"] {
+    height: calc(var(---grid) * var(---md_height, var(--_tk-i_height)));
+  }
+
+  [style*="---md_object-fit:"] {
+    object-fit: var(---md_object-fit, var(--_tk-i_object-fit));
   }
 
   [style*="---md_p:"] {
@@ -283,10 +303,48 @@
     text-align: var(---md_text-align, var(--_tk-i_text-align));
   }
 
+  [style*="---md_width:"] {
+    width: calc(var(---grid) * var(---md_width, var(--_tk-i_width)));
+  }
+
+  [style*="---md_height:var"], [style*="---md_height: var"] {
+    height: var(---md_height, var(--_tk-i_height));
+  }
+
   [style*="---md_p:var"], [style*="---md_p: var"] {
     padding-bottom: var(---md_p, var(--_tk-i_padding-bottom));
     padding-left: var(---md_p, var(--_tk-i_padding-left));
     padding-right: var(---md_p, var(--_tk-i_padding-right));
     padding-top: var(---md_p, var(--_tk-i_padding-top));
+  }
+
+  [style*="---md_width:var"], [style*="---md_width: var"] {
+    width: var(---md_width, var(--_tk-i_width));
+  }
+}
+
+@media (width >= 1024px) {
+  [style*="---lg_border-radius:"] {
+    border-radius: var(---lg_border-radius, var(--_tk-i_border-radius));
+  }
+
+  [style*="---lg_height:"] {
+    height: calc(var(---grid) * var(---lg_height, var(--_tk-i_height)));
+  }
+
+  [style*="---lg_object-fit:"] {
+    object-fit: var(---lg_object-fit, var(--_tk-i_object-fit));
+  }
+
+  [style*="---lg_width:"] {
+    width: calc(var(---grid) * var(---lg_width, var(--_tk-i_width)));
+  }
+
+  [style*="---lg_height:var"], [style*="---lg_height: var"] {
+    height: var(---lg_height, var(--_tk-i_height));
+  }
+
+  [style*="---lg_width:var"], [style*="---lg_width: var"] {
+    width: var(---lg_width, var(--_tk-i_width));
   }
 }
