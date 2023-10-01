@@ -9,7 +9,7 @@ import fs from 'fs';
  * getConfigPath
  * -----------------------------------------------------------------------------------------------*/
 
-function getConfigPath(cwd: string, path = './tokenami.config.js') {
+function getConfigPath(cwd: string, path = './.tokenami/tokenami.config.js') {
   return pathe.join(cwd, path);
 }
 
@@ -104,10 +104,6 @@ function getTokenPropertyParts(tokenProperty: string, config: Tokenami.Config) {
 }
 
 /* ---------------------------------------------------------------------------------------------- */
-
-function unique<T>(array: T[]) {
-  return Array.from(new Set(array)) as T[];
-}
 
 export {
   mergedConfigs,

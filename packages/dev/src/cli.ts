@@ -1,4 +1,4 @@
-import * as Tokenami from '@tokenami/config';
+import * as ConfigUtils from '@tokenami/config';
 import cac from 'cac';
 import glob from 'fast-glob';
 import * as fs from 'fs';
@@ -21,9 +21,9 @@ const run = () => {
     .command('init')
     .option('-c, --config [path]', 'Path to a custom config file')
     .action((_, flags) => {
-      const configPath = Tokenami.getConfigPath(cwd, flags?.config);
+      const configPath = ConfigUtils.getConfigPath(cwd, flags?.config);
       const outDir = pathe.join(cwd, pathe.dirname(configPath));
-      const initialConfig = Tokenami.generateConfig();
+      const initialConfig = ConfigUtils.generateConfig();
       const packageManager = detectPackageManager(cwd);
 
       fs.mkdirSync(outDir, { recursive: true });
@@ -48,7 +48,7 @@ const run = () => {
 
       if (!config.include.length) log.error('Provide a glob pattern to include files');
 
-      async function regenerateStylesheet(file: string, config: Tokenami.Config) {
+      async function regenerateStylesheet(file: string, config: ConfigUtils.Config) {
         const generateTime = startTimer();
         const usedTokenProps = await findUsedTokenProperties(cwd, config.include, config.exclude);
         generateStyles(cwd, flags.output, usedTokenProps, config, flags.minify);
@@ -56,7 +56,7 @@ const run = () => {
       }
 
       if (flags.watch) {
-        const configWatcher = watch(cwd, [Tokenami.getConfigPath(cwd, flags.config)]);
+        const configWatcher = watch(cwd, [ConfigUtils.getConfigPath(cwd, flags.config)]);
         const tokenWatcher = watch(cwd, config.include, config.exclude);
         log.debug(`Watching for changes to ${config.include}.`);
 
@@ -92,8 +92,8 @@ const run = () => {
 function generateStyles(
   cwd: string,
   out: string,
-  usedTokens: Tokenami.TokenProperty[],
-  config: Tokenami.Config,
+  usedTokens: ConfigUtils.TokenProperty[],
+  config: ConfigUtils.Config,
   minify?: boolean
 ) {
   const outDir = pathe.join(cwd, pathe.dirname(out));
@@ -139,10 +139,10 @@ async function findUsedCssVariables(cwd: string, include: string[], ignore?: str
 async function findUsedTokenProperties(cwd: string, include: string[], ignore?: string[]) {
   const cssVariables = await findUsedCssVariables(cwd, include, ignore);
   const tokenamiProperties = cssVariables.map((variable) => {
-    const validated = Tokenami.TokenProperty.safeParse(variable);
+    const validated = ConfigUtils.TokenProperty.safeParse(variable);
     return validated.success ? [validated.data] : [];
   });
-  return tokenamiProperties.flat() as Tokenami.TokenProperty[];
+  return tokenamiProperties.flat() as ConfigUtils.TokenProperty[];
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -154,11 +154,11 @@ interface GetConfigOptions {
   include?: string[];
 }
 
-function getConfig(cwd: string, opts: GetConfigOptions = {}): Tokenami.Config {
-  const configPath = Tokenami.getConfigPath(cwd, opts.path);
+function getConfig(cwd: string, opts: GetConfigOptions = {}): ConfigUtils.Config {
+  const configPath = ConfigUtils.getConfigPath(cwd, opts.path);
   const theirs = fs.existsSync(configPath) ? reloadModule(configPath) : {};
   const include = opts.include || theirs.include;
-  return Tokenami.mergedConfigs({ ...theirs, ...(include && { include }) });
+  return ConfigUtils.mergedConfigs({ ...theirs, ...(include && { include }) });
 }
 
 /* -------------------------------------------------------------------------------------------------

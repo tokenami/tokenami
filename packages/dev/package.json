@@ -12,18 +12,19 @@
   },
   "files": [
     "dist",
-    "bin.js",
-    "tokenami.config.js"
+    "bin.js"
   ],
   "scripts": {
-    "build": "tsup --format=esm,cjs --minify && cp src/dev.d.ts ./dist",
-    "dev": "pnpm build --watch src"
+    "build": "tsup && cp src/tokenami.d.ts ./dist",
+    "dev": "pnpm build --watch src",
+    "test": "vitest"
   },
   "devDependencies": {
     "@types/eslint": "^8.40.2",
     "@types/node": "^20.3.1",
     "tsup": "^7.0.0",
-    "typescript": "^5.1.3"
+    "typescript": "^5.1.3",
+    "vitest": "^0.34.6"
   },
   "dependencies": {
     "@stitches/stringify": "^1.2.8",
@@ -39,12 +40,7 @@
   },
   "peerDependencies": {
     "@tokenami/eslint-plugin-dev": "workspace:*",
-    "typescript": ">= 5",
-    "eslint": ">= 8"
-  },
-  "peerDependenciesMeta": {
-    "typescript": {
-      "optional": true
-    }
+    "eslint": ">= 8",
+    "typescript": ">= 5"
   }
 }

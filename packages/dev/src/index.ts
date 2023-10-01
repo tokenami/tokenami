@@ -1,1 +1,2 @@
-export type { Config } from '@tokenami/config';
+/// <reference path="./tokenami.d.ts" />
+export { css } from './css';

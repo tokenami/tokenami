@@ -1,3 +1,10 @@
+import { css } from '@tokenami/dev';
+
+// TODO
+// - figure out why `dev.d.ts` isn't getting FinalConfig
+// - figure out a way to hide the `declare global theme` stuff from consumer
+// - tokenami should generate responsive styles for `css` variants when { responsive: true }
+
 export const links = () => [{ rel: 'stylesheet', href: '/tokenami.css' }];
 
 export default function Index() {
@@ -34,15 +41,7 @@ export default function Index() {
         }}
       >
         <img
-          style={{
-            '---width': 24,
-            '---height': 24,
-            '---border-radius': 'var(---radii-circle)',
-            '---object-fit': 'cover',
-            '---md_width': 'var(---,11rem)',
-            '---md_height': 'var(---size-auto)',
-            '---md_border-radius': 'var(---radii-none)',
-          }}
+          style={quoteImage({ variant: 'circle', md_variant: 'fill' })}
           src="/me.jpg"
           alt=""
           width="400"
@@ -89,3 +88,22 @@ export default function Index() {
     </div>
   );
 }
+
+const quoteImage = css(
+  { '---object-fit': 'cover' },
+  {
+    variant: {
+      circle: {
+        '---width': 24,
+        '---height': 24,
+        '---border-radius': 'var(---radii-circle)',
+      },
+      fill: {
+        '---width': 'var(---,11rem)',
+        '---height': 'var(---size-auto)',
+        '---border-radius': 'var(---radii-none)',
+      },
+    },
+  },
+  { responsive: true }
+);
