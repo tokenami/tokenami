@@ -29,6 +29,10 @@ function tokenProperty(name: string): TokenProperty {
   return `---${name}`;
 }
 
+function variantProperty(variant: string, name: string): TokenProperty {
+  return `---${variant}_${name}`;
+}
+
 function tokenValue<TK extends string, N extends string>(themeKey: TK, name: N): TokenValue<TK, N> {
   return `var(---${themeKey}-${name})`;
 }
@@ -89,6 +93,7 @@ export {
   ArbitraryValue,
   //
   tokenProperty,
+  variantProperty,
   tokenValue,
   arbitraryValue,
   getTokenPropertyName,

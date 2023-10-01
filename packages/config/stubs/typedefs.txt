@@ -1,0 +1,6 @@
+import type config from './CONFIG_FILE_NAME';
+type CustomConfig = typeof config;
+
+declare global {
+  interface TokenamiConfig extends CustomConfig {}
+}

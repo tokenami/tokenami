@@ -9,8 +9,17 @@ import fs from 'fs';
  * getConfigPath
  * -----------------------------------------------------------------------------------------------*/
 
-function getConfigPath(cwd: string, path = './tokenami.config.js') {
+function getConfigPath(cwd: string, path = './.tokenami/tokenami.config.js') {
   return pathe.join(cwd, path);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getTypeDefsPath
+ * -----------------------------------------------------------------------------------------------*/
+
+function getTypeDefsPath(configPath: string) {
+  const dirname = pathe.dirname(configPath);
+  return `${dirname}/tokenami.d.ts`;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -50,8 +59,8 @@ function getCSSPropertiesForAlias(alias: string, config: Tokenami.Config): Suppo
  * -----------------------------------------------------------------------------------------------*/
 
 function generateConfig() {
-  const initConfigPath = path.resolve(__dirname, '../stubs/config.init.cjs');
-  return fs.readFileSync(initConfigPath, 'utf8');
+  const initConfigStubPath = path.resolve(__dirname, '../stubs/config.init.cjs');
+  return fs.readFileSync(initConfigStubPath, 'utf8');
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -66,6 +75,18 @@ function mergedConfigs(theirs: Tokenami.Config): Tokenami.Config {
     aliases: { ...defaultConfig.aliases, ...theirs.aliases },
     properties: { ...defaultConfig.properties, ...theirs.properties },
   };
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * generateTypeDefs
+ * -----------------------------------------------------------------------------------------------*/
+
+function generateTypeDefs(configPath: string) {
+  const parsed = pathe.parse(configPath);
+  const typeDefStubPath = path.resolve(__dirname, '../stubs/typedefs.txt');
+  const typeDefStub = fs.readFileSync(typeDefStubPath, 'utf8');
+  const configFileName = parsed.name;
+  return typeDefStub.replace('CONFIG_FILE_NAME', configFileName);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -103,18 +124,31 @@ function getTokenPropertyParts(tokenProperty: string, config: Tokenami.Config) {
   return { alias, properties, media, pseudoClass, pseudoElement, variants };
 }
 
-/* ---------------------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------------------
+ * getResponsivePropertyVariants
+ * -----------------------------------------------------------------------------------------------*/
 
-function unique<T>(array: T[]) {
-  return Array.from(new Set(array)) as T[];
+function getResponsivePropertyVariants(
+  tokenProperty: Tokenami.TokenProperty,
+  config: Tokenami.Config
+): string[] {
+  return Object.keys(config.media || {}).map((media) => {
+    const name = Tokenami.getTokenPropertyName(tokenProperty);
+    return Tokenami.variantProperty(media, name);
+  });
 }
+
+/* ---------------------------------------------------------------------------------------------- */
 
 export {
   mergedConfigs,
   getConfigPath,
+  getTypeDefsPath,
   generateConfig,
+  generateTypeDefs,
   getValuesByTokenValueProperty,
   getTokenPropertyParts,
+  getResponsivePropertyVariants,
   getCSSPropertiesForAlias,
   getSpecifictyOrderForCSSProperty,
 };

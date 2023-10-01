@@ -2,7 +2,7 @@ import pkgJson from '../package.json';
 import * as NoInvalidTokens from './rules/no-invalid-tokens';
 
 const meta = {
-  name: 'eslint-plugin-dev',
+  name: 'eslint-plugin-css',
   varsion: pkgJson.version,
 };
 
@@ -12,9 +12,9 @@ const rules = {
 
 const configs = {
   recommended: {
-    plugins: ['@tokenami/dev'],
+    plugins: ['@tokenami/css'],
     rules: {
-      [`@tokenami/dev/no-invalid-tokens`]: 'error',
+      [`@tokenami/css/no-invalid-tokens`]: 'error',
     },
   },
 };

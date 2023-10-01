@@ -6,7 +6,7 @@
     "paths": {
       "~/*": ["src/*"],
       "stubs/*": ["stubs/*"],
-      "@tokenami/dev": ["src/index.ts"]
+      "@tokenami/css": ["src/index.ts"]
     }
   }
 }

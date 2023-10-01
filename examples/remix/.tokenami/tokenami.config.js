@@ -1,4 +1,4 @@
-/** @type {import('@tokenami/dev').Config} */
+/** @satisfies {import('@tokenami/css').Config} */
 module.exports = {
   include: ['./app/**/*.{ts,tsx}'],
   exclude: ['./app/routes/original.tsx'],
