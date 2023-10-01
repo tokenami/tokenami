@@ -1,4 +1,4 @@
-import * as Tokenami from '@tokenami/config';
+import * as ConfigUtils from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import deepmerge from 'deepmerge';
 import * as lightning from 'lightningcss';
@@ -8,9 +8,9 @@ import * as lightning from 'lightningcss';
  * -----------------------------------------------------------------------------------------------*/
 
 function generate(
-  usedTokenProperties: Tokenami.TokenProperty[],
+  usedTokenProperties: ConfigUtils.TokenProperty[],
   output: string,
-  config: Tokenami.Config,
+  config: ConfigUtils.Config,
   minify?: boolean
 ) {
   if (!usedTokenProperties.length) return '';
@@ -27,8 +27,8 @@ function generate(
 
   const root = {
     ':root': {
-      [Tokenami.tokenProperty('grid')]: config.grid,
-      ...Tokenami.getValuesByTokenValueProperty(config.theme),
+      [ConfigUtils.tokenProperty('grid')]: config.grid,
+      ...ConfigUtils.getValuesByTokenValueProperty(config.theme),
     },
   };
 
@@ -37,20 +37,20 @@ function generate(
   });
 
   usedTokenProperties.forEach((tokenProperty) => {
-    const tokenPropertyName = Tokenami.getTokenPropertyName(tokenProperty);
-    const tokenPropertyParts = Tokenami.getTokenPropertyParts(tokenPropertyName, config);
+    const tokenPropertyName = ConfigUtils.getTokenPropertyName(tokenProperty);
+    const tokenPropertyParts = ConfigUtils.getTokenPropertyParts(tokenPropertyName, config);
     const { alias, properties, media, pseudoClass, pseudoElement, variants } = tokenPropertyParts;
     const hasVariants = variants?.length || !!pseudoClass || !!pseudoElement;
 
     const resetSelector = uniqueSelector(tokenProperty);
     resetGroup[resetSelector('*')] = { [tokenProperty]: 'var(--_tk-i)' };
 
-    properties.forEach((cssProperty: Tokenami.CSSProperty) => {
-      const specificity = Tokenami.getSpecifictyOrderForCSSProperty(cssProperty);
+    properties.forEach((cssProperty: ConfigUtils.CSSProperty) => {
+      const specificity = ConfigUtils.getSpecifictyOrderForCSSProperty(cssProperty);
       const cssPropertySelector = uniqueSelector(cssProperty);
       const cssPropertyConfig = config.properties?.[cssProperty];
       const isGridProperty = cssPropertyConfig?.includes('grid');
-      const gridVar = `var(${Tokenami.tokenProperty('grid')})`;
+      const gridVar = `var(${ConfigUtils.tokenProperty('grid')})`;
       const valueVar = `var(--_tk-i_${cssProperty})`;
       // variants fallback to initital in case the variant is deselected in dev tools.
       // it will fall back to any non-variant values applied to the same element
@@ -161,7 +161,7 @@ function selector(params?: {
   variants?: string[];
 }) {
   const { name = '', value = '' } = params || {};
-  const tokenProperty = Tokenami.tokenProperty(name) + (name ? ':' : '');
+  const tokenProperty = ConfigUtils.tokenProperty(name) + (name ? ':' : '');
   const variants = params?.variants?.length ? '.' + params?.variants.join('.') : '';
   const pseudoElement = params?.pseudoElement ? `::${params.pseudoElement}` : '';
   const pseudoClass = params?.pseudoClass ? `:${params.pseudoClass}` : '';
@@ -190,11 +190,14 @@ function uniqueSelector(cssProperty: string) {
  * getResetTokenValueVarForAliases
  * -----------------------------------------------------------------------------------------------*/
 
-function getInitialTokenValueVars(cssProperty: Tokenami.CSSProperty, config: Tokenami.Config) {
+function getInitialTokenValueVars(
+  cssProperty: ConfigUtils.CSSProperty,
+  config: ConfigUtils.Config
+) {
   const aliased = (config.aliases as any)?.[cssProperty] as string[] | undefined;
   const aliases = aliased || [cssProperty];
   return aliases.reduceRight(
-    (fallback, alias) => `var(${Tokenami.tokenProperty(alias)}, ${fallback})`,
+    (fallback, alias) => `var(${ConfigUtils.tokenProperty(alias)}, ${fallback})`,
     ''
   );
 }
