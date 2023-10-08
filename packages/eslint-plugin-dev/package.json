@@ -1,5 +1,5 @@
 {
-  "name": "@tokenami/eslint-plugin-css",
+  "name": "@tokenami/eslint-plugin-dev",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist/index.js",

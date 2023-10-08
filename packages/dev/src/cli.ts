@@ -33,7 +33,7 @@ const run = () => {
       fs.writeFileSync(typeDefsPath, typeDefs, { flag: 'w' });
 
       if (packageManager) {
-        installPackage('@tokenami/eslint-plugin-css', packageManager);
+        installPackage('@tokenami/eslint-plugin-dev', packageManager);
       } else {
         log.error('Package manager not detected');
       }

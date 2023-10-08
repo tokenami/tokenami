@@ -7,40 +7,26 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/tokenami/tokenami",
-  "bin": {
-    "tokenami": "bin.js"
-  },
   "files": [
-    "dist",
-    "bin.js"
+    "dist"
   ],
   "scripts": {
-    "build": "tsup && cp src/tokenami.d.ts ./dist",
+    "build": "tsup",
     "dev": "pnpm build --watch src",
     "test": "vitest"
   },
   "devDependencies": {
-    "@types/eslint": "^8.40.2",
-    "@types/node": "^20.3.1",
+    "@tokenami/dev": "workspace:*",
     "tsup": "^7.0.0",
     "typescript": "^5.1.3",
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "@stitches/stringify": "^1.2.8",
     "@tokenami/config": "workspace:*",
-    "cac": "^6.7.14",
-    "chalk": "^5.2.0",
-    "chokidar": "^3.5.3",
-    "csstype": "^3.1.2",
-    "deepmerge": "^4.3.1",
-    "fast-glob": "^3.2.12",
-    "lightningcss": "^1.21.0",
-    "pathe": "^1.1.1"
+    "csstype": "^3.1.2"
   },
   "peerDependencies": {
-    "@tokenami/eslint-plugin-css": "workspace:*",
-    "eslint": ">= 8",
+    "@tokenami/dev": "workspace:*",
     "typescript": ">= 5"
   }
 }

@@ -1,4 +1,4 @@
-/// <reference path="./tokenami.d.ts" />
+/// <reference types="@tokenami/dev" />
 import type * as CSS from 'csstype';
 import * as ConfigUtils from '@tokenami/config';
 

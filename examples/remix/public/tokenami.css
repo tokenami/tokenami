@@ -101,10 +101,6 @@
   }
 }
 
-[style*="---align-items:"] {
-  align-items: var(--_tk-i_align-items);
-}
-
 [style*="---animation:"] {
   animation: var(--_tk-i_animation);
 }
@@ -165,10 +161,6 @@
   height: calc(var(---grid) * var(--_tk-i_height));
 }
 
-[style*="---justify-content:"] {
-  justify-content: var(--_tk-i_justify-content);
-}
-
 [style*="---line-height:"] {
   line-height: var(--_tk-i_line-height);
 }
@@ -199,6 +191,14 @@
 
 [style*="---pt:"] {
   padding-top: calc(var(---grid) * var(--_tk-i_padding-top));
+}
+
+[style*="---justify-content:"] {
+  justify-content: var(--_tk-i_justify-content);
+}
+
+[style*="---align-items:"] {
+  align-items: var(--_tk-i_align-items);
 }
 
 [style*="---text-align:"] {
