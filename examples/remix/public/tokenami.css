@@ -63,8 +63,8 @@
 [style*="---"] {
   --_tk-i_height: var(---height, );
   --_tk-i_min-height: var(---min-height, );
-  --_tk-i_margin: var(---m, );
-  --_tk-i_padding: var(---p, );
+  --_tk-i_margin: var(---margin, var(---m, ));
+  --_tk-i_padding: var(---padding, var(---p, ));
   --_tk-i_background-size: var(---background-size, );
   --_tk-i_background-image: var(---background-image, );
   --_tk-i_background-color: var(---background-color, var(---bg-color, ));
