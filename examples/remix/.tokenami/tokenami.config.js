@@ -38,4 +38,17 @@ module.exports = {
       'screen-h': '100vh',
     },
   },
+  aliases: {
+    'background-color': ['background-color', 'bg-color'],
+    'margin-left': ['margin-left', 'ml', 'mx'],
+    'margin-right': ['margin-right', 'mr', 'mx'],
+    'margin-top': ['margin-top', 'mt', 'my'],
+    'margin-bottom': ['margin-bottom', 'mb', 'my'],
+    'padding-left': ['padding-left', 'pl', 'px'],
+    'padding-right': ['padding-right', 'pr', 'px'],
+    'padding-top': ['padding-top', 'pt', 'py'],
+    'padding-bottom': ['padding-bottom', 'pb', 'py'],
+    margin: ['margin', 'm'],
+    padding: ['padding', 'p'],
+  },
 };
