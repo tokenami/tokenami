@@ -22,8 +22,7 @@
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "@tokenami/config": "workspace:*",
-    "csstype": "^3.1.2"
+    "@tokenami/config": "workspace:*"
   },
   "peerDependencies": {
     "@tokenami/dev": "workspace:*",

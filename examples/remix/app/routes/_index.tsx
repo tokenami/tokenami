@@ -1,4 +1,4 @@
-import { css } from '@tokenami/css';
+import { css } from '~/css';
 
 // TODO
 // - figure out why `dev.d.ts` isn't getting FinalConfig/build TS Lang Server plugin

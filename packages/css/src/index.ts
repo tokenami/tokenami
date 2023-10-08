@@ -1,1 +1,1 @@
-export { css } from './css';
+export { createCss, css } from './css';

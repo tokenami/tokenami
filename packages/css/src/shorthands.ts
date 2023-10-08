@@ -2,7 +2,7 @@ import * as ConfigUtils from '@tokenami/config';
 
 type SupportedProperty = (typeof ConfigUtils.properties)[number];
 
-export const mapShorthandToLonghands: Partial<Record<SupportedProperty, SupportedProperty[]>> = {
+export const mapShorthandToLonghands = {
   animation: [
     'animation-name',
     'animation-duration',
@@ -186,4 +186,4 @@ export const mapShorthandToLonghands: Partial<Record<SupportedProperty, Supporte
     'transition-timing-function',
     'transition-delay',
   ],
-};
+} satisfies Partial<Record<SupportedProperty, SupportedProperty[]>>;

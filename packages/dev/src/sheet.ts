@@ -39,13 +39,16 @@ function generate(
   usedTokenProperties.forEach((tokenProperty) => {
     const tokenPropertyName = ConfigUtils.getTokenPropertyName(tokenProperty);
     const tokenPropertyParts = ConfigUtils.getTokenPropertyParts(tokenPropertyName, config);
-    const { alias, properties, media, pseudoClass, pseudoElement, variants } = tokenPropertyParts;
+    const { alias, longhands, media, pseudoClass, pseudoElement, variants } = tokenPropertyParts;
     const hasVariants = variants?.length || !!pseudoClass || !!pseudoElement;
 
     const resetSelector = uniqueSelector(tokenProperty);
     resetGroup[resetSelector('*')] = { [tokenProperty]: 'var(--_tk-i)' };
 
-    properties.forEach((cssProperty: ConfigUtils.CSSProperty) => {
+    for (let property of longhands) {
+      const isCssProperty = ConfigUtils.properties.includes(property as any);
+      if (!isCssProperty) continue;
+      const cssProperty = property as ConfigUtils.CSSProperty;
       const specificity = ConfigUtils.getSpecifictyOrderForCSSProperty(cssProperty);
       const cssPropertySelector = uniqueSelector(cssProperty);
       const cssPropertyConfig = config.properties?.[cssProperty];
@@ -119,7 +122,7 @@ function generate(
           };
         }
       }
-    });
+    }
   });
 
   const mediaStyles = Object.entries(breakpointGroup).map(([media, styles]) => [
@@ -194,9 +197,10 @@ function getInitialTokenValueVars(
   cssProperty: ConfigUtils.CSSProperty,
   config: ConfigUtils.Config
 ) {
-  const aliased = (config.aliases as any)?.[cssProperty] as string[] | undefined;
-  const aliases = aliased || [cssProperty];
-  return aliases.reduceRight(
+  const aliased = Object.entries(config.aliases || {}).flatMap(([alias, properties]) => {
+    return properties?.includes(cssProperty) ? [alias] : [];
+  });
+  return [...aliased, cssProperty].reduce(
     (fallback, alias) => `var(${ConfigUtils.tokenProperty(alias)}, ${fallback})`,
     ''
   );

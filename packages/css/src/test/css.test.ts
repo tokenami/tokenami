@@ -1,5 +1,6 @@
 import { describe, beforeEach, it, expect } from 'vitest';
-import { css, convertToMediaStyles } from './css';
+import { hasStyles, hasSomeStyles } from '~/test/utils';
+import { css, convertToMediaStyles } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup
@@ -41,21 +42,13 @@ const button = css(
   { responsive: true }
 );
 
-function hasStyles(output: TestContext['output'], expected: Record<string, string | number>) {
-  return Object.entries(expected).every(([key, value]) => (output as any)?.[key] === value);
-}
-
-function hasSomeStyles(output: TestContext['output'], expected: Record<string, string | number>) {
-  return Object.entries(expected).some(([key, value]) => (output as any)?.[key] === value);
-}
-
 /* -------------------------------------------------------------------------------------------------
  * tests
  * -----------------------------------------------------------------------------------------------*/
 
 interface TestContext {
   button: typeof button;
-  output?: ReturnType<typeof button>;
+  output: ReturnType<typeof button>;
 }
 
 describe('css', () => {

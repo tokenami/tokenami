@@ -22,6 +22,7 @@ const defaultConfig = {
     weight: {},
     z: {},
   },
+  aliases: {},
   properties: {
     'accent-color': ['color'],
     animation: ['anim'],
