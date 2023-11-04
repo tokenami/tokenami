@@ -1,29 +1,27 @@
 import { z } from 'zod';
-import * as CSS from 'csstype';
 import * as Supports from './supports';
 
 const tokenPropertyRegex = /---([a-z]+)/;
 const tokenValueRegex = /var\(---([\w-]+)-([\w-]+)\)/;
 const aritraryValueRegex = /var\(---,(.+)\)/;
 
+type GridValue = z.infer<typeof GridValue>;
 const GridValue = z.number();
 
+type TokenProperty<P extends string = string> = `---${P}`;
 const TokenProperty = z.string().refine((value) => {
   return tokenPropertyRegex.test(value);
 });
 
+type TokenValue<TK extends string = string, V extends string = string> = `var(---${TK}-${V})`;
 const TokenValue = z.string().refine((value) => {
   return tokenValueRegex.test(value);
 });
 
+type ArbitraryValue = string & {};
 const ArbitraryValue = z.string().refine((value) => {
   return aritraryValueRegex.test(value);
 });
-
-type GridValue = z.infer<typeof GridValue>;
-type TokenProperty<P extends string = string> = `---${P}`;
-type TokenValue<TK extends string = string, V extends string = string> = `var(---${TK}-${V})`;
-type ArbitraryValue = string & {};
 
 function tokenProperty(name: string): TokenProperty {
   return `---${name}`;
@@ -41,10 +39,10 @@ function arbitraryValue(value: string): ArbitraryValue {
   return `var(---,${value})`;
 }
 
-type S<P extends string, V> = { [key in `${P}`]?: V };
-type Selector<P extends string, M extends string, V> = S<`---${P}`, V> &
-  S<`---${M}_${P}`, V> &
-  S<`---${string}_${P}`, V>;
+type Declaration<P extends string, V> = { [key in `${P}`]?: V };
+type VariantDeclaration<P extends string, M extends string, V> = Declaration<`---${P}`, V> &
+  Declaration<`---${M}_${P}`, V> &
+  Declaration<`---${string}_${P}`, V>;
 
 type ThemeKey =
   | 'alpha'
@@ -65,7 +63,7 @@ type ThemeKey =
 
 type ThemeValues = Record<string, string | number>;
 type Theme = Partial<Record<ThemeKey, ThemeValues>>;
-type Aliases = Partial<Record<keyof CSS.StandardPropertiesHyphen, string[]>>;
+type Aliases = Record<string, (Supports.CSSProperty | (string & {}))[]>;
 type PropertiesOptions = readonly ('grid' | ThemeKey)[];
 
 interface Config {
@@ -85,7 +83,7 @@ function getTokenPropertyName(tokenProperty: TokenProperty) {
   return tokenProperty.replace(tokenPropertyRegex, '$1');
 }
 
-export type { Config, Theme, Aliases, Selector };
+export type { Config, Theme, Aliases, VariantDeclaration };
 export {
   TokenProperty,
   TokenValue,

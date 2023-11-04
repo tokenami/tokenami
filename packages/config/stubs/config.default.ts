@@ -1,4 +1,4 @@
-import * as Tokenami from '@tokenami/css';
+import * as Tokenami from '@tokenami/dev';
 
 const defaultConfig = {
   include: [],
@@ -22,21 +22,7 @@ const defaultConfig = {
     weight: {},
     z: {},
   },
-  aliases: {
-    'background-color': ['background-color', 'bg-color'],
-    'column-gap': ['column-gap', 'gap'],
-    'row-gap': ['row-gap', 'gap'],
-    'margin-left': ['margin-left', 'ml', 'mx'],
-    'margin-right': ['margin-right', 'mr', 'mx'],
-    'margin-top': ['margin-top', 'mt', 'my'],
-    'margin-bottom': ['margin-bottom', 'mb', 'my'],
-    'padding-left': ['padding-left', 'pl', 'px'],
-    'padding-right': ['padding-right', 'pr', 'px'],
-    'padding-top': ['padding-top', 'pt', 'py'],
-    'padding-bottom': ['padding-bottom', 'pb', 'py'],
-    margin: ['m'],
-    padding: ['p'],
-  },
+  aliases: {},
   properties: {
     'accent-color': ['color'],
     animation: ['anim'],

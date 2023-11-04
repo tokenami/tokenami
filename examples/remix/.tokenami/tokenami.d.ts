@@ -1,4 +1,4 @@
-import type config from './tokenami.config';
+import type config from './tokenami.config.cjs';
 type CustomConfig = typeof config;
 
 declare global {

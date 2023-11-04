@@ -1,7 +1,7 @@
 import type * as CSS from 'csstype';
 import type * as ConfigUtils from '@tokenami/config';
 
-export type Config = ConfigUtils.Config;
+type Config = ConfigUtils.Config;
 
 declare global {
   // consumer will override this interface
@@ -33,14 +33,12 @@ type ThemedGridValue<P extends string> =
   | ConfigUtils.ArbitraryValue
   | ConfigUtils.GridValue;
 
-// type SupportedProperties = (typeof Config.properties)[number];
-
-// type TokenamiProperties = {
-//   [P in SupportedProperties]: Config.Selector<P, Media, CSSPropertyValue<P>>;
-// }[SupportedProperties];
+type TokenamiStyles = {} /* TOKENAMI_STYLES */;
 
 declare module 'csstype' {
-  interface Properties /*EXTENDS*/ {
+  interface Properties extends TokenamiStyles {
     [cssProperty: string]: any;
   }
 }
+
+export type { Config, TokenamiStyles };

@@ -2,11 +2,11 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "prepare": "tokenami",
+    "prepare": "tokenami --config=.tokenami/tokenami.config.cjs",
     "build": "tokenami --minify && remix build",
     "dev": "concurrently \"pnpm:dev:*\"",
     "dev:app": "remix dev",
-    "dev:css": "tokenami --watch",
+    "dev:css": "tokenami --watch --config=.tokenami/tokenami.config.cjs",
     "start": "remix-serve build",
     "typecheck": "tsc",
     "lint": "eslint ."
@@ -24,7 +24,8 @@
   "devDependencies": {
     "@remix-run/dev": "^1.17.1",
     "@remix-run/eslint-config": "^1.17.1",
-    "@tokenami/eslint-plugin-css": "workspace:*",
+    "@tokenami/dev": "workspace:*",
+    "@tokenami/eslint-plugin-dev": "workspace:*",
     "@types/react": "^18.0.35",
     "@types/react-dom": "^18.0.11",
     "concurrently": "^8.2.0",

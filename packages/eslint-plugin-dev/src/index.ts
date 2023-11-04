@@ -12,9 +12,9 @@ const rules = {
 
 const configs = {
   recommended: {
-    plugins: ['@tokenami/css'],
+    plugins: ['@tokenami/dev'],
     rules: {
-      [`@tokenami/css/no-invalid-tokens`]: 'error',
+      [`@tokenami/dev/no-invalid-tokens`]: 'error',
     },
   },
 };

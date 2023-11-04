@@ -1,4 +1,4 @@
-/** @satisfies {import('@tokenami/css').Config} */
+/** @satisfies {import('@tokenami/dev').Config} */
 module.exports = {
   include: ['./app/**/*.{ts,tsx}'],
   exclude: ['./app/routes/original.tsx'],
@@ -37,5 +37,22 @@ module.exports = {
       'full-h': '100%',
       'screen-h': '100vh',
     },
+  },
+  aliases: {
+    'bg-color': ['background-color'],
+    m: ['mt', 'mr', 'mb', 'ml', 'mx', 'my', 'margin'],
+    mx: ['ml', 'mr', 'margin-left', 'margin-right'],
+    my: ['mt', 'mb', 'margin-top', 'margin-bottom'],
+    mt: ['margin-top'],
+    mr: ['margin-right'],
+    mb: ['margin-bottom'],
+    ml: ['margin-left'],
+    p: ['pt', 'pr', 'pb', 'pl', 'px', 'py', 'padding'],
+    px: ['pl', 'pr', 'padding-left', 'padding-right'],
+    py: ['pt', 'pb', 'padding-top', 'padding-bottom'],
+    pt: ['padding-top'],
+    pr: ['padding-right'],
+    pb: ['padding-bottom'],
+    pl: ['padding-left'],
   },
 };
