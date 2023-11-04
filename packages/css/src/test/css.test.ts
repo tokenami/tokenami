@@ -1,5 +1,6 @@
 import { describe, beforeEach, it, expect } from 'vitest';
-import { css, toMediaStyles } from './css';
+import { hasStyles, hasSomeStyles } from './utils';
+import { css, convertToMediaStyles } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup
@@ -29,7 +30,7 @@ const primaryStyles = Object.freeze({
 const secondaryStyles = Object.freeze({
   '---color': 'gray',
   '---border-color': 'lightgray',
-  '---font': 'serif',
+  '---font-family': 'serif',
 }) as any;
 
 const button = css(
@@ -41,17 +42,13 @@ const button = css(
   { responsive: true }
 );
 
-function hasStyles(output: TestContext['output'], expected: Record<string, string | number>) {
-  return Object.entries(expected).every(([key, value]) => (output as any)?.[key] === value);
-}
-
 /* -------------------------------------------------------------------------------------------------
  * tests
  * -----------------------------------------------------------------------------------------------*/
 
 interface TestContext {
   button: typeof button;
-  output?: ReturnType<typeof button>;
+  output: ReturnType<typeof button>;
 }
 
 describe('css', () => {
@@ -103,7 +100,7 @@ describe('css', () => {
     });
 
     it<TestContext>('should include responsive variant styles', (context) => {
-      expect(hasStyles(context.output, toMediaStyles('md', secondaryStyles))).toBe(true);
+      expect(hasStyles(context.output, convertToMediaStyles('md', secondaryStyles))).toBe(true);
     });
   });
 
@@ -121,7 +118,31 @@ describe('css', () => {
     });
 
     it<TestContext>('should include override styles', (context) => {
-      const expected = { '---color': 'red', '---border-color': 'red', '---font': 'serif' };
+      const expected = { '---color': 'red', '---border-color': 'red', '---font-family': 'serif' };
+      expect(hasStyles(context.output, expected)).toBe(true);
+    });
+  });
+
+  describe('when invoked with shorthand override', () => {
+    beforeEach<TestContext>((context) => {
+      context.output = context.button(
+        { type: 'secondary' },
+        { '---padding-left': 10, '---border': '1px dashed' },
+        { '---font': 'arial', '---padding': 30 }
+      );
+    });
+
+    it<TestContext>('should remove longhand styles', (context) => {
+      const unexpected = {
+        '---border-color': 'lightgray',
+        '---font-family': 'serif',
+        '---padding-left': 10,
+      };
+      expect(hasSomeStyles(context.output, unexpected)).toBe(false);
+    });
+
+    it<TestContext>('should add shorthand styles', (context) => {
+      const expected = { '---font': 'arial', '---padding': 30, '---border': '1px dashed' };
       expect(hasStyles(context.output, expected)).toBe(true);
     });
   });

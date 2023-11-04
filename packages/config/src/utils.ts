@@ -2,7 +2,6 @@ import * as pathe from 'pathe';
 import * as Tokenami from '~/config';
 import * as Supports from '~/supports';
 import defaultConfig from 'stubs/config.default';
-import path from 'path';
 import fs from 'fs';
 
 /* -------------------------------------------------------------------------------------------------
@@ -38,20 +37,15 @@ function getValuesByTokenValueProperty(theme: Tokenami.Theme, themeKeys?: string
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getCSSPropertiesForAlias
+ * getLonghandsForAlias
  * -------------------------------------------------------------------------------------------------
  * an alias can be used for multiple CSS properties e.g. `px` can apply to `padding-left`
- * and `padding-right`, so this gets an array of CSS properties for a given alias.
+ * and `padding-right`, so this gets an array of longhand properties for a given alias.
  * -----------------------------------------------------------------------------------------------*/
 
-function getCSSPropertiesForAlias(alias: string, config: Tokenami.Config): Supports.CSSProperty[] {
-  const aliases = (config.aliases || {}) as Tokenami.Aliases;
-  const matchingEntries = Object.entries(aliases).filter(([_, aliases]) => aliases.includes(alias));
-  if (matchingEntries.length) {
-    return matchingEntries.map(([cssProperty]) => cssProperty as Supports.CSSProperty);
-  } else {
-    return Supports.properties.includes(alias as any) ? [alias as Supports.CSSProperty] : [];
-  }
+function getLonghandsForAlias(alias: string, config: Tokenami.Config): string[] {
+  const longhands: string[] = (config.aliases as any)?.[alias];
+  return longhands || (Supports.properties.includes(alias as any) ? [alias] : []);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -59,7 +53,7 @@ function getCSSPropertiesForAlias(alias: string, config: Tokenami.Config): Suppo
  * -----------------------------------------------------------------------------------------------*/
 
 function generateConfig() {
-  const initConfigStubPath = path.resolve(__dirname, '../stubs/config.init.cjs');
+  const initConfigStubPath = pathe.resolve(__dirname, '../stubs/config.init.cjs');
   return fs.readFileSync(initConfigStubPath, 'utf8');
 }
 
@@ -83,7 +77,7 @@ function mergedConfigs(theirs: Tokenami.Config): Tokenami.Config {
 
 function generateTypeDefs(configPath: string) {
   const parsed = pathe.parse(configPath);
-  const typeDefStubPath = path.resolve(__dirname, '../stubs/typedefs.txt');
+  const typeDefStubPath = pathe.resolve(__dirname, '../stubs/typedefs.txt');
   const typeDefStub = fs.readFileSync(typeDefStubPath, 'utf8');
   const configFileName = parsed.name;
   return typeDefStub.replace('CONFIG_FILE_NAME', configFileName);
@@ -103,7 +97,7 @@ function getSpecifictyOrderForCSSProperty(cssProperty: Supports.CSSProperty) {
 
 function getTokenPropertyParts(tokenProperty: string, config: Tokenami.Config) {
   const [alias, ...tokenVariants] = tokenProperty.split('_').reverse() as [string] & string[];
-  const properties = getCSSPropertiesForAlias(alias, config);
+  const longhands = getLonghandsForAlias(alias, config);
   let media: string | undefined;
   let pseudoClass: string | undefined;
   let pseudoElement: string | undefined;
@@ -121,7 +115,7 @@ function getTokenPropertyParts(tokenProperty: string, config: Tokenami.Config) {
     }
   });
 
-  return { alias, properties, media, pseudoClass, pseudoElement, variants };
+  return { alias, longhands, media, pseudoClass, pseudoElement, variants };
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -149,6 +143,5 @@ export {
   getValuesByTokenValueProperty,
   getTokenPropertyParts,
   getResponsivePropertyVariants,
-  getCSSPropertiesForAlias,
   getSpecifictyOrderForCSSProperty,
 };
