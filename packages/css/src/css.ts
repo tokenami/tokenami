@@ -61,9 +61,11 @@ function css<S extends TokenamiStyles, V extends VariantsConfig, R extends boole
           override(css, property);
         }
       }
+      // this must happen each iteration so that each override applies to the
+      // mutated css object from the previous override iteration
+      Object.assign(css, overrideStyle);
     });
 
-    Object.assign(css, ...overrideStyles);
     cache[cacheId] = css;
     return css;
   };

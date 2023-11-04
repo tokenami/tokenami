@@ -48,6 +48,7 @@ describe('css returned from createCss', () => {
         '---px': 20,
         '---padding-left': '30px',
       };
+      console.log(context.output);
       expect(hasSomeStyles(context.output, unexpected)).toBe(false);
     });
 

@@ -1,5 +1,5 @@
 import { describe, beforeEach, it, expect } from 'vitest';
-import { hasStyles, hasSomeStyles } from '~/test/utils';
+import { hasStyles, hasSomeStyles } from './utils';
 import { css, convertToMediaStyles } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
