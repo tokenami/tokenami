@@ -8,15 +8,15 @@ export default function Index() {
     {
       size: {
         small: {
-          '---padding-top': '3px',
-          '---padding-bottom': '3px',
-          '---padding-left': '5px',
-          '---padding-right': '5px',
-          '---border': '1px solid green',
+          '---padding-top': 'var(---,3px)',
+          '---padding-bottom': 'var(---,3px)',
+          '---padding-left': 'var(---,5px)',
+          '---padding-right': 'var(---,5px)',
+          '---border': 'var(---,1px solid green)',
         },
         large: {
-          '---padding': '10px',
-          '---border': '3px solid red',
+          '---padding': 'var(---,10px)',
+          '---border': 'var(---,3px solid red)',
         },
       },
     }
@@ -27,7 +27,7 @@ export default function Index() {
       <button
         style={button(
           { size: 'small' },
-          { '---padding': '20px', '---border-left-width': '30px' },
+          { '---padding': 'var(---,20px)', '---border-left-width': 'var(---,30px)' },
           { '---p': 30 },
           { '---pl': 2 }
         )}
@@ -37,7 +37,7 @@ export default function Index() {
       <button
         style={button(
           { size: 'large' },
-          { '---padding': '20px', '---border-right-width': '30px' },
+          { '---padding': 'var(---,20px)', '---border-right-width': 'var(---,30px)' },
           { '---pl': 2 },
           { '---p': 30 }
         )}

@@ -1,28 +1,40 @@
 import type * as CSS from 'csstype';
 import type * as ConfigUtils from '@tokenami/config';
 
-type Config = ConfigUtils.Config;
+type Merge<A, B> = Omit<A, keyof B> & B;
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
+  ? I
+  : never;
 
 declare global {
   // consumer will override this interface
   interface TokenamiConfig {}
-  interface TokenamiFinalConfig extends Omit<Config, keyof TokenamiConfig>, TokenamiConfig {}
+  interface TokenamiFinalConfig extends Merge<ConfigUtils.DefaultConfig, TokenamiConfig> {}
 }
 
-type PropertyConfig = TokenamiFinalConfig['properties'];
-type Media = keyof TokenamiFinalConfig['media'];
+type Style<P extends string, V> = { [key in ConfigUtils.TokenProperty<P>]?: V };
+type VariantStyle<P extends string, M extends string, V> = Style<P, V> &
+  Style<`${M}_${P}`, V> &
+  Style<`${string}_${P}`, V>;
 
-type Prefix<P = any> = P extends keyof PropertyConfig
-  ? Exclude<PropertyConfig[P][number], 'grid'>
+type PropertyConfig = NonNullable<TokenamiFinalConfig['properties']>;
+type Media = keyof NonNullable<TokenamiFinalConfig['media']>;
+
+type Prefix<P> = P extends keyof PropertyConfig
+  ? Exclude<NonNullable<PropertyConfig[P]>[number], 'grid'>
   : never;
 
-type Values<P> = P extends keyof TokenamiFinalConfig['theme']
-  ? keyof TokenamiFinalConfig['theme'][P]
+type Values<Prefix> = Prefix extends keyof TokenamiFinalConfig['theme']
+  ? keyof TokenamiFinalConfig['theme'][Prefix]
   : never;
 
-type TokenValue<P, Pfx = Prefix<P>, V = Values<Pfx>> = Pfx extends string
-  ? V extends string
-    ? ConfigUtils.TokenValue<Pfx, V>
+type TokenValue<P> = Prefix<P> extends infer Pfx
+  ? Pfx extends string
+    ? Values<Pfx> extends infer Value
+      ? Value extends string
+        ? ConfigUtils.TokenValue<Pfx, Value>
+        : never
+      : never
     : never
   : never;
 
@@ -35,10 +47,16 @@ type ThemedGridValue<P extends string> =
 
 type TokenamiStyles = {} /* TOKENAMI_STYLES */;
 
+type TokenamiAliasStyles = {
+  [K in keyof TokenamiFinalConfig['aliases']]: TokenamiFinalConfig['aliases'][K][number] extends infer L
+    ? L extends ConfigUtils.CSSProperty
+      ? VariantStyle<K, Media, TokenamiStyles[ConfigUtils.TokenProperty<L>]>
+      : never
+    : never;
+}[keyof TokenamiFinalConfig['aliases']];
+
 declare module 'csstype' {
-  interface Properties extends TokenamiStyles {
-    [cssProperty: string]: any;
+  interface Properties extends TokenamiStyles, UnionToIntersection<TokenamiAliasStyles> {
+    [key: `--_${string}`]: any;
   }
 }
-
-export type { Config, TokenamiStyles };

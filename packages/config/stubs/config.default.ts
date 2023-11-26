@@ -1,6 +1,6 @@
-import * as Tokenami from '@tokenami/dev';
+import { createTokenamiConfig } from '~/config';
 
-const defaultConfig = {
+const defaultConfig = createTokenamiConfig({
   include: [],
   grid: '0.25rem',
   media: {},
@@ -164,6 +164,7 @@ const defaultConfig = {
     width: ['grid', 'size'],
     'z-index': ['z'],
   },
-} satisfies Tokenami.Config;
+});
 
+export type DefaultConfig = typeof defaultConfig;
 export default defaultConfig;
