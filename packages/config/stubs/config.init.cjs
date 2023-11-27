@@ -1,5 +1,6 @@
-/** @satisfies {import('@tokenami/dev').Config} */
-module.exports = {
+const { createTokenamiConfig } = require('@tokenami/dev');
+
+module.exports = createTokenamiConfig({
   include: [],
   grid: '0.25rem',
   media: {},
@@ -21,4 +22,4 @@ module.exports = {
     weight: {},
     z: {},
   },
-};
+});

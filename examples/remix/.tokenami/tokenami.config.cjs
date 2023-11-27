@@ -1,5 +1,6 @@
-/** @satisfies {import('@tokenami/dev').Config} */
-module.exports = {
+const { createTokenamiConfig } = require('@tokenami/dev');
+
+module.exports = createTokenamiConfig({
   include: ['./app/**/*.{ts,tsx}'],
   exclude: ['./app/routes/original.tsx'],
   grid: '4px',
@@ -33,8 +34,7 @@ module.exports = {
     },
     size: {
       auto: 'auto',
-      'full-w': '100%',
-      'full-h': '100%',
+      fill: '100%',
       'screen-h': '100vh',
     },
   },
@@ -55,4 +55,4 @@ module.exports = {
     pb: ['padding-bottom'],
     pl: ['padding-left'],
   },
-};
+});

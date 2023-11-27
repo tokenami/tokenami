@@ -25,12 +25,12 @@
     "@remix-run/dev": "^1.17.1",
     "@remix-run/eslint-config": "^1.17.1",
     "@tokenami/dev": "workspace:*",
-    "@tokenami/eslint-plugin-dev": "workspace:*",
+    "@tokenami/typescript-plugin": "file:../../packages/typescript-plugin",
     "@types/react": "^18.0.35",
     "@types/react-dom": "^18.0.11",
     "concurrently": "^8.2.0",
     "eslint": "^8.43.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.1.3"
   },
   "eslintIgnore": [
     "/node_modules",
