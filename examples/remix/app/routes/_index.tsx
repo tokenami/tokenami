@@ -9,10 +9,10 @@ export default function Index() {
   return (
     <div
       style={{
-        '--radial-gradient': 'radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)',
-        '--grid-bg-size': 'calc(var(---grid) * 5)',
-        '---background-size': 'var(---,var(--grid-bg-size) var(--grid-bg-size))',
-        '---background-image': 'var(---,var(--radial-gradient))',
+        '--_radial-gradient': 'radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)',
+        '--_grid-bg-size': 'calc(var(---grid) * 5)',
+        '---background-size': 'var(---,var(--_grid-bg-size) var(--_grid-bg-size))',
+        '---background-image': 'var(---,var(--_radial-gradient))',
         '---background-color': 'var(---color-sky-500)',
         '---background-position-x': 1,
         '---background-position-y': 0.5,

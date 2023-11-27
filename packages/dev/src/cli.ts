@@ -8,7 +8,6 @@ import * as pathe from 'pathe';
 import * as sheet from '~/sheet';
 import * as intellisense from '~/intellisense';
 import * as log from '~/log';
-import { execSync } from 'child_process';
 import pkgJson from '~/../package.json';
 
 const require = createRequire(import.meta.url);
@@ -26,17 +25,10 @@ const run = () => {
       const outDir = pathe.dirname(configPath);
       const initialConfig = ConfigUtils.generateConfig();
       const typeDefs = ConfigUtils.generateTypeDefs(configPath);
-      const packageManager = detectPackageManager(cwd);
 
       fs.mkdirSync(outDir, { recursive: true });
       fs.writeFileSync(configPath, initialConfig, { flag: 'w' });
       fs.writeFileSync(typeDefsPath, typeDefs, { flag: 'w' });
-
-      if (packageManager) {
-        installPackage('@tokenami/eslint-plugin-dev', packageManager);
-      } else {
-        log.error('Package manager not detected');
-      }
     });
 
   cli
@@ -110,13 +102,13 @@ function generateStyles(
  * watch
  * -----------------------------------------------------------------------------------------------*/
 
-function watch(cwd: string, include: string[], exclude?: string[]) {
+function watch(cwd: string, include: readonly string[], exclude?: readonly string[]) {
   return chokidar.watch(include, {
     cwd,
     persistent: true,
     ignoreInitial: true,
     ignorePermissionErrors: true,
-    ignored: exclude,
+    ignored: exclude as string[],
   });
 }
 
@@ -138,7 +130,8 @@ async function findUsedTokenProperties(cwd: string, config: ConfigUtils.Config) 
  * -----------------------------------------------------------------------------------------------*/
 
 async function findUsedCssVariables(cwd: string, config: ConfigUtils.Config) {
-  const { include, exclude } = config;
+  const include = config.include as string[];
+  const exclude = config.exclude as string[];
   const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore: exclude });
   const tokenPropertyRegex = /(?<cssVar>--[a-z-_]+)("|')?\:/g;
   const allCssVariables = entries.flatMap((entry) => {
@@ -193,53 +186,6 @@ function getConfig(cwd: string, opts: GetConfigOptions = {}): ConfigUtils.Config
 function reloadModule(moduleName: string) {
   delete require.cache[require.resolve(moduleName)];
   return require(moduleName);
-}
-
-/* -------------------------------------------------------------------------------------------------
- * detectPackageManager
- * -----------------------------------------------------------------------------------------------*/
-
-type PackageManager = 'npm' | 'pnpm' | 'yarn';
-
-const packageManagerFiles: Record<PackageManager, string> = {
-  npm: 'package-lock.json',
-  yarn: 'yarn.lock',
-  pnpm: 'pnpm-lock.yaml',
-};
-
-function detectPackageManager(cwd: string) {
-  const rootPath = pathe.parse(pathe.resolve(cwd)).root;
-  let packageManager = null;
-  let currentDir = cwd;
-
-  while (currentDir !== rootPath) {
-    for (const [manager, file] of Object.entries(packageManagerFiles)) {
-      const filePath = pathe.join(currentDir, file);
-      if (fs.existsSync(filePath)) {
-        packageManager = manager as PackageManager;
-        break;
-      }
-    }
-    currentDir = pathe.dirname(currentDir);
-  }
-
-  return packageManager;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * installPackage
- * -----------------------------------------------------------------------------------------------*/
-
-const packageManagerCommands: Record<PackageManager, string> = {
-  npm: 'npm i -D',
-  yarn: 'yarn add -D',
-  pnpm: 'pnpm i -D',
-};
-
-function installPackage(packageName: string, packageManager: PackageManager) {
-  const installCommand = packageManagerCommands[packageManager];
-  if (!installCommand) log.error('Package manager not detected');
-  execSync(`${installCommand} ${packageName}`, { stdio: 'inherit' });
 }
 
 /* -------------------------------------------------------------------------------------------------

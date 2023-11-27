@@ -1,14 +1,17 @@
 {
-  "exclude": ["node_modules", "dist"],
   "compilerOptions": {
-    "outDir": "dist",
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
     "strict": true,
     "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
     "isolatedModules": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "sourceMap": false
   }
 }

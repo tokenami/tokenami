@@ -38,7 +38,6 @@
     "pathe": "^1.1.1"
   },
   "peerDependencies": {
-    "@tokenami/eslint-plugin-dev": "workspace:*",
     "eslint": ">= 8",
     "typescript": ">= 5"
   }

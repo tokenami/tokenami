@@ -1,28 +1,6 @@
 import { z } from 'zod';
 import * as Supports from './supports';
 
-const tokenPropertyRegex = /---([a-z]+)/;
-const tokenValueRegex = /var\(---([\w-]+)-([\w-]+)\)/;
-const aritraryValueRegex = /var\(---,(.+)\)/;
-
-type GridValue = z.infer<typeof GridValue>;
-const GridValue = z.number();
-
-type TokenProperty<P extends string = string> = `---${P}`;
-const TokenProperty = z.string().refine((value) => {
-  return tokenPropertyRegex.test(value);
-});
-
-type TokenValue<TK extends string = string, V extends string = string> = `var(---${TK}-${V})`;
-const TokenValue = z.string().refine((value) => {
-  return tokenValueRegex.test(value);
-});
-
-type ArbitraryValue = string & {};
-const ArbitraryValue = z.string().refine((value) => {
-  return aritraryValueRegex.test(value);
-});
-
 function tokenProperty(name: string): TokenProperty {
   return `---${name}`;
 }
@@ -39,10 +17,28 @@ function arbitraryValue(value: string): ArbitraryValue {
   return `var(---,${value})`;
 }
 
-type Declaration<P extends string, V> = { [key in `${P}`]?: V };
-type VariantDeclaration<P extends string, M extends string, V> = Declaration<`---${P}`, V> &
-  Declaration<`---${M}_${P}`, V> &
-  Declaration<`---${string}_${P}`, V>;
+const tokenPropertyRegex = /---([\w-]+)/;
+const variantPropertyRegex = /---([\w]+)_[\w-]+/;
+const tokenValueRegex = /var\(---([\w]+)-([\w-]+)\)/;
+const aritraryValueRegex = /var\(---,(.+)\)/;
+
+type GridValue = z.infer<typeof GridValue>;
+const GridValue = z.number();
+
+type TokenProperty<P extends string = string> = `---${P}`;
+const TokenProperty = z.string().refine((value) => {
+  return tokenPropertyRegex.test(value);
+});
+
+type TokenValue<TK extends string = string, V extends string = string> = `var(---${TK}-${V})`;
+const TokenValue = z.string().refine((value) => {
+  return tokenValueRegex.test(value);
+});
+
+type ArbitraryValue = `var(---,${string})`;
+const ArbitraryValue = z.string().refine((value) => {
+  return aritraryValueRegex.test(value);
+});
 
 type ThemeKey =
   | 'alpha'
@@ -63,19 +59,28 @@ type ThemeKey =
 
 type ThemeValues = Record<string, string | number>;
 type Theme = Partial<Record<ThemeKey, ThemeValues>>;
-type Aliases = Record<string, (Supports.CSSProperty | (string & {}))[]>;
+type Aliases = Record<string, readonly (Supports.CSSProperty | (string & {}))[]>;
 type PropertiesOptions = readonly ('grid' | ThemeKey)[];
 
-interface Config {
-  include: string[];
-  exclude?: string[];
-  media?: { [name: string]: string | number };
-  keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
-  aliases?: Aliases;
-  grid: string;
-  theme: Theme;
-  properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
-}
+type DeepReadonly<T> = {
+  readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K];
+};
+
+interface Config
+  extends DeepReadonly<{
+    include: string[];
+    exclude?: string[];
+    media?: { [name: string]: string };
+    keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
+    aliases?: Aliases;
+    grid: string;
+    theme: Theme;
+    properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
+  }> {}
+
+const createTokenamiConfig = <T extends Config>(obj: T): DeepReadonly<T> => {
+  return obj as DeepReadonly<T>;
+};
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -83,7 +88,17 @@ function getTokenPropertyName(tokenProperty: TokenProperty) {
   return tokenProperty.replace(tokenPropertyRegex, '$1');
 }
 
-export type { Config, Theme, Aliases, VariantDeclaration };
+function getTokenPropertyVariant(tokenProperty: TokenProperty) {
+  const [, variant] = tokenProperty.split(variantPropertyRegex);
+  return variant;
+}
+
+function getTokenValueParts(tokenValue: TokenValue) {
+  const [, key, token] = tokenValue.split(tokenValueRegex);
+  return key && token ? { themeKey: key, token } : undefined;
+}
+
+export type { Config, Theme, Aliases };
 export {
   TokenProperty,
   TokenValue,
@@ -95,4 +110,7 @@ export {
   tokenValue,
   arbitraryValue,
   getTokenPropertyName,
+  getTokenPropertyVariant,
+  getTokenValueParts,
+  createTokenamiConfig,
 };
