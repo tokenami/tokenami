@@ -1,5 +1,5 @@
 {
-  "name": "@tokenami/ts-plugin-dev",
+  "name": "@tokenami/typescript-plugin",
   "version": "0.0.0",
   "license": "MIT",
   "main": "./dist",
@@ -9,8 +9,7 @@
     "dev": "pnpm build --watch"
   },
   "dependencies": {
-    "@tokenami/config": "workspace:*",
-    "pathe": "^1.1.1"
+    "@tokenami/config": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.1.3"

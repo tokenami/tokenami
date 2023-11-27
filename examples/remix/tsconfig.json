@@ -15,7 +15,7 @@
     },
     "plugins": [
       {
-        "name": "@tokenami/ts-plugin-dev",
+        "name": "@tokenami/typescript-plugin",
         "configPath": "./.tokenami/tokenami.config.cjs"
       }
     ]
