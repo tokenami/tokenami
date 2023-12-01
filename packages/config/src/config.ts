@@ -18,7 +18,6 @@ function arbitraryValue(value: string): ArbitraryValue {
 }
 
 const tokenPropertyRegex = /---([\w-]+)/;
-const variantPropertyRegex = /---([\w]+)_[\w-]+/;
 const tokenValueRegex = /var\(---([\w]+)-([\w-]+)\)/;
 const aritraryValueRegex = /var\(---,(.+)\)/;
 
@@ -70,7 +69,8 @@ interface Config
   extends DeepReadonly<{
     include: string[];
     exclude?: string[];
-    media?: { [name: string]: string };
+    responsive?: { [atRule: string]: string };
+    selectors?: { [name: string]: string };
     keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
     aliases?: Aliases;
     grid: string;
@@ -86,11 +86,6 @@ const createTokenamiConfig = <T extends Config>(obj: T): DeepReadonly<T> => {
 
 function getTokenPropertyName(tokenProperty: TokenProperty) {
   return tokenProperty.replace(tokenPropertyRegex, '$1');
-}
-
-function getTokenPropertyVariant(tokenProperty: TokenProperty) {
-  const [, variant] = tokenProperty.split(variantPropertyRegex);
-  return variant;
 }
 
 function getTokenValueParts(tokenValue: TokenValue) {
@@ -110,7 +105,6 @@ export {
   tokenValue,
   arbitraryValue,
   getTokenPropertyName,
-  getTokenPropertyVariant,
   getTokenValueParts,
   createTokenamiConfig,
 };

@@ -4,15 +4,9 @@ module.exports = createTokenamiConfig({
   include: ['./app/**/*.{ts,tsx}'],
   exclude: ['./app/routes/original.tsx'],
   grid: '4px',
-  media: {
-    md: '(min-width: 700px)',
-    lg: '(min-width: 1024px)',
-  },
-  keyframes: {
-    wiggle: {
-      '0%, 100%': { transform: 'rotate(-3deg)' },
-      '50%': { transform: 'rotate(3deg)' },
-    },
+  responsive: {
+    md: '@media (min-width: 700px)',
+    lg: '@media (min-width: 1024px)',
   },
   theme: {
     anim: {
@@ -23,19 +17,25 @@ module.exports = createTokenamiConfig({
       'slate-700': '#334155',
       'sky-500': '#0ea5e9',
     },
+    font: {
+      serif: 'serif',
+      sans: 'sans-serif',
+    },
     radii: {
       rounded: '10px',
       circle: '9999px',
       none: 'none',
     },
-    font: {
-      serif: 'serif',
-      sans: 'sans-serif',
-    },
     size: {
       auto: 'auto',
       fill: '100%',
       'screen-h': '100vh',
+    },
+  },
+  keyframes: {
+    wiggle: {
+      '0%, 100%': { transform: 'rotate(-3deg)' },
+      '50%': { transform: 'rotate(3deg)' },
     },
   },
   aliases: {

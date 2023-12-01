@@ -1,2 +1,2 @@
 /// <reference path="./tokenami.d.ts" />
-export { createTokenamiConfig } from '@tokenami/config';
+export { createTokenamiConfig, defaultConfig } from '@tokenami/config';

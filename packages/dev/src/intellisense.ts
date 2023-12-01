@@ -33,7 +33,7 @@ function getExtendedProperties(config: ConfigUtils.Config) {
         : `ThemedValue<'${cssProperty}'>`
       : `CSSPropertyValue<'${cssProperty}'>`;
 
-    extendsProperties.add(`VariantStyle<'${cssProperty}', Media, ${value}>`);
+    extendsProperties.add(`VariantStyle<'${cssProperty}', Responsive, ${value}>`);
   });
 
   return Array.from(extendsProperties);
