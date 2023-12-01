@@ -29,8 +29,8 @@ function getExtendedProperties(config: ConfigUtils.Config) {
     const themeKeys = config.properties?.[cssProperty] || [];
     const value = themeKeys.length
       ? themeKeys.includes('grid')
-        ? `ThemedGridValue<'${cssProperty}'>`
-        : `ThemedValue<'${cssProperty}'>`
+        ? `TokenValue<'${cssProperty}'> | ConfigUtils.ArbitraryValue | ConfigUtils.GridValue`
+        : `TokenValue<'${cssProperty}'> | ConfigUtils.ArbitraryValue`
       : `CSSPropertyValue<'${cssProperty}'>`;
 
     extendsProperties.add(`VariantStyle<'${cssProperty}', Responsive, ${value}>`);
