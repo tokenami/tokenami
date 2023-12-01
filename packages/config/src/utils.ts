@@ -62,13 +62,7 @@ function generateConfig() {
  * -----------------------------------------------------------------------------------------------*/
 
 function mergedConfigs(theirs: Tokenami.Config): Tokenami.Config {
-  return {
-    ...defaultConfig,
-    ...theirs,
-    theme: { ...defaultConfig.theme, ...theirs.theme },
-    aliases: { ...defaultConfig.aliases, ...theirs.aliases },
-    properties: { ...defaultConfig.properties, ...theirs.properties },
-  };
+  return { ...defaultConfig, ...theirs };
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -95,27 +89,10 @@ function getSpecifictyOrderForCSSProperty(cssProperty: Supports.CSSProperty) {
  * getTokenPropertyParts
  * -----------------------------------------------------------------------------------------------*/
 
-function getTokenPropertyParts(tokenProperty: string, config: Tokenami.Config) {
-  const [alias, ...tokenVariants] = tokenProperty.split('_').reverse() as [string] & string[];
-  const longhands = getLonghandsForAlias(alias, config);
-  let media: string | undefined;
-  let pseudoClass: string | undefined;
-  let pseudoElement: string | undefined;
-  let variants: string[] = [];
-
-  tokenVariants.forEach((variant) => {
-    if (config.media?.[variant]) {
-      media = variant;
-    } else if (Supports.pseudoClasses.includes(variant as any)) {
-      pseudoClass = variant;
-    } else if (Supports.pseudoElements.includes(variant as any)) {
-      pseudoElement = variant;
-    } else {
-      variants.push(variant);
-    }
-  });
-
-  return { alias, longhands, media, pseudoClass, pseudoElement, variants };
+function getTokenPropertyParts(tokenProperty: Tokenami.TokenProperty) {
+  const name = Tokenami.getTokenPropertyName(tokenProperty);
+  const [alias, ...variants] = name.split('_').reverse() as [string] & string[];
+  return { name, alias, variants };
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -126,9 +103,9 @@ function getResponsivePropertyVariants(
   tokenProperty: Tokenami.TokenProperty,
   config: Tokenami.Config
 ): string[] {
-  return Object.keys(config.media || {}).map((media) => {
+  return Object.keys(config.responsive || {}).map((query) => {
     const name = Tokenami.getTokenPropertyName(tokenProperty);
-    return Tokenami.variantProperty(media, name);
+    return Tokenami.variantProperty(query, name);
   });
 }
 
@@ -141,6 +118,7 @@ export {
   generateConfig,
   generateTypeDefs,
   getValuesByTokenValueProperty,
+  getLonghandsForAlias,
   getTokenPropertyParts,
   getResponsivePropertyVariants,
   getSpecifictyOrderForCSSProperty,

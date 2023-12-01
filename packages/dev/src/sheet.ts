@@ -1,11 +1,12 @@
 import * as ConfigUtils from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
-import deepmerge from 'deepmerge';
 import * as lightning from 'lightningcss';
 
 /* -------------------------------------------------------------------------------------------------
  * generate
  * -----------------------------------------------------------------------------------------------*/
+
+type Styles = { [key: string]: string | Styles };
 
 function generate(
   usedTokenProperties: ConfigUtils.TokenProperty[],
@@ -13,133 +14,75 @@ function generate(
   config: ConfigUtils.Config,
   minify?: boolean
 ) {
-  if (!usedTokenProperties.length) return '';
-  // styles are split into these groups so we can control order in stylesheet
-  const initialGroup: Record<string, any> = {};
-  const keyframesGroup: Record<string, any> = {};
-  const atomicList: Record<string, any>[] = [];
-  const atomicArbitraryList: Record<string, any>[] = [];
-  const breakpointGroup: Record<string, Record<string, any>[]> = {};
-  const breakpointArbitraryGroup: Record<string, Record<string, any>[]> = {};
-  const variantsList: Record<string, any>[] = [];
-  const variantsArbitraryList: Record<string, any>[] = [];
+  const layers = {
+    atRules: {} as any,
+    root: { ':root': {} },
+    reset: { '*': {} },
+    styles: [{}],
+  } satisfies Record<string, Styles | [Styles]>;
 
-  const root = {
-    ':root': {
-      [ConfigUtils.tokenProperty('grid')]: config.grid,
-      ...ConfigUtils.getValuesByTokenValueProperty(config.theme),
-    },
+  if (!usedTokenProperties.length) return '';
+
+  layers.root[':root'] = {
+    [ConfigUtils.tokenProperty('grid')]: config.grid,
+    ...ConfigUtils.getValuesByTokenValueProperty(config.theme),
   };
 
   Object.entries(config.keyframes || {}).forEach(([name, config]) => {
-    keyframesGroup[`@keyframes ${name}`] = config;
+    layers.atRules[`@keyframes ${name}`] = config;
   });
 
-  usedTokenProperties.forEach((tokenProperty) => {
-    const tokenPropertyName = ConfigUtils.getTokenPropertyName(tokenProperty);
-    const tokenPropertyParts = ConfigUtils.getTokenPropertyParts(tokenPropertyName, config);
-    const { alias, longhands, media, pseudoClass, pseudoElement, variants } = tokenPropertyParts;
-    const hasVariants = variants?.length || !!pseudoClass || !!pseudoElement;
+  usedTokenProperties.forEach((usedTokenProperty) => {
+    const { name, alias, variants } = ConfigUtils.getTokenPropertyParts(usedTokenProperty);
+    const longhands = ConfigUtils.getLonghandsForAlias(alias, config);
 
     for (let property of longhands) {
-      const isCssProperty = ConfigUtils.properties.includes(property as any);
-      if (!isCssProperty) continue;
-      const cssProperty = property as ConfigUtils.CSSProperty;
-      const specificity = ConfigUtils.getSpecifictyOrderForCSSProperty(cssProperty);
-      const cssPropertySelector = uniqueSelector(cssProperty);
-      const cssPropertyConfig = config.properties?.[cssProperty];
-      const isGridProperty = cssPropertyConfig?.includes('grid');
-      const gridVar = `var(${ConfigUtils.tokenProperty('grid')})`;
-      const valueVar = `var(---${cssProperty})`;
+      if (!isSupportedProperty(property)) continue;
+      const specificity = ConfigUtils.getSpecifictyOrderForCSSProperty(property);
+      const propertyConfig = config.properties?.[property];
+      const isGridProperty = propertyConfig?.includes('grid') || false;
+      const valueVar = `var(---${property})`;
       // variants fallback to initital in case the variant is deselected in dev tools.
       // it will fall back to any non-variant values applied to the same element
-      const variantValueVar = `var(${tokenProperty}, ${valueVar})`;
-      const variantMaybeGridValue = isGridProperty
-        ? `calc(${gridVar} * ${variantValueVar})`
-        : variantValueVar;
+      const variantValueVar = `var(${usedTokenProperty}, ${valueVar})`;
+      const getStyles = (value: string): Styles => ({ [property]: value });
 
-      initialGroup[cssPropertySelector(selector())] = {
-        [`---${cssProperty}`]: getInitialTokenValueVars(cssProperty, config),
+      function getVariantStyles(value: string) {
+        const baseStyle = getStyles(value);
+        return variants.reduceRight((styles, variant) => {
+          const template = config.responsive?.[variant] || config.selectors?.[variant];
+          return template ? { [template]: styles } : styles;
+        }, baseStyle);
+      }
+
+      layers.reset['*'] = {
+        ...layers.reset['*'],
+        [`---${property}`]: getResetTokenValue(property, config),
       };
 
-      atomicList[specificity] = {
-        ...atomicList[specificity],
-        [cssPropertySelector(selector({ name: alias }))]: {
-          [cssProperty]: isGridProperty ? `calc(${gridVar} * ${valueVar})` : valueVar,
-        },
+      layers.styles[specificity] = {
+        ...layers.styles[specificity],
+        [selector({ name })]: variants.length
+          ? getVariantStyles(isGridProperty ? getGridValue(variantValueVar) : variantValueVar)
+          : getStyles(isGridProperty ? getGridValue(valueVar) : valueVar),
       };
 
       if (isGridProperty) {
-        atomicArbitraryList[specificity] = {
-          ...atomicArbitraryList[specificity],
-          [cssPropertySelector(arbitraryVarSelector({ name: alias }))]: {
-            [cssProperty]: valueVar,
-          },
+        layers.styles[specificity] = {
+          ...layers.styles[specificity],
+          [arbitraryGridSelector({ name })]: variants.length
+            ? getVariantStyles(variantValueVar)
+            : getStyles(valueVar),
         };
-      }
-
-      if (hasVariants) {
-        const variantSelector = { ...tokenPropertyParts, name: tokenPropertyName };
-        variantsList[specificity] = {
-          ...variantsList[specificity],
-          [cssPropertySelector(selector(variantSelector))]: {
-            [cssProperty]: variantMaybeGridValue,
-          },
-        };
-
-        if (isGridProperty) {
-          variantsArbitraryList[specificity] = {
-            ...variantsArbitraryList[specificity],
-            [cssPropertySelector(arbitraryVarSelector(variantSelector))]: {
-              [cssProperty]: variantValueVar,
-            },
-          };
-        }
-      }
-
-      if (media && config.media?.[media]) {
-        const breakpointKey = `@media ${config.media[media]}`;
-        const mediaSelector = { ...tokenPropertyParts, name: tokenPropertyName };
-        breakpointGroup[breakpointKey] = breakpointGroup[breakpointKey] || [];
-        breakpointGroup[breakpointKey]![specificity] = {
-          ...breakpointGroup[breakpointKey]![specificity],
-          [cssPropertySelector(selector(mediaSelector))]: {
-            [cssProperty]: variantMaybeGridValue,
-          },
-        };
-
-        if (isGridProperty) {
-          breakpointArbitraryGroup[breakpointKey] = breakpointArbitraryGroup[breakpointKey] || [];
-          breakpointArbitraryGroup[breakpointKey]![specificity] = {
-            ...breakpointArbitraryGroup[breakpointKey]![specificity],
-            [cssPropertySelector(arbitraryVarSelector(mediaSelector))]: {
-              [cssProperty]: variantValueVar,
-            },
-          };
-        }
       }
     }
   });
 
-  const mediaStyles = Object.entries(breakpointGroup).map(([media, styles]) => [
-    media,
-    Object.assign({}, ...styles),
-  ]);
-
-  const mediaArbitraryStyles = Object.entries(breakpointArbitraryGroup).map(([media, styles]) => [
-    media,
-    Object.assign({}, ...styles),
-  ]);
-
   const sheet = stringify({
-    ...root,
-    ...initialGroup,
-    ...keyframesGroup,
-    ...Object.assign({}, ...atomicList),
-    ...Object.assign({}, ...atomicArbitraryList),
-    ...Object.assign({}, ...variantsList),
-    ...Object.assign({}, ...variantsArbitraryList),
-    ...deepmerge(Object.fromEntries(mediaStyles), Object.fromEntries(mediaArbitraryStyles)),
+    ...layers.atRules,
+    ...layers.root,
+    ...layers.reset,
+    ...Object.assign({}, ...layers.styles),
   });
 
   const code = Buffer.from(sheet);
@@ -147,51 +90,36 @@ function generate(
   return transformed.code.toString();
 }
 
+function getGridValue(value: string) {
+  const gridVar = `var(${ConfigUtils.tokenProperty('grid')})`;
+  return `calc(${gridVar} * ${value})`;
+}
+
 /* -------------------------------------------------------------------------------------------------
  * selector
  * -----------------------------------------------------------------------------------------------*/
 
-function selector(params?: {
-  name?: string;
-  value?: string;
-  pseudoClass?: string;
-  pseudoElement?: string;
-  variants?: string[];
-}) {
-  const { name = '', value = '' } = params || {};
-  const tokenProperty = ConfigUtils.tokenProperty(name) + (name ? ':' : '');
-  const variants = params?.variants?.length ? '.' + params?.variants.join('.') : '';
-  const pseudoElement = params?.pseudoElement ? `::${params.pseudoElement}` : '';
-  const pseudoClass = params?.pseudoClass ? `:${params.pseudoClass}` : '';
-  return `[style*="${tokenProperty}${value}"]${variants}${pseudoElement}${pseudoClass}`;
+function selector(params: { name: string; value?: string; template?: string }) {
+  const { template = '&', name, value = '' } = params || {};
+  const tokenProperty = ConfigUtils.tokenProperty(name);
+  return template.replace('&', `[style*="${tokenProperty}:${value}"]`);
 }
 
 /* -------------------------------------------------------------------------------------------------
- * arbitraryVarSelector
+ * arbitraryGridSelector
  * -----------------------------------------------------------------------------------------------*/
 
-function arbitraryVarSelector(params: Parameters<typeof selector>[0]) {
+function arbitraryGridSelector(params: Parameters<typeof selector>[0]) {
   const noSpace = selector({ ...params, value: 'var' });
   const withSpace = selector({ ...params, value: ' var' });
   return `${noSpace}, ${withSpace}`;
 }
 
 /* -------------------------------------------------------------------------------------------------
- * uniqueSelector
- * -----------------------------------------------------------------------------------------------*/
-
-function uniqueSelector(cssProperty: string) {
-  return (selector: string) => `/*${cssProperty}*/ ${selector}`;
-}
-
-/* -------------------------------------------------------------------------------------------------
  * getResetTokenValueVarForAliases
  * -----------------------------------------------------------------------------------------------*/
 
-function getInitialTokenValueVars(
-  cssProperty: ConfigUtils.CSSProperty,
-  config: ConfigUtils.Config
-) {
+function getResetTokenValue(cssProperty: ConfigUtils.CSSProperty, config: ConfigUtils.Config) {
   const aliased = Object.entries(config.aliases || {}).flatMap(([alias, properties]) => {
     return properties?.includes(cssProperty) ? [alias] : [];
   });
@@ -199,6 +127,14 @@ function getInitialTokenValueVars(
     (fallback, alias) => `var(${ConfigUtils.tokenProperty(alias)}, ${fallback})`,
     ''
   );
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * isSupportedProperty
+ * -----------------------------------------------------------------------------------------------*/
+
+function isSupportedProperty(property: string): property is ConfigUtils.CSSProperty {
+  return ConfigUtils.properties.includes(property as any);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
