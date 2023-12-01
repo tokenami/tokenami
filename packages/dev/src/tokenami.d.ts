@@ -10,6 +10,18 @@ declare global {
   // consumer will override this interface
   interface TokenamiConfig {}
   interface TokenamiFinalConfig extends Merge<ConfigUtils.DefaultConfig, TokenamiConfig> {}
+
+  type TokenamiBaseStyles = {} /* TOKENAMI_STYLES */;
+
+  type TokenamiAliasStyles = {
+    [K in keyof TokenamiFinalConfig['aliases']]: TokenamiFinalConfig['aliases'][K][number] extends infer L
+      ? L extends ConfigUtils.CSSProperty
+        ? VariantStyle<K, Responsive, TokenamiBaseStyles[ConfigUtils.TokenProperty<L>]>
+        : never
+      : never;
+  }[keyof TokenamiFinalConfig['aliases']];
+
+  interface TokenamiStyles extends TokenamiBaseStyles, UnionToIntersection<TokenamiAliasStyles> {}
 }
 
 type PropertyConfig = NonNullable<TokenamiFinalConfig['properties']>;
@@ -39,18 +51,9 @@ type TokenValue<P> = Prefix<P> extends infer Pfx
   : never;
 
 type CSSPropertyValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.PropertiesHyphen[P] : never;
-type TokenamiStyles = {} /* TOKENAMI_STYLES */;
-
-type TokenamiAliasStyles = {
-  [K in keyof TokenamiFinalConfig['aliases']]: TokenamiFinalConfig['aliases'][K][number] extends infer L
-    ? L extends ConfigUtils.CSSProperty
-      ? VariantStyle<K, Responsive, TokenamiStyles[ConfigUtils.TokenProperty<L>]>
-      : never
-    : never;
-}[keyof TokenamiFinalConfig['aliases']];
 
 declare module 'csstype' {
-  interface Properties extends TokenamiStyles, UnionToIntersection<TokenamiAliasStyles> {
+  interface Properties extends TokenamiStyles {
     [key: `---${string}`]: any;
   }
 }
