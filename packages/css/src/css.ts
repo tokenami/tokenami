@@ -10,7 +10,7 @@ const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
  * -----------------------------------------------------------------------------------------------*/
 
 type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
-type VariantsConfig = Record<string, Record<string, CSS.Properties>>;
+type VariantsConfig = Record<string, Record<string, TokenamiStyles>>;
 type Responsive<T> = T extends string
   ? keyof TokenamiFinalConfig['responsive'] extends string
     ? `${keyof TokenamiFinalConfig['responsive']}_${T}`
@@ -27,7 +27,7 @@ type ResponsiveVariants<C extends VariantsConfig> = {
   };
 }[keyof C];
 
-function css<S extends CSS.Properties, V extends VariantsConfig, R extends boolean>(
+function css<S extends TokenamiStyles, V extends VariantsConfig, R extends boolean>(
   baseStyles: S,
   variants?: V,
   options?: { responsive?: R }
@@ -36,7 +36,7 @@ function css<S extends CSS.Properties, V extends VariantsConfig, R extends boole
 
   return function generate(
     selectedVariants?: R extends true ? ResponsiveVariants<V> : Variants<V>,
-    ...overrides: (CSS.Properties | false | undefined)[]
+    ...overrides: (TokenamiStyles | false | undefined)[]
   ): CSS.Properties {
     const cacheId = JSON.stringify({ selectedVariants, overrides });
     const cached = cache[cacheId];
@@ -101,7 +101,7 @@ function override(style: Record<string, any>, property: string) {
   }
 }
 
-function convertToMediaStyles(bp: string, styles: CSS.Properties): CSS.Properties {
+function convertToMediaStyles(bp: string, styles: TokenamiStyles): TokenamiStyles {
   const updatedEntries = Object.entries(styles).map(([property, value]) => {
     const tokenPrefix = ConfigUtils.tokenProperty('');
     const bpPrefix = ConfigUtils.variantProperty(bp, '');
