@@ -20,23 +20,30 @@ type VariantStyle<P extends string, K extends string, V> = Style<P, V> &
   Style<`${K}_${P}`, V> &
   Style<`${string}_${P}`, V>;
 
-type Prefix<P> = P extends keyof PropertyConfig
+type ThemeKey<P> = P extends keyof PropertyConfig
   ? Exclude<NonNullable<PropertyConfig[P]>[number], 'grid'>
   : never;
 
-type Values<Prefix> = Prefix extends keyof TokenamiFinalConfig['theme']
-  ? keyof TokenamiFinalConfig['theme'][Prefix]
+type ThemeValue<TK> = TK extends keyof TokenamiFinalConfig['theme']
+  ? keyof TokenamiFinalConfig['theme'][TK]
   : never;
 
-type TokenValue<P> = Prefix<P> extends infer Pfx
-  ? Pfx extends string
-    ? Values<Pfx> extends infer Value
-      ? Value extends string
-        ? ConfigUtils.TokenValue<Pfx, Value>
+type TokenValue<P> = ThemeKey<P> extends infer TK
+  ? TK extends string
+    ? ThemeValue<TK> extends infer TV
+      ? TV extends string
+        ? ConfigUtils.TokenValue<TK, TV>
         : never
       : never
     : never
   : never;
+
+type Value<P extends keyof TokenamiFinalConfig['properties']> =
+  TokenamiFinalConfig['properties'][P][number] extends infer ThemeKey
+    ? ThemeKey extends 'grid'
+      ? TokenValue<P> | ConfigUtils.ArbitraryValue | ConfigUtils.GridValue
+      : TokenValue<P> | ConfigUtils.ArbitraryValue
+    : never;
 
 type CSSPropertyValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.PropertiesHyphen[P] : never;
 type TokenamiStyles = {} /* TOKENAMI_STYLES */;

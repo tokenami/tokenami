@@ -60,7 +60,7 @@ const run = () => {
         configWatcher.on('all', async (_, file) => {
           const updatedConfig = getConfig(cwd, { path: file, include: flags.files });
           regenerateStylesheet(file, updatedConfig);
-          intellisense.generate(updatedConfig);
+          intellisense.generate();
         });
 
         process.once('SIGINT', async () => {
@@ -71,7 +71,7 @@ const run = () => {
 
       const usedTokens = await findUsedTokenProperties(cwd, config);
       generateStyles(cwd, flags.output, usedTokens, config, flags.minify);
-      intellisense.generate(config);
+      intellisense.generate();
       log.debug(`Ready in ${startTime()}ms.`);
     });
 
