@@ -39,12 +39,6 @@ type TokenValue<P> = Prefix<P> extends infer Pfx
   : never;
 
 type CSSPropertyValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.PropertiesHyphen[P] : never;
-type ThemedValue<P extends string> = TokenValue<P> | ConfigUtils.ArbitraryValue;
-type ThemedGridValue<P extends string> =
-  | TokenValue<P>
-  | ConfigUtils.ArbitraryValue
-  | ConfigUtils.GridValue;
-
 type TokenamiStyles = {} /* TOKENAMI_STYLES */;
 
 type TokenamiAliasStyles = {
@@ -57,6 +51,6 @@ type TokenamiAliasStyles = {
 
 declare module 'csstype' {
   interface Properties extends TokenamiStyles, UnionToIntersection<TokenamiAliasStyles> {
-    [key: `--_${string}`]: any;
+    [key: `---${string}`]: any;
   }
 }

@@ -41,7 +41,7 @@ function generate(
       const specificity = ConfigUtils.getSpecifictyOrderForCSSProperty(property);
       const propertyConfig = config.properties?.[property];
       const isGridProperty = propertyConfig?.includes('grid') || false;
-      const valueVar = `var(---${property})`;
+      const valueVar = `var(${ConfigUtils.tokenProperty(property)})`;
       // variants fallback to initital in case the variant is deselected in dev tools.
       // it will fall back to any non-variant values applied to the same element
       const variantValueVar = `var(${usedTokenProperty}, ${valueVar})`;
@@ -57,7 +57,7 @@ function generate(
 
       layers.reset['*'] = {
         ...layers.reset['*'],
-        [`---${property}`]: getResetTokenValue(property, config),
+        [ConfigUtils.tokenProperty(property)]: getResetTokenValue(property, config),
       };
 
       layers.styles[specificity] = {
