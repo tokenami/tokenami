@@ -15,7 +15,6 @@ function generate(
 ) {
   if (!usedTokenProperties.length) return '';
   // styles are split into these groups so we can control order in stylesheet
-  const resetGroup: Record<string, any> = {};
   const initialGroup: Record<string, any> = {};
   const keyframesGroup: Record<string, any> = {};
   const atomicList: Record<string, any>[] = [];
@@ -42,9 +41,6 @@ function generate(
     const { alias, longhands, media, pseudoClass, pseudoElement, variants } = tokenPropertyParts;
     const hasVariants = variants?.length || !!pseudoClass || !!pseudoElement;
 
-    const resetSelector = uniqueSelector(tokenProperty);
-    resetGroup[resetSelector('*')] = { [tokenProperty]: 'var(--_tk-i)' };
-
     for (let property of longhands) {
       const isCssProperty = ConfigUtils.properties.includes(property as any);
       if (!isCssProperty) continue;
@@ -54,7 +50,7 @@ function generate(
       const cssPropertyConfig = config.properties?.[cssProperty];
       const isGridProperty = cssPropertyConfig?.includes('grid');
       const gridVar = `var(${ConfigUtils.tokenProperty('grid')})`;
-      const valueVar = `var(--_tk-i_${cssProperty})`;
+      const valueVar = `var(---${cssProperty})`;
       // variants fallback to initital in case the variant is deselected in dev tools.
       // it will fall back to any non-variant values applied to the same element
       const variantValueVar = `var(${tokenProperty}, ${valueVar})`;
@@ -63,7 +59,7 @@ function generate(
         : variantValueVar;
 
       initialGroup[cssPropertySelector(selector())] = {
-        [`--_tk-i_${cssProperty}`]: getInitialTokenValueVars(cssProperty, config),
+        [`---${cssProperty}`]: getInitialTokenValueVars(cssProperty, config),
       };
 
       atomicList[specificity] = {
@@ -137,7 +133,6 @@ function generate(
 
   const sheet = stringify({
     ...root,
-    ...resetGroup,
     ...initialGroup,
     ...keyframesGroup,
     ...Object.assign({}, ...atomicList),
@@ -200,7 +195,7 @@ function getInitialTokenValueVars(
   const aliased = Object.entries(config.aliases || {}).flatMap(([alias, properties]) => {
     return properties?.includes(cssProperty) ? [alias] : [];
   });
-  return [...aliased, cssProperty].reduce(
+  return aliased.reduce(
     (fallback, alias) => `var(${ConfigUtils.tokenProperty(alias)}, ${fallback})`,
     ''
   );
