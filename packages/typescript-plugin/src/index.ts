@@ -29,7 +29,7 @@ function init(modules: { typescript: typeof ts }) {
         const entryName = entry.name;
         entry.sortText = entryName;
 
-        if (entryName.startsWith('---')) {
+        if (ConfigUtils.TokenProperty.safeParse(entryName).success) {
           const { variants } = ConfigUtils.getTokenPropertyParts(entryName as any);
           const responsive = config.responsive;
           // token properties win in sort order
@@ -42,7 +42,7 @@ function init(modules: { typescript: typeof ts }) {
           }
         }
 
-        if (entryName.startsWith('var(---')) {
+        if (ConfigUtils.TokenValue.safeParse(entryName).success) {
           const parts = ConfigUtils.getTokenValueParts(entryName as any);
           const tokenValue = parts ? config.theme[parts.themeKey]?.[parts.token] : undefined;
           if (parts && tokenValue) {
