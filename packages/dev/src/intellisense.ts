@@ -10,10 +10,10 @@ import * as pathe from 'pathe';
  * generate
  * -----------------------------------------------------------------------------------------------*/
 
-function generate(config: ConfigUtils.Config, path = './tokenami.d.ts') {
-  const properties = getExtendedProperties(config);
+function generate() {
+  const properties = getExtendedProperties();
   const outDir = pathe.dirname(url.fileURLToPath(import.meta.url));
-  const outFile = pathe.join(outDir, path);
+  const outFile = pathe.join(outDir, './tokenami.d.ts');
   let output = fs.readFileSync(outFile, 'utf8');
 
   output = output.replace(/{} \/\* TOKENAMI_STYLES \*\//, properties.join(' & \n'));
@@ -22,18 +22,11 @@ function generate(config: ConfigUtils.Config, path = './tokenami.d.ts') {
 
 /* ---------------------------------------------------------------------------------------------- */
 
-function getExtendedProperties(config: ConfigUtils.Config) {
+function getExtendedProperties() {
   const extendsProperties = new Set<string>();
 
   ConfigUtils.properties.forEach((cssProperty) => {
-    const themeKeys = config.properties?.[cssProperty] || [];
-    const value = themeKeys.length
-      ? themeKeys.includes('grid')
-        ? `TokenValue<'${cssProperty}'> | ConfigUtils.ArbitraryValue | ConfigUtils.GridValue`
-        : `TokenValue<'${cssProperty}'> | ConfigUtils.ArbitraryValue`
-      : `CSSPropertyValue<'${cssProperty}'>`;
-
-    extendsProperties.add(`VariantStyle<'${cssProperty}', Responsive, ${value}>`);
+    extendsProperties.add(`VariantStyle<'${cssProperty}', Responsive, Value<'${cssProperty}'>>`);
   });
 
   return Array.from(extendsProperties);
