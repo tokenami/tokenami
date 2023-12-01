@@ -19,7 +19,7 @@ function init(modules: { typescript: typeof ts }) {
     const config: ConfigUtils.Config = require(configPath);
     const tokenConfigMap = new Map<string, { themeKey: string; tokenValue: string | number }>();
 
-    // info.project.projectService.logger.info(`DEBUG::);
+    // info.project.projectService.logger.info(`DEBUG::`);
 
     proxy.getCompletionsAtPosition = (fileName, position, options) => {
       const original = info.languageService.getCompletionsAtPosition(fileName, position, options);
@@ -30,12 +30,15 @@ function init(modules: { typescript: typeof ts }) {
         entry.sortText = entryName;
 
         if (entryName.startsWith('---')) {
-          const variant = ConfigUtils.getTokenPropertyVariant(entryName as any);
-          const mediaValue = variant ? config.media?.[variant] : undefined;
+          const { variants } = ConfigUtils.getTokenPropertyParts(entryName as any);
+          const responsive = config.responsive;
           // token properties win in sort order
           entry.sortText = `$${entryName}`;
-          if (mediaValue) {
-            entry.labelDetails = { detail: '', description: mediaValue };
+          if (responsive) {
+            const key = variants.find((variant) => responsive[variant]);
+            if (key) {
+              entry.labelDetails = { detail: '', description: config.responsive[key] };
+            }
           }
         }
 

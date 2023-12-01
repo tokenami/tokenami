@@ -12,13 +12,13 @@ declare global {
   interface TokenamiFinalConfig extends Merge<ConfigUtils.DefaultConfig, TokenamiConfig> {}
 }
 
-type Style<P extends string, V> = { [key in ConfigUtils.TokenProperty<P>]?: V };
-type VariantStyle<P extends string, M extends string, V> = Style<P, V> &
-  Style<`${M}_${P}`, V> &
-  Style<`${string}_${P}`, V>;
-
 type PropertyConfig = NonNullable<TokenamiFinalConfig['properties']>;
-type Media = keyof NonNullable<TokenamiFinalConfig['media']>;
+type Responsive = keyof NonNullable<TokenamiFinalConfig['responsive']>;
+
+type Style<P extends string, V> = { [key in ConfigUtils.TokenProperty<P>]?: V };
+type VariantStyle<P extends string, K extends string, V> = Style<P, V> &
+  Style<`${K}_${P}`, V> &
+  Style<`${string}_${P}`, V>;
 
 type Prefix<P> = P extends keyof PropertyConfig
   ? Exclude<NonNullable<PropertyConfig[P]>[number], 'grid'>
@@ -50,7 +50,7 @@ type TokenamiStyles = {} /* TOKENAMI_STYLES */;
 type TokenamiAliasStyles = {
   [K in keyof TokenamiFinalConfig['aliases']]: TokenamiFinalConfig['aliases'][K][number] extends infer L
     ? L extends ConfigUtils.CSSProperty
-      ? VariantStyle<K, Media, TokenamiStyles[ConfigUtils.TokenProperty<L>]>
+      ? VariantStyle<K, Responsive, TokenamiStyles[ConfigUtils.TokenProperty<L>]>
       : never
     : never;
 }[keyof TokenamiFinalConfig['aliases']];

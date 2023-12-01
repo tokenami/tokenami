@@ -11,9 +11,9 @@ const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
 
 type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type VariantsConfig = Record<string, Record<string, CSS.Properties>>;
-type Media<T> = T extends string
-  ? keyof TokenamiFinalConfig['media'] extends string
-    ? `${keyof TokenamiFinalConfig['media']}_${T}`
+type Responsive<T> = T extends string
+  ? keyof TokenamiFinalConfig['responsive'] extends string
+    ? `${keyof TokenamiFinalConfig['responsive']}_${T}`
     : never
   : never;
 
@@ -23,7 +23,7 @@ type Variants<C extends VariantsConfig> = {
 
 type ResponsiveVariants<C extends VariantsConfig> = {
   [V in keyof C]: { [T in V]?: VariantValue<keyof C[V]> } & {
-    [M in Media<V>]?: VariantValue<keyof C[V]>;
+    [M in Responsive<V>]?: VariantValue<keyof C[V]>;
   };
 }[keyof C];
 

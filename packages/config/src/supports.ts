@@ -491,73 +491,8 @@ const properties = [
   'zoom',
 ] as const satisfies readonly (keyof CSS.PropertiesHyphen)[];
 
-const pseudoClasses = [
-  'active',
-  'any-link',
-  'checked',
-  'current',
-  'default',
-  'defined',
-  'disabled',
-  'empty',
-  'enabled',
-  'first',
-  'first-child',
-  'first-of-type',
-  'focus',
-  'focus-visible',
-  'focus-within',
-  'fullscreen',
-  'hover',
-  'in-range',
-  'indeterminate',
-  'invalid',
-  'last-child',
-  'last-of-type',
-  'left',
-  'link',
-  'local-link',
-  'nth-col',
-  'nth-last-col',
-  'only-child',
-  'only-of-type',
-  'optional',
-  'out-of-range',
-  'paused',
-  'picture-in-picture',
-  'placeholder-shown',
-  'playing',
-  'read-only',
-  'read-write',
-  'required',
-  'right',
-  'root',
-  'scope',
-  'target',
-  'user-invalid',
-  'user-valid',
-  'valid',
-  'visited',
-] as const;
-
-const pseudoElements = [
-  'after',
-  'backdrop',
-  'before',
-  'cue',
-  'cue-region',
-  'file-selector-button',
-  'first-letter',
-  'first-line',
-  'marker',
-  'placeholder',
-  'selection',
-] as const;
-
 /* ---------------------------------------------------------------------------------------------- */
 
 export type CSSProperty = (typeof properties)[number];
-export type CSSPseudoClass = (typeof pseudoClasses)[number];
-export type CSSPseudoElement = (typeof pseudoElements)[number];
 
-export { properties, pseudoClasses, pseudoElements };
+export { properties };

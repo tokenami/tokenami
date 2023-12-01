@@ -3,7 +3,7 @@ const { createTokenamiConfig } = require('@tokenami/dev');
 module.exports = createTokenamiConfig({
   include: [],
   grid: '0.25rem',
-  media: {},
+  responsive: {},
   theme: {
     alpha: {},
     anim: {},
