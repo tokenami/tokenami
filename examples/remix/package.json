@@ -2,11 +2,11 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "prepare": "tokenami --config=.tokenami/tokenami.config.cjs",
+    "prepare": "tokenami",
     "build": "tokenami --minify && remix build",
     "dev": "concurrently \"pnpm:dev:*\"",
     "dev:app": "remix dev",
-    "dev:css": "tokenami --watch --config=.tokenami/tokenami.config.cjs",
+    "dev:css": "tokenami --watch",
     "start": "remix-serve build",
     "typecheck": "tsc",
     "lint": "eslint ."

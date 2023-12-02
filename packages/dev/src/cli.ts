@@ -6,7 +6,6 @@ import { createRequire } from 'module';
 import * as chokidar from 'chokidar';
 import * as pathe from 'pathe';
 import * as sheet from '~/sheet';
-import * as intellisense from '~/intellisense';
 import * as log from '~/log';
 import pkgJson from '~/../package.json';
 
@@ -60,7 +59,6 @@ const run = () => {
         configWatcher.on('all', async (_, file) => {
           const updatedConfig = getConfig(cwd, { path: file, include: flags.files });
           regenerateStylesheet(file, updatedConfig);
-          intellisense.generate();
         });
 
         process.once('SIGINT', async () => {
@@ -71,7 +69,6 @@ const run = () => {
 
       const usedTokens = await findUsedTokenProperties(cwd, config);
       generateStyles(cwd, flags.output, usedTokens, config, flags.minify);
-      intellisense.generate();
       log.debug(`Ready in ${startTime()}ms.`);
     });
 

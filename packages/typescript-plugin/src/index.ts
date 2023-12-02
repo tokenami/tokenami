@@ -37,7 +37,7 @@ function init(modules: { typescript: typeof ts }) {
           if (responsive) {
             const key = variants.find((variant) => responsive[variant]);
             if (key) {
-              entry.labelDetails = { detail: '', description: config.responsive[key] };
+              entry.labelDetails = { detail: '', description: config.responsive?.[key] };
             }
           }
         }
