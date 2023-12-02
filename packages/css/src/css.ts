@@ -1,6 +1,6 @@
-/// <reference types="@tokenami/dev" />
-import CSS from 'csstype';
+import type * as CSS from 'csstype';
 import * as ConfigUtils from '@tokenami/config';
+import { TokenamiFinalConfig, TokenamiStyles } from '@tokenami/dev';
 import { mapShorthandToLonghands } from './shorthands';
 
 const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');

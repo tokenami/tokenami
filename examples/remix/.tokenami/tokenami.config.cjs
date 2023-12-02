@@ -1,6 +1,6 @@
-const { createTokenamiConfig } = require('@tokenami/dev');
+const { createConfig } = require('@tokenami/dev');
 
-module.exports = createTokenamiConfig({
+module.exports = createConfig({
   include: ['./app/**/*.{ts,tsx}'],
   exclude: ['./app/routes/original.tsx'],
   grid: '4px',

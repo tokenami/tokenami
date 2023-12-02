@@ -1,6 +1,6 @@
-import { createTokenamiConfig } from '~/config';
+import { createConfig } from '~/config';
 
-const defaultConfig = createTokenamiConfig({
+const defaultConfig = createConfig({
   include: [],
   grid: '0.25rem',
   responsive: {},

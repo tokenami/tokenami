@@ -15,7 +15,7 @@
     "bin.js"
   ],
   "scripts": {
-    "build": "tsup && cp src/tokenami.d.ts ./dist",
+    "build": "tsup",
     "dev": "pnpm build --watch src",
     "test": "vitest"
   },
