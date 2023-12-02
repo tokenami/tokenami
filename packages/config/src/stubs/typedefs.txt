@@ -1,4 +1,4 @@
-import config from './tokenami.config.cjs';
+import config from './CONFIG_FILE_NAME';
 
 type Config = typeof config;
 
