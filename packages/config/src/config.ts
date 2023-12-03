@@ -67,17 +67,18 @@ type DeepReadonly<T> = {
 
 type Exact<T, V extends T> = Exclude<keyof V, keyof T> extends never ? V : T;
 
-interface Config {
-  include: string[];
-  exclude?: string[];
-  responsive?: { [atRule: string]: string };
-  selectors?: { [name: string]: string };
-  keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
-  aliases?: Aliases;
-  grid: string;
-  theme: Theme;
-  properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
-}
+interface Config
+  extends DeepReadonly<{
+    include: string[];
+    exclude?: string[];
+    grid?: string;
+    responsive?: { [atRule: string]: string };
+    selectors?: { [name: string]: string };
+    keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
+    aliases?: Aliases;
+    theme: Theme;
+    properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
+  }> {}
 
 const createConfig = <T extends Config>(obj: Exact<Config, T>): DeepReadonly<T> => {
   return obj as DeepReadonly<T>;

@@ -6,8 +6,8 @@
     "prepare": "pnpm build",
     "dev": "pnpm --filter=./examples/remix dev",
     "build": "pnpm -r --filter=./packages/** build",
-    "bump": "changeset version",
     "clean": "rm -rf **/node_modules && rm -rf **/dist",
+    "bump": "changeset version",
     "release": "changeset publish"
   },
   "devDependencies": {
