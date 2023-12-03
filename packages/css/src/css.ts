@@ -37,7 +37,7 @@ function css<S extends TokenamiStyles, V extends VariantsConfig, R extends boole
   return function generate(
     selectedVariants?: R extends true ? ResponsiveVariants<V> : Variants<V>,
     ...overrides: (TokenamiStyles | false | undefined)[]
-  ): CSS.Properties {
+  ) {
     const cacheId = JSON.stringify({ selectedVariants, overrides });
     const cached = cache[cacheId];
 
@@ -71,7 +71,7 @@ function css<S extends TokenamiStyles, V extends VariantsConfig, R extends boole
     });
 
     cache[cacheId] = css;
-    return css;
+    return css as CSS.Properties;
   };
 }
 
