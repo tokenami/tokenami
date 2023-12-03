@@ -1,7 +1,7 @@
 import * as pathe from 'pathe';
 import * as Tokenami from '~/config';
 import * as Supports from '~/supports';
-import defaultConfig from '~/stubs/config.default';
+import defaultConfig from '../stubs/config.default';
 import fs from 'fs';
 
 const DEFAULT_PATHS = [
@@ -68,7 +68,7 @@ function getLonghandsForAlias(alias: string, config: Tokenami.Config): string[] 
  * -----------------------------------------------------------------------------------------------*/
 
 function generateConfig() {
-  const initConfigStubPath = pathe.resolve(__dirname, '/stubs/config.init.cjs');
+  const initConfigStubPath = pathe.resolve(__dirname, '../stubs/config.init.cjs');
   return fs.readFileSync(initConfigStubPath, 'utf8');
 }
 
@@ -86,7 +86,7 @@ function mergedConfigs(theirs: Tokenami.Config): Tokenami.Config {
 
 function generateTypeDefs(configPath: string) {
   const parsed = pathe.parse(configPath);
-  const typeDefStubPath = pathe.resolve(__dirname, '/stubs/typedefs.txt');
+  const typeDefStubPath = pathe.resolve(__dirname, '../stubs/typedefs.txt');
   const typeDefStub = fs.readFileSync(typeDefStubPath, 'utf8');
   const configFileName = parsed.name;
   return typeDefStub.replace('CONFIG_FILE_NAME', configFileName);

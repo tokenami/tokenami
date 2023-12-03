@@ -6,9 +6,10 @@
     "prepare": "pnpm build",
     "dev": "pnpm --filter=./examples/remix dev",
     "build": "pnpm -r --filter=./packages/** build",
-    "bump": "changeset version",
     "clean": "rm -rf **/node_modules && rm -rf **/dist",
-    "release": "changeset publish"
+    "change": "changeset",
+    "change:version": "changeset version",
+    "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",

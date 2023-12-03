@@ -1,9 +1,8 @@
-const { createConfig } = require('@tokenami/dev');
+const { createConfig, defaultConfig } = require('@tokenami/dev');
 
 module.exports = createConfig({
   include: ['./app/**/*.{ts,tsx}'],
   exclude: ['./app/routes/original.tsx'],
-  grid: '4px',
   responsive: {
     md: '@media (min-width: 700px)',
     lg: '@media (min-width: 1024px)',
@@ -31,6 +30,10 @@ module.exports = createConfig({
       fill: '100%',
       'screen-h': '100vh',
     },
+    pet: {
+      cat: '"🐱"',
+      dog: '"🐶"',
+    },
   },
   keyframes: {
     wiggle: {
@@ -54,5 +57,9 @@ module.exports = createConfig({
     pr: ['padding-right'],
     pb: ['padding-bottom'],
     pl: ['padding-left'],
+  },
+  properties: {
+    ...defaultConfig.properties,
+    content: ['pet'],
   },
 });

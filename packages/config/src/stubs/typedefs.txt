@@ -1,7 +1,0 @@
-import config from './CONFIG_FILE_NAME';
-
-type Config = typeof config;
-
-declare module '@tokenami/dev' {
-  interface TokenamiConfig extends Config {}
-}

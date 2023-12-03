@@ -9,7 +9,7 @@
 }
 
 :root {
-  --grid: 4px;
+  --grid: .25rem;
   --anim-wiggle: wiggle 1s ease-in-out infinite;
   --color-slate-100: #f1f5f9;
   --color-slate-700: #334155;
@@ -22,6 +22,8 @@
   --size-auto: auto;
   --size-fill: 100%;
   --size-screen-h: 100vh;
+  --pet-cat: "🐱";
+  --pet-dog: "🐶";
 }
 
 * {

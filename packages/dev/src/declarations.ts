@@ -485,10 +485,4 @@ type TokenamiAliasStyles = {
 
 interface TokenamiStyles extends TokenamiBaseStyles, UnionToIntersection<TokenamiAliasStyles> {}
 
-declare module 'csstype' {
-  interface Properties extends TokenamiStyles {
-    [customProperty: `---${string}`]: any;
-  }
-}
-
 export type { TokenamiConfig, TokenamiFinalConfig, TokenamiStyles };
