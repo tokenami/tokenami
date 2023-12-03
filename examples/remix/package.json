@@ -1,4 +1,5 @@
 {
+  "name": "@tokename/example-remix",
   "private": true,
   "sideEffects": false,
   "scripts": {
