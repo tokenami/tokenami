@@ -11,12 +11,18 @@ function init(modules: { typescript: typeof ts }) {
       proxy[k] = (...args: Array<{}>) => x.apply(info.languageService, args);
     }
 
-    const program = info.languageService.getProgram();
-    if (!program) throw new Error('Missing program');
-
-    const cwd = program.getCompilerOptions().baseUrl || '.';
+    const cwd = info.project.getCompilerOptions().baseUrl || '.';
     const configPath = ConfigUtils.getConfigPath(cwd, info.config.configPath);
-    const config: ConfigUtils.Config = require(configPath);
+    const configSource = modules.typescript.sys.readFile(configPath);
+
+    if (!configSource) {
+      info.project.projectService.logger.info(`TOKENAMI: Cannot find config`);
+      return proxy;
+    }
+
+    const [, matchConfig] = configSource.match(/createConfig\((\{[\s\S]*?\})\)/) || [];
+    // i know i know, scary eval. will think later if we can avoid this.
+    const config: ConfigUtils.Config = eval(`(${matchConfig})`);
     const tokenConfigMap = new Map<string, { themeKey: string; tokenValue: string | number }>();
 
     // info.project.projectService.logger.info(`DEBUG::`);

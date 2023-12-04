@@ -130,7 +130,7 @@ async function findUsedCssVariables(cwd: string, config: ConfigUtils.Config) {
   const include = config.include as string[];
   const exclude = config.exclude as string[];
   const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore: exclude });
-  const tokenPropertyRegex = /(?<cssVar>--[a-z-_]+)("|')?\:/g;
+  const tokenPropertyRegex = /(?<cssVar>-+[a-z-_]+)("|')?\:/g;
   const allCssVariables = entries.flatMap((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
     const matches = fileContent.matchAll(tokenPropertyRegex);
@@ -148,7 +148,7 @@ async function findUsedCssVariables(cwd: string, config: ConfigUtils.Config) {
 function findResponsiveCSSUtilityVariables(fileContent: string, config: ConfigUtils.Config) {
   const responsiveCssBlockRegex = /css\(([\s\S]*?)\{([\s\S]*?)responsive:\strue([\s\S]*?)\}/g;
   const responsiveCssBlocks = fileContent.match(responsiveCssBlockRegex);
-  const tokenPropertyRegex = /(--[a-z-_]+)('|")/g;
+  const tokenPropertyRegex = /(-+[a-z-_]+)('|")/g;
   if (!responsiveCssBlocks) return [];
   return responsiveCssBlocks.flatMap((block) => {
     const matches = block.match(tokenPropertyRegex) || [];
