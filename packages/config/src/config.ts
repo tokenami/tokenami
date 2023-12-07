@@ -17,9 +17,9 @@ function arbitraryValue(value: string): ArbitraryValue {
   return `var(---,${value})`;
 }
 
-const tokenPropertyRegex = /--([\w-]+)/;
-const tokenValueRegex = /var\(--([\w]+)-([\w-]+)\)/;
-const aritraryValueRegex = /var\(--,(.+)\)/;
+const tokenPropertyRegex = /--((\w)([\w-]+)?)/;
+const tokenValueRegex = /var\(--(\w+)-([\w-]+)\)/;
+const aritraryValueRegex = /var\(---,(.+)\)/;
 
 type GridValue = z.infer<typeof GridValue>;
 const GridValue = z.number();
