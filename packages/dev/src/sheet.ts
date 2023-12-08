@@ -49,8 +49,11 @@ function generate(
 
       function getVariantStyles(value: string) {
         const baseStyle = getStyles(value);
-        return variants.reduceRight((styles, variant) => {
-          const template = config.responsive?.[variant] || config.selectors?.[variant];
+        const responsive = variants.flatMap((variant) => [config.responsive?.[variant]]);
+        const selectors = variants.flatMap((variant) => [config.selectors?.[variant]]);
+        // we only allow 1 of each to enforce custom selectors for chained variants.
+        if (responsive.length > 1 || selectors.length > 1) return {};
+        return [responsive[0], selectors[0]].reduce((styles, template) => {
           return template ? { [template]: styles } : styles;
         }, baseStyle);
       }
