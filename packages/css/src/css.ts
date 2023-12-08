@@ -1,6 +1,6 @@
 import type * as CSS from 'csstype';
 import * as ConfigUtils from '@tokenami/config';
-import { TokenamiFinalConfig, TokenamiStyles } from '@tokenami/dev';
+import { TokenamiStyles, ResponsiveKey } from '@tokenami/dev';
 import { mapShorthandToLonghands } from './shorthands';
 
 const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
@@ -11,33 +11,43 @@ const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
 
 type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type VariantsConfig = Record<string, Record<string, TokenamiStyles>>;
-type Responsive<T> = T extends string
-  ? keyof TokenamiFinalConfig['responsive'] extends string
-    ? `${keyof TokenamiFinalConfig['responsive']}_${T}`
-    : never
-  : never;
+type Responsive<T> = T extends string ? `${ResponsiveKey}_${T}` : never;
+type Overrides = (TokenamiStyles | false | undefined)[];
+type Options<V, R> = V extends null ? never : { responsive?: R };
+type PickVariants<V, R> = V extends null
+  ? null
+  : R extends true
+  ? ResponsiveVariants<V>
+  : Variants<V>;
 
-type Variants<C extends VariantsConfig> = {
+type Variants<C> = {
   [V in keyof C]?: VariantValue<keyof C[V]>;
 };
 
-type ResponsiveVariants<C extends VariantsConfig> = {
+type ResponsiveVariants<C> = {
   [V in keyof C]: { [T in V]?: VariantValue<keyof C[V]> } & {
     [M in Responsive<V>]?: VariantValue<keyof C[V]>;
   };
 }[keyof C];
 
-function css<S extends TokenamiStyles, V extends VariantsConfig, R extends boolean>(
+function css<S extends TokenamiStyles>(
+  baseStyles: S
+): (selectedVariants?: null, ...overrides: Overrides) => CSS.Properties;
+
+function css<S extends TokenamiStyles, V extends VariantsConfig | null, R extends boolean>(
+  baseStyles: S,
+  variants: V,
+  options?: Options<V, R>
+): (selectedVariants?: PickVariants<V, R>, ...overrides: Overrides) => CSS.Properties;
+
+function css<S extends TokenamiStyles, V extends VariantsConfig | null, R extends boolean>(
   baseStyles: S,
   variants?: V,
-  options?: { responsive?: R }
+  options?: Options<V, R>
 ) {
   const cache: Record<string, Record<string, any>> = {};
 
-  return function generate(
-    selectedVariants?: R extends true ? ResponsiveVariants<V> : Variants<V>,
-    ...overrides: (TokenamiStyles | false | undefined)[]
-  ) {
+  return function generate(selectedVariants?: PickVariants<V, R>, ...overrides: Overrides) {
     const cacheId = JSON.stringify({ selectedVariants, overrides });
     const cached = cache[cacheId];
 
@@ -46,8 +56,8 @@ function css<S extends TokenamiStyles, V extends VariantsConfig, R extends boole
     const variantStyles = selectedVariants
       ? Object.entries(selectedVariants).flatMap(([key, variant]) => {
           if (!variant) return [];
-          const [type, bp] = key.split('_').reverse() as [keyof V, string?];
-          const styles = variants?.[type]?.[variant];
+          const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
+          const styles = variants?.[type]?.[variant as any];
           const responsive = options?.responsive;
           const updated = responsive && bp && styles ? convertToMediaStyles(bp, styles) : styles;
           return updated ? [updated] : [];
