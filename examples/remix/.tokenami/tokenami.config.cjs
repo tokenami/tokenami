@@ -41,6 +41,10 @@ module.exports = createConfig({
       '50%': { transform: 'rotate(3deg)' },
     },
   },
+  selectors: {
+    ...defaultConfig.selectors,
+    'focus-hover': '&:focus:hover',
+  },
   aliases: {
     'bg-color': ['background-color'],
     m: ['mt', 'mr', 'mb', 'ml', 'mx', 'my', 'margin'],
