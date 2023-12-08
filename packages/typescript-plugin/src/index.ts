@@ -1,4 +1,6 @@
 import ts from 'typescript/lib/tsserverlibrary';
+import { transpileModule } from 'typescript';
+import requireFromString from 'require-from-string';
 import * as ConfigUtils from '@tokenami/config';
 
 function init(modules: { typescript: typeof ts }) {
@@ -11,7 +13,7 @@ function init(modules: { typescript: typeof ts }) {
       proxy[k] = (...args: Array<{}>) => x.apply(info.languageService, args);
     }
 
-    const cwd = info.project.getCompilerOptions().baseUrl || '.';
+    const cwd = info.project.getCurrentDirectory();
     const configPath = ConfigUtils.getConfigPath(cwd, info.config.configPath);
     const configSource = modules.typescript.sys.readFile(configPath);
 
@@ -20,12 +22,12 @@ function init(modules: { typescript: typeof ts }) {
       return proxy;
     }
 
-    const [, matchConfig] = configSource.match(/createConfig\((\{[\s\S]*?\})\)/) || [];
-    // i know i know, scary eval. will think later if we can avoid this.
-    const config: ConfigUtils.Config = eval(`(${matchConfig})`);
+    const module = modules.typescript.ModuleKind.CommonJS;
+    const configTranspiled = transpileModule(configSource, { compilerOptions: { module } });
+    const config: ConfigUtils.Config = requireFromString(configTranspiled.outputText);
     const tokenConfigMap = new Map<string, { themeKey: string; tokenValue: string | number }>();
 
-    // info.project.projectService.logger.info(`DEBUG::`);
+    // info.project.projectService.logger.info(`DEBUG:: ${JSON.stringify(config)}`);
 
     proxy.getCompletionsAtPosition = (fileName, position, options) => {
       const original = info.languageService.getCompletionsAtPosition(fileName, position, options);
