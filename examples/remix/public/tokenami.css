@@ -79,6 +79,10 @@
   background-color: var(--hover_background-color, var(--background-color));
 }
 
+[style*="--focus-hover_background-color:"]:focus:hover {
+  background-color: var(--focus-hover_background-color, var(--background-color));
+}
+
 [style*="--background-image:"] {
   background-image: var(--background-image);
 }

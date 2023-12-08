@@ -106,8 +106,8 @@ function getSpecifictyOrderForCSSProperty(cssProperty: Supports.CSSProperty) {
 
 function getTokenPropertyParts(tokenProperty: Tokenami.TokenProperty) {
   const name = Tokenami.getTokenPropertyName(tokenProperty);
-  const [alias, ...variants] = name.split('_').reverse() as [string] & string[];
-  return { name, alias, variants };
+  const [alias, ...variants] = name.split('_').reverse() as [string, ...string[]];
+  return { name, alias, variants: variants.reverse() };
 }
 
 /* -------------------------------------------------------------------------------------------------
