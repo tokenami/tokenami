@@ -473,4 +473,4 @@ type TokenamiAliasStyles = {
 
 interface TokenamiStyles extends TokenamiBaseStyles, UnionToIntersection<TokenamiAliasStyles> {}
 
-export type { TokenamiConfig, TokenamiFinalConfig, TokenamiStyles };
+export type { TokenamiConfig, TokenamiFinalConfig, TokenamiStyles, ResponsiveKey };
