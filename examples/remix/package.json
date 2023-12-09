@@ -1,5 +1,6 @@
 {
-  "name": "@tokename/example-remix",
+  "name": "@tokenami/example-remix",
+  "version": "0.0.0",
   "private": true,
   "sideEffects": false,
   "scripts": {
