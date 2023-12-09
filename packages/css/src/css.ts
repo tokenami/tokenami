@@ -13,12 +13,6 @@ type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type VariantsConfig = Record<string, Record<string, TokenamiStyles>>;
 type Responsive<T> = T extends string ? `${ResponsiveKey}_${T}` : never;
 type Overrides = (TokenamiStyles | false | undefined)[];
-type Options<V, R> = V extends null ? never : { responsive?: R };
-type PickVariants<V, R> = V extends null
-  ? null
-  : R extends true
-  ? ResponsiveVariants<V>
-  : Variants<V>;
 
 type Variants<C> = {
   [V in keyof C]?: VariantValue<keyof C[V]>;
@@ -34,20 +28,28 @@ function css<S extends TokenamiStyles>(
   baseStyles: S
 ): (selectedVariants?: null, ...overrides: Overrides) => CSS.Properties;
 
-function css<S extends TokenamiStyles, V extends VariantsConfig | null, R extends boolean>(
+function css<S extends TokenamiStyles, V extends VariantsConfig>(
+  baseStyles: S,
+  variants: V
+): (selectedVariants?: Variants<V>, ...overrides: Overrides) => CSS.Properties;
+
+function css<S extends TokenamiStyles, V extends VariantsConfig>(
   baseStyles: S,
   variants: V,
-  options?: Options<V, R>
-): (selectedVariants?: PickVariants<V, R>, ...overrides: Overrides) => CSS.Properties;
+  options: { responsive: true }
+): (selectedVariants?: ResponsiveVariants<V>, ...overrides: Overrides) => CSS.Properties;
 
-function css<S extends TokenamiStyles, V extends VariantsConfig | null, R extends boolean>(
+function css<S extends TokenamiStyles, V extends VariantsConfig>(
   baseStyles: S,
   variants?: V,
-  options?: Options<V, R>
+  options?: { responsive: true }
 ) {
   const cache: Record<string, Record<string, any>> = {};
 
-  return function generate(selectedVariants?: PickVariants<V, R>, ...overrides: Overrides) {
+  return function generate(
+    selectedVariants?: ResponsiveVariants<V> | Variants<V> | null,
+    ...overrides: Overrides
+  ) {
     const cacheId = JSON.stringify({ selectedVariants, overrides });
     const cached = cache[cacheId];
 
