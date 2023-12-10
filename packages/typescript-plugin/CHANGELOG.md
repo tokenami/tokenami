@@ -1,5 +1,13 @@
 # @tokenami/typescript-plugin
 
+## 0.0.1
+
+### Patch Changes
+
+- 53c927c: Initial versions
+- Updated dependencies [53c927c]
+  - @tokenami/config@0.0.1
+
 ## 0.0.1-rc.0
 
 ### Patch Changes
