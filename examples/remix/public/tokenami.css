@@ -1,9 +1,23 @@
-@keyframes wiggle {
+@-webkit-keyframes wiggle {
   0%, 100% {
+    -webkit-transform: rotate(-3deg);
     transform: rotate(-3deg);
   }
 
   50% {
+    -webkit-transform: rotate(3deg);
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    -webkit-transform: rotate(-3deg);
+    transform: rotate(-3deg);
+  }
+
+  50% {
+    -webkit-transform: rotate(3deg);
     transform: rotate(3deg);
   }
 }
@@ -68,6 +82,7 @@
 }
 
 [style*="--hover_animation:"]:hover {
+  -webkit-animation: var(--hover_animation, var(--animation));
   animation: var(--hover_animation, var(--animation));
 }
 
@@ -131,13 +146,13 @@
   border-radius: var(--border-radius);
 }
 
-@media (width >= 700px) {
+@media (min-width: 700px) {
   [style*="--md_border-radius:"] {
     border-radius: var(--md_border-radius, var(--border-radius));
   }
 }
 
-@media (width >= 1024px) {
+@media (min-width: 1024px) {
   [style*="--lg_border-radius:"] {
     border-radius: var(--lg_border-radius, var(--border-radius));
   }
@@ -155,7 +170,7 @@
   display: var(--display);
 }
 
-@media (width >= 700px) {
+@media (min-width: 700px) {
   [style*="--md_display:"] {
     display: var(--md_display, var(--display));
   }
@@ -185,7 +200,7 @@
   height: var(--height);
 }
 
-@media (width >= 700px) {
+@media (min-width: 700px) {
   [style*="--md_height:"] {
     height: calc(var(--grid) * var(--md_height, var(--height)));
   }
@@ -195,7 +210,7 @@
   }
 }
 
-@media (width >= 1024px) {
+@media (min-width: 1024px) {
   [style*="--lg_height:"] {
     height: calc(var(--grid) * var(--lg_height, var(--height)));
   }
@@ -237,13 +252,13 @@
   object-fit: var(--object-fit);
 }
 
-@media (width >= 700px) {
+@media (min-width: 700px) {
   [style*="--md_object-fit:"] {
     object-fit: var(--md_object-fit, var(--object-fit));
   }
 }
 
-@media (width >= 1024px) {
+@media (min-width: 1024px) {
   [style*="--lg_object-fit:"] {
     object-fit: var(--lg_object-fit, var(--object-fit));
   }
@@ -261,7 +276,7 @@
   padding: var(--padding);
 }
 
-@media (width >= 700px) {
+@media (min-width: 700px) {
   [style*="--md_p:"] {
     padding: calc(var(--grid) * var(--md_p, var(--padding)));
   }
@@ -339,13 +354,14 @@
   text-align: var(--text-align);
 }
 
-@media (width >= 700px) {
+@media (min-width: 700px) {
   [style*="--md_text-align:"] {
     text-align: var(--md_text-align, var(--text-align));
   }
 }
 
 [style*="--transition:"] {
+  -webkit-transition: var(--transition);
   transition: var(--transition);
 }
 
@@ -357,7 +373,7 @@
   width: var(--width);
 }
 
-@media (width >= 700px) {
+@media (min-width: 700px) {
   [style*="--md_width:"] {
     width: calc(var(--grid) * var(--md_width, var(--width)));
   }
@@ -367,7 +383,7 @@
   }
 }
 
-@media (width >= 1024px) {
+@media (min-width: 1024px) {
   [style*="--lg_width:"] {
     width: calc(var(--grid) * var(--lg_width, var(--width)));
   }

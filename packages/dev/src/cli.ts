@@ -1,4 +1,7 @@
 import * as Tokenami from '@tokenami/config';
+import browserslist from 'browserslist';
+import { type Targets, browserslistToTargets } from 'lightningcss';
+import { createRequire } from 'module';
 import cac from 'cac';
 import glob from 'fast-glob';
 import * as fs from 'fs';
@@ -7,6 +10,8 @@ import * as pathe from 'pathe';
 import * as sheet from '~/sheet';
 import * as log from '~/log';
 import pkgJson from '~/../package.json';
+
+const require = createRequire(import.meta.url);
 
 const run = () => {
   const cli = cac('✨ tokenami');
@@ -36,15 +41,20 @@ const run = () => {
     .action(async (_, flags) => {
       const startTime = startTimer();
       const configPath = Tokenami.getConfigPath(cwd, flags.config);
+      const projectPkgJson = require(pathe.join(cwd, 'package.json'));
       const config = Tokenami.getConfigAtPath(configPath);
-      config.include = flags.files || config.include;
+      const targets = projectPkgJson.browserslist
+        ? browserslistToTargets(browserslist(projectPkgJson.browserslist))
+        : undefined;
 
+      config.include = flags.files || config.include;
       if (!config.include.length) log.error('Provide a glob pattern to include files');
 
       async function regenerateStylesheet(file: string, config: Tokenami.Config) {
         const generateTime = startTimer();
-        const usedTokenProps = await findUsedTokenProperties(cwd, config);
-        generateStyles(cwd, flags.output, usedTokenProps, config, flags.minify);
+        const usedTokens = await findUsedTokenProperties(cwd, config);
+        const minify = flags.minify;
+        generateStyles({ cwd, out: flags.output, usedTokens, config, minify, targets });
         log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
       }
 
@@ -68,7 +78,7 @@ const run = () => {
       }
 
       const usedTokens = await findUsedTokenProperties(cwd, config);
-      generateStyles(cwd, flags.output, usedTokens, config, flags.minify);
+      generateStyles({ cwd, out: flags.output, usedTokens, config, minify: flags.minify, targets });
       log.debug(`Ready in ${startTime()}ms.`);
     });
 
@@ -81,16 +91,23 @@ const run = () => {
  * generateStyles
  * -----------------------------------------------------------------------------------------------*/
 
-function generateStyles(
-  cwd: string,
-  out: string,
-  usedTokens: Tokenami.TokenProperty[],
-  config: Tokenami.Config,
-  minify?: boolean
-) {
-  const outDir = pathe.join(cwd, pathe.dirname(out));
-  const outPath = pathe.join(cwd, out);
-  const output = sheet.generate(usedTokens, outPath, config, minify);
+function generateStyles(params: {
+  cwd: string;
+  out: string;
+  usedTokens: Tokenami.TokenProperty[];
+  config: Tokenami.Config;
+  minify?: boolean;
+  targets?: Targets;
+}) {
+  const outDir = pathe.join(params.cwd, pathe.dirname(params.out));
+  const outPath = pathe.join(params.cwd, params.out);
+  const output = sheet.generate(
+    params.usedTokens,
+    outPath,
+    params.config,
+    params.minify,
+    params.targets
+  );
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(outPath, output, { flag: 'w' });
 }

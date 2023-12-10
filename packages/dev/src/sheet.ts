@@ -12,7 +12,8 @@ function generate(
   usedTokenProperties: Tokenami.TokenProperty[],
   output: string,
   config: Tokenami.Config,
-  minify?: boolean
+  minify?: boolean,
+  targets?: lightning.Targets
 ) {
   const layers = {
     atRules: {} as any,
@@ -89,7 +90,7 @@ function generate(
   });
 
   const code = Buffer.from(sheet);
-  const transformed = lightning.transform({ filename: output, code, minify });
+  const transformed = lightning.transform({ filename: output, code, minify, targets });
   return transformed.code.toString();
 }
 

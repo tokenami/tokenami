@@ -38,5 +38,8 @@
     "/node_modules",
     "/build",
     "/public/build"
+  ],
+  "browserslist": [
+    "Chrome >= 14"
   ]
 }
