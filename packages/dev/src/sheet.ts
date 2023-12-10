@@ -1,4 +1,4 @@
-import * as ConfigUtils from '@tokenami/config';
+import * as Tokenami from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
 
@@ -9,9 +9,9 @@ import * as lightning from 'lightningcss';
 type Styles = { [key: string]: string | Styles };
 
 function generate(
-  usedTokenProperties: ConfigUtils.TokenProperty[],
+  usedTokenProperties: Tokenami.TokenProperty[],
   output: string,
-  config: ConfigUtils.Config,
+  config: Tokenami.Config,
   minify?: boolean
 ) {
   const layers = {
@@ -24,8 +24,8 @@ function generate(
   if (!usedTokenProperties.length) return '';
 
   layers.root[':root'] = {
-    [ConfigUtils.tokenProperty('grid')]: config.grid,
-    ...ConfigUtils.getValuesByTokenValueProperty(config.theme),
+    [Tokenami.tokenProperty('grid')]: config.grid,
+    ...Tokenami.getValuesByTokenValueProperty(config.theme),
   };
 
   Object.entries(config.keyframes || {}).forEach(([name, config]) => {
@@ -33,15 +33,15 @@ function generate(
   });
 
   usedTokenProperties.forEach((usedTokenProperty) => {
-    const { name, alias, variants } = ConfigUtils.getTokenPropertyParts(usedTokenProperty);
-    const longhands = ConfigUtils.getLonghandsForAlias(alias, config);
+    const { name, alias, variants } = Tokenami.getTokenPropertyParts(usedTokenProperty);
+    const longhands = Tokenami.getLonghandsForAlias(alias, config);
 
     for (let property of longhands) {
       if (!isSupportedProperty(property)) continue;
-      const specificity = ConfigUtils.getSpecifictyOrderForCSSProperty(property);
+      const specificity = Tokenami.getSpecifictyOrderForCSSProperty(property);
       const propertyConfig = config.properties?.[property];
       const isGridProperty = propertyConfig?.includes('grid') || false;
-      const valueVar = `var(${ConfigUtils.tokenProperty(property)})`;
+      const valueVar = `var(${Tokenami.tokenProperty(property)})`;
       // variants fallback to initital in case the variant is deselected in dev tools.
       // it will fall back to any non-variant values applied to the same element
       const variantValueVar = `var(${usedTokenProperty}, ${valueVar})`;
@@ -60,7 +60,7 @@ function generate(
 
       layers.reset['*'] = {
         ...layers.reset['*'],
-        [ConfigUtils.tokenProperty(property)]: getResetTokenValue(property, config),
+        [Tokenami.tokenProperty(property)]: getResetTokenValue(property, config),
       };
 
       layers.styles[specificity] = {
@@ -94,7 +94,7 @@ function generate(
 }
 
 function getGridValue(value: string) {
-  const gridVar = `var(${ConfigUtils.tokenProperty('grid')})`;
+  const gridVar = `var(${Tokenami.tokenProperty('grid')})`;
   return `calc(${gridVar} * ${value})`;
 }
 
@@ -104,7 +104,7 @@ function getGridValue(value: string) {
 
 function selector(params: { name: string; value?: string; template?: string }) {
   const { template = '&', name, value = '' } = params || {};
-  const tokenProperty = ConfigUtils.tokenProperty(name);
+  const tokenProperty = Tokenami.tokenProperty(name);
   return template.replace('&', `[style*="${tokenProperty}:${value}"]`);
 }
 
@@ -122,12 +122,12 @@ function arbitraryGridSelector(params: Parameters<typeof selector>[0]) {
  * getResetTokenValueVarForAliases
  * -----------------------------------------------------------------------------------------------*/
 
-function getResetTokenValue(cssProperty: ConfigUtils.CSSProperty, config: ConfigUtils.Config) {
+function getResetTokenValue(cssProperty: Tokenami.CSSProperty, config: Tokenami.Config) {
   const aliased = Object.entries(config.aliases || {}).flatMap(([alias, properties]) => {
     return properties?.includes(cssProperty) ? [alias] : [];
   });
   return aliased.reduce(
-    (fallback, alias) => `var(${ConfigUtils.tokenProperty(alias)}, ${fallback})`,
+    (fallback, alias) => `var(${Tokenami.tokenProperty(alias)}, ${fallback})`,
     ''
   );
 }
@@ -136,8 +136,8 @@ function getResetTokenValue(cssProperty: ConfigUtils.CSSProperty, config: Config
  * isSupportedProperty
  * -----------------------------------------------------------------------------------------------*/
 
-function isSupportedProperty(property: string): property is ConfigUtils.CSSProperty {
-  return ConfigUtils.properties.includes(property as any);
+function isSupportedProperty(property: string): property is Tokenami.CSSProperty {
+  return Tokenami.properties.includes(property as any);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -1,6 +1,4 @@
 import ts from 'typescript/lib/tsserverlibrary';
-import { transpileModule } from 'typescript';
-import requireFromString from 'require-from-string';
 import * as ConfigUtils from '@tokenami/config';
 
 function init(modules: { typescript: typeof ts }) {
@@ -15,16 +13,14 @@ function init(modules: { typescript: typeof ts }) {
 
     const cwd = info.project.getCurrentDirectory();
     const configPath = ConfigUtils.getConfigPath(cwd, info.config.configPath);
-    const configSource = modules.typescript.sys.readFile(configPath);
+    const configExists = modules.typescript.sys.fileExists(configPath);
 
-    if (!configSource) {
+    if (!configExists) {
       info.project.projectService.logger.info(`TOKENAMI: Cannot find config`);
       return proxy;
     }
 
-    const module = modules.typescript.ModuleKind.CommonJS;
-    const configTranspiled = transpileModule(configSource, { compilerOptions: { module } });
-    const config: ConfigUtils.Config = requireFromString(configTranspiled.outputText);
+    const config = ConfigUtils.getConfigAtPath(configPath);
     const tokenConfigMap = new Map<string, { themeKey: string; tokenValue: string | number }>();
 
     // info.project.projectService.logger.info(`DEBUG:: ${JSON.stringify(config)}`);
