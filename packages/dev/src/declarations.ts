@@ -1,5 +1,5 @@
 import type * as CSS from 'csstype';
-import type * as ConfigUtils from '@tokenami/config';
+import type * as Tokenami from '@tokenami/config';
 
 type Merge<A, B> = Omit<A, keyof B> & B;
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
@@ -8,7 +8,7 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
 
 // consumer will override this interface
 interface TokenamiConfig {}
-interface TokenamiFinalConfig extends Merge<ConfigUtils.DefaultConfig, TokenamiConfig> {}
+interface TokenamiFinalConfig extends Merge<Tokenami.DefaultConfig, TokenamiConfig> {}
 
 type PropertyConfig = NonNullable<TokenamiFinalConfig['properties']>;
 type ResponsiveConfig = NonNullable<TokenamiFinalConfig['responsive']>;
@@ -17,7 +17,7 @@ type ThemeConfig = NonNullable<TokenamiFinalConfig['theme']>;
 type ResponsiveKey = Extract<keyof ResponsiveConfig, string>;
 type AliasKey = Extract<keyof AliasesConfig, string>;
 
-type Style<P extends string, V> = { [key in ConfigUtils.TokenProperty<P>]?: V };
+type Style<P extends string, V> = { [key in Tokenami.TokenProperty<P>]?: V };
 
 type VariantStyle<P extends string, V = Value<P>> = Style<P, V> &
   Style<`${ResponsiveKey}_${P}`, V> &
@@ -33,7 +33,7 @@ type TokenValue<P> = ThemeKey<P> extends infer TK
   ? TK extends string
     ? ThemeValue<TK> extends infer TV
       ? TV extends string
-        ? ConfigUtils.TokenValue<TK, TV>
+        ? Tokenami.TokenValue<TK, TV>
         : never
       : never
     : never
@@ -44,8 +44,8 @@ type CSSPropertyValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.Properties
 type Value<P> = P extends keyof PropertyConfig
   ? PropertyConfig[P][number] extends infer ThemeKey
     ? ThemeKey extends 'grid'
-      ? TokenValue<P> | ConfigUtils.ArbitraryValue | ConfigUtils.GridValue
-      : TokenValue<P> | ConfigUtils.ArbitraryValue
+      ? TokenValue<P> | Tokenami.ArbitraryValue | Tokenami.GridValue
+      : TokenValue<P> | Tokenami.ArbitraryValue
     : never
   : CSSPropertyValue<P>;
 
@@ -465,8 +465,8 @@ type TokenamiBaseStyles = VariantStyle<'-webkit-line-clamp'> &
 
 type TokenamiAliasStyles = {
   [K in AliasKey]: AliasesConfig[K][number] extends infer L
-    ? L extends ConfigUtils.CSSProperty
-      ? VariantStyle<K, TokenamiBaseStyles[ConfigUtils.TokenProperty<L>]>
+    ? L extends Tokenami.CSSProperty
+      ? VariantStyle<K, TokenamiBaseStyles[Tokenami.TokenProperty<L>]>
       : never
     : never;
 }[AliasKey];

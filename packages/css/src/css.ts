@@ -1,5 +1,5 @@
 import type * as CSS from 'csstype';
-import * as ConfigUtils from '@tokenami/config';
+import * as Tokenami from '@tokenami/config';
 import { TokenamiStyles, ResponsiveKey } from '@tokenami/dev';
 import { mapShorthandToLonghands } from './shorthands';
 
@@ -73,7 +73,7 @@ function css<S extends TokenamiStyles, V extends VariantsConfig>(
     overrideStyles.forEach((overrideStyle) => {
       if (overrideStyle) {
         for (let tokenProperty in overrideStyle) {
-          const property = ConfigUtils.getTokenPropertyName(tokenProperty as any);
+          const property = Tokenami.getTokenPropertyName(tokenProperty as any);
           override(css, property);
         }
       }
@@ -93,7 +93,7 @@ css[SHORTHANDS_TO_LONGHANDS] = mapShorthandToLonghands;
  * create
  * -----------------------------------------------------------------------------------------------*/
 
-function createCss(config: ConfigUtils.Config) {
+function createCss(config: Tokenami.Config) {
   if (!config.aliases) return css;
   css[SHORTHANDS_TO_LONGHANDS] = { ...css[SHORTHANDS_TO_LONGHANDS], ...config.aliases };
   return css;
@@ -105,7 +105,7 @@ function override(style: Record<string, any>, property: string) {
   const longhands = (css[SHORTHANDS_TO_LONGHANDS] as any)[property];
   if (!longhands) return;
   for (let longhand of longhands) {
-    const tokenProperty = ConfigUtils.tokenProperty(longhand);
+    const tokenProperty = Tokenami.tokenProperty(longhand);
     if (style[tokenProperty]) {
       delete style[tokenProperty];
     }
@@ -115,8 +115,8 @@ function override(style: Record<string, any>, property: string) {
 
 function convertToMediaStyles(bp: string, styles: TokenamiStyles): TokenamiStyles {
   const updatedEntries = Object.entries(styles).map(([property, value]) => {
-    const tokenPrefix = ConfigUtils.tokenProperty('');
-    const bpPrefix = ConfigUtils.variantProperty(bp, '');
+    const tokenPrefix = Tokenami.tokenProperty('');
+    const bpPrefix = Tokenami.variantProperty(bp, '');
     const bpProperty = property.replace(tokenPrefix, bpPrefix);
     return [bpProperty, value];
   });

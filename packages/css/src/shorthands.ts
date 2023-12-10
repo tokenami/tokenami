@@ -1,6 +1,6 @@
-import * as ConfigUtils from '@tokenami/config';
+import * as Tokenami from '@tokenami/config';
 
-type SupportedProperty = (typeof ConfigUtils.properties)[number];
+type SupportedProperty = (typeof Tokenami.properties)[number];
 
 export const mapShorthandToLonghands = {
   animation: [

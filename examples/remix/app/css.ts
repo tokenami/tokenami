@@ -1,5 +1,5 @@
 import { type VariantProps, createCss } from '@tokenami/css';
-import config from '../.tokenami/tokenami.config.cjs';
+import config from '../.tokenami/tokenami.config';
 
 const css = createCss(config);
 

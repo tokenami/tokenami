@@ -1,6 +1,6 @@
-const { createConfig, defaultConfig } = require('@tokenami/dev');
+import { createConfig, defaultConfig } from '@tokenami/dev';
 
-module.exports = createConfig({
+export default createConfig({
   include: ['./app/**/*.{ts,tsx}'],
   exclude: ['./app/routes/original.tsx'],
   responsive: {
