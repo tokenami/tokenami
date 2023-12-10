@@ -81,6 +81,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
   - [Selectors](#user-content-selectors)
   - [Aliases](#user-content-aliases)
   - [Mapping properties to theme](#user-content-mapping-properties-to-theme)
+  - [Browserslist](#user-content-browserslist)
 - [Support](#user-content-support)
 - [Credits](#user-content-credits)
 
@@ -426,6 +427,10 @@ Use by following the [Tokenami property and token specs](#user-content-styling):
   }}
 />
 ```
+
+### Browserslist
+
+Tokenami only supports [browserslist](https://browsersl.ist/) in your `package.json`. You can use it to add autoprefixing to your CSS properties in the generated CSS file. However, it currently doesn't support vendor-prefixed **values**, which is being tracked in [this issue](https://github.com/tokenami/tokenami/issues/103).
 
 ## Support
 

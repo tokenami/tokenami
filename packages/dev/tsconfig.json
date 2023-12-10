@@ -3,6 +3,7 @@
   "include": ["src"],
   "compilerOptions": {
     "baseUrl": ".",
+    "isolatedModules": false,
     "target": "esnext",
     "module": "esnext",
     "paths": {
