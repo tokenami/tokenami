@@ -5,7 +5,10 @@
     "@tokenami/config": "0.0.0",
     "@tokenami/css": "0.0.0",
     "@tokenami/dev": "0.0.0",
-    "@tokenami/typescript-plugin": "0.0.0"
+    "@tokenami/typescript-plugin": "0.0.0",
+    "@tokenami/example-remix": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "dirty-grapes-argue"
+  ]
 }
