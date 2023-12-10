@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/typescript-plugin",
-  "version": "0.0.0",
+  "version": "1.0.0-next.0",
   "license": "MIT",
   "main": "./dist/index.js",
   "repository": "https://github.com/tokenami/tokenami",
