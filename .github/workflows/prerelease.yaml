@@ -1,12 +1,13 @@
-name: Release
+name: Prerelease
 
-on: workflow_dispatch
-
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  release:
-    name: Release
+  prerelease:
+    name: Prerelease
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
@@ -18,10 +19,14 @@ jobs:
       - name: 🏗 Setup repository
         uses: ./.github/actions/setup-repo
 
+      - name: 🟢 Enter prerelease mode
+        run: pnpm rc:enter
+
       - name: 🚀 Create and publish versions
         uses: changesets/action@v1
         with:
-          title: Release
+          version: pnpm rc:version
+          title: Release candidate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

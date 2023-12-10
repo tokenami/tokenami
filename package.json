@@ -8,8 +8,8 @@
     "build": "pnpm -r --filter=./packages/** build",
     "clean": "rm -rf **/node_modules && rm -rf **/dist",
     "change": "changeset",
-    "change:version": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "rc:enter": "changeset pre enter rc",
+    "rc:version": "changeset version && changeset pre exit"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
