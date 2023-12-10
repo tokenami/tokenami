@@ -1,3 +1,5 @@
+import jitiFactory from 'jiti';
+import { transform } from 'sucrase';
 import * as pathe from 'pathe';
 import * as Tokenami from '~/config';
 import * as Supports from '~/supports';
@@ -17,6 +19,39 @@ const DEFAULT_PATHS = [
 
 function getConfigPath(cwd: string, path: string = getConfigDefaultPath(cwd)) {
   return pathe.join(cwd, path);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getConfigAtPath
+ * -----------------------------------------------------------------------------------------------*/
+
+function getConfigAtPath(path: string): Tokenami.Config {
+  const config = (function () {
+    try {
+      return require(path);
+    } catch {
+      return lazyJiti()(path);
+    }
+  })();
+
+  return mergedConfigs(config.default ?? config);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getReloadedConfigAtPath
+ * -----------------------------------------------------------------------------------------------*/
+
+function getReloadedConfigAtPath(path: string): Tokenami.Config {
+  const config = (function () {
+    try {
+      delete require.cache[require.resolve(path)];
+      return require(path);
+    } catch {
+      return lazyJiti({ cache: false })(path);
+    }
+  })();
+
+  return mergedConfigs(config.default ?? config);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -116,9 +151,9 @@ function getTokenPropertyParts(tokenProperty: Tokenami.TokenProperty) {
 
 function getResponsivePropertyVariants(
   tokenProperty: Tokenami.TokenProperty,
-  config: Tokenami.Config
+  responsive: Tokenami.Config['responsive']
 ): string[] {
-  return Object.keys(config.responsive || {}).map((query) => {
+  return Object.keys(responsive || {}).map((query) => {
     const name = Tokenami.getTokenPropertyName(tokenProperty);
     return Tokenami.variantProperty(query, name);
   });
@@ -126,9 +161,20 @@ function getResponsivePropertyVariants(
 
 /* ---------------------------------------------------------------------------------------------- */
 
+let jiti: ReturnType<typeof jitiFactory> | null = null;
+function lazyJiti({ cache = true } = {}) {
+  return (jiti ??= jitiFactory(__filename, {
+    transform: (opts) => transform(opts.source, { transforms: ['typescript', 'imports'] }),
+    interopDefault: true,
+    requireCache: cache,
+  }));
+}
+
 export {
   mergedConfigs,
   getConfigPath,
+  getConfigAtPath,
+  getReloadedConfigAtPath,
   getTypeDefsPath,
   generateConfig,
   generateTypeDefs,

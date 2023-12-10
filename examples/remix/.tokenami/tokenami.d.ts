@@ -1,5 +1,5 @@
 import { TokenamiStyles } from '@tokenami/dev';
-import config from './tokenami.config.cjs';
+import config from './tokenami.config';
 
 type Config = typeof config;
 

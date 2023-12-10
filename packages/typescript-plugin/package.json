@@ -12,11 +12,9 @@
     "dev": "pnpm build --watch"
   },
   "dependencies": {
-    "@tokenami/config": "workspace:*",
-    "require-from-string": "^2.0.2"
+    "@tokenami/config": "workspace:*"
   },
   "devDependencies": {
-    "@types/require-from-string": "^1.2.3",
     "typescript": "^5.1.3"
   }
 }

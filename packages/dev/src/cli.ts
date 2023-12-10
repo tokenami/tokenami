@@ -1,15 +1,12 @@
-import * as ConfigUtils from '@tokenami/config';
+import * as Tokenami from '@tokenami/config';
 import cac from 'cac';
 import glob from 'fast-glob';
 import * as fs from 'fs';
-import { createRequire } from 'module';
 import * as chokidar from 'chokidar';
 import * as pathe from 'pathe';
 import * as sheet from '~/sheet';
 import * as log from '~/log';
 import pkgJson from '~/../package.json';
-
-const require = createRequire(import.meta.url);
 
 const run = () => {
   const cli = cac('✨ tokenami');
@@ -19,11 +16,11 @@ const run = () => {
     .command('init')
     .option('-c, --config [path]', 'Path to a custom config file')
     .action((_, flags) => {
-      const configPath = ConfigUtils.getConfigPath(cwd, flags?.config);
-      const typeDefsPath = ConfigUtils.getTypeDefsPath(configPath);
+      const configPath = Tokenami.getConfigPath(cwd, flags?.config);
+      const typeDefsPath = Tokenami.getTypeDefsPath(configPath);
       const outDir = pathe.dirname(configPath);
-      const initialConfig = ConfigUtils.generateConfig();
-      const typeDefs = ConfigUtils.generateTypeDefs(configPath);
+      const initialConfig = Tokenami.generateConfig();
+      const typeDefs = Tokenami.generateTypeDefs(configPath);
 
       fs.mkdirSync(outDir, { recursive: true });
       fs.writeFileSync(configPath, initialConfig, { flag: 'w' });
@@ -38,11 +35,13 @@ const run = () => {
     .option('--minify', 'Minify CSS output')
     .action(async (_, flags) => {
       const startTime = startTimer();
-      const config = getConfig(cwd, { path: flags.config, include: flags.files });
+      const configPath = Tokenami.getConfigPath(cwd, flags.config);
+      const config = Tokenami.getConfigAtPath(configPath);
+      config.include = flags.files || config.include;
 
       if (!config.include.length) log.error('Provide a glob pattern to include files');
 
-      async function regenerateStylesheet(file: string, config: ConfigUtils.Config) {
+      async function regenerateStylesheet(file: string, config: Tokenami.Config) {
         const generateTime = startTimer();
         const usedTokenProps = await findUsedTokenProperties(cwd, config);
         generateStyles(cwd, flags.output, usedTokenProps, config, flags.minify);
@@ -50,15 +49,16 @@ const run = () => {
       }
 
       if (flags.watch) {
-        const configWatcher = watch(cwd, [ConfigUtils.getConfigPath(cwd, flags.config)]);
+        const configWatcher = watch(cwd, [configPath]);
         const tokenWatcher = watch(cwd, config.include, config.exclude);
         log.debug(`Watching for changes to ${config.include}.`);
 
         tokenWatcher.on('all', (_, file) => regenerateStylesheet(file, config));
 
         configWatcher.on('all', async (_, file) => {
-          const updatedConfig = getConfig(cwd, { path: file, include: flags.files });
-          regenerateStylesheet(file, updatedConfig);
+          const reloadedConfig = Tokenami.getReloadedConfigAtPath(configPath);
+          reloadedConfig.include = flags.files || reloadedConfig.include;
+          regenerateStylesheet(file, reloadedConfig);
         });
 
         process.once('SIGINT', async () => {
@@ -84,8 +84,8 @@ const run = () => {
 function generateStyles(
   cwd: string,
   out: string,
-  usedTokens: ConfigUtils.TokenProperty[],
-  config: ConfigUtils.Config,
+  usedTokens: Tokenami.TokenProperty[],
+  config: Tokenami.Config,
   minify?: boolean
 ) {
   const outDir = pathe.join(cwd, pathe.dirname(out));
@@ -113,20 +113,20 @@ function watch(cwd: string, include: readonly string[], exclude?: readonly strin
  * findUsedTokenProperties
  * -----------------------------------------------------------------------------------------------*/
 
-async function findUsedTokenProperties(cwd: string, config: ConfigUtils.Config) {
+async function findUsedTokenProperties(cwd: string, config: Tokenami.Config) {
   const cssVariables = await findUsedCssVariables(cwd, config);
   const tokenamiProperties = cssVariables.flatMap((variable) => {
-    const validated = ConfigUtils.TokenProperty.safeParse(variable);
+    const validated = Tokenami.TokenProperty.safeParse(variable);
     return validated.success ? [validated.data] : [];
   });
-  return tokenamiProperties as ConfigUtils.TokenProperty[];
+  return tokenamiProperties as Tokenami.TokenProperty[];
 }
 
 /* -------------------------------------------------------------------------------------------------
  * findUsedCssVariables
  * -----------------------------------------------------------------------------------------------*/
 
-async function findUsedCssVariables(cwd: string, config: ConfigUtils.Config) {
+async function findUsedCssVariables(cwd: string, config: Tokenami.Config) {
   const include = config.include as string[];
   const exclude = config.exclude as string[];
   const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore: exclude });
@@ -134,7 +134,7 @@ async function findUsedCssVariables(cwd: string, config: ConfigUtils.Config) {
   const allCssVariables = entries.flatMap((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
     const matches = fileContent.matchAll(tokenPropertyRegex);
-    const responsiveVariants = findResponsiveCSSUtilityVariables(fileContent, config);
+    const responsiveVariants = findResponsiveCSSUtilityVariables(fileContent, config.responsive);
     return Array.from(matches, (match) => match.groups?.cssVar).concat(responsiveVariants);
   });
   const unique = new Set(allCssVariables);
@@ -145,7 +145,10 @@ async function findUsedCssVariables(cwd: string, config: ConfigUtils.Config) {
  * findResponsiveCSSUtilityVariables
  * -----------------------------------------------------------------------------------------------*/
 
-function findResponsiveCSSUtilityVariables(fileContent: string, config: ConfigUtils.Config) {
+function findResponsiveCSSUtilityVariables(
+  fileContent: string,
+  responsiveConfig: Tokenami.Config['responsive']
+) {
   const responsiveCssBlockRegex = /css\(([\s\S]*?)\{([\s\S]*?)responsive:\strue([\s\S]*?)\}/g;
   const responsiveCssBlocks = fileContent.match(responsiveCssBlockRegex);
   const tokenPropertyRegex = /(-+[a-z-_]+)('|")/g;
@@ -154,35 +157,10 @@ function findResponsiveCSSUtilityVariables(fileContent: string, config: ConfigUt
     const matches = block.match(tokenPropertyRegex) || [];
     const matchesWithoutQuoteMark = matches.map((match) => match.slice(0, -1));
     const reponsiveVariants = matchesWithoutQuoteMark.flatMap((tokenProperty) => {
-      return ConfigUtils.getResponsivePropertyVariants(tokenProperty, config);
+      return Tokenami.getResponsivePropertyVariants(tokenProperty, responsiveConfig);
     });
     return reponsiveVariants || [];
   });
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getConfig
- * -----------------------------------------------------------------------------------------------*/
-
-interface GetConfigOptions {
-  path?: string;
-  include?: string[];
-}
-
-function getConfig(cwd: string, opts: GetConfigOptions = {}): ConfigUtils.Config {
-  const configPath = ConfigUtils.getConfigPath(cwd, opts.path);
-  const theirs = fs.existsSync(configPath) ? reloadModule(configPath) : {};
-  const include = opts.include || theirs.include;
-  return ConfigUtils.mergedConfigs({ ...theirs, ...(include && { include }) });
-}
-
-/* -------------------------------------------------------------------------------------------------
- * reloadModule
- * -----------------------------------------------------------------------------------------------*/
-
-function reloadModule(moduleName: string) {
-  delete require.cache[require.resolve(moduleName)];
-  return require(moduleName);
 }
 
 /* -------------------------------------------------------------------------------------------------
