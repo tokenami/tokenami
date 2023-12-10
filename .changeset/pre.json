@@ -1,0 +1,11 @@
+{
+  "mode": "pre",
+  "tag": "rc",
+  "initialVersions": {
+    "@tokenami/config": "0.0.0",
+    "@tokenami/css": "0.0.0",
+    "@tokenami/dev": "0.0.0",
+    "@tokenami/typescript-plugin": "0.0.0"
+  },
+  "changesets": []
+}
