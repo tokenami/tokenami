@@ -89,6 +89,14 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 
 The set up is a little complex during pre-alpha. This [will be simplified](https://github.com/tokenami/tokenami/issues/82) before version one.
 
+### Prerequisite
+
+The packages exist on the GitHub registry for now. To access them, add the following to an `.npmrc` file in your project root:
+
+```
+@tokenami:registry=https://npm.pkg.github.com
+```
+
 ### Installation
 
 Install and initialise using your package manager of choice. For example:
@@ -257,7 +265,7 @@ Tokenami provides a CSS utility to abstract styles from your views and correctly
 Install using your package manager of choice. For example:
 
 ```sh
-npm install @tokenami/css
+npm install @tokenami/css@next
 ```
 
 ### Usage
