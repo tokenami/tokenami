@@ -20,7 +20,8 @@ function generate(
     root: { ':root': {} },
     reset: { '*': {} },
     styles: [{}],
-  } satisfies Record<string, Styles | [Styles]>;
+    responsive: {} as Record<string, [Styles]>,
+  } satisfies Record<string, Styles | [Styles] | Record<string, [Styles]>>;
 
   if (!usedTokenProperties.length) return '';
 
@@ -42,6 +43,8 @@ function generate(
       const specificity = Tokenami.getSpecifictyOrderForCSSProperty(property);
       const propertyConfig = config.properties?.[property];
       const isGridProperty = propertyConfig?.includes('grid') || false;
+      const [tkResponsive, ...extraResponsive] = variants.flatMap((v) => [config.responsive?.[v]]);
+      const [tkSelector, ...extraSelectors] = variants.flatMap((v) => [config.selectors?.[v]]);
       const valueVar = `var(${Tokenami.tokenProperty(property)})`;
       // variants fallback to initital in case the variant is deselected in dev tools.
       // it will fall back to any non-variant values applied to the same element
@@ -50,11 +53,9 @@ function generate(
 
       function getVariantStyles(value: string) {
         const baseStyle = getStyles(value);
-        const responsive = variants.flatMap((variant) => [config.responsive?.[variant]]);
-        const selectors = variants.flatMap((variant) => [config.selectors?.[variant]]);
         // we only allow 1 of each to enforce custom selectors for chained variants.
-        if (responsive.length > 1 || selectors.length > 1) return {};
-        return [responsive[0], selectors[0]].reduce((styles, template) => {
+        if (extraResponsive.length || extraSelectors.length) return {};
+        return [tkResponsive, tkSelector].reduce((styles, template) => {
           return template ? { [template]: styles } : styles;
         }, baseStyle);
       }
@@ -64,20 +65,29 @@ function generate(
         [Tokenami.tokenProperty(property)]: getResetTokenValue(property, config),
       };
 
-      layers.styles[specificity] = {
-        ...layers.styles[specificity],
+      const styles = {
         [selector({ name })]: variants.length
           ? getVariantStyles(isGridProperty ? getGridValue(variantValueVar) : variantValueVar)
           : getStyles(isGridProperty ? getGridValue(valueVar) : valueVar),
       };
 
-      if (isGridProperty) {
-        layers.styles[specificity] = {
-          ...layers.styles[specificity],
-          [arbitraryGridSelector({ name })]: variants.length
-            ? getVariantStyles(variantValueVar)
-            : getStyles(valueVar),
-        };
+      const gridStyles = {
+        [arbitraryGridSelector({ name })]: variants.length
+          ? getVariantStyles(variantValueVar)
+          : getStyles(valueVar),
+      };
+
+      if (tkResponsive) {
+        const responsiveLayer = (layers.responsive[tkResponsive] ??= [{}]);
+        responsiveLayer[specificity] = { ...responsiveLayer[specificity], ...styles };
+        if (isGridProperty) {
+          responsiveLayer[specificity] = { ...responsiveLayer[specificity], ...gridStyles };
+        }
+      } else {
+        layers.styles[specificity] = { ...layers.styles[specificity], ...styles };
+        if (isGridProperty) {
+          layers.styles[specificity] = { ...layers.styles[specificity], ...gridStyles };
+        }
       }
     }
   });
@@ -87,6 +97,7 @@ function generate(
     ...layers.root,
     ...layers.reset,
     ...Object.assign({}, ...layers.styles),
+    ...Object.assign({}, ...Object.values(layers.responsive).flat()),
   });
 
   const code = Buffer.from(sheet);
