@@ -9403,7 +9403,7 @@ packages:
   file:packages/typescript-plugin:
     resolution: {directory: packages/typescript-plugin, type: directory}
     name: '@tokenami/typescript-plugin'
-    version: 0.0.0
+    version: 1.0.0-next.0
     dependencies:
       '@tokenami/config': link:packages/config
       require-from-string: 2.0.2
