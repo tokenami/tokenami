@@ -64,6 +64,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 ## Contents
 
 - [Getting started](#user-content-getting-started)
+  - [Prerequisite](#user-content-prerequisite)
   - [Installation](#user-content-installation)
   - [Configure TypeScript](#user-content-configure-typescript)
   - [Configure template paths](#user-content-configure-template-paths)
@@ -83,11 +84,23 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
   - [Mapping properties to theme](#user-content-mapping-properties-to-theme)
   - [Browserslist](#user-content-browserslist)
 - [Support](#user-content-support)
+  - [Unable to authenticate with GitHub registry](#user-content-unable-to-authenticate-with-github-registry)
+  - [Intellisense not working for tokens](#user-content-intellisense-not-working-for-tokens)
 - [Credits](#user-content-credits)
 
 ## Getting started
 
 The set up is a little complex during pre-alpha. This [will be simplified](https://github.com/tokenami/tokenami/issues/82) before version one.
+
+### Prerequisite
+
+The packages exist on the GitHub registry for now. To access them, add the following to an `.npmrc` file in your project root:
+
+```
+@tokenami:registry=https://npm.pkg.github.com/:_authToken=$TOKENAMI_TOKEN
+```
+
+Create a [Personal Access Token](https://github.com/settings/tokens/new) for your GitHub account with `read:packages` rights and replace the `$TOKENAMI_TOKEN` or store it in an `.env` file.
 
 ### Installation
 
@@ -257,7 +270,7 @@ Tokenami provides a CSS utility to abstract styles from your views and correctly
 Install using your package manager of choice. For example:
 
 ```sh
-npm install @tokenami/css
+npm install @tokenami/css@next
 ```
 
 ### Usage
@@ -434,9 +447,21 @@ Tokenami only supports [browserslist](https://browsersl.ist/) in your `package.j
 
 ## Support
 
-Before raising a bug, please double-check that it isn't [already in my todo list](https://github.com/tokenami/tokenami/issues).
+Before raising a bug, please double-check that it isn't [already in my todo list](https://github.com/tokenami/tokenami/issues). Some common pitfalls are listed below.
 
 If you need additional support or encounter any issues, please don't hesitate to join the [Tokenami discord server](https://discord.gg/CAU4HNR4XK).
+
+### Unable to authenticate with GitHub registry
+
+If you did not set up an [SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) for working with git locally, you may come across this issue. You can set one up or run the following command using the Personal Access Token from earlier as your password:
+
+```
+npm login --scope=@tokenami --auth-type=legacy --registry=https://npm.pkg.github.com
+```
+
+### Intellisense not working for tokens
+
+Tokenami creates a `tokenami.config.js` file by default. If you do not get the correct types/intellisense for your project after [configuring the TypeScript plugin](#user-content-configure-typescript), you might have `moduleResolution: "Bundler"` in your tsconfig. Rename your config to `tokenami.config.ts` and update imports in `tokenami.d.ts` if you hit this issue.
 
 ## Credits
 
