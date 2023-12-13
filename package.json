@@ -8,8 +8,7 @@
     "build": "pnpm -r --filter=./packages/** build",
     "clean": "rm -rf **/node_modules && rm -rf **/dist",
     "change": "changeset",
-    "next:enter": "changeset pre enter next",
-    "next:version": "changeset version && changeset pre exit",
+    "next:version": "changeset pre enter next && changeset version && changeset pre exit",
     "release": "changeset publish"
   },
   "devDependencies": {
