@@ -1,5 +1,11 @@
 # @tokenami/dev
 
+## 1.0.0-next.1
+
+### Patch Changes
+
+- 803e290: Group responsive rules at bottom of sheet for correct specificity
+
 ## 1.0.0-next.0
 
 ### Major Changes

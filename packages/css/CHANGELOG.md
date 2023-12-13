@@ -1,5 +1,12 @@
 # @tokenami/css
 
+## 1.0.0-next.1
+
+### Patch Changes
+
+- Updated dependencies [803e290]
+  - @tokenami/dev@1.0.0-next.1
+
 ## 1.0.0-next.0
 
 ### Major Changes
