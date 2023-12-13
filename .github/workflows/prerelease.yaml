@@ -19,9 +19,6 @@ jobs:
       - name: 🏗 Setup repository
         uses: ./.github/actions/setup-repo
 
-      - name: 💫 Enter prerelease mode
-        run: pnpm next:enter
-
       - name: 🚀 Create and publish versions
         uses: changesets/action@v1
         with:
