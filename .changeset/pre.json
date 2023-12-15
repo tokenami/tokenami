@@ -8,5 +8,5 @@
     "@tokenami/dev": "0.0.0",
     "@tokenami/typescript-plugin": "0.0.0"
   },
-  "changesets": ["lovely-ads-sniff"]
+  "changesets": ["real-crews-type"]
 }
