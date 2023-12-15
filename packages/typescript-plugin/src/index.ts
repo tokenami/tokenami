@@ -1,5 +1,7 @@
 import ts from 'typescript/lib/tsserverlibrary';
-import * as ConfigUtils from '@tokenami/config';
+import * as Tokenami from '@tokenami/config';
+
+const INVALID_SELECTOR_ERROR_CODE = 50000;
 
 function init(modules: { typescript: typeof ts }) {
   function create(info: ts.server.PluginCreateInfo) {
@@ -12,7 +14,7 @@ function init(modules: { typescript: typeof ts }) {
     }
 
     const cwd = info.project.getCurrentDirectory();
-    const configPath = ConfigUtils.getConfigPath(cwd, info.config.configPath);
+    const configPath = Tokenami.getConfigPath(cwd, info.config.configPath);
     const configExists = modules.typescript.sys.fileExists(configPath);
 
     if (!configExists) {
@@ -20,10 +22,45 @@ function init(modules: { typescript: typeof ts }) {
       return proxy;
     }
 
-    const config = ConfigUtils.getConfigAtPath(configPath);
+    const config = Tokenami.getConfigAtPath(configPath);
     const tokenConfigMap = new Map<string, { themeKey: string; tokenValue: string | number }>();
 
     // info.project.projectService.logger.info(`DEBUG:: ${JSON.stringify(config)}`);
+
+    proxy.getSemanticDiagnostics = (fileName) => {
+      const original = info.languageService.getSemanticDiagnostics(fileName);
+      const program = info.languageService.getProgram();
+      const sourceFile = program?.getSourceFile(fileName);
+
+      if (sourceFile) {
+        modules.typescript.forEachChild(sourceFile, function visit(node) {
+          const isPropertyName = modules.typescript.isPropertyName(node);
+          const isStringLiteral = modules.typescript.isStringLiteral(node);
+
+          if (isPropertyName && isStringLiteral) {
+            const property = node.getText(sourceFile).replace(/'|"/g, '');
+
+            if (Tokenami.TokenProperty.safeParse(property).success) {
+              const parts = Tokenami.getTokenPropertyParts(property as any, config);
+              if (!parts) {
+                original.push({
+                  file: sourceFile,
+                  start: node.getStart(),
+                  length: node.getWidth(),
+                  messageText: `Invalid property '${property}'. Selector not found in theme.`,
+                  category: modules.typescript.DiagnosticCategory.Error,
+                  code: INVALID_SELECTOR_ERROR_CODE,
+                });
+              }
+            }
+          }
+
+          modules.typescript.forEachChild(node, visit);
+        });
+      }
+
+      return original;
+    };
 
     proxy.getCompletionsAtPosition = (fileName, position, options) => {
       const original = info.languageService.getCompletionsAtPosition(fileName, position, options);
@@ -33,21 +70,16 @@ function init(modules: { typescript: typeof ts }) {
         const entryName = entry.name;
         entry.sortText = entryName;
 
-        if (ConfigUtils.TokenProperty.safeParse(entryName).success) {
-          const { variants } = ConfigUtils.getTokenPropertyParts(entryName as any);
-          const responsive = config.responsive;
+        if (Tokenami.TokenProperty.safeParse(entryName).success) {
+          const parts = Tokenami.getTokenPropertyParts(entryName as any, config);
+          const description = parts?.responsive && config.responsive?.[parts.responsive];
           // token properties win in sort order
           entry.sortText = `$${entryName}`;
-          if (responsive) {
-            const key = variants.find((variant) => responsive[variant]);
-            if (key) {
-              entry.labelDetails = { detail: '', description: config.responsive?.[key] };
-            }
-          }
+          if (description) entry.labelDetails = { detail: '', description };
         }
 
-        if (ConfigUtils.TokenValue.safeParse(entryName).success) {
-          const parts = ConfigUtils.getTokenValueParts(entryName as any);
+        if (Tokenami.TokenValue.safeParse(entryName).success) {
+          const parts = Tokenami.getTokenValueParts(entryName as any);
           const tokenValue = parts ? config.theme[parts.themeKey]?.[parts.token] : undefined;
           if (parts && tokenValue) {
             tokenConfigMap.set(parts.token, { themeKey: parts.themeKey, tokenValue });
