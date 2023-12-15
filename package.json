@@ -9,6 +9,7 @@
     "clean": "rm -rf **/node_modules && rm -rf **/dist",
     "change": "changeset",
     "next:version": "changeset pre enter next && changeset version && changeset pre exit",
+    "prerelease": "changeset pre enter next && changeset publish",
     "release": "changeset publish"
   },
   "devDependencies": {
