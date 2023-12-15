@@ -1,19 +1,12 @@
 {
-  "mode": "exit",
+  "mode": "pre",
   "tag": "next",
   "initialVersions": {
     "@tokenami/example-remix": "0.0.0",
-    "@tokenami/config": "1.0.0-next.0",
-    "@tokenami/css": "1.0.0-next.1",
-    "@tokenami/dev": "1.0.0-next.1",
-    "@tokenami/typescript-plugin": "1.0.0-next.0"
+    "@tokenami/config": "1.0.0",
+    "@tokenami/css": "1.0.0",
+    "@tokenami/dev": "1.0.0",
+    "@tokenami/typescript-plugin": "1.0.0"
   },
-  "changesets": [
-    "clean-years-hug",
-    "cuddly-pandas-type",
-    "good-waves-pay",
-    "stupid-cougars-roll",
-    "swift-bikes-divide",
-    "tasty-pumpkins-learn"
-  ]
+  "changesets": []
 }

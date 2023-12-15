@@ -8,11 +8,13 @@
     "build": "pnpm -r --filter=./packages/** build",
     "clean": "rm -rf **/node_modules && rm -rf **/dist",
     "change": "changeset",
-    "next:version": "changeset pre enter next && changeset version && changeset pre exit",
-    "release": "changeset publish"
+    "next:version": "changeset pre enter next || : && changeset version",
+    "next:release": "changeset publish",
+    "latest:version": "changeset pre exit || : && changset version",
+    "latest:release": "changeset pre exit || : changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.2",
+    "@changesets/cli": "^2.27.1",
     "@types/node": "^20.3.1",
     "prettier": "^2.8.8",
     "typescript": "^5.1.3"

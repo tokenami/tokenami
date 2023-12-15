@@ -23,7 +23,7 @@ jobs:
         uses: changesets/action@v1
         with:
           version: pnpm next:version
-          publish: pnpm release
+          publish: pnpm next:release
           title: Release candidate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
