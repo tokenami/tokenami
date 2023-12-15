@@ -1,13 +1,16 @@
-import ts from 'typescript/lib/tsserverlibrary';
+import tslib from 'typescript/lib/tsserverlibrary';
 import * as Tokenami from '@tokenami/config';
 
 const INVALID_SELECTOR_ERROR_CODE = 50000;
+const INVALID_VALUE_ERROR_CODE = 2322;
 
-function init(modules: { typescript: typeof ts }) {
-  function create(info: ts.server.PluginCreateInfo) {
+function init(modules: { typescript: typeof tslib }) {
+  const ts = modules.typescript;
+
+  function create(info: tslib.server.PluginCreateInfo) {
     // Set up decorator object
-    const proxy: ts.LanguageService = Object.create(null);
-    for (let k of Object.keys(info.languageService) as Array<keyof ts.LanguageService>) {
+    const proxy: tslib.LanguageService = Object.create(null);
+    for (let k of Object.keys(info.languageService) as Array<keyof tslib.LanguageService>) {
       const x = info.languageService[k]!;
       // @ts-expect-error - JS runtime trickery which is tricky to type tersely
       proxy[k] = (...args: Array<{}>) => x.apply(info.languageService, args);
@@ -15,7 +18,7 @@ function init(modules: { typescript: typeof ts }) {
 
     const cwd = info.project.getCurrentDirectory();
     const configPath = Tokenami.getConfigPath(cwd, info.config.configPath);
-    const configExists = modules.typescript.sys.fileExists(configPath);
+    const configExists = ts.sys.fileExists(configPath);
 
     if (!configExists) {
       info.project.projectService.logger.info(`TOKENAMI: Cannot find config`);
@@ -33,30 +36,105 @@ function init(modules: { typescript: typeof ts }) {
       const sourceFile = program?.getSourceFile(fileName);
 
       if (sourceFile) {
-        modules.typescript.forEachChild(sourceFile, function visit(node) {
-          const isPropertyName = modules.typescript.isPropertyName(node);
-          const isStringLiteral = modules.typescript.isStringLiteral(node);
-
-          if (isPropertyName && isStringLiteral) {
-            const property = node.getText(sourceFile).replace(/'|"/g, '');
+        ts.forEachChild(sourceFile, function visit(node) {
+          if (ts.isPropertyAssignment(node)) {
+            const property = ts.isStringLiteral(node.name) ? node.name.text : null;
+            const textValue = ts.isStringLiteral(node.initializer) ? node.initializer.text : null;
 
             if (Tokenami.TokenProperty.safeParse(property).success) {
               const parts = Tokenami.getTokenPropertyParts(property as any, config);
+
               if (!parts) {
                 original.push({
                   file: sourceFile,
                   start: node.getStart(),
                   length: node.getWidth(),
                   messageText: `Invalid property '${property}'. Selector not found in theme.`,
-                  category: modules.typescript.DiagnosticCategory.Error,
+                  category: ts.DiagnosticCategory.Error,
                   code: INVALID_SELECTOR_ERROR_CODE,
                 });
+              }
+
+              const invalidValueIndex = original.findIndex((diagnostic) => {
+                const isCodeMatch = diagnostic.code === INVALID_VALUE_ERROR_CODE;
+                const isCurrentNode = diagnostic.start === node.getStart();
+                return isCodeMatch && isCurrentNode;
+              });
+
+              if (invalidValueIndex > -1) {
+                let messageText = `Grid values are not assignable to '${property}'.`;
+
+                if (textValue) {
+                  const arbitraryValue = textValue && Tokenami.arbitraryValue(textValue);
+                  messageText = `Value '${textValue}' is not assignable to '${property}'. Use theme value or mark arbitrary with '${arbitraryValue}'`;
+                }
+
+                // @ts-ignore
+                original[invalidValueIndex] = {
+                  ...original[invalidValueIndex],
+                  messageText,
+                };
               }
             }
           }
 
-          modules.typescript.forEachChild(node, visit);
+          ts.forEachChild(node, visit);
         });
+      }
+
+      return original;
+    };
+
+    proxy.getCodeFixesAtPosition = (
+      fileName,
+      start,
+      end,
+      errorCodes,
+      formatOptions,
+      preferences
+    ) => {
+      const original = info.languageService.getCodeFixesAtPosition(
+        fileName,
+        start,
+        end,
+        errorCodes,
+        formatOptions,
+        preferences
+      );
+
+      if (errorCodes.includes(INVALID_VALUE_ERROR_CODE)) {
+        const program = info.languageService.getProgram();
+        const sourceFile = program?.getSourceFile(fileName);
+
+        if (sourceFile) {
+          const node = findNodeAtPosition(sourceFile, start);
+
+          if (node?.parent && tslib.isPropertyAssignment(node.parent)) {
+            const assignment = node.parent;
+            const valueSpan = createTextSpanFromNode(assignment.initializer);
+            const value = ts.isStringLiteral(assignment.initializer) && assignment.initializer.text;
+
+            if (value) {
+              const originalText = assignment.initializer.getText();
+              const arbitraryText = originalText.replace(
+                /^('|")?[\w\d_-]+('|")?$/,
+                `$1${Tokenami.arbitraryValue(value)}$2`
+              );
+              return [
+                {
+                  description: `Use ${arbitraryText} to mark as arbitrary`,
+                  fixName: 'replaceWithArbitrary',
+                  changes: [
+                    {
+                      fileName,
+                      textChanges: [{ span: valueSpan, newText: arbitraryText }],
+                    },
+                  ],
+                },
+              ];
+            }
+          }
+        }
       }
 
       return original;
@@ -124,7 +202,7 @@ function init(modules: { typescript: typeof ts }) {
 
       return {
         name: entryName,
-        kind: modules.typescript.ScriptElementKind.string,
+        kind: ts.ScriptElementKind.string,
         kindModifiers: entryConfig.themeKey,
         displayParts: [{ text: String(entryConfig.tokenValue), kind: 'markdown' }],
       };
@@ -134,6 +212,25 @@ function init(modules: { typescript: typeof ts }) {
   }
 
   return { create };
+
+  function findNodeAtPosition(
+    sourceFile: tslib.SourceFile,
+    position: number
+  ): tslib.Node | undefined {
+    function find(node: tslib.Node): tslib.Node | undefined {
+      if (position >= node.getStart(sourceFile) && position < node.getEnd()) {
+        return ts.forEachChild(node, find) || node;
+      }
+    }
+    return find(sourceFile);
+  }
+
+  function createTextSpanFromNode(node: tslib.Node): tslib.TextSpan {
+    return {
+      start: node.getStart(),
+      length: node.getEnd() - node.getStart(),
+    };
+  }
 }
 
 export = init;
