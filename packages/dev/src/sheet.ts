@@ -37,14 +37,16 @@ function generate(
   usedTokenProperties.forEach((usedTokenProperty) => {
     const { name, alias, variants } = Tokenami.getTokenPropertyParts(usedTokenProperty);
     const longhands = Tokenami.getLonghandsForAlias(alias, config);
+    const responsiveVariants = variants.flatMap((variant) => [config.responsive?.[variant]]);
+    const selectorVariants = variants.flatMap((variant) => [config.selectors?.[variant]]);
+    const [responsive] = responsiveVariants;
+    const [selector] = selectorVariants;
 
     for (let property of longhands) {
       if (!isSupportedProperty(property)) continue;
       const specificity = Tokenami.getSpecifictyOrderForCSSProperty(property);
       const propertyConfig = config.properties?.[property];
       const isGridProperty = propertyConfig?.includes('grid') || false;
-      const [tkResponsive, ...extraResponsive] = variants.flatMap((v) => [config.responsive?.[v]]);
-      const [tkSelector, ...extraSelectors] = variants.flatMap((v) => [config.selectors?.[v]]);
       const valueVar = `var(${Tokenami.tokenProperty(property)})`;
       // variants fallback to initital in case the variant is deselected in dev tools.
       // it will fall back to any non-variant values applied to the same element
@@ -52,42 +54,35 @@ function generate(
       const getStyles = (value: string): Styles => ({ [property]: value });
 
       function getVariantStyles(value: string) {
-        const baseStyle = getStyles(value);
         // we only allow 1 of each to enforce custom selectors for chained variants.
-        if (extraResponsive.length || extraSelectors.length) return {};
-        return [tkResponsive, tkSelector].reduce((styles, template) => {
+        if (responsiveVariants.length > 1 || selectorVariants.length > 1) return {};
+        const baseStyles = getStyles(value);
+        return [responsive, selector].reduce((styles, template) => {
           return template ? { [template]: styles } : styles;
-        }, baseStyle);
+        }, baseStyles);
       }
+
+      const styles = {
+        [createSelector({ name })]: variants.length
+          ? getVariantStyles(isGridProperty ? getGridValue(variantValueVar) : variantValueVar)
+          : getStyles(isGridProperty ? getGridValue(valueVar) : valueVar),
+        ...(isGridProperty && {
+          [createGridSelector({ name })]: variants.length
+            ? getVariantStyles(variantValueVar)
+            : getStyles(valueVar),
+        }),
+      };
 
       layers.reset['*'] = {
         ...layers.reset['*'],
         [Tokenami.tokenProperty(property)]: getResetTokenValue(property, config),
       };
 
-      const styles = {
-        [selector({ name })]: variants.length
-          ? getVariantStyles(isGridProperty ? getGridValue(variantValueVar) : variantValueVar)
-          : getStyles(isGridProperty ? getGridValue(valueVar) : valueVar),
-      };
-
-      const gridStyles = {
-        [arbitraryGridSelector({ name })]: variants.length
-          ? getVariantStyles(variantValueVar)
-          : getStyles(valueVar),
-      };
-
-      if (tkResponsive) {
-        const responsiveLayer = (layers.responsive[tkResponsive] ??= [{}]);
+      if (responsive) {
+        const responsiveLayer = (layers.responsive[responsive] ??= [{}]);
         responsiveLayer[specificity] = { ...responsiveLayer[specificity], ...styles };
-        if (isGridProperty) {
-          responsiveLayer[specificity] = { ...responsiveLayer[specificity], ...gridStyles };
-        }
       } else {
         layers.styles[specificity] = { ...layers.styles[specificity], ...styles };
-        if (isGridProperty) {
-          layers.styles[specificity] = { ...layers.styles[specificity], ...gridStyles };
-        }
       }
     }
   });
@@ -111,22 +106,22 @@ function getGridValue(value: string) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * selector
+ * createSelector
  * -----------------------------------------------------------------------------------------------*/
 
-function selector(params: { name: string; value?: string; template?: string }) {
+function createSelector(params: { name: string; value?: string; template?: string }) {
   const { template = '&', name, value = '' } = params || {};
   const tokenProperty = Tokenami.tokenProperty(name);
   return template.replace('&', `[style*="${tokenProperty}:${value}"]`);
 }
 
 /* -------------------------------------------------------------------------------------------------
- * arbitraryGridSelector
+ * createGridSelector
  * -----------------------------------------------------------------------------------------------*/
 
-function arbitraryGridSelector(params: Parameters<typeof selector>[0]) {
-  const noSpace = selector({ ...params, value: 'var' });
-  const withSpace = selector({ ...params, value: ' var' });
+function createGridSelector(params: Parameters<typeof createSelector>[0]) {
+  const noSpace = createSelector({ ...params, value: 'var' });
+  const withSpace = createSelector({ ...params, value: ' var' });
   return `${noSpace}, ${withSpace}`;
 }
 
