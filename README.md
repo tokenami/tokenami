@@ -113,7 +113,7 @@ npx tokenami init
 
 ### Configure TypeScript
 
-Ensure that your editor is configured to use the project's version of TypeScript. You can find instructions for various editors in their documentation, such as for VSCode [here](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript). Then add Tokenami to your tsconfig `include` and `plugins`:
+Ensure that your editor is configured to use the project's version of TypeScript. You can find instructions for various editors in their documentation, such as for VSCode [here](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript). Then add Tokenami to your `include` and `plugins` in your `tsconfig.json` or `jsconfig.json`:
 
 ```json
 {
