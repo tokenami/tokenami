@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.2-next.0
+
+### Patch Changes
+
+- acd5c45: Allow prod/dev configurations for browserslist
+- Updated dependencies [acd5c45]
+  - @tokenami/dev@0.0.2-next.0
+  - @tokenami/config@0.0.2-next.0
+
 ## 0.0.1
 
 ### Patch Changes
