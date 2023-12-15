@@ -39,7 +39,12 @@
     "/build",
     "/public/build"
   ],
-  "browserslist": [
-    "Chrome >= 14"
-  ]
+  "browserslist": {
+    "production": [
+      "Chrome >= 90"
+    ],
+    "development": [
+      "Chrome >= 14"
+    ]
+  }
 }
