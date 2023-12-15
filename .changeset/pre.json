@@ -8,5 +8,7 @@
     "@tokenami/dev": "1.0.0",
     "@tokenami/typescript-plugin": "1.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "stupid-dryers-walk"
+  ]
 }
