@@ -1,12 +1,12 @@
 {
-  "mode": "exit",
+  "mode": "pre",
   "tag": "next",
   "initialVersions": {
     "@tokenami/example-remix": "0.0.0",
-    "@tokenami/config": "0.0.0",
-    "@tokenami/css": "0.0.0",
-    "@tokenami/dev": "0.0.0",
-    "@tokenami/typescript-plugin": "0.0.0"
+    "@tokenami/config": "0.0.1-next.0",
+    "@tokenami/css": "0.0.1-next.0",
+    "@tokenami/dev": "0.0.1-next.0",
+    "@tokenami/typescript-plugin": "0.0.1-next.0"
   },
   "changesets": [
     "real-crews-type"
