@@ -85,7 +85,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
   - [Browserslist](#user-content-browserslist)
 - [Support](#user-content-support)
   - [Unable to authenticate with GitHub registry](#user-content-unable-to-authenticate-with-github-registry)
-  - [Intellisense not working for tokens](#user-content-intellisense-not-working-for-tokens)
+  - [Missing types in Remix project](#user-content-missing-types-in-remix-project)
 - [Credits](#user-content-credits)
 
 ## Getting started
@@ -447,9 +447,7 @@ Tokenami only supports [browserslist](https://browsersl.ist/) in your `package.j
 
 ## Support
 
-Before raising a bug, please double-check that it isn't [already in my todo list](https://github.com/tokenami/tokenami/issues). Some common pitfalls are listed below.
-
-If you need additional support or encounter any issues, please don't hesitate to join the [Tokenami discord server](https://discord.gg/CAU4HNR4XK).
+Before raising a bug, please double-check that it isn't [already in my todo list](https://github.com/tokenami/tokenami/issues). Some common pitfalls are listed below. If you need additional support or encounter any issues, please don't hesitate to join the [Tokenami discord server](https://discord.gg/CAU4HNR4XK).
 
 ### Unable to authenticate with GitHub registry
 
@@ -459,9 +457,9 @@ If you did not set up an [SSH key](https://docs.github.com/en/authentication/con
 npm login --scope=@tokenami --auth-type=legacy --registry=https://npm.pkg.github.com
 ```
 
-### Intellisense not working for tokens
+### Missing types in Remix project
 
-Tokenami creates a `tokenami.config.js` file by default. If you do not get the correct types/intellisense for your project after [configuring the TypeScript plugin](#user-content-configure-typescript), you might have `moduleResolution: "Bundler"` in your tsconfig. Rename your config to `tokenami.config.ts` and update imports in `tokenami.d.ts` if you hit this issue.
+Tokenami creates a `tokenami.config.js` file by default. If you do not get the correct types/intellisense for your project after [configuring the TypeScript plugin](#user-content-configure-typescript), you likely have `moduleResolution: "Bundler"` in your tsconfig. Rename your config to `tokenami.config.ts` and update imports in `tokenami.d.ts` if you hit this issue.
 
 ## Credits
 
