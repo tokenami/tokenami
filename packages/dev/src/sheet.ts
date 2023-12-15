@@ -35,12 +35,13 @@ function generate(
   });
 
   usedTokenProperties.forEach((usedTokenProperty) => {
-    const { name, alias, variants } = Tokenami.getTokenPropertyParts(usedTokenProperty);
-    const longhands = Tokenami.getLonghandsForAlias(alias, config);
-    const responsiveVariants = variants.flatMap((variant) => [config.responsive?.[variant]]);
-    const selectorVariants = variants.flatMap((variant) => [config.selectors?.[variant]]);
-    const [responsive] = responsiveVariants;
-    const [selector] = selectorVariants;
+    const parts = Tokenami.getTokenPropertyParts(usedTokenProperty, config);
+    if (!parts) return;
+
+    const longhands = Tokenami.getLonghandsForAlias(parts.alias, config);
+    const responsive = parts.responsive && config?.responsive?.[parts.responsive];
+    const selector = parts.selector && config?.selectors?.[parts.selector];
+    const hasVariants = responsive || selector;
 
     for (let property of longhands) {
       if (!isSupportedProperty(property)) continue;
@@ -54,8 +55,6 @@ function generate(
       const getStyles = (value: string): Styles => ({ [property]: value });
 
       function getVariantStyles(value: string) {
-        // we only allow 1 of each to enforce custom selectors for chained variants.
-        if (responsiveVariants.length > 1 || selectorVariants.length > 1) return {};
         const baseStyles = getStyles(value);
         return [responsive, selector].reduce((styles, template) => {
           return template ? { [template]: styles } : styles;
@@ -63,11 +62,11 @@ function generate(
       }
 
       const styles = {
-        [createSelector({ name })]: variants.length
+        [createSelector({ name: parts.name })]: hasVariants
           ? getVariantStyles(isGridProperty ? getGridValue(variantValueVar) : variantValueVar)
           : getStyles(isGridProperty ? getGridValue(valueVar) : valueVar),
         ...(isGridProperty && {
-          [createGridSelector({ name })]: variants.length
+          [createGridSelector({ name: parts.name })]: hasVariants
             ? getVariantStyles(variantValueVar)
             : getStyles(valueVar),
         }),
