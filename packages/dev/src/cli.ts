@@ -43,9 +43,7 @@ const run = () => {
       const configPath = Tokenami.getConfigPath(cwd, flags.config);
       const projectPkgJson = require(pathe.join(cwd, 'package.json'));
       const config = Tokenami.getConfigAtPath(configPath);
-      const targets = projectPkgJson.browserslist
-        ? browserslistToTargets(browserslist(projectPkgJson.browserslist))
-        : undefined;
+      const targets = browserslistToTargets(getBrowsersList(projectPkgJson.browserslist));
 
       config.include = flags.files || config.include;
       if (!config.include.length) log.error('Provide a glob pattern to include files');
@@ -86,6 +84,17 @@ const run = () => {
   cli.version(pkgJson.version);
   cli.parse();
 };
+
+/* -------------------------------------------------------------------------------------------------
+ * getBrowsersList
+ * -----------------------------------------------------------------------------------------------*/
+
+function getBrowsersList(config: any) {
+  const environment = process.env.NODE_ENV || 'development';
+  const isValid = Array.isArray(config) || typeof config === 'string';
+  const narrowedConfig = isValid ? config : typeof config === 'object' ? config[environment] : [];
+  return browserslist(narrowedConfig);
+}
 
 /* -------------------------------------------------------------------------------------------------
  * generateStyles

@@ -9271,7 +9271,7 @@ packages:
   file:packages/typescript-plugin:
     resolution: {directory: packages/typescript-plugin, type: directory}
     name: '@tokenami/typescript-plugin'
-    version: 1.0.0
+    version: 0.0.1
     dependencies:
       '@tokenami/config': link:packages/config
       require-from-string: 2.0.2
