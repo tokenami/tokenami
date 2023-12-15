@@ -19,12 +19,21 @@ jobs:
       - name: 🏗 Setup repository
         uses: ./.github/actions/setup-repo
 
-      - name: 🚀 Create and publish versions
+      - name: 🏗 Create release candidate pull request
+        id: changesets
         uses: changesets/action@v1
         with:
           version: pnpm next:version
-          publish: pnpm release
           title: Release candidate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🚀 Publish
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: pnpm next:release
+
+      - name: 💫 Exit prerelease pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: Exit prerelease mode

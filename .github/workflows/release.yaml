@@ -21,7 +21,8 @@ jobs:
       - name: 🚀 Create and publish versions
         uses: changesets/action@v1
         with:
-          publish: pnpm release
+          version: pnpm latest:version
+          publish: pnpm latest:release
           title: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
