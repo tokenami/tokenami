@@ -6,18 +6,21 @@ import * as Supports from '~/supports';
 import defaultConfig from '../stubs/config.default';
 import fs from 'fs';
 
-const DEFAULT_PATHS = [
-  './.tokenami/tokenami.config.js',
-  './.tokenami/tokenami.config.ts',
-  './.tokenami/tokenami.config.cjs',
-  './.tokenami/tokenami.config.mjs',
-] as const;
+const DEFAULT_PATHS = {
+  js: './.tokenami/tokenami.config.js',
+  ts: './.tokenami/tokenami.config.ts',
+  cjs: './.tokenami/tokenami.config.cjs',
+  mjs: './.tokenami/tokenami.config.mjs',
+};
+
+type ProjectType = keyof typeof DEFAULT_PATHS;
 
 /* -------------------------------------------------------------------------------------------------
  * getConfigPath
  * -----------------------------------------------------------------------------------------------*/
 
-function getConfigPath(cwd: string, path: string = getConfigDefaultPath(cwd)) {
+function getConfigPath(cwd: string, path?: string, type?: ProjectType) {
+  path = path || getConfigDefaultPath(cwd, type);
   return pathe.join(cwd, path);
 }
 
@@ -58,8 +61,11 @@ function getReloadedConfigAtPath(path: string): Tokenami.Config {
  * getConfigDefaultPath
  * -----------------------------------------------------------------------------------------------*/
 
-function getConfigDefaultPath(cwd: string) {
-  return DEFAULT_PATHS.find((path) => fs.existsSync(pathe.join(cwd, path))) || DEFAULT_PATHS[0];
+function getConfigDefaultPath(cwd: string, type?: ProjectType) {
+  const existingConfig = Object.values(DEFAULT_PATHS).find((path) => {
+    return fs.existsSync(pathe.join(cwd, path));
+  });
+  return existingConfig || DEFAULT_PATHS[type || 'js'];
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -102,9 +108,10 @@ function getLonghandsForAlias(alias: string, config: Tokenami.Config): string[] 
  * generateConfig
  * -----------------------------------------------------------------------------------------------*/
 
-function generateConfig() {
+function generateConfig(include: string) {
   const initConfigStubPath = pathe.resolve(__dirname, '../stubs/config.init.cjs');
-  return fs.readFileSync(initConfigStubPath, 'utf8');
+  const initConfigStub = fs.readFileSync(initConfigStubPath, 'utf8');
+  return initConfigStub.replace('include: []', `include: [${include}]`);
 }
 
 /* -------------------------------------------------------------------------------------------------
