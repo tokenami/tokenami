@@ -105,7 +105,7 @@ Create a [Personal Access Token](https://github.com/settings/tokens/new) for you
 Install and initialise using your package manager of choice. For example:
 
 ```sh
-npm install @tokenami/dev @tokenami/typescript-plugin -D
+npm install @tokenami/dev @tokenami/ts-plugin -D
 npx tokenami init
 ```
 
@@ -117,7 +117,7 @@ Ensure that your editor is configured to use the project's version of TypeScript
 {
   "include": [".tokenami/tokenami.d.ts"],
   "compilerOptions": {
-    "plugins": [{ "name": "@tokenami/typescript-plugin" }]
+    "plugins": [{ "name": "@tokenami/ts-plugin" }]
   }
 }
 ```

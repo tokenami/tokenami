@@ -33,3 +33,4 @@ jobs:
           commit_message: Prelease
           branch: main
           add_options: '-u'
+          push_options: '--follow-tags'

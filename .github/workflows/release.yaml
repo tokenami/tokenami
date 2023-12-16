@@ -31,3 +31,4 @@ jobs:
           commit_message: Latest release
           branch: main
           add_options: '-u'
+          push_options: '--follow-tags'

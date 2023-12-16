@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/dev",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -39,12 +39,7 @@
     "pathe": "^1.1.1"
   },
   "peerDependencies": {
-    "@tokenami/typescript-plugin": "workspace:*",
+    "@tokenami/ts-plugin": "workspace:*",
     "typescript": ">= 5"
-  },
-  "peerDependenciesMeta": {
-    "@tokenami/typescript-plugin": {
-      "optional": true
-    }
   }
 }
