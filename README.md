@@ -111,16 +111,18 @@ npx tokenami init
 
 ### Configure TypeScript
 
-Ensure that your editor is configured to use the project's version of TypeScript. You can find instructions for various editors in their documentation, such as for VSCode [here](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript). Then add Tokenami to your `include` and `plugins` in your `tsconfig.json` or `jsconfig.json`:
+Add Tokenami to your `include` and `plugins` in your `tsconfig.json` or `jsconfig.json`.
 
 ```json
 {
   "include": [".tokenami/tokenami.d.ts"],
   "compilerOptions": {
-    "plugins": [{ "name": "@tokenami/ts-plugin" }]
+    "plugins": [{ "name": "@tokenami/typescript-plugin" }]
   }
 }
 ```
+
+Make sure your editor is configured to use the project's version of TypeScript. You can find instructions for various editors in their documentation, such as for VSCode [here](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript).
 
 ### Start the CLI watch script
 
@@ -193,9 +195,9 @@ module.exports = createConfig({
 
 #### Arbitrary values
 
-Silencing TypeScript errors for custom inline values is possible using a triple dash fallback. For instance, `--padding: var(---, 20px)` will silence errors and add `20px` padding.
+You can avoid TypeScript errors for one-off inline values by using a triple dash fallback. For instance, `--padding: var(---, 20px)` prevents errors and sets padding to `20px`.
 
-Tokenami purposefully adds friction to the developer experience here to promote adhering to your theme constraints, and so you can easily identify values in your codebase that don't.
+Tokenami intentionally adds friction to the developer experience here. This is to encourage sticking to your theme guidelines and to help you quickly spot values in your code that don't.
 
 ### Responsive styles
 
