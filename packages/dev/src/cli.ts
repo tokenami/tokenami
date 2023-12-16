@@ -4,6 +4,7 @@ import { type Targets, browserslistToTargets } from 'lightningcss';
 import { createRequire } from 'module';
 import cac from 'cac';
 import glob from 'fast-glob';
+import inquirer from 'inquirer';
 import * as fs from 'fs';
 import * as chokidar from 'chokidar';
 import * as pathe from 'pathe';
@@ -12,6 +13,23 @@ import * as log from '~/log';
 import pkgJson from '~/../package.json';
 
 const require = createRequire(import.meta.url);
+const questions = [
+  {
+    type: 'list',
+    name: 'type',
+    message: 'TypeScript or JavaScript?',
+    choices: [
+      { name: 'TypeScript', value: 'ts' },
+      { name: 'JavaScript', value: 'js' },
+    ],
+  },
+  {
+    type: 'input',
+    name: 'include',
+    message: 'Which file paths should Tokenami watch for its properties?',
+    default: './app/**/*.{js,jsx,ts,tsx}',
+  },
+];
 
 const run = () => {
   const cli = cac('✨ tokenami');
@@ -20,11 +38,22 @@ const run = () => {
   cli
     .command('init')
     .option('-c, --config [path]', 'Path to a custom config file')
-    .action((_, flags) => {
-      const configPath = Tokenami.getConfigPath(cwd, flags?.config);
+    .action(async (_, flags) => {
+      const tsconfigPath = pathe.join(cwd, 'tsconfig.json');
+      const jsconfigPath = pathe.join(cwd, 'jsconfig.json');
+      const hasTsConfig = fs.existsSync(tsconfigPath);
+      const hasJsConfig = fs.existsSync(jsconfigPath);
+      const hasProjectConfig = hasTsConfig || hasJsConfig;
+
+      if (hasProjectConfig) questions.shift();
+
+      const answers = await inquirer.prompt(questions);
+      const type = hasTsConfig ? 'ts' : hasJsConfig ? 'js' : answers.type;
+      const include = `'${answers.include}'`;
+      const configPath = Tokenami.getConfigPath(cwd, flags?.config, type);
       const typeDefsPath = Tokenami.getTypeDefsPath(configPath);
       const outDir = pathe.dirname(configPath);
-      const initialConfig = Tokenami.generateConfig();
+      const initialConfig = Tokenami.generateConfig(include);
       const typeDefs = Tokenami.generateTypeDefs(configPath);
 
       fs.mkdirSync(outDir, { recursive: true });

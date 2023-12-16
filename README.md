@@ -67,7 +67,6 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
   - [Prerequisite](#user-content-prerequisite)
   - [Installation](#user-content-installation)
   - [Configure TypeScript](#user-content-configure-typescript)
-  - [Configure template paths](#user-content-configure-template-paths)
   - [Start CLI watch script](#user-content-start-the-cli-watch-script)
   - [Use Tokenami](#user-content-use-tokenami)
 - [Core concepts](#user-content-core-concepts)
@@ -85,7 +84,6 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
   - [Browserslist](#user-content-browserslist)
 - [Support](#user-content-support)
   - [Unable to authenticate with GitHub registry](#user-content-unable-to-authenticate-with-github-registry)
-  - [Missing types in Remix project](#user-content-missing-types-in-remix-project)
 - [Credits](#user-content-credits)
 
 ## Getting started
@@ -107,7 +105,7 @@ Create a [Personal Access Token](https://github.com/settings/tokens/new) for you
 Install and initialise using your package manager of choice. For example:
 
 ```sh
-npm install @tokenami/dev @tokenami/typescript-plugin -D
+npm install @tokenami/dev @tokenami/ts-plugin -D
 npx tokenami init
 ```
 
@@ -119,22 +117,9 @@ Ensure that your editor is configured to use the project's version of TypeScript
 {
   "include": [".tokenami/tokenami.d.ts"],
   "compilerOptions": {
-    "plugins": [{ "name": "@tokenami/typescript-plugin" }]
+    "plugins": [{ "name": "@tokenami/ts-plugin" }]
   }
 }
-```
-
-### Configure template paths
-
-Update `.tokenami/tokenami.config` with a glob matching your template files. The watch script will search these files for Tokenami properties to generate necessary styles.
-
-```ts
-const { createConfig } = require('@tokenami/dev');
-
-module.exports = createConfig({
-  include: ['./app/**/*.{js,tsx,ts,tsx}'],
-  //...
-});
 ```
 
 ### Start the CLI watch script
@@ -456,10 +441,6 @@ If you did not set up an [SSH key](https://docs.github.com/en/authentication/con
 ```
 npm login --scope=@tokenami --auth-type=legacy --registry=https://npm.pkg.github.com
 ```
-
-### Missing types in Remix project
-
-Tokenami creates a `tokenami.config.js` file by default. If you do not get the correct types/intellisense for your project after [configuring the TypeScript plugin](#user-content-configure-typescript), you likely have `moduleResolution: "Bundler"` in your tsconfig. Rename your config to `tokenami.config.ts` and update imports in `tokenami.d.ts` if you hit this issue.
 
 ## Credits
 

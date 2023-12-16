@@ -1,4 +1,4 @@
-# @tokenami/typescript-plugin
+# @tokenami/ts-plugin
 
 to debug:
 
