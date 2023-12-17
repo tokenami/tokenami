@@ -24,30 +24,19 @@ type ResponsiveVariants<C> = {
   };
 }[keyof C];
 
-function css<S extends TokenamiStyles>(
-  baseStyles: S
-): (selectedVariants?: null, ...overrides: Overrides) => CSS.Properties;
-
-function css<S extends TokenamiStyles, V extends VariantsConfig>(
-  baseStyles: S,
-  variants: V
-): (selectedVariants?: Variants<V>, ...overrides: Overrides) => CSS.Properties;
-
-function css<S extends TokenamiStyles, V extends VariantsConfig>(
-  baseStyles: S,
-  variants: V,
-  options: { responsive: true }
-): (selectedVariants?: ResponsiveVariants<V>, ...overrides: Overrides) => CSS.Properties;
-
-function css<S extends TokenamiStyles, V extends VariantsConfig>(
+function css<S extends TokenamiStyles, V extends VariantsConfig | undefined, R extends boolean>(
   baseStyles: S,
   variants?: V,
-  options?: { responsive: true }
+  options?: undefined extends V ? never : { responsive: R }
 ) {
   const cache: Record<string, Record<string, any>> = {};
 
   return function generate(
-    selectedVariants?: ResponsiveVariants<V> | Variants<V> | null,
+    selectedVariants?: undefined extends V
+      ? null
+      : R extends true
+      ? ResponsiveVariants<V>
+      : Variants<V>,
     ...overrides: Overrides
   ) {
     const cacheId = JSON.stringify({ selectedVariants, overrides });
