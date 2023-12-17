@@ -25,8 +25,15 @@ function init(modules: { typescript: typeof tslib }) {
       return proxy;
     }
 
-    const config = Tokenami.getConfigAtPath(configPath);
+    let config = Tokenami.getConfigAtPath(configPath);
     const tokenConfigMap = new Map<string, { themeKey: string; tokenValue: string | number }>();
+
+    ts.sys.watchFile?.(configPath, (_, eventKind: tslib.FileWatcherEventKind) => {
+      if (eventKind === modules.typescript.FileWatcherEventKind.Changed) {
+        config = Tokenami.getReloadedConfigAtPath(configPath);
+        info.project.refreshDiagnostics();
+      }
+    });
 
     // info.project.projectService.logger.info(`DEBUG:: ${JSON.stringify(config)}`);
 
