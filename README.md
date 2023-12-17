@@ -111,13 +111,13 @@ npx tokenami init
 
 ### Configure TypeScript
 
-Add Tokenami to your `include` and `plugins` in your `tsconfig.json` or `jsconfig.json`.
+Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.json`.
 
 ```json
 {
   "include": [".tokenami/tokenami.d.ts"],
   "compilerOptions": {
-    "plugins": [{ "name": "@tokenami/typescript-plugin" }]
+    "plugins": [{ "name": "@tokenami/ts-plugin" }]
   }
 }
 ```
