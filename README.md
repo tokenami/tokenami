@@ -257,7 +257,7 @@ Tokenami provides a CSS utility to abstract styles from your views and correctly
 Install using your package manager of choice. For example:
 
 ```sh
-npm install @tokenami/css@next
+npm install @tokenami/css
 ```
 
 ### Usage
