@@ -83,7 +83,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
   - [Mapping properties to theme](#user-content-mapping-properties-to-theme)
   - [Browserslist](#user-content-browserslist)
 - [Support](#user-content-support)
-  - [Unable to authenticate with GitHub registry](#user-content-unable-to-authenticate-with-github-registry)
+  - [Unable to install packages from GitHub registry](#user-content-unable-to-install-packages-from-github-registry)
 - [Credits](#user-content-credits)
 
 ## Getting started
@@ -98,7 +98,7 @@ The packages exist on the GitHub registry for now. To access them, add the follo
 @tokenami:registry=https://npm.pkg.github.com/:_authToken=$TOKENAMI_TOKEN
 ```
 
-Create a [Personal Access Token](https://github.com/settings/tokens/new) for your GitHub account with `read:packages` rights and replace the `$TOKENAMI_TOKEN` or store it in an `.env` file.
+Create a GitHub [Personal Access Token (classic)](https://github.com/settings/tokens/new) with `read:packages` rights and replace the `$TOKENAMI_TOKEN`, or store it in an `.env` file.
 
 ### Installation
 
@@ -134,19 +134,17 @@ Make sure to adjust the output path to your desired location for styles. It will
 
 ### Use Tokenami
 
-Reference your output CSS file in the `<head>` of your document and start styling with Tokenami properties:
+Reference your output CSS file in the `<head>` of your document and start styling inline with Tokenami properties:
 
 ```tsx
-<h1 style={{ '--padding': 10 }}>Hello, World!</h1>
+<h1 style={{ '--margin-top': 0, '--margin-bottom': 5 }}>Hello, World!</h1>
 ```
-
-<video src="https://private-user-images.githubusercontent.com/175330/289219715-8d00bf07-f5c4-436a-b4b0-a640211e7969.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE3MDIyMTQxMzQsIm5iZiI6MTcwMjIxMzgzNCwicGF0aCI6Ii8xNzUzMzAvMjg5MjE5NzE1LThkMDBiZjA3LWY1YzQtNDM2YS1iNGIwLWE2NDAyMTFlNzk2OS5tcDQ_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBSVdOSllBWDRDU1ZFSDUzQSUyRjIwMjMxMjEwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDIzMTIxMFQxMzEwMzRaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0wNDdhY2I1MzM0ZDVmYTNkZTNmM2IwYmVjYWUzODYwMjc3ZjcxZTViNmI2ZjYxNmNiYjFiNDM0MDYzYmJhNDY2JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZhY3Rvcl9pZD0wJmtleV9pZD0wJnJlcG9faWQ9MCJ9._k5EY0WOWKOcBmTAUNTY63uQTriqlxawcBrBJnvuJuA" data-canonical-src="https://private-user-images.githubusercontent.com/175330/289219715-8d00bf07-f5c4-436a-b4b0-a640211e7969.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE3MDIyMTQxMzQsIm5iZiI6MTcwMjIxMzgzNCwicGF0aCI6Ii8xNzUzMzAvMjg5MjE5NzE1LThkMDBiZjA3LWY1YzQtNDM2YS1iNGIwLWE2NDAyMTFlNzk2OS5tcDQ_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBSVdOSllBWDRDU1ZFSDUzQSUyRjIwMjMxMjEwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDIzMTIxMFQxMzEwMzRaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0wNDdhY2I1MzM0ZDVmYTNkZTNmM2IwYmVjYWUzODYwMjc3ZjcxZTViNmI2ZjYxNmNiYjFiNDM0MDYzYmJhNDY2JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZhY3Rvcl9pZD0wJmtleV9pZD0wJnJlcG9faWQ9MCJ9._k5EY0WOWKOcBmTAUNTY63uQTriqlxawcBrBJnvuJuA" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
 
 ## Core concepts
 
 ### Theming
 
-Tokenami relies on your theme to provide design system constraints. Since there's no predefined theme, you need to add your own to the `.tokenami/tokenami.config` for the best Tokenami experience. For example:
+Tokenami relies on your theme to provide design system constraints. Since there's no predefined theme, you need to add your own to the `.tokenami/tokenami.config`. For example:
 
 ```ts
 module.exports = createConfig({
@@ -213,7 +211,7 @@ module.exports = createConfig({
 });
 ```
 
-Use by following the [Tokenami property spec](#user-content-styling):
+Use by following the [property spec](#user-content-styling):
 
 ```tsx
 <div style={{ '--medium_padding': 4 }} />
@@ -242,7 +240,7 @@ module.exports = createConfig({
 });
 ```
 
-Use by following the [Tokenami token spec](#user-content-styling):
+Use by following the [token spec](#user-content-styling):
 
 ```tsx
 <div style={{ '--animation': 'var(--anim-wiggle)' }} />
@@ -336,7 +334,7 @@ module.exports = createConfig({
 });
 ```
 
-Use by following the [Tokenami property spec](#user-content-styling):
+Use by following the [property spec](#user-content-styling):
 
 ```tsx
 <div className="parent">
@@ -390,7 +388,7 @@ import { css } from './css';
 
 ### Mapping properties to theme
 
-Tokenami provides sensible defaults to map properties to theme keys. For instance, `--border-color` accepts tokens from your `color` object in theme, `--padding` allows multiples of your grid, and `--height` accepts tokens from a `size` key or multiples of your grid.
+Tokenami provides sensible defaults to restrict which values can be passed to properties based on your theme. For instance, `--border-color` will only accept tokens from your `color` object in theme, `--padding` allows multiples of your grid, and `--height` expects tokens from a `size` key or multiples of your grid.
 
 You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/config/stubs/config.default.ts#L85) by overriding the `properties` object in your configuration:
 
@@ -416,7 +414,7 @@ module.exports = createConfig({
 });
 ```
 
-Use by following the [Tokenami property and token specs](#user-content-styling):
+With this configuration, using `'--content': 'var(--container-half)'` would error because `container` does not exist in the property config for `content`, but `'--content': 'var(--pet-dog)'` would be allowed:
 
 ```tsx
 <div
@@ -436,13 +434,15 @@ Tokenami only supports [browserslist](https://browsersl.ist/) in your `package.j
 
 Before raising a bug, please double-check that it isn't [already in my todo list](https://github.com/tokenami/tokenami/issues). Some common pitfalls are listed below. If you need additional support or encounter any issues, please don't hesitate to join the [Tokenami discord server](https://discord.gg/CAU4HNR4XK).
 
-### Unable to authenticate with GitHub registry
+### Unable to install packages from GitHub registry
 
-If you did not set up an [SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) for working with git locally, you may come across this issue. You can set one up or run the following command using the Personal Access Token from earlier as your password:
+If you are having trouble installing packages, remove `/:_authToken=$TOKENAMI_TOKEN` from `.npmrc` and run the following command:
 
 ```
 npm login --scope=@tokenami --auth-type=legacy --registry=https://npm.pkg.github.com
 ```
+
+The Personal Access Token you created earlier should be your password.
 
 ## Credits
 
