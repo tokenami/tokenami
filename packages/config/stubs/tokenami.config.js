@@ -1,4 +1,4 @@
-const { createConfig } = require('@tokenami/dev');
+import { createConfig } from '@tokenami/dev';
 
 export default createConfig({
   include: [],

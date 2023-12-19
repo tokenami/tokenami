@@ -1,4 +1,4 @@
-import { createConfig } from '@tokenami/dev';
+const { createConfig } = require('@tokenami/dev');
 
 module.exports = createConfig({
   include: [],
