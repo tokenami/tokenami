@@ -21,6 +21,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@tokenami/dev": "workspace:*",
     "tsup": "^7.0.0",
     "typescript": "^5.1.3"
   }

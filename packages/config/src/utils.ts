@@ -108,10 +108,11 @@ function getLonghandsForAlias(alias: string, config: Tokenami.Config): string[] 
  * generateConfig
  * -----------------------------------------------------------------------------------------------*/
 
-function generateConfig(include: string) {
-  const initConfigStubPath = pathe.resolve(__dirname, '../stubs/config.init.cjs');
-  const initConfigStub = fs.readFileSync(initConfigStubPath, 'utf8');
-  return initConfigStub.replace('include: []', `include: [${include}]`);
+function generateConfig(include: string, configPath: string) {
+  const filename = pathe.basename(configPath);
+  const configStubPath = pathe.resolve(__dirname, `../stubs/${filename}`);
+  const configStub = fs.readFileSync(configStubPath, 'utf8');
+  return configStub.replace('include: []', `include: [${include}]`);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -128,10 +129,9 @@ function mergedConfigs(theirs: Tokenami.Config): Tokenami.Config {
 
 function generateTypeDefs(configPath: string) {
   const parsed = pathe.parse(configPath);
-  const typeDefStubPath = pathe.resolve(__dirname, '../stubs/typedefs.txt');
+  const typeDefStubPath = pathe.resolve(__dirname, '../stubs/tokenami.d.ts');
   const typeDefStub = fs.readFileSync(typeDefStubPath, 'utf8');
-  const configFileName = parsed.name;
-  return typeDefStub.replace('CONFIG_FILE_NAME', configFileName);
+  return typeDefStub.replace('tokenami.config', parsed.name);
 }
 
 /* -------------------------------------------------------------------------------------------------

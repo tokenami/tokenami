@@ -53,7 +53,7 @@ const run = () => {
       const configPath = Tokenami.getConfigPath(cwd, flags?.config, type);
       const typeDefsPath = Tokenami.getTypeDefsPath(configPath);
       const outDir = pathe.dirname(configPath);
-      const initialConfig = Tokenami.generateConfig(include);
+      const initialConfig = Tokenami.generateConfig(include, configPath);
       const typeDefs = Tokenami.generateTypeDefs(configPath);
 
       fs.mkdirSync(outDir, { recursive: true });
