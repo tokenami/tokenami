@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/ts-plugin",
-  "version": "0.0.3-next.1",
+  "version": "0.0.3-next.2",
   "license": "MIT",
   "main": "./dist/index.js",
   "repository": "https://github.com/tokenami/tokenami",
