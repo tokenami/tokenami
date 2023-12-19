@@ -94,6 +94,9 @@ importers:
         specifier: ^3.21.4
         version: 3.21.4
     devDependencies:
+      '@tokenami/dev':
+        specifier: workspace:*
+        version: link:../dev
       tsup:
         specifier: ^7.0.0
         version: 7.0.0(typescript@5.1.3)
@@ -9299,7 +9302,7 @@ packages:
   file:packages/ts-plugin:
     resolution: {directory: packages/ts-plugin, type: directory}
     name: '@tokenami/ts-plugin'
-    version: 0.0.0
+    version: 0.0.2
     dependencies:
       '@tokenami/config': link:packages/config
       require-from-string: 2.0.2

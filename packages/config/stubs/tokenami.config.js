@@ -1,6 +1,6 @@
 const { createConfig } = require('@tokenami/dev');
 
-module.exports = createConfig({
+export default createConfig({
   include: [],
   grid: '0.25rem',
   responsive: {},
