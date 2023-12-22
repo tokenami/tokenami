@@ -71,8 +71,8 @@ const run = () => {
       const startTime = startTimer();
       const configPath = Tokenami.getConfigPath(cwd, flags.config);
       const projectPkgJson = require(pathe.join(cwd, 'package.json'));
-      const config = Tokenami.getConfigAtPath(configPath);
       const targets = browserslistToTargets(getBrowsersList(projectPkgJson.browserslist));
+      let config = Tokenami.getConfigAtPath(configPath);
 
       config.include = flags.files || config.include;
       if (!config.include.length) log.error('Provide a glob pattern to include files');
@@ -93,9 +93,9 @@ const run = () => {
         tokenWatcher.on('all', (_, file) => regenerateStylesheet(file, config));
 
         configWatcher.on('all', async (_, file) => {
-          const reloadedConfig = Tokenami.getReloadedConfigAtPath(configPath);
-          reloadedConfig.include = flags.files || reloadedConfig.include;
-          regenerateStylesheet(file, reloadedConfig);
+          config = Tokenami.getReloadedConfigAtPath(configPath);
+          config.include = flags.files || config.include;
+          regenerateStylesheet(file, config);
         });
 
         process.once('SIGINT', async () => {
