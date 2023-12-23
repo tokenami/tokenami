@@ -56,7 +56,7 @@ function generate(
 
       function getVariantStyles(value: string) {
         const baseStyles = getStyles(value);
-        return [responsive, selector].reduce((styles, template) => {
+        return [responsive].concat(selector).reduce((styles, template) => {
           return template ? { [template]: styles } : styles;
         }, baseStyles);
       }

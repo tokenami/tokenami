@@ -73,7 +73,7 @@ interface Config
     exclude?: string[];
     grid?: string;
     responsive?: { [atRule: string]: string };
-    selectors?: { [name: string]: string };
+    selectors?: { [name: string]: string | string[] };
     keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
     aliases?: Aliases;
     theme: Theme;
