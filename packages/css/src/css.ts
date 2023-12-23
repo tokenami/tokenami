@@ -9,36 +9,27 @@ const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
  * css
  * -----------------------------------------------------------------------------------------------*/
 
-type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type VariantsConfig = Record<string, Record<string, TokenamiStyles>>;
-type Responsive<T> = T extends string ? `${ResponsiveKey}_${T}` : never;
-type Overrides = (TokenamiStyles | false | undefined)[];
-
-type Variants<C> = {
-  [V in keyof C]?: VariantValue<keyof C[V]>;
-};
-
+type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
+type ResponsiveValue<T> = T extends string ? `${ResponsiveKey}_${T}` : never;
+type Override = TokenamiStyles | false | undefined;
+type Variants<C> = { [V in keyof C]?: VariantValue<keyof C[V]> };
 type ResponsiveVariants<C> = {
-  [V in keyof C]: { [T in V]?: VariantValue<keyof C[V]> } & {
-    [M in Responsive<V>]?: VariantValue<keyof C[V]>;
-  };
+  [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> };
 }[keyof C];
 
-function css<S extends TokenamiStyles, V extends VariantsConfig | undefined, R extends boolean>(
+type SelectedVariants<V, R> = undefined extends V
+  ? null
+  : Variants<V> & (R extends true ? ResponsiveVariants<V> : {});
+
+function css<S extends TokenamiStyles, V extends VariantsConfig | undefined, R>(
   baseStyles: S,
   variants?: V,
-  options?: undefined extends V ? never : { responsive: R }
+  options?: undefined extends V ? never : { responsive: R & boolean }
 ) {
   const cache: Record<string, Record<string, any>> = {};
 
-  return function generate(
-    selectedVariants?: undefined extends V
-      ? null
-      : R extends true
-      ? ResponsiveVariants<V>
-      : Variants<V>,
-    ...overrides: Overrides
-  ) {
+  return function generate(selectedVariants?: SelectedVariants<V, R>, ...overrides: Override[]) {
     const cacheId = JSON.stringify({ selectedVariants, overrides });
     const cached = cache[cacheId];
 
