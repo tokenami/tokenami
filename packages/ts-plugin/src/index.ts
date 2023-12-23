@@ -72,7 +72,7 @@ function init(modules: { typescript: typeof tslib }) {
                 let messageText = `Grid values are not assignable to '${property}'.`;
 
                 if (textValue) {
-                  const arbitraryValue = textValue && Tokenami.arbitraryValue(textValue);
+                  const arbitraryValue = Tokenami.arbitraryValue(textValue);
                   messageText = `Value '${textValue}' is not assignable to '${property}'. Use theme value or mark arbitrary with '${arbitraryValue}'`;
                 }
 
@@ -149,36 +149,53 @@ function init(modules: { typescript: typeof tslib }) {
 
     proxy.getCompletionsAtPosition = (fileName, position, options) => {
       const original = info.languageService.getCompletionsAtPosition(fileName, position, options);
-      if (!original) return original;
+      const program = info.languageService.getProgram();
+      const sourceFile = program?.getSourceFile(fileName);
 
-      original.entries = original.entries.map((entry) => {
+      if (!original || !sourceFile) return original;
+      const node = findNodeAtPosition(sourceFile, position);
+      const hasTokenamiEntries = original.entries.some((entry) => {
+        const isTokenProperty = Tokenami.TokenProperty.safeParse(entry.name).success;
+        const isTokenValue = Tokenami.TokenValue.safeParse(entry.name).success;
+        return isTokenProperty || isTokenValue;
+      });
+
+      if (!node || !ts.isStringLiteral(node) || !hasTokenamiEntries) {
+        return original;
+      }
+
+      original.entries = original.entries.flatMap((entry) => {
         const entryName = entry.name;
+        const isTokenProperty = Tokenami.TokenProperty.safeParse(entryName).success;
+        const isTokenValue = Tokenami.TokenValue.safeParse(entryName).success;
+        const quoteMark = node.getText().slice(-1);
         entry.sortText = entryName;
 
-        if (Tokenami.TokenProperty.safeParse(entryName).success) {
-          const parts = Tokenami.getTokenPropertyParts(entryName as any, config);
-          const description = parts?.responsive && config.responsive?.[parts.responsive];
-          // token properties win in sort order
-          entry.sortText = `$${entryName}`;
-          if (description) entry.labelDetails = { detail: '', description };
-        }
-
-        if (Tokenami.TokenValue.safeParse(entryName).success) {
+        if (isTokenValue) {
           const parts = Tokenami.getTokenValueParts(entryName as any);
           const tokenValue = parts ? config.theme[parts.themeKey]?.[parts.token] : undefined;
           if (parts && tokenValue) {
             tokenConfigMap.set(parts.token, { themeKey: parts.themeKey, tokenValue });
             entry.name = `$${parts.token}`;
             entry.kindModifiers = parts.themeKey;
-            entry.insertText = entryName;
-            entry.labelDetails = {
-              detail: '',
-              description: entryName,
-            };
+            entry.insertText = `${entryName}${quoteMark}`;
+            entry.replacementSpan = { start: position, length: node.text.length + 1 };
+            entry.labelDetails = { detail: '', description: entryName };
           }
+        } else if (isTokenProperty) {
+          const parts = Tokenami.getTokenPropertyParts(entryName as any, config);
+          const description = parts?.responsive && config.responsive?.[parts.responsive];
+          entry.insertText = `${entryName}${quoteMark}: `;
+          entry.replacementSpan = { start: position, length: node.text.length + 1 };
+          if (description) {
+            entry.labelDetails = { detail: '', description };
+          }
+        } else {
+          // filter any suggestions that aren't tokenami properties or values
+          return [];
         }
 
-        return entry;
+        return [entry];
       });
 
       return original;
