@@ -84,6 +84,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
   - [Browserslist](#user-content-browserslist)
 - [Support](#user-content-support)
   - [Unable to install packages from GitHub registry](#user-content-unable-to-install-packages-from-github-registry)
+  - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
 - [Credits](#user-content-credits)
 
 ## Getting started
@@ -444,6 +445,16 @@ npm login --scope=@tokenami --auth-type=legacy --registry=https://npm.pkg.github
 ```
 
 The Personal Access Token you created earlier should be your password.
+
+### HMR not working as expected in Remix
+
+Update `remix.config.js` to include your stylesheet in [`watchPaths`](https://remix.run/docs/en/main/file-conventions/remix-config#watchpaths). Then, import your stylesheet and add it to your `links` export:
+
+```tsx
+import styles from '~/../public/tokenami.css';
+
+export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
+```
 
 ## Credits
 
