@@ -219,6 +219,12 @@ Use by following the [property spec](#user-content-styling):
 <div style={{ '--medium_padding': 4 }} />
 ```
 
+Responsive rules can also be combined with [selectors](#user-content-selectors):
+
+```tsx
+<div style={{ '--medium_hover_padding': 4 }} />
+```
+
 For documentation on responsive variants, refer to the [CSS utility](#user-content-css-utility) section.
 
 ### Animation
@@ -343,6 +349,12 @@ Use by following the [property spec](#user-content-styling):
   <img src="..." alt="" />
   <button style={{ '--parent-hover_font-weight': 'bold' }} />
 </div>
+```
+
+Selectors can also be combined with [responsive rules](#user-content-responsive-styles):
+
+```tsx
+<button style={{ '--medium_parent-hover_font-weight': 'bold' }} />
 ```
 
 ### Aliases
