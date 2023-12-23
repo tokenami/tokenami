@@ -39,6 +39,8 @@ const run = () => {
     .command('init')
     .option('-c, --config [path]', 'Path to a custom config file')
     .action(async (_, flags) => {
+      const projectPkgJsonPath = pathe.join(cwd, 'package.json');
+      const projectPkgJson = fs.readFileSync(projectPkgJsonPath, 'utf-8');
       const tsconfigPath = pathe.join(cwd, 'tsconfig.json');
       const jsconfigPath = pathe.join(cwd, 'jsconfig.json');
       const hasTsConfig = fs.existsSync(tsconfigPath);
@@ -54,7 +56,9 @@ const run = () => {
       const typeDefsPath = Tokenami.getTypeDefsPath(configPath);
       const outDir = pathe.dirname(configPath);
       const initialConfig = Tokenami.generateConfig(include, configPath);
-      const typeDefs = Tokenami.generateTypeDefs(configPath);
+      const typeDefs = projectPkgJson.match('solid-js')
+        ? Tokenami.generateSolidJsTypeDefs(configPath)
+        : Tokenami.generateTypeDefs(configPath);
 
       fs.mkdirSync(outDir, { recursive: true });
       fs.writeFileSync(configPath, initialConfig, { flag: 'w' });

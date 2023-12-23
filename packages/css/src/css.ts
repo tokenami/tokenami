@@ -1,4 +1,3 @@
-import type * as CSS from 'csstype';
 import * as Tokenami from '@tokenami/config';
 import { TokenamiStyles, ResponsiveKey } from '@tokenami/dev';
 import { mapShorthandToLonghands } from './shorthands';
@@ -24,22 +23,23 @@ type SelectedVariants<V, R> = undefined extends V
 
 function css<S extends TokenamiStyles, V extends VariantsConfig | undefined, R>(
   baseStyles: S,
-  variants?: V,
+  variantsConfig?: V,
   options?: undefined extends V ? never : { responsive: R & boolean }
 ) {
   const cache: Record<string, Record<string, any>> = {};
 
-  return function generate(selectedVariants?: SelectedVariants<V, R>, ...overrides: Override[]) {
-    const cacheId = JSON.stringify({ selectedVariants, overrides });
+  // TODO: return type is `{}` to support both react and solidjs. figure out if this can be improved.
+  return function generate(variants?: SelectedVariants<V, R>, ...overrides: Override[]): {} {
+    const cacheId = JSON.stringify({ variants, overrides });
     const cached = cache[cacheId];
 
     if (cached) return cached;
 
-    const variantStyles = selectedVariants
-      ? Object.entries(selectedVariants).flatMap(([key, variant]) => {
+    const variantStyles = variants
+      ? Object.entries(variants).flatMap(([key, variant]) => {
           if (!variant) return [];
           const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
-          const styles = variants?.[type]?.[variant as any];
+          const styles = variantsConfig?.[type]?.[variant as any];
           const responsive = options?.responsive;
           const updated = responsive && bp && styles ? convertToMediaStyles(bp, styles) : styles;
           return updated ? [updated] : [];
@@ -63,7 +63,7 @@ function css<S extends TokenamiStyles, V extends VariantsConfig | undefined, R>(
     });
 
     cache[cacheId] = css;
-    return css as CSS.Properties;
+    return css;
   };
 }
 

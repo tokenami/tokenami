@@ -119,7 +119,7 @@ Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.jso
 
 ```json
 {
-  "include": [".tokenami/tokenami.d.ts"],
+  "include": [".tokenami/tokenami.d.ts", "**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     "plugins": [{ "name": "@tokenami/ts-plugin" }]
   }
