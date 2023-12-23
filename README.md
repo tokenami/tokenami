@@ -77,6 +77,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
   - [Installation](#user-contenty-installation-1)
   - [Usage](#user-content-usage)
   - [Overrides](#user-content-overrides)
+  - [TypeScript](#user-content-typescript)
 - [Advanced](#user-content-advanced)
   - [Selectors](#user-content-selectors)
   - [Aliases](#user-content-aliases)
@@ -274,6 +275,10 @@ Import and use the utility directly:
 ```tsx
 import { css } from '@tokenami/css';
 
+function Button({ size, style, ...props }) {
+  return <button {...props} style={button({ size }, style)} />;
+}
+
 const button = css(
   { '---padding': 4 },
   {
@@ -284,10 +289,6 @@ const button = css(
   },
   { responsive: true }
 );
-
-function Button({ size, style, ...props }) {
-  return <button {...props} style={button({ size }, style)} />;
-}
 ```
 
 The first parameter passed to the `css` utility represents your base styles, the second is for optional variants, and the third enables responsive variants.
@@ -307,20 +308,49 @@ Adding `responsive: true` will generate the atomic CSS for the responsive varian
 The function returned by the `css` utility accepts your chosen variants as the first parameter, and then any number of overrides as additional parameters. Overrides can be applied conditionally and last override wins.
 
 ```tsx
-function Button({ size, style, ...props }) {
+function Button(props) {
+  const { size, style, ...buttonProps } = props;
   const disabled = props.disabled && { '--opacity': 0.5 };
-  return <button {...props} style={button({ size }, disabled, style)} />;
+  return <button {...buttonProps} style={button({ size }, disabled, style)} />;
 }
 ```
 
 Overrides can also be used for compounding variants:
 
 ```tsx
-function Button({ variant = 'primary', outline = true, style, ...props }) {
+function Button(props) {
+  const { variant = 'primary', outline = true, style, ...buttonProps } = props;
   const isPrimary = variant === 'primary';
   const primaryOutlined = isPrimary && outline && { '--background-color': 'transparent' };
-  return <button {...props} style={button({ size, outline }, primaryOutlined, style)} />;
+
+  return <button {...buttonProps} style={button({ size, outline }, primaryOutlined, style)} />;
 }
+```
+
+### TypeScript
+
+Use the `Variants` type to extend your component prop types:
+
+```tsx
+import { type Variants, css } from '@tokenami/css';
+
+type ButtonElementProps = React.ComponentPropsWithoutRef<'button'>;
+interface ButtonProps extends ButtonElementProps, Variants<typeof button> {}
+
+function Button(props: ButtonProps) {
+  const { size = 'small', style, ...buttonProps } = props;
+  return <button {...buttonProps} style={button({ size }, style)} />;
+}
+
+const button = css(
+  { '---padding': 4 },
+  {
+    size: {
+      small: { '--padding': 2 },
+      large: { '--padding': 6 },
+    },
+  }
+);
 ```
 
 ## Advanced

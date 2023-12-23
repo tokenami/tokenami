@@ -9302,7 +9302,7 @@ packages:
   file:packages/ts-plugin:
     resolution: {directory: packages/ts-plugin, type: directory}
     name: '@tokenami/ts-plugin'
-    version: 0.0.2
+    version: 0.0.4
     dependencies:
       '@tokenami/config': link:packages/config
       require-from-string: 2.0.2
