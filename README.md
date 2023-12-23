@@ -85,6 +85,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 - [Support](#user-content-support)
   - [Unable to install packages from GitHub registry](#user-content-unable-to-install-packages-from-github-registry)
   - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
+  - [Efficiency of Tokenami's attribute substring selectors](#user-content-efficiency-of-tokenamis-attribute-substring-selectors)
 - [Credits](#user-content-credits)
 
 ## Getting started
@@ -467,6 +468,12 @@ import styles from '~/../public/tokenami.css';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 ```
+
+### Efficiency of Tokenami's attribute substring selectors
+
+Attribute substring selectors are known for being less efficient than other simpler selectors, however, they are unlikely to significantly impact performance in most cases. Despite being relatively less efficient, modern browsers handle these selectors well enough that the performance impact would be minimal for typical applications.
+
+Comparatively, historical CSS-in-JS solutions involved style injection, which significantly hindered performance. In this context, attribute substring selectors will offer a considerable improvement.
 
 ## Credits
 
