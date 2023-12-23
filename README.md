@@ -388,6 +388,22 @@ Selectors can also be combined with [responsive rules](#user-content-responsive-
 <button style={{ '--medium_parent-hover_font-weight': 'bold' }} />
 ```
 
+#### Nested selectors
+
+Use an array value for custom selectors to generate nested rules:
+
+```tsx
+module.exports = createConfig({
+  // ...
+  selectors: {
+    ...defaultConfig.selectors,
+    hover: ['@media (hover: hover) and (pointer: fine)', '&:hover'],
+  },
+});
+```
+
+This example will apply hover styles for users with a precise pointing device, such as a mouse, when `--hover_{property}` is used.
+
 ### Aliases
 
 You can define aliases for Tokenami properties in your config. Aliases allow you to create shorthand names for properties or other aliases. The array should be in longhand to shorthand order.

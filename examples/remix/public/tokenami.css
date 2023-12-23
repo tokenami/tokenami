@@ -81,17 +81,21 @@
   all: var(--all);
 }
 
-[style*="--hover_animation:"]:hover {
-  -webkit-animation: var(--hover_animation, var(--animation));
-  animation: var(--hover_animation, var(--animation));
+@media (hover: hover) and (pointer: fine) {
+  [style*="--hover_animation:"]:hover {
+    -webkit-animation: var(--hover_animation, var(--animation));
+    animation: var(--hover_animation, var(--animation));
+  }
 }
 
 [style*="--background-color:"], [style*="--bg-color:"] {
   background-color: var(--background-color);
 }
 
-[style*="--hover_background-color:"]:hover {
-  background-color: var(--hover_background-color, var(--background-color));
+@media (hover: hover) and (pointer: fine) {
+  [style*="--hover_background-color:"]:hover {
+    background-color: var(--hover_background-color, var(--background-color));
+  }
 }
 
 [style*="--focus-hover_background-color:"]:focus:hover {
@@ -150,8 +154,10 @@
   color: var(--color);
 }
 
-[style*="--hover_color:"]:hover {
-  color: var(--hover_color, var(--color));
+@media (hover: hover) and (pointer: fine) {
+  [style*="--hover_color:"]:hover {
+    color: var(--hover_color, var(--color));
+  }
 }
 
 [style*="--display:"] {
