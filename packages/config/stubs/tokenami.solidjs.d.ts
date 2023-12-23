@@ -7,8 +7,10 @@ declare module '@tokenami/dev' {
   interface TokenamiConfig extends Config {}
 }
 
-declare module 'csstype' {
-  interface Properties extends TokenamiStyles {
-    [customProperty: `---${string}`]: string | number | undefined;
+declare module 'solid-js' {
+  namespace JSX {
+    interface CSSProperties extends TokenamiStyles {
+      [customProperty: `---${string}`]: string | number | undefined;
+    }
   }
 }

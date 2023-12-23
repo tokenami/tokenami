@@ -127,11 +127,19 @@ function mergedConfigs(theirs: Tokenami.Config): Tokenami.Config {
  * generateTypeDefs
  * -----------------------------------------------------------------------------------------------*/
 
-function generateTypeDefs(configPath: string) {
+function generateTypeDefs(configPath: string, stubPath = '../stubs/tokenami.d.ts') {
   const parsed = pathe.parse(configPath);
-  const typeDefStubPath = pathe.resolve(__dirname, '../stubs/tokenami.d.ts');
+  const typeDefStubPath = pathe.resolve(__dirname, stubPath);
   const typeDefStub = fs.readFileSync(typeDefStubPath, 'utf8');
   return typeDefStub.replace('tokenami.config', parsed.name);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * generateSolidJsTypeDefs
+ * -----------------------------------------------------------------------------------------------*/
+
+function generateSolidJsTypeDefs(configPath: string) {
+  return generateTypeDefs(configPath, '../stubs/tokenami.solidjs.d.ts');
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -205,6 +213,7 @@ export {
   getTypeDefsPath,
   generateConfig,
   generateTypeDefs,
+  generateSolidJsTypeDefs,
   getValuesByTokenValueProperty,
   getLonghandsForAlias,
   getTokenPropertyParts,
