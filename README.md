@@ -98,11 +98,11 @@ The set up is a little complex during pre-alpha. This [will be simplified](https
 The packages exist on the GitHub registry for now. To access them, add the following to an `.npmrc` file in your project root:
 
 ```
-//npm.pkg.github.com/:_authToken=$TOKENAMI_TOKEN
+//npm.pkg.github.com/:_authToken=${TOKENAMI_TOKEN}
 @tokenami:registry=https://npm.pkg.github.com
 ```
 
-Create a GitHub [Personal Access Token (classic)](https://github.com/settings/tokens/new) with `read:packages` rights and replace the `$TOKENAMI_TOKEN`, or store it in an `.env` file.
+Create a GitHub [Personal Access Token (classic)](https://github.com/settings/tokens/new) with `read:packages` rights and replace the `TOKENAMI_TOKEN`, or store it in an `.env` file.
 
 ### Installation
 
