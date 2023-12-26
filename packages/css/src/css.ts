@@ -10,7 +10,12 @@ const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
 
 type VariantsConfig = Record<string, Record<string, TokenamiStyles>>;
 type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
-type ResponsiveValue<T> = T extends string ? `${ResponsiveKey}_${T}` : never;
+type ResponsiveValue<T> = T extends string
+  ? ResponsiveKey extends `${infer R}`
+    ? `${R}_${T}`
+    : never
+  : never;
+
 type Override = TokenamiStyles | false | undefined;
 type Variants<C> = { [V in keyof C]?: VariantValue<keyof C[V]> };
 type ResponsiveVariants<C> = {

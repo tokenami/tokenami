@@ -2,10 +2,7 @@
  * hasStyles
  * -----------------------------------------------------------------------------------------------*/
 
-function hasStyles<O extends Record<string, any>>(
-  output: O,
-  expected: Record<string, string | number>
-) {
+function hasStyles<O extends Record<string, any>>(output: O, expected: Record<string, any>) {
   return Object.entries(expected).every(([key, value]) => output[key] === value);
 }
 
@@ -13,10 +10,7 @@ function hasStyles<O extends Record<string, any>>(
  * hasSomeStyles
  * -----------------------------------------------------------------------------------------------*/
 
-function hasSomeStyles<O extends Record<string, any>>(
-  output: O,
-  expected: Record<string, string | number>
-) {
+function hasSomeStyles<O extends Record<string, any>>(output: O, expected: Record<string, any>) {
   return Object.entries(expected).some(([key, value]) => output[key] === value);
 }
 

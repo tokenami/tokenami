@@ -406,9 +406,7 @@ This example will apply hover styles for users with a precise pointing device, s
 
 ### Aliases
 
-You can define aliases for Tokenami properties in your config. Aliases allow you to create shorthand names for properties or other aliases. The array should be in longhand to shorthand order.
-
-For instance, the `p` alias below is defined as a shorthand for `px`, `pl`, and `pr` aliases. Since `px` is shorthand for `pr` and `pl` it must come after them in the array.
+Aliases allow you to create shorthand names for properties or other aliases.
 
 ```ts
 module.exports = createConfig({
@@ -425,7 +423,25 @@ module.exports = createConfig({
 });
 ```
 
-When using custom aliases, it's recommended to use the CSS utility to ensure that `--p` correctly overrides the properties declared in its array when passed as an override. There are some extra steps to ensure the utility is aware of your aliases.
+The configuration expects the name of your new alias followed by an array of properties or aliases that it should override when passed as an override to the css utility.
+
+For instance, in the example above `p` is shorthand for `pt`, `pr`, `pb`, `pl`, `px`, `py`, and `padding`. This allows the css utility to remove those properties when `--p` is passed as an override:
+
+```tsx
+const button = css({ '--pr': 4 });
+
+function Button(props) {
+  return <button style={button(null, props.style)} />;
+}
+
+function App() {
+  return <Button style={{ '--p': 10 }} />;
+}
+```
+
+Here, the `Button` will have `10` padding on all sides because your config stated that `--p` should take precendence over `--pr`. Without this configuration, the button would have `4` padding on the right because longhand properties have higher specificity in the atomic stylesheet.
+
+There are some extra steps to ensure the utility is aware of your aliases though:
 
 #### Configure utility
 
@@ -441,7 +457,7 @@ const css = createCss(config);
 export { css };
 ```
 
-Now you can use the utility from the file you created instead and it will handle aliases correctly.
+Now you can use the utility from the file you created and it will handle aliases correctly.
 
 ```tsx
 import { css } from './css';

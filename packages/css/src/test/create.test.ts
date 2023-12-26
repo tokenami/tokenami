@@ -30,60 +30,80 @@ const cssReorderedAliases = createCss({
   },
 } as any);
 
-const button = css({
-  '---color': 'red',
-  '---padding': '10px',
-  '---padding-left': '30px',
-});
+const cssReorderedAliasLonghands = createCss({
+  aliases: {
+    p: ['padding', 'pt', 'pr', 'px', 'pl', 'py'],
+    px: ['pl', 'pr', 'padding-left', 'padding-right'],
+    py: ['pt', 'pb', 'padding-top', 'padding-bottom'],
+    pt: ['padding-top'],
+    pr: ['padding-right'],
+    pb: ['padding-bottom'],
+    pl: ['padding-left'],
+  },
+} as any);
 
-const buttonReorderedAliases = cssReorderedAliases({
-  '---color': 'red',
-  '---padding': '10px',
-  '---padding-left': '30px',
-});
-
-const overrides = [{ '---pl': 10 }, { '---px': 20 }, { '---p': 40 }];
+const overrides = [{ '--pl': 10 }, { '--px': 20 }, { '--p': 40 }];
 
 /* -------------------------------------------------------------------------------------------------
  * tests
  * -----------------------------------------------------------------------------------------------*/
 
 interface TestContext {
-  button: typeof button;
-  buttonReorderedAliases: typeof buttonReorderedAliases;
-  output: ReturnType<typeof button>;
-  outputReorderedAliases: ReturnType<typeof buttonReorderedAliases>;
+  output: {};
+  outputReorderedAliases: {};
+  outputReorderedAliasLonghands: {};
 }
 
 describe('css returned from createCss', () => {
-  beforeEach<TestContext>((context) => {
-    context.button = button;
-    context.buttonReorderedAliases = buttonReorderedAliases;
-  });
-
   describe('when invoked with alias override', () => {
     beforeEach<TestContext>((context) => {
-      context.output = context.button({}, ...overrides);
+      context.output = css({
+        '--color': 'var(---, red)',
+        '--padding': 'var(---, 10px)',
+        '--padding-left': 'var(---, 30px)',
+      })(null, ...overrides);
     });
 
     it<TestContext>('should remove longhand styles', (context) => {
-      const unexpected = { '---pl': 10, '---px': 20, '---padding-left': '30px' };
+      const unexpected = {
+        '--pl': 10,
+        '--px': 20,
+        '--padding-left': 'var(---, 30px)',
+        '--padding': 'var(---, 30px)',
+      };
       expect(hasSomeStyles(context.output, unexpected)).toBe(false);
     });
 
     it<TestContext>('should keep shorthand styles', (context) => {
-      const expected = { '---p': 40 };
+      const expected = { '--p': 40 };
       expect(hasStyles(context.output, expected)).toBe(true);
     });
 
     describe('when invoked with reordered aliases', () => {
       beforeEach<TestContext>((context) => {
-        context.outputReorderedAliases = context.buttonReorderedAliases({}, ...overrides);
+        context.outputReorderedAliases = cssReorderedAliases({
+          '--color': 'var(---, red)',
+          '--padding': 'var(---, 10px)',
+          '--padding-left': 'var(---, 30px)',
+        })(null, ...overrides);
       });
 
       it<TestContext>('should not change output', (context) => {
         expect(context.outputReorderedAliases).toStrictEqual(context.output);
       });
+    });
+  });
+
+  describe('when invoked with reordered alias longhands', () => {
+    beforeEach<TestContext>((context) => {
+      context.outputReorderedAliasLonghands = cssReorderedAliasLonghands({
+        '--pr': '10px',
+        '--pl': '30px',
+      })(null, { '--px': 20 });
+    });
+
+    it<TestContext>('should override correctly', (context) => {
+      expect(context.outputReorderedAliasLonghands).toStrictEqual({ '--px': 20 });
     });
   });
 });
