@@ -7,8 +7,8 @@ declare module '@tokenami/dev' {
   interface TokenamiConfig extends Config {}
 }
 
-declare module 'csstype' {
-  interface Properties extends TokenamiStyles {
+declare module 'react' {
+  interface CSSProperties extends TokenamiStyles {
     [customProperty: `---${string}`]: string | number | undefined;
   }
 }
