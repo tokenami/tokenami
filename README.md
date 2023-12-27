@@ -417,7 +417,17 @@ In your `.tokenami/tokenami.config` file, change the `@tokenami/dev` import to `
 + const { createConfig } = require('@tokenami/css');
 ```
 
-That's it 🎉. We can now create some aliases.
+Then create a file in your project to configure the utility. You can name this file however you like, e.g. `css.ts`:
+
+```ts
+// css.ts
+import { createCss } from '@tokenami/css';
+import config from '../.tokenami/tokenami.config';
+
+export const css = createCss(config);
+```
+
+Now you can import the utility from the file you created and it will handle aliases correctly.
 
 #### Create aliases
 

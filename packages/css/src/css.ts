@@ -75,12 +75,13 @@ function css<S extends TokenamiStyles, V extends VariantsConfig | undefined, R>(
 css[SHORTHANDS_TO_LONGHANDS] = mapShorthandToLonghands;
 
 /* -------------------------------------------------------------------------------------------------
- * createConfig
+ * createCss
  * -----------------------------------------------------------------------------------------------*/
 
-function createConfig<T extends Tokenami.Config>(config: Tokenami.Exact<Tokenami.Config, T>) {
+function createCss(config: Tokenami.Config) {
+  if (!config.aliases) return css;
   css[SHORTHANDS_TO_LONGHANDS] = { ...css[SHORTHANDS_TO_LONGHANDS], ...config.aliases };
-  return Tokenami.createConfig(config);
+  return css;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -107,4 +108,4 @@ function convertToMediaStyles(bp: string, styles: TokenamiStyles): TokenamiStyle
   return Object.fromEntries(updatedEntries);
 }
 
-export { createConfig, css, convertToMediaStyles };
+export { createCss, css, convertToMediaStyles };
