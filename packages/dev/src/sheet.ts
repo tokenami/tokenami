@@ -15,6 +15,8 @@ function generate(
   minify?: boolean,
   targets?: lightning.Targets
 ) {
+  // TODO: use `@layers` when lightningcss adds browserslist support for layers
+  // https://github.com/parcel-bundler/lightningcss/issues/423#issuecomment-1850055070
   const layers = {
     atRules: {} as any,
     root: { ':root': {} },
@@ -61,12 +63,14 @@ function generate(
         }, baseStyles);
       }
 
+      // we use property to create a unique key for the selector because an alias
+      // selector can apply to multiple properties
       const styles = {
-        [createSelector({ name: parts.name })]: hasVariants
+        [`/*${property}*/${createSelector({ name: parts.name })}`]: hasVariants
           ? getVariantStyles(isGridProperty ? getGridValue(variantValueVar) : variantValueVar)
           : getStyles(isGridProperty ? getGridValue(valueVar) : valueVar),
         ...(isGridProperty && {
-          [createGridSelector({ name: parts.name })]: hasVariants
+          [`/*${property}*/${createGridSelector({ name: parts.name })}`]: hasVariants
             ? getVariantStyles(variantValueVar)
             : getStyles(valueVar),
         }),
