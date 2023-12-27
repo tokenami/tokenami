@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as v from 'valibot';
 import * as Supports from './supports';
 
 function tokenProperty(name: string): TokenProperty {
@@ -21,23 +21,20 @@ const tokenPropertyRegex = /--((\w)([\w-]+)?)/;
 const tokenValueRegex = /var\(--([\w-]+)_([\w-]+)\)/;
 const aritraryValueRegex = /var\(---,(.+)\)/;
 
-type GridValue = z.infer<typeof GridValue>;
-const GridValue = z.number();
+type GridValue = v.Output<typeof gridValueSchema>;
+const gridValueSchema = v.number();
+const GridValue = { safeParse: (input: unknown) => v.safeParse(gridValueSchema, input) };
 
 type TokenProperty<P extends string = string> = `--${P}`;
-const TokenProperty = z.string().refine((value) => {
-  return tokenPropertyRegex.test(value);
-});
+const tokenPropertySchema = v.string([v.regex(tokenPropertyRegex)]);
+const TokenProperty = { safeParse: (input: unknown) => v.safeParse(tokenPropertySchema, input) };
 
 type TokenValue<TK extends string = string, V extends string = string> = `var(--${TK}_${V})`;
-const TokenValue = z.string().refine((value) => {
-  return tokenValueRegex.test(value);
-});
+const tokenValueSchema = v.string([v.regex(tokenValueRegex)]);
+const TokenValue = { safeParse: (input: unknown) => v.safeParse(tokenValueSchema, input) };
 
 type ArbitraryValue = `var(---,${string})`;
-const ArbitraryValue = z.string().refine((value) => {
-  return aritraryValueRegex.test(value);
-});
+const ArbitraryValue = v.string([v.regex(aritraryValueRegex)]);
 
 type ThemeKey =
   | 'alpha'

@@ -6,6 +6,7 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/tokenami/tokenami",
+  "sideEffects": false,
   "files": [
     "dist/*",
     "stubs/*"
@@ -14,7 +15,7 @@
     "build": "tsup src/index.ts --format=esm,cjs --dts"
   },
   "dependencies": {
-    "zod": "^3.21.4"
+    "valibot": "^0.25.0"
   },
   "devDependencies": {
     "@tokenami/dev": "workspace:*",
