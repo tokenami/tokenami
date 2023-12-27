@@ -1,5 +1,5 @@
 import * as Tokenami from '@tokenami/config';
-import type { TokenamiStyles, ResponsiveKey } from '@tokenami/dev';
+import type { TokenamiProperties, ResponsiveKey } from '@tokenami/dev';
 import { mapShorthandToLonghands } from './shorthands';
 
 const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
@@ -8,7 +8,7 @@ const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
  * css
  * -----------------------------------------------------------------------------------------------*/
 
-type VariantsConfig = Record<string, Record<string, TokenamiStyles>>;
+type VariantsConfig = Record<string, Record<string, TokenamiProperties>>;
 type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type ResponsiveValue<T> = T extends string
   ? ResponsiveKey extends `${infer R}`
@@ -16,7 +16,7 @@ type ResponsiveValue<T> = T extends string
     : never
   : never;
 
-type Override = TokenamiStyles | false | undefined;
+type Override = TokenamiProperties | false | undefined;
 type Variants<C> = { [V in keyof C]?: VariantValue<keyof C[V]> };
 type ResponsiveVariants<C> = {
   [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> };
@@ -26,15 +26,17 @@ type SelectedVariants<V, R> = undefined extends V
   ? null
   : Variants<V> & (R extends true ? ResponsiveVariants<V> : {});
 
-function css<S extends TokenamiStyles, V extends VariantsConfig | undefined, R>(
+function css<S extends TokenamiProperties, V extends VariantsConfig | undefined, R>(
   baseStyles: S,
   variantsConfig?: V,
   options?: undefined extends V ? never : { responsive: R & boolean }
 ) {
   const cache: Record<string, Record<string, any>> = {};
 
-  // TODO: return type is `{}` to support both react and solidjs. figure out if this can be improved.
-  return function generate(variants?: SelectedVariants<V, R>, ...overrides: Override[]): {} {
+  return function generate(
+    variants?: SelectedVariants<V, R>,
+    ...overrides: Override[]
+  ): TokenamiProperties {
     const cacheId = JSON.stringify({ variants, overrides });
     const cached = cache[cacheId];
 
@@ -98,7 +100,7 @@ function override(style: Record<string, any>, property: string) {
   }
 }
 
-function convertToMediaStyles(bp: string, styles: TokenamiStyles): TokenamiStyles {
+function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiProperties {
   const updatedEntries = Object.entries(styles).map(([property, value]) => {
     const tokenPrefix = Tokenami.tokenProperty('');
     const bpPrefix = Tokenami.variantProperty(bp, '');

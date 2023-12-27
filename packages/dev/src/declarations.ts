@@ -466,6 +466,8 @@ type TokenamiAliasStyles = {
     : never;
 }[AliasKey];
 
-interface TokenamiStyles extends TokenamiBaseStyles, UnionToIntersection<TokenamiAliasStyles> {}
+interface TokenamiProperties extends TokenamiBaseStyles, UnionToIntersection<TokenamiAliasStyles> {
+  [customProperty: `---${string}`]: string | number | undefined;
+}
 
-export type { TokenamiConfig, TokenamiFinalConfig, TokenamiStyles, ResponsiveKey };
+export type { TokenamiConfig, TokenamiFinalConfig, TokenamiProperties, ResponsiveKey };
