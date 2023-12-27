@@ -1,4 +1,4 @@
-import { TokenamiStyles } from '@tokenami/dev';
+import { TokenamiProperties } from '@tokenami/dev';
 import config from './tokenami.config';
 
 type Config = typeof config;
@@ -8,7 +8,5 @@ declare module '@tokenami/dev' {
 }
 
 declare module 'react' {
-  interface CSSProperties extends TokenamiStyles {
-    [customProperty: `---${string}`]: string | number | undefined;
-  }
+  interface CSSProperties extends TokenamiProperties {}
 }
