@@ -15,12 +15,14 @@ function generate(
   minify?: boolean,
   targets?: lightning.Targets
 ) {
+  // TODO: use `@layers` when lightningcss adds browserslist support for layers
+  // https://github.com/parcel-bundler/lightningcss/issues/423#issuecomment-1850055070
   const layers = {
     atRules: {} as any,
     root: { ':root': {} },
     reset: { '*': {} },
     styles: [{}],
-    responsive: {} as Record<string, [Styles]>,
+    responsiveStyles: {} as Record<string, [Styles]>,
   } satisfies Record<string, Styles | [Styles] | Record<string, [Styles]>>;
 
   if (!usedTokenProperties.length) return '';
@@ -46,6 +48,7 @@ function generate(
     for (let property of longhands) {
       if (!isSupportedProperty(property)) continue;
       const specificity = Tokenami.getSpecifictyOrderForCSSProperty(property);
+      const gridSpecificity = Tokenami.properties.length + specificity;
       const propertyConfig = config.properties?.[property];
       const isGridProperty = propertyConfig?.includes('grid') || false;
       const valueVar = `var(${Tokenami.tokenProperty(property)})`;
@@ -61,15 +64,18 @@ function generate(
         }, baseStyles);
       }
 
+      // we use property to create a unique key for the selector because an alias
+      // selector can apply to multiple properties
       const styles = {
-        [createSelector({ name: parts.name })]: hasVariants
+        [`/*${property}*/${createSelector({ name: parts.name })}`]: hasVariants
           ? getVariantStyles(isGridProperty ? getGridValue(variantValueVar) : variantValueVar)
           : getStyles(isGridProperty ? getGridValue(valueVar) : valueVar),
-        ...(isGridProperty && {
-          [createGridSelector({ name: parts.name })]: hasVariants
-            ? getVariantStyles(variantValueVar)
-            : getStyles(valueVar),
-        }),
+      };
+
+      const gridStyles = isGridProperty && {
+        [`/*${property}*/${createGridSelector({ name: parts.name })}`]: hasVariants
+          ? getVariantStyles(variantValueVar)
+          : getStyles(valueVar),
       };
 
       layers.reset['*'] = {
@@ -78,10 +84,12 @@ function generate(
       };
 
       if (responsive) {
-        const responsiveLayer = (layers.responsive[responsive] ??= [{}]);
-        responsiveLayer[specificity] = { ...responsiveLayer[specificity], ...styles };
+        const layer = (layers.responsiveStyles[responsive] ??= [{}]);
+        layer[specificity] = { ...layer[specificity], ...styles };
+        layer[gridSpecificity] = { ...layer[gridSpecificity], ...gridStyles };
       } else {
         layers.styles[specificity] = { ...layers.styles[specificity], ...styles };
+        layers.styles[gridSpecificity] = { ...layers.styles[gridSpecificity], ...gridStyles };
       }
     }
   });
@@ -91,7 +99,7 @@ function generate(
     ...layers.root,
     ...layers.reset,
     ...Object.assign({}, ...layers.styles),
-    ...Object.assign({}, ...Object.values(layers.responsive).flat()),
+    ...Object.assign({}, ...Object.values(layers.responsiveStyles).flat()),
   });
 
   const code = Buffer.from(sheet);
