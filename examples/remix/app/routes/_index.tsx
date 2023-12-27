@@ -1,4 +1,4 @@
-import { css } from '~/css';
+import { css } from '@tokenami/css';
 
 export const links = () => [{ rel: 'stylesheet', href: '/tokenami.css' }];
 

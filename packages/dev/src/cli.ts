@@ -1,7 +1,6 @@
 import * as Tokenami from '@tokenami/config';
 import browserslist from 'browserslist';
 import { type Targets, browserslistToTargets } from 'lightningcss';
-import { createRequire } from 'module';
 import cac from 'cac';
 import glob from 'fast-glob';
 import inquirer from 'inquirer';
@@ -10,9 +9,12 @@ import * as chokidar from 'chokidar';
 import * as pathe from 'pathe';
 import * as sheet from '~/sheet';
 import * as log from '~/log';
+import * as utils from '~/utils';
 import pkgJson from '~/../package.json';
+import { require } from './require';
 
-const require = createRequire(import.meta.url);
+type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+
 const questions = [
   {
     type: 'list',
@@ -52,13 +54,13 @@ const run = () => {
       const answers = await inquirer.prompt(questions);
       const type = hasTsConfig ? 'ts' : hasJsConfig ? 'js' : answers.type;
       const include = `'${answers.include}'`;
-      const configPath = Tokenami.getConfigPath(cwd, flags?.config, type);
-      const typeDefsPath = Tokenami.getTypeDefsPath(configPath);
+      const configPath = utils.getConfigPath(cwd, flags?.config, type);
+      const typeDefsPath = utils.getTypeDefsPath(configPath);
       const outDir = pathe.dirname(configPath);
-      const initialConfig = Tokenami.generateConfig(include, configPath);
+      const initialConfig = utils.generateConfig(include, configPath);
       const typeDefs = projectPkgJson.match('solid-js')
-        ? Tokenami.generateSolidJsTypeDefs(configPath)
-        : Tokenami.generateTypeDefs(configPath);
+        ? utils.generateSolidJsTypeDefs(configPath)
+        : utils.generateTypeDefs(configPath);
 
       fs.mkdirSync(outDir, { recursive: true });
       fs.writeFileSync(configPath, initialConfig, { flag: 'w' });
@@ -73,10 +75,10 @@ const run = () => {
     .option('--minify', 'Minify CSS output')
     .action(async (_, flags) => {
       const startTime = startTimer();
-      const configPath = Tokenami.getConfigPath(cwd, flags.config);
+      const configPath = utils.getConfigPath(cwd, flags.config);
       const projectPkgJson = require(pathe.join(cwd, 'package.json'));
       const targets = browserslistToTargets(getBrowsersList(projectPkgJson.browserslist));
-      let config = Tokenami.getConfigAtPath(configPath);
+      let config: Writeable<Tokenami.Config> = utils.getConfigAtPath(configPath);
 
       config.include = flags.files || config.include;
       if (!config.include.length) log.error('Provide a glob pattern to include files');
@@ -97,7 +99,7 @@ const run = () => {
         tokenWatcher.on('all', (_, file) => regenerateStylesheet(file, config));
 
         configWatcher.on('all', async (_, file) => {
-          config = Tokenami.getReloadedConfigAtPath(configPath);
+          config = utils.getReloadedConfigAtPath(configPath);
           config.include = flags.files || config.include;
           regenerateStylesheet(file, config);
         });
@@ -216,7 +218,7 @@ function findResponsiveCSSUtilityVariables(
     const matches = block.match(tokenPropertyRegex) || [];
     const matchesWithoutQuoteMark = matches.map((match) => match.slice(0, -1));
     const reponsiveVariants = matchesWithoutQuoteMark.flatMap((tokenProperty) => {
-      return Tokenami.getResponsivePropertyVariants(tokenProperty, responsiveConfig);
+      return utils.getResponsivePropertyVariants(tokenProperty as any, responsiveConfig);
     });
     return reponsiveVariants || [];
   });

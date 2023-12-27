@@ -9,28 +9,28 @@ import { css, convertToMediaStyles } from '../css';
 // freeze configs to ensure tests fail if `css` mutates them
 
 const baseStyles = Object.freeze({
-  '---padding': '10px',
-  '---md_padding': 2,
-  '---border': '1px solid',
+  '--padding': '10px',
+  '--md_padding': 2,
+  '--border': '1px solid',
 }) as any;
 
 const disabledStyles = Object.freeze({
-  '---font-weight': 'normal',
+  '--font-weight': 'normal',
 }) as any;
 
 const enabledStyles = Object.freeze({
-  '---font-weight': 'bold',
+  '--font-weight': 'bold',
 }) as any;
 
 const primaryStyles = Object.freeze({
-  '---color': 'violet',
-  '---border-color': 'darkviolet',
+  '--color': 'violet',
+  '--border-color': 'darkviolet',
 }) as any;
 
 const secondaryStyles = Object.freeze({
-  '---color': 'gray',
-  '---border-color': 'lightgray',
-  '---font-family': 'serif',
+  '--color': 'gray',
+  '--border-color': 'lightgray',
+  '--font-family': 'serif',
 }) as any;
 
 const button = css(
@@ -108,8 +108,8 @@ describe('css', () => {
     beforeEach<TestContext>((context) => {
       context.output = context.button(
         { type: 'secondary' },
-        { '---color': 'red' },
-        { '---border-color': 'red' }
+        { '--color': 'red' } as any,
+        { '--border-color': 'red' } as any
       );
     });
 
@@ -118,7 +118,7 @@ describe('css', () => {
     });
 
     it<TestContext>('should include override styles', (context) => {
-      const expected = { '---color': 'red', '---border-color': 'red', '---font-family': 'serif' };
+      const expected = { '--color': 'red', '--border-color': 'red', '--font-family': 'serif' };
       expect(hasStyles(context.output, expected)).toBe(true);
     });
   });
@@ -127,22 +127,22 @@ describe('css', () => {
     beforeEach<TestContext>((context) => {
       context.output = context.button(
         { type: 'secondary' },
-        { '---padding-left': 10, '---border': '1px dashed' },
-        { '---font': 'arial', '---padding': 30 }
+        { '--padding-left': 10, '--border': '1px dashed' } as any,
+        { '--font': 'arial', '--padding': 30 } as any
       );
     });
 
     it<TestContext>('should remove longhand styles', (context) => {
       const unexpected = {
-        '---border-color': 'lightgray',
-        '---font-family': 'serif',
-        '---padding-left': 10,
+        '--border-color': 'lightgray',
+        '--font-family': 'serif',
+        '--padding-left': 10,
       };
       expect(hasSomeStyles(context.output, unexpected)).toBe(false);
     });
 
     it<TestContext>('should add shorthand styles', (context) => {
-      const expected = { '---font': 'arial', '---padding': 30, '---border': '1px dashed' };
+      const expected = { '--font': 'arial', '--padding': 30, '--border': '1px dashed' };
       expect(hasStyles(context.output, expected)).toBe(true);
     });
   });

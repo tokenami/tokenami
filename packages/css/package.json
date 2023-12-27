@@ -15,14 +15,14 @@
     "dev": "pnpm build --watch src",
     "test": "vitest"
   },
+  "dependencies": {
+    "@tokenami/config": "workspace:*"
+  },
   "devDependencies": {
     "@tokenami/dev": "workspace:*",
     "tsup": "^7.0.0",
     "typescript": "^5.1.3",
     "vitest": "^0.34.6"
-  },
-  "dependencies": {
-    "@tokenami/config": "workspace:*"
   },
   "peerDependencies": {
     "@tokenami/dev": "workspace:*",

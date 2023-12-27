@@ -1,5 +1,6 @@
 import tslib from 'typescript/lib/tsserverlibrary';
-import * as Tokenami from '@tokenami/config';
+import * as TokenamiConfig from '@tokenami/config';
+import * as Tokenami from '@tokenami/dev';
 
 const INVALID_SELECTOR_ERROR_CODE = 50000;
 const INVALID_VALUE_ERROR_CODE = 2322;
@@ -48,7 +49,7 @@ function init(modules: { typescript: typeof tslib }) {
             const property = ts.isStringLiteral(node.name) ? node.name.text : null;
             const textValue = ts.isStringLiteral(node.initializer) ? node.initializer.text : null;
 
-            if (Tokenami.TokenProperty.safeParse(property).success) {
+            if (TokenamiConfig.TokenProperty.safeParse(property).success) {
               const parts = Tokenami.getTokenPropertyParts(property as any, config);
 
               if (!parts) {
@@ -72,7 +73,7 @@ function init(modules: { typescript: typeof tslib }) {
                 let messageText = `Grid values are not assignable to '${property}'.`;
 
                 if (textValue) {
-                  const arbitraryValue = Tokenami.arbitraryValue(textValue);
+                  const arbitraryValue = TokenamiConfig.arbitraryValue(textValue);
                   messageText = `Value '${textValue}' is not assignable to '${property}'. Use theme value or mark arbitrary with '${arbitraryValue}'`;
                 }
 
@@ -125,7 +126,7 @@ function init(modules: { typescript: typeof tslib }) {
               const originalText = assignment.initializer.getText();
               const arbitraryText = originalText.replace(
                 /^('|")?[\w\d_-]+('|")?$/,
-                `$1${Tokenami.arbitraryValue(value)}$2`
+                `$1${TokenamiConfig.arbitraryValue(value)}$2`
               );
               return [
                 {
@@ -155,8 +156,8 @@ function init(modules: { typescript: typeof tslib }) {
       if (!original || !sourceFile) return original;
       const node = findNodeAtPosition(sourceFile, position);
       const hasTokenamiEntries = original.entries.some((entry) => {
-        const isTokenProperty = Tokenami.TokenProperty.safeParse(entry.name).success;
-        const isTokenValue = Tokenami.TokenValue.safeParse(entry.name).success;
+        const isTokenProperty = TokenamiConfig.TokenProperty.safeParse(entry.name).success;
+        const isTokenValue = TokenamiConfig.TokenValue.safeParse(entry.name).success;
         return isTokenProperty || isTokenValue;
       });
 
@@ -166,13 +167,13 @@ function init(modules: { typescript: typeof tslib }) {
 
       original.entries = original.entries.flatMap((entry) => {
         const entryName = entry.name;
-        const isTokenProperty = Tokenami.TokenProperty.safeParse(entryName).success;
-        const isTokenValue = Tokenami.TokenValue.safeParse(entryName).success;
+        const isTokenProperty = TokenamiConfig.TokenProperty.safeParse(entryName).success;
+        const isTokenValue = TokenamiConfig.TokenValue.safeParse(entryName).success;
         const quoteMark = node.getText().slice(-1);
         entry.sortText = entryName;
 
         if (isTokenValue) {
-          const parts = Tokenami.getTokenValueParts(entryName as any);
+          const parts = TokenamiConfig.getTokenValueParts(entryName as any);
           const tokenValue = parts ? config.theme[parts.themeKey]?.[parts.token] : undefined;
           if (parts && tokenValue) {
             tokenConfigMap.set(parts.token, { themeKey: parts.themeKey, tokenValue });

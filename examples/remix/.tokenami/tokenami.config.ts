@@ -1,4 +1,4 @@
-import { createConfig, defaultConfig } from '@tokenami/dev';
+import { createConfig, defaultConfig } from '@tokenami/css';
 
 export default createConfig({
   include: ['./app/**/*.{ts,tsx}'],

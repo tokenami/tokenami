@@ -14,14 +14,11 @@
     "build": "tsup src/index.ts --format=esm,cjs --dts"
   },
   "dependencies": {
-    "csstype": "^3.1.2",
-    "jiti": "^1.21.0",
-    "pathe": "^1.1.1",
-    "sucrase": "^3.34.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
     "@tokenami/dev": "workspace:*",
+    "csstype": "^3.1.2",
     "tsup": "^7.0.0",
     "typescript": "^5.1.3"
   }

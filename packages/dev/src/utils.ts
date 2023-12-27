@@ -1,10 +1,9 @@
+import * as Tokenami from '@tokenami/config';
 import jitiFactory from 'jiti';
 import { transform } from 'sucrase';
 import * as pathe from 'pathe';
-import * as Tokenami from '~/config';
-import * as Supports from '~/supports';
-import defaultConfig from '../stubs/config.default';
-import fs from 'fs';
+import * as fs from 'fs';
+import { require } from './require';
 
 const DEFAULT_PATHS = {
   js: './.tokenami/tokenami.config.js',
@@ -101,7 +100,7 @@ function getValuesByTokenValueProperty(theme: Tokenami.Theme, themeKeys?: string
 
 function getLonghandsForAlias(alias: string, config: Tokenami.Config): string[] {
   const longhands: string[] = (config.aliases as any)?.[alias];
-  return longhands || (Supports.properties.includes(alias as any) ? [alias] : []);
+  return longhands || (Tokenami.properties.includes(alias as any) ? [alias] : []);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -120,7 +119,7 @@ function generateConfig(include: string, configPath: string) {
  * -----------------------------------------------------------------------------------------------*/
 
 function mergedConfigs(theirs: Tokenami.Config): Tokenami.Config {
-  return { ...defaultConfig, ...theirs };
+  return { ...Tokenami.defaultConfig, ...theirs };
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -146,8 +145,8 @@ function generateSolidJsTypeDefs(configPath: string) {
  * getSpecifictyOrderForCSSProperty
  * -----------------------------------------------------------------------------------------------*/
 
-function getSpecifictyOrderForCSSProperty(cssProperty: Supports.CSSProperty) {
-  return Supports.properties.indexOf(cssProperty);
+function getSpecifictyOrderForCSSProperty(cssProperty: Tokenami.CSSProperty) {
+  return Tokenami.properties.indexOf(cssProperty);
 }
 
 /* -------------------------------------------------------------------------------------------------

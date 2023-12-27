@@ -17,7 +17,7 @@ CSS-in-JS solutions that rely on style injection [won't be recommended by the Re
 
 > Our preferred solution is to use [`<link rel="stylesheet">`](https://github.com/reactwg/react-18/discussions/108) for statically extracted styles and plain inline styles for dynamic values. E.g. `<div style={{...}}>`
 
-In other words—_write css like we used to_. But what about the benefits that CSS-in-JS gave us?
+In other words—_write CSS like we used to_. But what about the benefits that CSS-in-JS gave us?
 
 There are CSS-in-JS solutions that extract static rules from your template files into external `.css` files, however, these approaches often require [bundler integration](https://vanilla-extract.style/documentation/integrations/next/) and come with [build-time limitations](https://panda-css.com/docs/guides/dynamic-styling).
 
@@ -406,7 +406,20 @@ This example will apply hover styles for users with a precise pointing device, s
 
 ### Aliases
 
-Aliases allow you to create shorthand names for properties or other aliases.
+Aliases allow you to create shorthand names for properties or other aliases. When using custom aliases, the `css` utility is recommended. It ensures properties are merged correctly across component boundaries.
+
+#### Configure utility
+
+In your `.tokenami/tokenami.config` file, change the `@tokenami/dev` import to `@tokenami/css`:
+
+```diff
+- const { createConfig } = require('@tokenami/dev');
++ const { createConfig } = require('@tokenami/css');
+```
+
+That's it 🎉. We can now create some aliases.
+
+#### Create aliases
 
 ```ts
 module.exports = createConfig({
@@ -423,9 +436,9 @@ module.exports = createConfig({
 });
 ```
 
-The configuration expects the name of your new alias followed by an array of properties or aliases that it should override when passed as an override to the css utility.
+The configuration expects the name of your new alias followed by an array of properties or aliases that it should replace when passed as an override to the `css` utility.
 
-For instance, in the example above `p` is shorthand for `pt`, `pr`, `pb`, `pl`, `px`, `py`, and `padding`. This allows the css utility to remove those properties when `--p` is passed as an override:
+For instance, in the example above `p` is shorthand for `pt`, `pr`, `pb`, `pl`, `px`, `py`, and `padding`. This allows the `css` utility to remove those properties when `--p` is passed as an override:
 
 ```tsx
 const button = css({ '--pr': 4 });
@@ -439,29 +452,7 @@ function App() {
 }
 ```
 
-Here, the `Button` will have `10` padding on all sides because your config stated that `--p` should take precendence over `--pr`. Without this configuration, the button would have `4` padding on the right because longhand properties have higher specificity in the atomic stylesheet.
-
-There are some extra steps to ensure the utility is aware of your aliases though:
-
-#### Configure utility
-
-Create a file in your project to configure the utility. You can name this file however you like, e.g. `css.ts`:
-
-```ts
-// css.ts
-import { createCss } from '@tokenami/css';
-import config from '~/.tokenami/tokenami.config';
-
-const css = createCss(config);
-
-export { css };
-```
-
-Now you can use the utility from the file you created and it will handle aliases correctly.
-
-```tsx
-import { css } from './css';
-```
+In this example `Button` will have `10` padding on all sides because we configured `--p` to take precendence over `--pr` when passed as an override. Without this config, the button would have `4` padding on the right because longhand properties have higher specificity in the atomic stylesheet.
 
 ### Mapping properties to theme
 

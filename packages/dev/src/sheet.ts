@@ -1,6 +1,7 @@
 import * as Tokenami from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
+import * as utils from '~/utils';
 
 /* -------------------------------------------------------------------------------------------------
  * generate
@@ -29,7 +30,7 @@ function generate(
 
   layers.root[':root'] = {
     [Tokenami.tokenProperty('grid')]: config.grid,
-    ...Tokenami.getValuesByTokenValueProperty(config.theme),
+    ...utils.getValuesByTokenValueProperty(config.theme),
   };
 
   Object.entries(config.keyframes || {}).forEach(([name, config]) => {
@@ -37,17 +38,17 @@ function generate(
   });
 
   usedTokenProperties.forEach((usedTokenProperty) => {
-    const parts = Tokenami.getTokenPropertyParts(usedTokenProperty, config);
+    const parts = utils.getTokenPropertyParts(usedTokenProperty, config);
     if (!parts) return;
 
-    const longhands = Tokenami.getLonghandsForAlias(parts.alias, config);
+    const longhands = utils.getLonghandsForAlias(parts.alias, config);
     const responsive = parts.responsive && config?.responsive?.[parts.responsive];
     const selector = parts.selector && config?.selectors?.[parts.selector];
     const hasVariants = responsive || selector;
 
     for (let property of longhands) {
       if (!isSupportedProperty(property)) continue;
-      const specificity = Tokenami.getSpecifictyOrderForCSSProperty(property);
+      const specificity = utils.getSpecifictyOrderForCSSProperty(property);
       const gridSpecificity = Tokenami.properties.length + specificity;
       const propertyConfig = config.properties?.[property];
       const isGridProperty = propertyConfig?.includes('grid') || false;
