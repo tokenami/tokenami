@@ -10,7 +10,7 @@ function variantProperty(variant: string, name: string): TokenProperty {
 }
 
 function tokenValue<TK extends string, N extends string>(themeKey: TK, name: N): TokenValue<TK, N> {
-  return `var(--${themeKey}-${name})`;
+  return `var(--${themeKey}_${name})`;
 }
 
 function arbitraryValue(value: string): ArbitraryValue {
@@ -18,7 +18,7 @@ function arbitraryValue(value: string): ArbitraryValue {
 }
 
 const tokenPropertyRegex = /--((\w)([\w-]+)?)/;
-const tokenValueRegex = /var\(--(\w+)-([\w-]+)\)/;
+const tokenValueRegex = /var\(--([\w-]+)_([\w-]+)\)/;
 const aritraryValueRegex = /var\(---,(.+)\)/;
 
 type GridValue = z.infer<typeof GridValue>;
@@ -29,7 +29,7 @@ const TokenProperty = z.string().refine((value) => {
   return tokenPropertyRegex.test(value);
 });
 
-type TokenValue<TK extends string = string, V extends string = string> = `var(--${TK}-${V})`;
+type TokenValue<TK extends string = string, V extends string = string> = `var(--${TK}_${V})`;
 const TokenValue = z.string().refine((value) => {
   return tokenValueRegex.test(value);
 });

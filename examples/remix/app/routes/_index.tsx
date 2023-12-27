@@ -10,10 +10,10 @@ export default function Index() {
         '---grid-bg-size': 'calc(var(--grid) * 5)',
         '--background-size': 'var(---,var(---grid-bg-size) var(---grid-bg-size))',
         '--background-image': 'var(---,var(---radial-gradient))',
-        '--background-color': 'var(--color-sky-500)',
+        '--background-color': 'var(--color_sky-500)',
         '--background-position-x': 1,
         '--background-position-y': 0.5,
-        '--height': 'var(--size-screen-h)',
+        '--height': 'var(--size_screen-h)',
         '--display': 'flex',
         '--flex-direction': 'column',
         '--align-items': 'center',
@@ -22,8 +22,8 @@ export default function Index() {
     >
       <figure
         style={{
-          '--bg-color': 'var(--color-slate-100)',
-          '--border-radius': 'var(--radii-rounded)',
+          '--bg-color': 'var(--color_slate-100)',
+          '--border-radius': 'var(--radii_rounded)',
           '--text-align': 'center',
           '--overflow': 'hidden',
           '--m': 10,
@@ -32,7 +32,7 @@ export default function Index() {
           '--md_display': 'flex',
           '--md_p': 0,
           '--md_text-align': 'left',
-          '--font-family': 'var(--font-sans)',
+          '--font-family': 'var(--font_sans)',
           '--line-height': 'var(---,1.8)',
         }}
       >
@@ -58,8 +58,8 @@ export default function Index() {
             </p>
           </blockquote>
           <figcaption style={{ '--font-weight': 'var(---,500)' }}>
-            <div style={{ '--color': 'var(--color-sky-500)' }}>Jenna Smith</div>
-            <div style={{ '--color': 'var(--color-slate-700)' }}>@jjenzz</div>
+            <div style={{ '--color': 'var(--color_sky-500)' }}>Jenna Smith</div>
+            <div style={{ '--color': 'var(--color_slate-700)' }}>@jjenzz</div>
           </figcaption>
         </div>
       </figure>
@@ -68,16 +68,16 @@ export default function Index() {
         style={{
           '--width': 'var(---,180px)',
           '--height': 15,
-          '--border-radius': 'var(--radii-rounded)',
+          '--border-radius': 'var(--radii_rounded)',
           '--border': 'var(---,none)',
-          '--font-family': 'var(--font-sans)',
+          '--font-family': 'var(--font_sans)',
           '--font-size': 'var(---,20px)',
-          '--bg-color': 'var(--color-slate-100)',
-          '--hover_background-color': 'var(--color-slate-700)',
+          '--bg-color': 'var(--color_slate-100)',
+          '--hover_background-color': 'var(--color_slate-700)',
           '--hover_color': 'var(---,white)',
           '--transition': 'var(---,all 150ms)',
-          '--hover_animation': 'var(--anim-wiggle)',
-          '--focus-hover_background-color': 'var(--color-sky-500)',
+          '--hover_animation': 'var(--anim_wiggle)',
+          '--focus-hover_background-color': 'var(--color_sky-500)',
         }}
       >
         Button
@@ -93,12 +93,12 @@ const quoteImage = css(
       circle: {
         '--width': 24,
         '--height': 24,
-        '--border-radius': 'var(--radii-circle)',
+        '--border-radius': 'var(--radii_circle)',
       },
       fill: {
         '--width': 'var(---,11rem)',
-        '--height': 'var(--size-auto)',
-        '--border-radius': 'var(--radii-none)',
+        '--height': 'var(--size_auto)',
+        '--border-radius': 'var(--radii_none)',
       },
     },
   },
