@@ -1,6 +1,6 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import { hasStyles, hasSomeStyles } from './utils';
-import { createConfig, css } from '../css';
+import { createCss } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup
@@ -20,7 +20,7 @@ interface TestContext {
 describe('css returned from createCss', () => {
   describe('when invoked with alias override', () => {
     beforeEach<TestContext>((context) => {
-      createConfig({
+      const css = createCss({
         aliases: {
           p: ['padding', 'pt', 'pr', 'pb', 'pl', 'px', 'py'],
           px: ['padding-left', 'padding-right', 'pl', 'pr'],
@@ -56,7 +56,7 @@ describe('css returned from createCss', () => {
 
     describe('when invoked with reordered aliases', () => {
       beforeEach<TestContext>((context) => {
-        createConfig({
+        const css = createCss({
           aliases: {
             pt: ['padding-top'],
             pr: ['padding-right'],
@@ -83,7 +83,7 @@ describe('css returned from createCss', () => {
 
   describe('when invoked with reordered alias longhands', () => {
     beforeEach<TestContext>((context) => {
-      createConfig({
+      const css = createCss({
         aliases: {
           p: ['padding', 'pt', 'pr', 'px', 'pl', 'py'],
           px: ['pl', 'pr', 'padding-left', 'padding-right'],

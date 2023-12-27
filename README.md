@@ -417,9 +417,21 @@ In your `.tokenami/tokenami.config` file, change the `@tokenami/dev` import to `
 + const { createConfig } = require('@tokenami/css');
 ```
 
-That's it 🎉. We can now create some aliases.
+Then create a file in your project to configure the utility. You can name this file however you like, e.g. `css.ts`:
+
+```ts
+// css.ts
+import { createCss } from '@tokenami/css';
+import config from '../.tokenami/tokenami.config';
+
+export const css = createCss(config);
+```
+
+Now you can import the utility from the file you created and it will handle aliases correctly.
 
 #### Create aliases
+
+The configuration expects the name of your new alias followed by an array of properties or aliases that it should replace when passed as an override to the `css` utility.
 
 ```ts
 module.exports = createConfig({
@@ -436,9 +448,7 @@ module.exports = createConfig({
 });
 ```
 
-The configuration expects the name of your new alias followed by an array of properties or aliases that it should replace when passed as an override to the `css` utility.
-
-For instance, in the example above `p` is shorthand for `pt`, `pr`, `pb`, `pl`, `px`, `py`, and `padding`. This allows the `css` utility to remove those properties when `--p` is passed as an override:
+With the above config, `p` is shorthand for `pt`, `pr`, `pb`, `pl`, `px`, `py`, and `padding`. This allows the `css` utility to remove those properties when `--p` is passed as an override:
 
 ```tsx
 const button = css({ '--pr': 4 });
@@ -452,7 +462,7 @@ function App() {
 }
 ```
 
-In this example `Button` will have `10` padding on all sides because we configured `--p` to take precendence over `--pr` when passed as an override. Without this config, the button would have `4` padding on the right because longhand properties have higher specificity in the atomic stylesheet.
+In this example, `Button` will have `10` padding on all sides because we configured `--p` to take precendence over `--pr` when passed as an override. Without this config, the button would have `4` padding on the right because longhand properties have higher specificity in the atomic stylesheet.
 
 ### Mapping properties to theme
 
