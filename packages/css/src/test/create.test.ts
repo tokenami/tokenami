@@ -1,46 +1,10 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import { hasStyles, hasSomeStyles } from './utils';
-import { createCss } from '../css';
+import { createConfig, css } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup
  * -----------------------------------------------------------------------------------------------*/
-
-const css = createCss({
-  aliases: {
-    p: ['padding', 'pt', 'pr', 'pb', 'pl', 'px', 'py'],
-    px: ['padding-left', 'padding-right', 'pl', 'pr'],
-    py: ['padding-top', 'padding-bottom', 'pt', 'pb'],
-    pt: ['padding-top'],
-    pr: ['padding-right'],
-    pb: ['padding-bottom'],
-    pl: ['padding-left'],
-  },
-} as any);
-
-const cssReorderedAliases = createCss({
-  aliases: {
-    pt: ['padding-top'],
-    pr: ['padding-right'],
-    pb: ['padding-bottom'],
-    pl: ['padding-left'],
-    p: ['pt', 'pr', 'pb', 'padding', 'pl', 'px', 'py'],
-    px: ['pl', 'padding-left', 'pr', 'padding-right'],
-    py: ['padding-top', 'pt', 'pb', 'padding-bottom'],
-  },
-} as any);
-
-const cssReorderedAliasLonghands = createCss({
-  aliases: {
-    p: ['padding', 'pt', 'pr', 'px', 'pl', 'py'],
-    px: ['pl', 'pr', 'padding-left', 'padding-right'],
-    py: ['pt', 'pb', 'padding-top', 'padding-bottom'],
-    pt: ['padding-top'],
-    pr: ['padding-right'],
-    pb: ['padding-bottom'],
-    pl: ['padding-left'],
-  },
-} as any);
 
 const overrides = [{ '--pl': 10 }, { '--px': 20 }, { '--p': 40 }];
 
@@ -51,12 +15,23 @@ const overrides = [{ '--pl': 10 }, { '--px': 20 }, { '--p': 40 }];
 interface TestContext {
   output: {};
   outputReorderedAliases: {};
-  outputReorderedAliasLonghands: {};
 }
 
 describe('css returned from createCss', () => {
   describe('when invoked with alias override', () => {
     beforeEach<TestContext>((context) => {
+      createConfig({
+        aliases: {
+          p: ['padding', 'pt', 'pr', 'pb', 'pl', 'px', 'py'],
+          px: ['padding-left', 'padding-right', 'pl', 'pr'],
+          py: ['padding-top', 'padding-bottom', 'pt', 'pb'],
+          pt: ['padding-top'],
+          pr: ['padding-right'],
+          pb: ['padding-bottom'],
+          pl: ['padding-left'],
+        },
+      } as any);
+
       context.output = css({
         '--color': 'var(---, red)',
         '--padding': 'var(---, 10px)',
@@ -81,7 +56,19 @@ describe('css returned from createCss', () => {
 
     describe('when invoked with reordered aliases', () => {
       beforeEach<TestContext>((context) => {
-        context.outputReorderedAliases = cssReorderedAliases({
+        createConfig({
+          aliases: {
+            pt: ['padding-top'],
+            pr: ['padding-right'],
+            pb: ['padding-bottom'],
+            pl: ['padding-left'],
+            p: ['pt', 'pr', 'pb', 'padding', 'pl', 'px', 'py'],
+            px: ['pl', 'padding-left', 'pr', 'padding-right'],
+            py: ['padding-top', 'pt', 'pb', 'padding-bottom'],
+          },
+        } as any);
+
+        context.outputReorderedAliases = css({
           '--color': 'var(---, red)',
           '--padding': 'var(---, 10px)',
           '--padding-left': 'var(---, 30px)',
@@ -96,14 +83,26 @@ describe('css returned from createCss', () => {
 
   describe('when invoked with reordered alias longhands', () => {
     beforeEach<TestContext>((context) => {
-      context.outputReorderedAliasLonghands = cssReorderedAliasLonghands({
+      createConfig({
+        aliases: {
+          p: ['padding', 'pt', 'pr', 'px', 'pl', 'py'],
+          px: ['pl', 'pr', 'padding-left', 'padding-right'],
+          py: ['pt', 'pb', 'padding-top', 'padding-bottom'],
+          pt: ['padding-top'],
+          pr: ['padding-right'],
+          pb: ['padding-bottom'],
+          pl: ['padding-left'],
+        },
+      } as any);
+
+      context.output = css({
         '--pr': '10px',
         '--pl': '30px',
       })(null, { '--px': 20 });
     });
 
     it<TestContext>('should override correctly', (context) => {
-      expect(context.outputReorderedAliasLonghands).toStrictEqual({ '--px': 20 });
+      expect(context.output).toStrictEqual({ '--px': 20 });
     });
   });
 });

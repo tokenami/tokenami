@@ -95,7 +95,7 @@ function getTokenValueParts(tokenValue: TokenValue) {
   return key && token ? { themeKey: key, token } : undefined;
 }
 
-export type { Config, Theme, Aliases };
+export type { Exact, Config, Theme, Aliases };
 export {
   TokenProperty,
   TokenValue,

@@ -1,5 +1,5 @@
 import * as Tokenami from '@tokenami/config';
-import { TokenamiStyles, ResponsiveKey } from '@tokenami/dev';
+import type { TokenamiStyles, ResponsiveKey } from '@tokenami/dev';
 import { mapShorthandToLonghands } from './shorthands';
 
 const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
@@ -75,13 +75,12 @@ function css<S extends TokenamiStyles, V extends VariantsConfig | undefined, R>(
 css[SHORTHANDS_TO_LONGHANDS] = mapShorthandToLonghands;
 
 /* -------------------------------------------------------------------------------------------------
- * create
+ * createConfig
  * -----------------------------------------------------------------------------------------------*/
 
-function createCss(config: Tokenami.Config) {
-  if (!config.aliases) return css;
+function createConfig<T extends Tokenami.Config>(config: Tokenami.Exact<Tokenami.Config, T>) {
   css[SHORTHANDS_TO_LONGHANDS] = { ...css[SHORTHANDS_TO_LONGHANDS], ...config.aliases };
-  return css;
+  return Tokenami.createConfig(config);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -108,4 +107,4 @@ function convertToMediaStyles(bp: string, styles: TokenamiStyles): TokenamiStyle
   return Object.fromEntries(updatedEntries);
 }
 
-export { createCss, css, convertToMediaStyles };
+export { createConfig, css, convertToMediaStyles };
