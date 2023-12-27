@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/config",
-  "version": "0.0.8-next.4",
+  "version": "0.0.8-next.5",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
