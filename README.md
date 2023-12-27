@@ -179,7 +179,7 @@ The keys in your `responsive` and `theme` objects can be anything you wish. Thes
 With your theme set up, there are only a few rules to remember:
 
 1. A Tokenami **property** is any CSS property prefixed with double dash, e.g. `--font-size`. Use `---` (triple dash) to add custom CSS variables to an element.
-1. A Tokenami **token** is any theme key followed by a value identifier. For example, a `color` object in theme with a `red-100` entry maps to `var(--color-red-100)`.
+1. A Tokenami **token** is any theme key followed by a value identifier, separated by an underscore. For example, a `color` object in theme with a `red-100` entry maps to `var(--color_red-100)`.
 1. Properties can include selectors like media queries, pseudo-classes, and pseudo-elements separated with an underscore. For instance, `--hover_background-color`, `--md_hover_background-color`.
 
 #### Grid values
@@ -253,7 +253,7 @@ module.exports = createConfig({
 Use by following the [token spec](#user-content-styling):
 
 ```tsx
-<div style={{ '--animation': 'var(--anim-wiggle)' }} />
+<div style={{ '--animation': 'var(--anim_wiggle)' }} />
 ```
 
 ## CSS utility
@@ -491,14 +491,14 @@ module.exports = createConfig({
 });
 ```
 
-With this configuration, using `'--content': 'var(--container-half)'` would error because `container` does not exist in the property config for `content`, but `'--content': 'var(--pet-dog)'` would be allowed:
+With this configuration, using `'--content': 'var(--container_half)'` would error because `container` does not exist in the property config for `content`, but `'--content': 'var(--pet_dog)'` would be allowed:
 
 ```tsx
 <div
   style={{
     '--width': 75 /*  300px with a 4px grid */,
-    '--height': 'var(--container-half)',
-    '--after_content': 'var(--pet-cat)',
+    '--height': 'var(--container_half)',
+    '--after_content': 'var(--pet_cat)',
   }}
 />
 ```
