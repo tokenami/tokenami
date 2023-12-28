@@ -9,6 +9,8 @@ declare module '@tokenami/dev' {
 
 declare module 'solid-js' {
   namespace JSX {
-    interface CSSProperties extends TokenamiProperties {}
+    interface CSSProperties extends TokenamiProperties {
+      [customProperty: `---${string}`]: string | number | undefined;
+    }
   }
 }
