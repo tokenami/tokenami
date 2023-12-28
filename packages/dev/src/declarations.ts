@@ -17,32 +17,31 @@ type ThemeConfig = NonNullable<TokenamiFinalConfig['theme']>;
 type ResponsiveKey = Extract<keyof ResponsiveConfig, string>;
 type AliasKey = Extract<keyof AliasesConfig, string>;
 
-type Style<P extends string, V> = { [key in Tokenami.TokenProperty<P>]?: V };
-type TokenamiStyle<P extends string, V = Value<P>> = Style<P, V> &
-  Style<`${ResponsiveKey}_${P}`, V> &
-  Style<`${string}_${P}`, V>;
+type CSSPropertyValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.PropertiesHyphen[P] : never;
+type ThemePropertyValue<ThemeKey> = ThemeKey extends 'grid'
+  ? TokenVar<ThemeKey> | Tokenami.ArbitraryValue | Tokenami.GridValue
+  : TokenVar<ThemeKey> | Tokenami.ArbitraryValue;
 
-type ThemeKey<P> = P extends keyof PropertyConfig
-  ? Exclude<NonNullable<PropertyConfig[P]>[number], 'grid'>
-  : never;
-
-type ThemeValue<TK> = TK extends keyof ThemeConfig ? keyof ThemeConfig[TK] : never;
-
-type TokenValue<P> = ThemeKey<P> extends `${infer TK}`
-  ? ThemeValue<TK> extends `${infer TV}`
-    ? Tokenami.TokenValue<TK, TV>
+type TokenName<ThemeKey> = ThemeKey extends keyof ThemeConfig ? keyof ThemeConfig[ThemeKey] : never;
+type TokenVar<ThemeKey> = ThemeKey extends string
+  ? TokenName<ThemeKey> extends `${infer Token}`
+    ? Tokenami.TokenValue<ThemeKey, Token>
     : never
   : never;
 
-type CSSPropertyValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.PropertiesHyphen[P] : never;
-
-type Value<P> = P extends keyof PropertyConfig
+type PropertyValue<P> = P extends keyof PropertyConfig
   ? PropertyConfig[P][number] extends infer ThemeKey
-    ? ThemeKey extends 'grid'
-      ? TokenValue<P> | Tokenami.ArbitraryValue | Tokenami.GridValue
-      : TokenValue<P> | Tokenami.ArbitraryValue
+    ? ThemeKey extends never
+      ? CSSPropertyValue<P>
+      : ThemePropertyValue<ThemeKey>
     : never
   : CSSPropertyValue<P>;
+
+type Style<P extends string, V> = { [key in Tokenami.TokenProperty<P>]?: V };
+
+type TokenamiStyle<P extends string, V = PropertyValue<P>> = Style<P, V> &
+  (ResponsiveKey extends never ? {} : Style<`${ResponsiveKey}_${P}`, V>) &
+  Style<`${string}_${P}`, V>;
 
 type TokenamiBaseStyles = TokenamiStyle<'-webkit-line-clamp'> &
   TokenamiStyle<'accent-color'> &
@@ -466,6 +465,9 @@ type TokenamiAliasStyles = {
     : never;
 }[AliasKey];
 
+// this complains that interfaces can only extend objects with statically known
+// members, but they are so works fine for now. will look into improving this later.
+// @ts-expect-error
 interface TokenamiProperties extends TokenamiBaseStyles, UnionToIntersection<TokenamiAliasStyles> {}
 
 export type { TokenamiConfig, TokenamiFinalConfig, TokenamiProperties, ResponsiveKey };

@@ -123,11 +123,9 @@ function init(modules: { typescript: typeof tslib }) {
             const value = ts.isStringLiteral(assignment.initializer) && assignment.initializer.text;
 
             if (value) {
-              const originalText = assignment.initializer.getText();
-              const arbitraryText = originalText.replace(
-                /^('|")?[\w\d_-]+('|")?$/,
-                `$1${TokenamiConfig.arbitraryValue(value)}$2`
-              );
+              const quoteMark = assignment.initializer.getText().slice(-1);
+              const arbitraryValue = TokenamiConfig.arbitraryValue(value);
+              const arbitraryText = `${quoteMark}${arbitraryValue}${quoteMark}`;
               return [
                 {
                   description: `Use ${arbitraryText} to mark as arbitrary`,
