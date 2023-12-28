@@ -8,8 +8,7 @@
   "repository": "https://github.com/tokenami/tokenami",
   "sideEffects": false,
   "files": [
-    "dist/*",
-    "stubs/*"
+    "dist"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format=esm,cjs --dts"
