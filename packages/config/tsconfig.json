@@ -2,10 +2,6 @@
   "extends": "../../tsconfig.json",
   "include": ["src"],
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["src/*"],
-      "@tokenami/dev": ["../dev/src/index.ts"]
-    }
+    "baseUrl": "."
   }
 }
