@@ -26,9 +26,9 @@ type SelectedVariants<V, R> = undefined extends V
   ? null
   : Variants<V> & (R extends true ? ResponsiveVariants<V> : {});
 
-function css<S extends TokenamiProperties, V extends VariantsConfig | undefined, R>(
-  baseStyles: S,
-  variantsConfig?: V,
+function css<V extends VariantsConfig | undefined, R>(
+  baseStyles: TokenamiProperties,
+  variantsConfig?: V & VariantsConfig,
   options?: undefined extends V ? never : { responsive: R & boolean }
 ) {
   const cache: Record<string, Record<string, any>> = {};
