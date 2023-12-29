@@ -95,10 +95,8 @@ describe('css returned from createCss', () => {
         },
       } as any);
 
-      context.output = css({
-        '--pr': '10px',
-        '--pl': '30px',
-      })(null, { '--px': 20 });
+      // @ts-expect-error tests don't have `tokenami.d.ts` so aliases will error here.
+      context.output = css({ '--pr': '10px', '--pl': '30px' })(null, { '--px': 20 });
     });
 
     it<TestContext>('should override correctly', (context) => {

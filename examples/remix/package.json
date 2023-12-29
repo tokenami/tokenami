@@ -10,7 +10,7 @@
     "dev:app": "remix dev",
     "dev:css": "tokenami --watch",
     "start": "remix-serve build",
-    "typecheck": "tsc",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
   "dependencies": {

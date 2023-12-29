@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 🏗 Setup repository
+        uses: ./.github/actions/setup-repo
+
+      - name: 🏗️ Build
+        run: pnpm build
+
+      - name: 🔍 Typecheck
+        run: pnpm typecheck
+
+      - name: 🔍 Test
+        run: pnpm test
