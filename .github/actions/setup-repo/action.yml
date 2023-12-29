@@ -13,6 +13,7 @@ runs:
       uses: pnpm/action-setup@v2
       with:
         version: ${{ inputs.pnpm-version }}
+        run_install: false
 
     - name: 🏗 Setup Node
       uses: actions/setup-node@v3
@@ -20,6 +21,19 @@ runs:
         node-version-file: '.nvmrc'
         registry-url: 'https://npm.pkg.github.com'
         cache: pnpm
+
+    - name: 📦 Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - name: 📦 Setup pnpm cache
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
 
     - name: 📦 Install dependencies
       run: pnpm install
