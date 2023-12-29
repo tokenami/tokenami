@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "pnpm build --watch src",
-    "test": "vitest"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",

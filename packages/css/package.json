@@ -14,7 +14,9 @@
   "scripts": {
     "build": "tsup",
     "dev": "pnpm build --watch src",
-    "test": "vitest"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@tokenami/config": "workspace:*"

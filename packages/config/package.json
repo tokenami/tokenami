@@ -11,7 +11,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format=esm,cjs --dts"
+    "build": "tsup src/index.ts --format=esm,cjs --dts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "valibot": "^0.25.0"

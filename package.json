@@ -7,6 +7,8 @@
     "dev": "pnpm --filter=./examples/remix dev",
     "build": "pnpm -r --filter=./packages/** build",
     "clean": "rm -rf **/node_modules && rm -rf **/dist",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "test": "pnpm -r --parallel test",
     "change": "changeset",
     "next:version": "changeset pre enter next || : && changeset version",
     "next:release": "changeset publish",
