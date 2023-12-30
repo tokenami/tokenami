@@ -1,7 +1,7 @@
 import * as Tokenami from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
-import * as utils from '~/utils';
+import * as utils from './utils';
 
 /* -------------------------------------------------------------------------------------------------
  * generate

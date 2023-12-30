@@ -83,6 +83,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
   - [Aliases](#user-content-aliases)
   - [Mapping properties to theme](#user-content-mapping-properties-to-theme)
   - [Browserslist](#user-content-browserslist)
+  - [Continuous Integration](#user-content-continuous-integration)
 - [Support](#user-content-support)
   - [Unable to install packages from GitHub registry](#user-content-unable-to-install-packages-from-github-registry)
   - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
@@ -119,7 +120,7 @@ Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.jso
 
 ```json
 {
-  "include": [".tokenami/tokenami.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [".tokenami/tokenami.env.d.ts", "**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     "plugins": [{ "name": "@tokenami/ts-plugin" }]
   }
@@ -507,6 +508,29 @@ With this configuration, using `'--content': 'var(--container_half)'` would erro
 ### Browserslist
 
 Tokenami only supports [browserslist](https://browsersl.ist/) in your `package.json`. You can use it to add autoprefixing to your CSS properties in the generated CSS file. However, it currently doesn't support vendor-prefixed **values**, which is being tracked in [this issue](https://github.com/tokenami/tokenami/issues/103).
+
+### Continuous Integration
+
+To improve performance during development, Tokenami widens its types and uses the TypeScript plugin for completions. Using `tsc` in the command line defaults to these widened types so it will not highlight errors for your properties or tokens. To get accurate types for CI, do the following:
+
+#### Create a CI project config
+
+Create a file named `tsconfig.ci.json` or `jsconfig.ci.json`. It should extend your original config and include the CI-specific Tokenami types:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "include": [".tokenami/tokenami.env.ci.d.ts", "**/*.ts", "**/*.tsx"]
+}
+```
+
+#### Reference CI project config
+
+For CI, use `tsc` with your new configuration:
+
+```sh
+tsc --noEmit --project tsconfig.ci.json
+```
 
 ## Support
 

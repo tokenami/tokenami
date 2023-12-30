@@ -73,7 +73,16 @@ function getConfigDefaultPath(cwd: string, type?: ProjectType) {
 
 function getTypeDefsPath(configPath: string) {
   const dirname = pathe.dirname(configPath);
-  return `${dirname}/tokenami.d.ts`;
+  return `${dirname}/tokenami.env.d.ts`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getCiTypeDefsPath
+ * -----------------------------------------------------------------------------------------------*/
+
+function getCiTypeDefsPath(configPath: string) {
+  const dirname = pathe.dirname(configPath);
+  return `${dirname}/tokenami.env.ci.d.ts`;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -126,7 +135,7 @@ function mergedConfigs(theirs: Tokenami.Config): Tokenami.Config {
  * generateTypeDefs
  * -----------------------------------------------------------------------------------------------*/
 
-function generateTypeDefs(configPath: string, stubPath = '../stubs/tokenami.d.ts') {
+function generateTypeDefs(configPath: string, stubPath = '../stubs/tokenami.env.d.ts') {
   const parsed = pathe.parse(configPath);
   const typeDefStubPath = pathe.resolve(__dirname, stubPath);
   const typeDefStub = fs.readFileSync(typeDefStubPath, 'utf8');
@@ -134,11 +143,19 @@ function generateTypeDefs(configPath: string, stubPath = '../stubs/tokenami.d.ts
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * generateCiTypeDefs
+ * -----------------------------------------------------------------------------------------------*/
+
+function generateCiTypeDefs(configPath: string) {
+  return generateTypeDefs(configPath, '../stubs/tokenami.env.ci.d.ts');
+}
+
+/* -------------------------------------------------------------------------------------------------
  * generateSolidJsTypeDefs
  * -----------------------------------------------------------------------------------------------*/
 
 function generateSolidJsTypeDefs(configPath: string) {
-  return generateTypeDefs(configPath, '../stubs/tokenami.solidjs.d.ts');
+  return generateTypeDefs(configPath, '../stubs/tokenami.env.solidjs.d.ts');
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -210,8 +227,10 @@ export {
   getConfigAtPath,
   getReloadedConfigAtPath,
   getTypeDefsPath,
+  getCiTypeDefsPath,
   generateConfig,
   generateTypeDefs,
+  generateCiTypeDefs,
   generateSolidJsTypeDefs,
   getValuesByTokenValueProperty,
   getLonghandsForAlias,

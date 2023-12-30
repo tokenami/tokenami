@@ -1,7 +1,7 @@
 import { TokenamiProperties } from '@tokenami/dev';
 import config from './tokenami.config';
 
-type Config = typeof config;
+export type Config = typeof config;
 
 declare module '@tokenami/dev' {
   interface TokenamiConfig extends Config {}
@@ -9,8 +9,6 @@ declare module '@tokenami/dev' {
 
 declare module 'solid-js' {
   namespace JSX {
-    interface CSSProperties extends TokenamiProperties {
-      [customProperty: `---${string}`]: string | number | undefined;
-    }
+    interface CSSProperties extends TokenamiProperties {}
   }
 }
