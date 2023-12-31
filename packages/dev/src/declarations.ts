@@ -8,14 +8,17 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
 
 // consumer will override this interface
 interface TokenamiConfig {}
-interface TokenamiFinalConfig extends Merge<Tokenami.DefaultConfig, TokenamiConfig> {}
+type TokenamiBaseConfig = Tokenami.DefaultConfig & { CI: false };
+interface TokenamiFinalConfig extends Merge<TokenamiBaseConfig, TokenamiConfig> {}
 
-type PropertyConfig = NonNullable<TokenamiFinalConfig['properties']>;
-type ResponsiveConfig = NonNullable<TokenamiFinalConfig['responsive']>;
-type AliasesConfig = NonNullable<TokenamiFinalConfig['aliases']>;
-type ThemeConfig = NonNullable<TokenamiFinalConfig['theme']>;
-type ResponsiveKey = Extract<keyof ResponsiveConfig, string>;
+type PropertyConfig = TokenamiFinalConfig['properties'];
+type ResponsiveConfig = TokenamiFinalConfig['responsive'];
+type SelectorsConfig = TokenamiFinalConfig['selectors'];
+type AliasesConfig = TokenamiFinalConfig['aliases'];
+type ThemeConfig = TokenamiFinalConfig['theme'];
 type AliasKey = Extract<keyof AliasesConfig, string>;
+type ResponsiveKey = Extract<keyof ResponsiveConfig, string>;
+type SelectorsKey = Extract<keyof SelectorsConfig, string>;
 
 type CSSPropertyValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.PropertiesHyphen[P] : never;
 type ThemePropertyValue<ThemeKey> = ThemeKey extends 'grid'
@@ -37,11 +40,13 @@ type PropertyValue<P> = P extends keyof PropertyConfig
     : never
   : CSSPropertyValue<P>;
 
-type Style<P extends string, V> = { [key in Tokenami.TokenProperty<P>]?: V };
+type VariantStyle<P extends string, V> = TokenamiFinalConfig['CI'] extends true
+  ? { [key in Tokenami.TokenProperty<`${ResponsiveKey}_${P}` | `${SelectorsKey}_${P}`>]?: V }
+  : { [key in Tokenami.TokenProperty<`${string}_${P}`>]: V };
 
-type TokenamiStyle<P extends string, V = PropertyValue<P>> = Style<P, V> &
-  (ResponsiveKey extends never ? {} : Style<`${ResponsiveKey}_${P}`, V>) &
-  Style<`${string}_${P}`, V>;
+type TokenamiStyle<P extends string, V = PropertyValue<P>> = VariantStyle<P, V> & {
+  [key in Tokenami.TokenProperty<P>]?: V;
+};
 
 type TokenamiBaseStyles = TokenamiStyle<'-webkit-line-clamp'> &
   TokenamiStyle<'accent-color'> &
@@ -468,6 +473,8 @@ type TokenamiAliasStyles = {
 // this complains that interfaces can only extend objects with statically known
 // members, but they are so works fine for now. will look into improving this later.
 // @ts-expect-error
-interface TokenamiProperties extends TokenamiBaseStyles, UnionToIntersection<TokenamiAliasStyles> {}
+interface TokenamiProperties extends TokenamiBaseStyles, UnionToIntersection<TokenamiAliasStyles> {
+  [customProperty: `---${string}`]: string | number | undefined;
+}
 
 export type { TokenamiConfig, TokenamiFinalConfig, TokenamiProperties, ResponsiveKey };

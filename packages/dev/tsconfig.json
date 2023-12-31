@@ -8,7 +8,6 @@
     "module": "esnext",
     "moduleResolution": "Bundler",
     "paths": {
-      "~/*": ["src/*"],
       "@tokenami/config": ["../config/src"],
       "@tokenami/dev": ["./src/index.ts"]
     }

@@ -7,10 +7,10 @@ import inquirer from 'inquirer';
 import * as fs from 'fs';
 import * as chokidar from 'chokidar';
 import * as pathe from 'pathe';
-import * as sheet from '~/sheet';
-import * as log from '~/log';
-import * as utils from '~/utils';
-import pkgJson from '~/../package.json';
+import * as sheet from './sheet';
+import * as log from './log';
+import * as utils from './utils';
+import pkgJson from './../package.json';
 import { require } from './require';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
@@ -34,7 +34,7 @@ const questions = [
 ];
 
 const run = () => {
-  const cli = cac('✨ tokenami');
+  const cli = cac('tokenami');
   const cwd = process.cwd();
 
   cli
@@ -55,16 +55,17 @@ const run = () => {
       const type = hasTsConfig ? 'ts' : hasJsConfig ? 'js' : answers.type;
       const include = `'${answers.include}'`;
       const configPath = utils.getConfigPath(cwd, flags?.config, type);
-      const typeDefsPath = utils.getTypeDefsPath(configPath);
       const outDir = pathe.dirname(configPath);
       const initialConfig = utils.generateConfig(include, configPath);
+      const ciTypeDefs = utils.generateCiTypeDefs(configPath);
       const typeDefs = projectPkgJson.match('solid-js')
         ? utils.generateSolidJsTypeDefs(configPath)
         : utils.generateTypeDefs(configPath);
 
       fs.mkdirSync(outDir, { recursive: true });
       fs.writeFileSync(configPath, initialConfig, { flag: 'w' });
-      fs.writeFileSync(typeDefsPath, typeDefs, { flag: 'w' });
+      fs.writeFileSync(utils.getTypeDefsPath(configPath), typeDefs, { flag: 'w' });
+      fs.writeFileSync(utils.getCiTypeDefsPath(configPath), ciTypeDefs, { flag: 'w' });
     });
 
   cli

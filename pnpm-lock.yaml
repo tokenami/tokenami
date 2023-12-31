@@ -9292,7 +9292,7 @@ packages:
     resolution: {directory: packages/ts-plugin, type: directory}
     id: file:packages/ts-plugin
     name: '@tokenami/ts-plugin'
-    version: 0.0.9
+    version: 0.0.10
     peerDependencies:
       '@tokenami/dev': workspace:*
     dependencies:

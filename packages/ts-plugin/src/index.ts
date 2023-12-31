@@ -5,6 +5,30 @@ import * as Tokenami from '@tokenami/dev';
 const INVALID_SELECTOR_ERROR_CODE = 50000;
 const INVALID_VALUE_ERROR_CODE = 2322;
 
+// this is in module scope because precomputed selector completions reference this object, but
+// we mutate the reference when completions open to ensure the correct config.
+let selectorReplacementConfig = { quote: "'", span: { start: 0, length: 1 } };
+
+// we pre-compute selector entries to improve performance
+function getSelectorCompletions(config: TokenamiConfig.Config): tslib.CompletionEntry[] {
+  const responsiveEntries = Object.entries(config.responsive || {});
+  const selectorsEntries = Object.entries(config.selectors || {});
+  return TokenamiConfig.properties.flatMap((entryName) => {
+    return [...responsiveEntries, ...selectorsEntries].map(([selector, description]) => {
+      const name = TokenamiConfig.variantProperty(selector, entryName);
+      return {
+        name,
+        kind: tslib.ScriptElementKind.memberVariableElement,
+        kindModifiers: tslib.ScriptElementKindModifier.optionalModifier,
+        sortText: name,
+        insertText: name + selectorReplacementConfig.quote,
+        labelDetails: { detail: '', description: String(description) },
+        replacementSpan: selectorReplacementConfig.span,
+      };
+    });
+  });
+}
+
 function init(modules: { typescript: typeof tslib }) {
   const ts = modules.typescript;
 
@@ -27,11 +51,13 @@ function init(modules: { typescript: typeof tslib }) {
     }
 
     let config = Tokenami.getConfigAtPath(configPath);
+    let selectorCompletions = getSelectorCompletions(config);
     const tokenConfigMap = new Map<string, { themeKey: string; tokenValue: string | number }>();
 
     ts.sys.watchFile?.(configPath, (_, eventKind: tslib.FileWatcherEventKind) => {
       if (eventKind === modules.typescript.FileWatcherEventKind.Changed) {
         config = Tokenami.getReloadedConfigAtPath(configPath);
+        selectorCompletions = getSelectorCompletions(config);
         info.project.refreshDiagnostics();
       }
     });
@@ -153,49 +179,48 @@ function init(modules: { typescript: typeof tslib }) {
 
       if (!original || !sourceFile) return original;
       const node = findNodeAtPosition(sourceFile, position);
-      const hasTokenamiEntries = original.entries.some((entry) => {
-        const isTokenProperty = TokenamiConfig.TokenProperty.safeParse(entry.name).success;
-        const isTokenValue = TokenamiConfig.TokenValue.safeParse(entry.name).success;
-        return isTokenProperty || isTokenValue;
-      });
+      if (!node || !ts.isStringLiteral(node)) return original;
 
-      if (!node || !ts.isStringLiteral(node) || !hasTokenamiEntries) {
-        return original;
-      }
+      const quoteMark = node.getText().slice(-1);
+      const isTokenValueEntries = original.entries.some(
+        (entry) => TokenamiConfig.TokenValue.safeParse(entry.name).success
+      );
+      const isTokenPropertyEntries = original.entries.some(
+        (entry) => TokenamiConfig.TokenProperty.safeParse(entry.name).success
+      );
 
-      original.entries = original.entries.flatMap((entry) => {
-        const entryName = entry.name;
-        const isTokenProperty = TokenamiConfig.TokenProperty.safeParse(entryName).success;
-        const isTokenValue = TokenamiConfig.TokenValue.safeParse(entryName).success;
-        const quoteMark = node.getText().slice(-1);
-        entry.sortText = entryName;
-
-        if (isTokenValue) {
+      if (isTokenValueEntries) {
+        info.project.projectService.logger.info(`TOKENAMI: value`);
+        original.entries = original.entries.map((entry) => {
+          const entryName = entry.name;
           const parts = TokenamiConfig.getTokenValueParts(entryName as any);
           const tokenValue = parts ? config.theme[parts.themeKey]?.[parts.token] : undefined;
+
           if (parts && tokenValue) {
             tokenConfigMap.set(parts.token, { themeKey: parts.themeKey, tokenValue });
             entry.name = `$${parts.token}`;
+            entry.sortText = entryName;
             entry.kindModifiers = parts.themeKey;
             entry.insertText = `${entryName}${quoteMark}`;
             entry.replacementSpan = { start: position, length: node.text.length + 1 };
             entry.labelDetails = { detail: '', description: entryName };
           }
-        } else if (isTokenProperty) {
-          const parts = Tokenami.getTokenPropertyParts(entryName as any, config);
-          const description = parts?.responsive && config.responsive?.[parts.responsive];
-          entry.insertText = `${entryName}${quoteMark}: `;
+          return entry;
+        });
+      } else if (isTokenPropertyEntries) {
+        original.entries = original.entries.flatMap((entry) => {
+          const isProperty = TokenamiConfig.TokenProperty.safeParse(entry.name).success;
+          // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
+          if (!isProperty) return [];
+          entry.insertText = `${entry.name}${quoteMark}`;
           entry.replacementSpan = { start: position, length: node.text.length + 1 };
-          if (description) {
-            entry.labelDetails = { detail: '', description };
-          }
-        } else {
-          // filter any suggestions that aren't tokenami properties or values
-          return [];
-        }
+          return [entry];
+        });
 
-        return [entry];
-      });
+        selectorReplacementConfig.quote = quoteMark;
+        selectorReplacementConfig.span.start = position;
+        original.entries = original.entries.concat(selectorCompletions);
+      }
 
       return original;
     };

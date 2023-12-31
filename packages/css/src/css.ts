@@ -33,10 +33,12 @@ function css<V extends VariantsConfig | undefined, R>(
 ) {
   const cache: Record<string, Record<string, any>> = {};
 
-  return function generate(
-    variants?: SelectedVariants<V, R>,
-    ...overrides: Override[]
-  ): TokenamiProperties {
+  // return type is purposfully `{}` to support `style` attribute type for different frameworks.
+  // returning `TokenamiProperties` is not enough here bcos that type can create circular refs
+  // in frameworks like SolidJS that use `CSS.PropertiesHyphen` as style attr type. i'm unsure
+  // what usecases requires an accurate return type here, so open to investigating further if we
+  // discover usecases later.
+  return function generate(variants?: SelectedVariants<V, R>, ...overrides: Override[]): {} {
     const cacheId = JSON.stringify({ variants, overrides });
     const cached = cache[cacheId];
 

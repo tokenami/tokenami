@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["remix.env.d.ts", ".tokenami/tokenami.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["remix.env.d.ts", ".tokenami/tokenami.env.d.ts", "**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-jsx",
