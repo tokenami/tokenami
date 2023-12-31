@@ -61,6 +61,11 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 > [!Warning]
 > This is a pre-alpha version of tokenami so there will be bugs and missing features. Please check the [existing issues](https://github.com/tokenami/tokenami/issues) for planned features/known bugs before creating new ones.
 
+
+## Demo
+
+https://github.com/tokenami/tokenami/assets/175330/313bceda-431e-482b-852d-e7cec5369e3a
+
 ## Contents
 
 - [Getting started](#user-content-getting-started)
