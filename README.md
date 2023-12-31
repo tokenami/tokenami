@@ -64,7 +64,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 
 ## Demo
 
-https://github.com/tokenami/tokenami/assets/175330/313bceda-431e-482b-852d-e7cec5369e3a
+https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-965188ed3a62
 
 ## Contents
 
