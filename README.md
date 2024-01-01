@@ -88,7 +88,6 @@ https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-96518
   - [Browserslist](#user-content-browserslist)
   - [Continuous Integration](#user-content-continuous-integration)
 - [Support](#user-content-support)
-  - [Unable to install packages from GitHub registry](#user-content-unable-to-install-packages-from-github-registry)
   - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
   - [Efficiency of Tokenami's attribute substring selectors](#user-content-efficiency-of-tokenamis-attribute-substring-selectors)
 - [Credits](#user-content-credits)
@@ -530,31 +529,23 @@ tsc --noEmit --project tsconfig.ci.json
 
 Before raising a bug, please double-check that it isn't [already in my todo list](https://github.com/tokenami/tokenami/issues). Some common pitfalls are listed below. If you need additional support or encounter any issues, please don't hesitate to join the [Tokenami discord server](https://discord.gg/CAU4HNR4XK).
 
-### Unable to install packages from GitHub registry
-
-If you are having trouble installing packages, remove `/:_authToken=$TOKENAMI_TOKEN` from `.npmrc` and run the following command:
-
-```
-npm login --scope=@tokenami --auth-type=legacy --registry=https://npm.pkg.github.com
-```
-
-The Personal Access Token you created earlier should be your password.
-
 ### HMR not working as expected in Remix
 
-Update `remix.config.js` to include your stylesheet in [`watchPaths`](https://remix.run/docs/en/main/file-conventions/remix-config#watchpaths). Then, import your stylesheet and add it to your `links` export:
+When adding the stylesheet to the `links` export, make sure to import it instead of referencing a path in the `href` property:
 
 ```tsx
-import styles from '~/../public/tokenami.css';
+import styles from '~/tokenami.css';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 ```
+
+If your stylesheet is outside the remix `app` directory, update `remix.config.js` to include it in [`watchPaths`](https://remix.run/docs/en/main/file-conventions/remix-config#watchpaths) and update the import path appropriately.
 
 ### Efficiency of Tokenami's attribute substring selectors
 
 Attribute substring selectors are known for being less efficient than other simpler selectors, however, they are unlikely to significantly impact performance in most cases. Despite being relatively less efficient, modern browsers handle these selectors well enough that the performance impact would be minimal for typical applications.
 
-Comparatively, historical CSS-in-JS solutions involved style injection, which significantly hindered performance. In this context, attribute substring selectors will offer a considerable improvement.
+Comparatively, historical CSS-in-JS solutions involved style injection techniques which could significantly hinder performance. In this context, attribute substring selectors will offer a considerable improvement.
 
 ## Credits
 
