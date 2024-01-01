@@ -1,0 +1,12 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@tokenami/example-remix": "0.0.0",
+    "@tokenami/config": "0.0.11",
+    "@tokenami/css": "0.0.11",
+    "@tokenami/dev": "0.0.11",
+    "@tokenami/ts-plugin": "0.0.11"
+  },
+  "changesets": []
+}
