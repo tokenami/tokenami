@@ -2,17 +2,21 @@ name: Release
 
 on: workflow_dispatch
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+  REGISTRY_URL: 'https://registry.npmjs.org'
 
 jobs:
   release:
     name: Release
     permissions: write-all
     runs-on: ubuntu-latest
+
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v3

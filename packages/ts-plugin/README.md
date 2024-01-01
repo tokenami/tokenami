@@ -1,6 +1,8 @@
 # @tokenami/ts-plugin
 
-to debug:
+View docs [here](https://github.com/tokenami/tokenami).
+
+## Debugging
 
 - run `TSS_DEBUG=5667 code examples/remix --user-data-dir ~/.vscode-debug/` to open example project in a separate clean editor (port can be whatever you want)
   - open any typescript file

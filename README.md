@@ -61,7 +61,6 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 > [!Warning]
 > This is a pre-alpha version of tokenami so there will be bugs and missing features. Please check the [existing issues](https://github.com/tokenami/tokenami/issues) for planned features/known bugs before creating new ones.
 
-
 ## Demo
 
 https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-965188ed3a62
@@ -69,7 +68,6 @@ https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-96518
 ## Contents
 
 - [Getting started](#user-content-getting-started)
-  - [Prerequisite](#user-content-prerequisite)
   - [Installation](#user-content-installation)
   - [Configure TypeScript](#user-content-configure-typescript)
   - [Start CLI watch script](#user-content-start-the-cli-watch-script)
@@ -97,18 +95,7 @@ https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-96518
 
 ## Getting started
 
-The set up is a little complex during pre-alpha. This [will be simplified](https://github.com/tokenami/tokenami/issues/82) before version one.
-
-### Prerequisite
-
-The packages exist on the GitHub registry for now. To access them, add the following to an `.npmrc` file in your project root:
-
-```
-//npm.pkg.github.com/:_authToken=${TOKENAMI_TOKEN}
-@tokenami:registry=https://npm.pkg.github.com
-```
-
-Create a GitHub [Personal Access Token (classic)](https://github.com/settings/tokens/new) with `read:packages` rights and replace the `TOKENAMI_TOKEN`, or store it in an `.env` file.
+Tokenami offers a CLI tool for generating static styles, and a TypeScript plugin to enhance the developer experience. An optional CSS utility is also provided and recommended when composing across component boundaries.
 
 ### Installation
 
@@ -135,6 +122,8 @@ Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.jso
 Make sure your editor is configured to use the project's version of TypeScript. You can find instructions for various editors in their documentation, such as for VSCode [here](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript).
 
 ### Start the CLI watch script
+
+Run the CLI tool to scan your template files for tokenami properties and build your CSS. This would usually exist as a script in your `package.json`.
 
 ```sh
 npx tokenami --output ./public/styles.css --watch
