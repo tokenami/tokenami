@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '.changeset/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,6 +21,7 @@ jobs:
     name: Prerelease
     permissions: write-all
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, 'Latest release') }}
 
     steps:
       - name: 🏗 Checkout repository
