@@ -8,5 +8,7 @@
     "@tokenami/dev": "0.0.11",
     "@tokenami/ts-plugin": "0.0.11"
   },
-  "changesets": []
+  "changesets": [
+    "healthy-peaches-sort"
+  ]
 }
