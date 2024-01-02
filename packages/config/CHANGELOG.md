@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.14
+
+### Patch Changes
+
+- 68dd5c3: Improve selectore defaults for better performance
+
 ## 0.0.14-next.0
 
 ### Patch Changes
