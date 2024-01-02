@@ -8,5 +8,7 @@
     "@tokenami/dev": "0.0.12",
     "@tokenami/ts-plugin": "0.0.12"
   },
-  "changesets": []
+  "changesets": [
+    "cold-jokes-help"
+  ]
 }
