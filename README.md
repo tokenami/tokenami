@@ -90,6 +90,7 @@ https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-96518
 - [Support](#user-content-support)
   - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
   - [Efficiency of Tokenami's attribute substring selectors](#user-content-efficiency-of-tokenamis-attribute-substring-selectors)
+  - [Supported frameworks](#user-content-supported-frameworks)
 - [Credits](#user-content-credits)
 
 ## Getting started
@@ -546,6 +547,10 @@ If your stylesheet is outside the remix `app` directory, update `remix.config.js
 Attribute substring selectors are known for being less efficient than other simpler selectors, however, they are unlikely to significantly impact performance in most cases. Despite being relatively less efficient, modern browsers handle these selectors well enough that the performance impact would be minimal for typical applications.
 
 Comparatively, historical CSS-in-JS solutions involved style injection techniques which could significantly hinder performance. In this context, attribute substring selectors will offer a considerable improvement.
+
+### Supported frameworks
+
+Tokenami is in early stages of development and currently only supports applications built using React or SolidJS.
 
 ## Credits
 
