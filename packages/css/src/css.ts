@@ -62,13 +62,13 @@ function css<V extends VariantsConfig | undefined, R>(
     overrideStyles.forEach((overrideStyle) => {
       if (overrideStyle) {
         for (let tokenProperty in overrideStyle) {
-          const property = Tokenami.getTokenPropertyName(tokenProperty as any);
+          const property = Tokenami.getTokenPropertyName(tokenProperty as keyof TokenamiProperties);
           override(css, property);
         }
+        // this must happen each iteration so that each override applies to the
+        // mutated css object from the previous override iteration
+        Object.assign(css, overrideStyle);
       }
-      // this must happen each iteration so that each override applies to the
-      // mutated css object from the previous override iteration
-      Object.assign(css, overrideStyle);
     });
 
     cache[cacheId] = css;

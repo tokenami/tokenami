@@ -17,7 +17,7 @@ function arbitraryValue(value: string): ArbitraryValue {
   return `var(---,${value})`;
 }
 
-const tokenPropertyRegex = /--((\w)([\w-]+)?)/;
+const tokenPropertyRegex = /(?<!var\()--((\w)([\w-]+)?)/;
 const tokenValueRegex = /var\(--([\w-]+)_([\w-]+)\)/;
 const aritraryValueRegex = /var\(---,(.+)\)/;
 
@@ -26,11 +26,13 @@ const gridValueSchema = v.number();
 const GridValue = { safeParse: (input: unknown) => v.safeParse(gridValueSchema, input) };
 
 type TokenProperty<P extends string = string> = `--${P}`;
-const tokenPropertySchema = v.string([v.regex(tokenPropertyRegex)]);
+const tokenPropertyRegexSchema = v.regex(tokenPropertyRegex);
+const tokenPropertySchema = v.string([tokenPropertyRegexSchema]) as v.StringSchema<TokenProperty>;
 const TokenProperty = { safeParse: (input: unknown) => v.safeParse(tokenPropertySchema, input) };
 
 type TokenValue<TK extends string = string, V extends string = string> = `var(--${TK}_${V})`;
-const tokenValueSchema = v.string([v.regex(tokenValueRegex)]);
+const tokenValueRegexSchema = v.regex(tokenValueRegex);
+const tokenValueSchema = v.string([tokenValueRegexSchema]) as v.StringSchema<TokenValue>;
 const TokenValue = { safeParse: (input: unknown) => v.safeParse(tokenValueSchema, input) };
 
 type ArbitraryValue = `var(---,${string})`;
@@ -88,8 +90,8 @@ function getTokenPropertyName(tokenProperty: TokenProperty) {
 }
 
 function getTokenValueParts(tokenValue: TokenValue) {
-  const [, key, token] = tokenValue.split(tokenValueRegex);
-  return key && token ? { themeKey: key, token } : undefined;
+  const [, key, token] = tokenValue.split(tokenValueRegex) as [string, string, string];
+  return { themeKey: key, token };
 }
 
 export type { Config, Theme, Aliases };
