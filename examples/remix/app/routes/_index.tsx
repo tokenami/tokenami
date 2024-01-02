@@ -78,6 +78,7 @@ export default function Index() {
           '--transition': 'var(---,all 150ms)',
           '--hover_animation': 'var(--anim_wiggle)',
           '--focus-hover_background-color': 'var(--color_sky-500)',
+          '--md_focus-hover_background-color': 'var(--color_slate-700)',
         }}
       >
         Button
