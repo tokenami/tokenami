@@ -25,13 +25,6 @@ type ThemePropertyValue<ThemeKey> = ThemeKey extends 'grid'
   ? TokenVar<ThemeKey> | Tokenami.ArbitraryValue | Tokenami.GridValue
   : TokenVar<ThemeKey> | Tokenami.ArbitraryValue;
 
-type TokenName<ThemeKey> = ThemeKey extends keyof ThemeConfig ? keyof ThemeConfig[ThemeKey] : never;
-type TokenVar<ThemeKey> = ThemeKey extends string
-  ? TokenName<ThemeKey> extends `${infer Token}`
-    ? Tokenami.TokenValue<ThemeKey, Token>
-    : never
-  : never;
-
 type PropertyValue<P> = P extends keyof PropertyConfig
   ? PropertyConfig[P][number] extends infer ThemeKey
     ? ThemeKey extends never
@@ -40,8 +33,21 @@ type PropertyValue<P> = P extends keyof PropertyConfig
     : never
   : CSSPropertyValue<P>;
 
+type TokenName<ThemeKey> = ThemeKey extends keyof ThemeConfig ? keyof ThemeConfig[ThemeKey] : never;
+type TokenVar<ThemeKey> = ThemeKey extends string
+  ? TokenName<ThemeKey> extends `${infer Token}`
+    ? Tokenami.TokenValue<ThemeKey, Token>
+    : never
+  : never;
+
+type SelectorVariantStyle<P extends string, V> = {
+  [key in Tokenami.TokenProperty<
+    `${ResponsiveKey}_${P}` | `${SelectorsKey}_${P}` | `${ResponsiveKey}_${SelectorsKey}_${P}`
+  >]?: V;
+};
+
 type VariantStyle<P extends string, V> = TokenamiFinalConfig['CI'] extends true
-  ? { [key in Tokenami.TokenProperty<`${ResponsiveKey}_${P}` | `${SelectorsKey}_${P}`>]?: V }
+  ? SelectorVariantStyle<P, V>
   : { [key in Tokenami.TokenProperty<`${string}_${P}`>]: V };
 
 type TokenamiStyle<P extends string, V = PropertyValue<P>> = VariantStyle<P, V> & {

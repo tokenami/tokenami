@@ -290,6 +290,10 @@
 }
 
 @media (min-width: 700px) {
+  [style*="--md_focus-hover_background-color:"]:focus:hover {
+    background-color: var(--md_focus-hover_background-color, var(--background-color));
+  }
+
   [style*="--md_border-radius:"] {
     border-radius: var(--md_border-radius, var(--border-radius));
   }
