@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.13
+
+### Patch Changes
+
+- c5479fd: Add intellisense for responsive selectors
+- Updated dependencies [c5479fd]
+  - @tokenami/config@0.0.13
+  - @tokenami/dev@0.0.13
+
 ## 0.0.13-next.0
 
 ### Patch Changes
