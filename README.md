@@ -351,7 +351,7 @@ const button = css(
 
 ### Selectors
 
-Tokenami provides some [common default selectors](https://github.com/tokenami/tokenami/blob/main/packages/config/stubs/config.default.ts#L26) for you but you can define your own custom selectors in the `selectors` object of your config.
+Tokenami provides some [common default selectors](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.default.ts#L9) for you but you can define your own custom selectors in the `selectors` object of your config.
 
 Use the ampersand (`&`) to specify where the current element's selector should be injected:
 
@@ -462,7 +462,7 @@ In this example, `Button` will have `10` padding on all sides because we configu
 
 Tokenami provides sensible defaults to restrict which values can be passed to properties based on your theme. For instance, `--border-color` will only accept tokens from your `color` object in theme, `--padding` allows multiples of your grid, and `--height` expects tokens from a `size` key or multiples of your grid.
 
-You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/config/stubs/config.default.ts#L85) by overriding the `properties` object in your configuration:
+You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.default.ts#L68) by overriding the `properties` object:
 
 ```ts
 const { createConfig, defaultConfig } = require('@tokenami/dev');
