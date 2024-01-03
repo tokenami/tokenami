@@ -1,12 +1,12 @@
-import chalk from 'chalk';
+import chalk from "chalk";
 
 /* -------------------------------------------------------------------------------------------------
  * error
  * -----------------------------------------------------------------------------------------------*/
 
 function error(str: string): never {
-  console.error(`${chalk.bgRed(' tokenami ')} ${chalk.red(str)}`);
-  process.exit(1);
+	console.error(`${chalk.bgRed(" tokenami ")} ${chalk.red(str)}`);
+	process.exit(1);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -14,7 +14,7 @@ function error(str: string): never {
  * -----------------------------------------------------------------------------------------------*/
 
 function debug(str: string) {
-  console.debug(`${chalk.bgYellow(' tokenami ')} ${chalk.yellow(str)}`);
+	console.debug(`${chalk.bgYellow(" tokenami ")} ${chalk.yellow(str)}`);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

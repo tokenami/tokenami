@@ -1,4 +1,9 @@
 {
-  "extends": "./tsconfig.json",
-  "include": ["remix.env.d.ts", ".tokenami/tokenami.env.ci.d.ts", "**/*.ts", "**/*.tsx"]
+	"extends": "./tsconfig.json",
+	"include": [
+		"remix.env.d.ts",
+		".tokenami/tokenami.env.ci.d.ts",
+		"**/*.ts",
+		"**/*.tsx"
+	]
 }

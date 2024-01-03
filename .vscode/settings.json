@@ -1,8 +1,8 @@
 {
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "typescript.tsdk": "node_modules/typescript/lib",
-  // ~/.config/Code/logs/**/tsserver.log
-  "typescript.tsserver.log": "verbose",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"typescript.tsdk": "node_modules/typescript/lib",
+	// ~/.config/Code/logs/**/tsserver.log
+	"typescript.tsserver.log": "verbose",
+	"typescript.enablePromptUseWorkspaceTsdk": true
 }

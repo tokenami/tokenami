@@ -1,12 +1,12 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      // See: https://github.com/microsoft/TypeScript/wiki/Debugging-Language-Service-in-VS-Code
-      "type": "node",
-      "request": "attach",
-      "name": "Attach to VS Code TS Server via Port",
-      "processId": "${command:PickProcess}"
-    }
-  ]
+	"version": "0.2.0",
+	"configurations": [
+		{
+			// See: https://github.com/microsoft/TypeScript/wiki/Debugging-Language-Service-in-VS-Code
+			"type": "node",
+			"request": "attach",
+			"name": "Attach to VS Code TS Server via Port",
+			"processId": "${command:PickProcess}"
+		}
+	]
 }
