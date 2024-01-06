@@ -1,5 +1,12 @@
 # @tokenami/config
 
+## 0.0.15
+
+### Patch Changes
+
+- 6c8c318: Allow selectors that begin with a number
+- 637d4bb: Add aliases to resets to prevent alias inheritence
+
 ## 0.0.15-next.1
 
 ### Patch Changes
