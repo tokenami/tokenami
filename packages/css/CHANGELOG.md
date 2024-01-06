@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.15-next.0
+
+### Patch Changes
+
+- 6c8c318: Allow selectors that begin with a number
+- Updated dependencies [6c8c318]
+  - @tokenami/dev@0.0.15-next.0
+  - @tokenami/config@0.0.15-next.0
+
 ## 0.0.14
 
 ### Patch Changes
