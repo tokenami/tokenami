@@ -57,13 +57,12 @@ function generate(
       // it will fall back to any non-variant values applied to the same element
       const variantValueVar = `var(${usedTokenProperty}, ${valueVar})`;
       const getStyles = (value: string): Styles => ({ [property]: value });
-
-      function getVariantStyles(value: string) {
+      const getVariantStyles = (value: string) => {
         const baseStyles = getStyles(value);
         return [responsive].concat(selector).reduce((styles, template) => {
           return template ? { [template]: styles } : styles;
         }, baseStyles);
-      }
+      };
 
       // we use property to create a unique key for the selector because an alias
       // selector can apply to multiple properties
@@ -81,6 +80,9 @@ function generate(
 
       layers.reset['*'] = {
         ...layers.reset['*'],
+        // we set to `var(---)` to activate property fallbacks that reference this alias
+        // https://codepen.io/jjenzz/pen/wvOGdrY
+        [Tokenami.tokenProperty(parts.alias)]: 'var(---)',
         [Tokenami.tokenProperty(property)]: getResetTokenValue(property, config),
       };
 
