@@ -43,7 +43,9 @@
 * {
   --height: ;
   --min-height: ;
+  --m: var(---);
   --margin: var(--m, );
+  --p: var(---);
   --padding: var(--p, );
   --background-size: ;
   --background-image: ;
@@ -54,18 +56,27 @@
   --flex-direction: ;
   --align-items: ;
   --justify-content: ;
+  --bg-color: var(---);
   --border-radius: ;
   --text-align: ;
   --overflow: ;
+  --px: var(---);
   --padding-left: var(--pl, var(--px, ));
   --padding-right: var(--pr, var(--px, ));
+  --py: var(---);
   --padding-top: var(--pt, var(--py, ));
   --padding-bottom: var(--pb, var(--py, ));
   --font-family: ;
   --line-height: ;
+  --pt: var(---);
   --font-size: ;
   --font-weight: ;
+  --mb: var(---);
   --margin-bottom: var(--mb, var(--my, ));
+  --mx: var(---);
+  --margin-left: var(--ml, var(--mx, ));
+  --margin-right: var(--mr, var(--mx, ));
+  --ml: var(---);
   --color: ;
   --width: ;
   --border: ;
@@ -74,6 +85,7 @@
   --object-fit: ;
   --all: ;
   --border-left-width: ;
+  --pl: var(---);
   --border-right-width: ;
 }
 
@@ -176,8 +188,16 @@
   margin: calc(var(--grid) * var(--margin));
 }
 
+[style*="--mx:"] {
+  margin-right: calc(var(--grid) * var(--margin-right));
+}
+
 [style*="--mb:"] {
   margin-bottom: calc(var(--grid) * var(--margin-bottom));
+}
+
+[style*="--mx:"], [style*="--ml:"] {
+  margin-left: calc(var(--grid) * var(--margin-left));
 }
 
 [style*="--min-height:"] {
@@ -257,8 +277,16 @@
   margin: var(--margin);
 }
 
+[style*="--mx:var"], [style*="--mx: var"] {
+  margin-right: var(--margin-right);
+}
+
 [style*="--mb:var"], [style*="--mb: var"] {
   margin-bottom: var(--margin-bottom);
+}
+
+[style*="--mx:var"], [style*="--mx: var"], [style*="--ml:var"], [style*="--ml: var"] {
+  margin-left: var(--margin-left);
 }
 
 [style*="--min-height:var"], [style*="--min-height: var"] {

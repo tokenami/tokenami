@@ -56,7 +56,13 @@ export default function Index() {
             >
               "Like Tailwind, but atomic tokens."
             </p>
+            <div style={{ '--m': 5 }}>
+              <div style={{ '--mx': 3 }}>
+                <p style={{ '--ml': 12 }}>Testing aliases</p>
+              </div>
+            </div>
           </blockquote>
+
           <figcaption style={{ '--font-weight': 'var(---,500)' }}>
             <div style={{ '--color': 'var(--color_sky-500)' }}>Jenna Smith</div>
             <div style={{ '--color': 'var(--color_slate-700)' }}>@jjenzz</div>
