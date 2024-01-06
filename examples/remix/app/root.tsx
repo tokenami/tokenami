@@ -1,10 +1,7 @@
-import { cssBundleHref } from '@remix-run/css-bundle';
-import type { LinksFunction } from '@remix-run/node';
 import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
+import type { TokenamiFinalConfig } from '@tokenami/dev';
 
-export const links: LinksFunction = () => [
-  ...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : []),
-];
+export type IS_CI = TokenamiFinalConfig['CI'];
 
 export default function App() {
   return (

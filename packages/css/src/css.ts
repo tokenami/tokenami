@@ -1,5 +1,5 @@
 import * as Tokenami from '@tokenami/config';
-import type { TokenamiProperties, ResponsiveKey } from '@tokenami/dev';
+import type { TokenamiProperties, TokenamiFinalConfig } from '@tokenami/dev';
 import { mapShorthandToLonghands } from './shorthands';
 
 const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
@@ -10,11 +10,8 @@ const SHORTHANDS_TO_LONGHANDS = Symbol.for('tokenamiShorthandToLonghands');
 
 type VariantsConfig = Record<string, Record<string, TokenamiProperties>>;
 type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
-type ResponsiveValue<T> = T extends string
-  ? ResponsiveKey extends `${infer R}`
-    ? `${R}_${T}`
-    : never
-  : never;
+type ReponsiveKey = Extract<keyof TokenamiFinalConfig['responsive'], string>;
+type ResponsiveValue<T> = T extends string ? `${ReponsiveKey}_${T}` : never;
 
 type Override = TokenamiProperties | false | undefined;
 type Variants<C> = { [V in keyof C]?: VariantValue<keyof C[V]> };

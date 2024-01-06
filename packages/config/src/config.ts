@@ -18,6 +18,7 @@ function arbitraryValue(value: string): ArbitraryValue {
 }
 
 const tokenPropertyRegex = /(?<!var\()--((\w)([\w-]+)?)/;
+const variantPropertyRegex = /(?<!var\()--((\w)([\w-]+)_([\w-]+))/;
 const tokenValueRegex = /var\(--([\w-]+)_([\w-]+)\)/;
 const aritraryValueRegex = /var\(---,(.+)\)/;
 
@@ -29,6 +30,15 @@ type TokenProperty<P extends string = string> = `--${P}`;
 const tokenPropertyRegexSchema = v.regex(tokenPropertyRegex);
 const tokenPropertySchema = v.string([tokenPropertyRegexSchema]) as v.StringSchema<TokenProperty>;
 const TokenProperty = { safeParse: (input: unknown) => v.safeParse(tokenPropertySchema, input) };
+
+type VariantProperty<P extends string = string, V extends string = string> = `--${V}_${P}`;
+const variantPropertyRegexSchema = v.regex(variantPropertyRegex);
+const variantPropertySchema = v.string([
+  variantPropertyRegexSchema,
+]) as v.StringSchema<VariantProperty>;
+const VariantProperty = {
+  safeParse: (input: unknown) => v.safeParse(variantPropertySchema, input),
+};
 
 type TokenValue<TK extends string = string, V extends string = string> = `var(--${TK}_${V})`;
 const tokenValueRegexSchema = v.regex(tokenValueRegex);
@@ -79,24 +89,64 @@ interface Config
     properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
   }> {}
 
+/* -------------------------------------------------------------------------------------------------
+ * createConfig
+ * -----------------------------------------------------------------------------------------------*/
+
 const createConfig = <T extends Config>(obj: Exact<Config, T>): DeepReadonly<T> => {
   return obj as DeepReadonly<T>;
 };
 
-/* ---------------------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------------------
+ * getTokenPropertyName
+ * -----------------------------------------------------------------------------------------------*/
 
 function getTokenPropertyName(tokenProperty: TokenProperty) {
   return tokenProperty.replace(tokenPropertyRegex, '$1');
 }
+
+/* -------------------------------------------------------------------------------------------------
+ * getTokenPropertyParts
+ * -----------------------------------------------------------------------------------------------*/
+
+type Parts = {
+  name: string;
+  alias: string;
+  responsive?: string;
+  selector?: string;
+};
+
+function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): Parts | null {
+  const name = getTokenPropertyName(tokenProperty);
+  const [alias, ...variants] = name.split('_').reverse() as [string, ...string[]];
+  const responsiveVariants = variants.filter((variant) => config.responsive?.[variant]);
+  const selectorVariants = variants.filter((variant) => config.selectors?.[variant]);
+  const validVariants = responsiveVariants.concat(selectorVariants);
+  const isValidResponsive = responsiveVariants.length <= 1;
+  // we only allow 1 selector to enforce custom selectors for chained selectors
+  const isValidSelector = selectorVariants.length <= 1;
+  const isValidVariants = variants.length === validVariants.length;
+  const isValid = isValidResponsive && isValidSelector && isValidVariants;
+  const [responsive] = responsiveVariants;
+  const [selector] = selectorVariants;
+  return isValid ? { name, alias, responsive, selector } : null;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getTokenValueParts
+ * -----------------------------------------------------------------------------------------------*/
 
 function getTokenValueParts(tokenValue: TokenValue) {
   const [, key, token] = tokenValue.split(tokenValueRegex) as [string, string, string];
   return { themeKey: key, token };
 }
 
+/* ---------------------------------------------------------------------------------------------- */
+
 export type { Config, Theme, Aliases };
 export {
   TokenProperty,
+  VariantProperty,
   TokenValue,
   GridValue,
   ArbitraryValue,
@@ -106,6 +156,7 @@ export {
   tokenValue,
   arbitraryValue,
   getTokenPropertyName,
+  getTokenPropertyParts,
   getTokenValueParts,
   createConfig,
 };

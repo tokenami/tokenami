@@ -559,5 +559,6 @@ A big thanks to:
 - [Tailwind CSS](https://tailwindcss.com/) for inspiring most of the features in Tokenami
 - [Stitches](https://stitches.dev/) for variants and responsive variants inspiration
 - [CSS Hooks](https://css-hooks.com/) for custom selectors inspiration
+- [Lightning CSS](https://lightningcss.dev/) for generating the Tokenami stylesheet
 
-Please do take the time to check these libraries out if you feel Tokenami isn't quite right for you.
+Please do take the time to check these projects out if you feel Tokenami isn't quite right for you.

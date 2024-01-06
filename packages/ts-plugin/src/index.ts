@@ -27,8 +27,9 @@ function init(modules: { typescript: typeof tslib }) {
   function getSelectorCompletions(config: TokenamiConfig.Config): tslib.CompletionEntry[] {
     const responsiveEntries = Object.entries(config.responsive || {});
     const selectorsEntries = Object.entries(config.selectors || {});
+    const aliasProperties = Object.keys(config.aliases || {});
 
-    return TokenamiConfig.properties.flatMap((property) => {
+    return [...TokenamiConfig.properties, ...aliasProperties].flatMap((property) => {
       const createCompletionEntry = createVariantPropertyEntry(property);
       const entries = responsiveEntries.flatMap((entry) => {
         const responsiveEntry = createCompletionEntry(entry);
@@ -136,7 +137,7 @@ function init(modules: { typescript: typeof tslib }) {
             const parsedProperty = TokenamiConfig.TokenProperty.safeParse(property);
 
             if (parsedProperty.success) {
-              const parts = Tokenami.getTokenPropertyParts(parsedProperty.output, config);
+              const parts = TokenamiConfig.getTokenPropertyParts(parsedProperty.output, config);
 
               if (!parts) {
                 original.push({
@@ -286,6 +287,7 @@ function init(modules: { typescript: typeof tslib }) {
           const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
           // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
           if (!property.success) return [];
+          entry.sortText = property.output;
           entry.insertText = `${property.output}${quoteMark}`;
           entry.replacementSpan = { start: position, length: node.text.length + 1 };
           return [entry];

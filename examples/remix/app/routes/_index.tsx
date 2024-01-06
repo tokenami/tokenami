@@ -1,6 +1,8 @@
+import type { LinksFunction } from '@remix-run/node';
+import styles from '~/../public/tokenami.css';
 import { css } from '~/css';
 
-export const links = () => [{ rel: 'stylesheet', href: '/tokenami.css' }];
+export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
 export default function Index() {
   return (
