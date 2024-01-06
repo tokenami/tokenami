@@ -176,52 +176,52 @@ function watch(cwd: string, include: readonly string[], exclude?: readonly strin
  * -----------------------------------------------------------------------------------------------*/
 
 async function findUsedTokenProperties(cwd: string, config: Tokenami.Config) {
-  const cssVariables = await findUsedCssVariables(cwd, config);
-  const tokenamiProperties = cssVariables.flatMap((variable) => {
-    const validated = Tokenami.TokenProperty.safeParse(variable);
-    return validated.success ? [validated.data] : [];
-  });
-  return tokenamiProperties as Tokenami.TokenProperty[];
-}
-
-/* -------------------------------------------------------------------------------------------------
- * findUsedCssVariables
- * -----------------------------------------------------------------------------------------------*/
-
-async function findUsedCssVariables(cwd: string, config: Tokenami.Config) {
   const include = config.include as string[];
   const exclude = config.exclude as string[];
   const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore: exclude });
-  const tokenPropertyRegex = /(?<cssVar>-+[a-z-_]+)("|')?\:/g;
-  const allCssVariables = entries.flatMap((entry) => {
+  const allTokenProperties = entries.flatMap((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
-    const matches = fileContent.matchAll(tokenPropertyRegex);
-    const responsiveVariants = findResponsiveCSSUtilityVariables(fileContent, config.responsive);
-    return Array.from(matches, (match) => match.groups?.cssVar).concat(responsiveVariants);
+    const matches = matchTokenProperties(fileContent);
+    const responsiveVariants = getResponsiveCSSUtilityVariables(fileContent, config.responsive);
+    return matches.concat(responsiveVariants);
   });
-  const unique = new Set(allCssVariables);
+  const unique = new Set(allTokenProperties);
   return Array.from(unique);
 }
 
 /* -------------------------------------------------------------------------------------------------
- * findResponsiveCSSUtilityVariables
+ * matchTokenProperties
  * -----------------------------------------------------------------------------------------------*/
 
-function findResponsiveCSSUtilityVariables(
+const CSS_VAR_REGEX = /(?<cssVar>-+[\w-]+)("|')?\:/g;
+
+function matchTokenProperties(fileContent: string) {
+  const matches = fileContent.matchAll(CSS_VAR_REGEX);
+  return Array.from(matches).flatMap((match) => {
+    const cssVariable = match.groups?.cssVar;
+    if (!cssVariable) return [];
+    const token = Tokenami.TokenProperty.safeParse(cssVariable);
+    return token.success ? [token.output] : [];
+  });
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getResponsiveCSSUtilityVariables
+ * -----------------------------------------------------------------------------------------------*/
+
+const RESPONSIVE_TRUE_REGEX = /css\(([\s\S]*?)\{([\s\S]*?)responsive:\strue([\s\S]*?)\}/;
+
+function getResponsiveCSSUtilityVariables(
   fileContent: string,
   responsiveConfig: Tokenami.Config['responsive']
 ) {
-  const responsiveCssBlockRegex = /css\(([\s\S]*?)\{([\s\S]*?)responsive:\strue([\s\S]*?)\}/g;
-  const responsiveCssBlocks = fileContent.match(responsiveCssBlockRegex);
-  const tokenPropertyRegex = /(-+[a-z-_]+)('|")/g;
+  const responsiveCssBlocks = fileContent.match(RESPONSIVE_TRUE_REGEX);
   if (!responsiveCssBlocks) return [];
   return responsiveCssBlocks.flatMap((block) => {
-    const matches = block.match(tokenPropertyRegex) || [];
-    const matchesWithoutQuoteMark = matches.map((match) => match.slice(0, -1));
-    const reponsiveVariants = matchesWithoutQuoteMark.flatMap((tokenProperty) => {
-      return utils.getResponsivePropertyVariants(tokenProperty as any, responsiveConfig);
+    const matches = matchTokenProperties(block);
+    return matches.flatMap((tokenProperty) => {
+      return utils.getResponsivePropertyVariants(tokenProperty, responsiveConfig);
     });
-    return reponsiveVariants || [];
   });
 }
 

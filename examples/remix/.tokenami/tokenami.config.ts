@@ -6,6 +6,8 @@ export default createConfig({
   responsive: {
     md: '@media (min-width: 700px)',
     lg: '@media (min-width: 1024px)',
+    xl: '@media (min-width: 1280px)',
+    '2xl': '@media (min-width: 1536px)',
   },
   theme: {
     anim: {

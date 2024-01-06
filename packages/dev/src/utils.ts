@@ -203,7 +203,7 @@ function getTokenPropertyParts(
 function getResponsivePropertyVariants(
   tokenProperty: Tokenami.TokenProperty,
   responsive: Tokenami.Config['responsive']
-): string[] {
+) {
   return Object.keys(responsive || {}).map((query) => {
     const name = Tokenami.getTokenPropertyName(tokenProperty);
     return Tokenami.variantProperty(query, name);
