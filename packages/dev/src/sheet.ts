@@ -38,7 +38,7 @@ function generate(
   });
 
   usedTokenProperties.forEach((usedTokenProperty) => {
-    const parts = utils.getTokenPropertyParts(usedTokenProperty, config);
+    const parts = Tokenami.getTokenPropertyParts(usedTokenProperty, config);
     if (!parts) return;
 
     const longhands = utils.getLonghandsForAlias(parts.alias, config);

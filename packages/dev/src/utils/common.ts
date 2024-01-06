@@ -167,36 +167,6 @@ function getSpecifictyOrderForCSSProperty(cssProperty: Tokenami.CSSProperty) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getTokenPropertyParts
- * -----------------------------------------------------------------------------------------------*/
-
-type Parts = {
-  name: string;
-  alias: string;
-  responsive?: string;
-  selector?: string;
-};
-
-function getTokenPropertyParts(
-  tokenProperty: Tokenami.TokenProperty,
-  config: Tokenami.Config
-): Parts | null {
-  const name = Tokenami.getTokenPropertyName(tokenProperty);
-  const [alias, ...variants] = name.split('_').reverse() as [string, ...string[]];
-  const responsiveVariants = variants.filter((variant) => config.responsive?.[variant]);
-  const selectorVariants = variants.filter((variant) => config.selectors?.[variant]);
-  const validVariants = responsiveVariants.concat(selectorVariants);
-  const isValidResponsive = responsiveVariants.length <= 1;
-  // we only allow 1 selector to enforce custom selectors for chained selectors
-  const isValidSelector = selectorVariants.length <= 1;
-  const isValidVariants = variants.length === validVariants.length;
-  const isValid = isValidResponsive && isValidSelector && isValidVariants;
-  const [responsive] = responsiveVariants;
-  const [selector] = selectorVariants;
-  return isValid ? { name, alias, responsive, selector } : null;
-}
-
-/* -------------------------------------------------------------------------------------------------
  * getResponsivePropertyVariants
  * -----------------------------------------------------------------------------------------------*/
 
@@ -234,7 +204,6 @@ export {
   generateSolidJsTypeDefs,
   getValuesByTokenValueProperty,
   getLonghandsForAlias,
-  getTokenPropertyParts,
   getResponsivePropertyVariants,
   getSpecifictyOrderForCSSProperty,
 };

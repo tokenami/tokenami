@@ -11,7 +11,7 @@ import * as sheet from './sheet';
 import * as log from './log';
 import * as utils from './utils';
 import pkgJson from './../package.json';
-import { require } from './require';
+import { require } from './utils/require';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
