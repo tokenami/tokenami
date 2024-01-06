@@ -9,6 +9,7 @@
     "@tokenami/ts-plugin": "0.0.14"
   },
   "changesets": [
-    "funny-turtles-cough"
+    "funny-turtles-cough",
+    "shiny-bugs-sing"
   ]
 }

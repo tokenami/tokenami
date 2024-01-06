@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.15-next.1
+
+### Patch Changes
+
+- 637d4bb: Add aliases to resets to prevent alias inheritence
+
 ## 0.0.15-next.0
 
 ### Patch Changes
