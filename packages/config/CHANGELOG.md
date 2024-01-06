@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.16
+
+### Patch Changes
+
+- 0754d7e: Add lookup types to try help with performance
+
 ## 0.0.16-next.0
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @tokenami/ts-plugin
 
+## 0.0.16
+
+### Patch Changes
+
+- 0754d7e: Add lookup types to try help with performance
+- Updated dependencies [0754d7e]
+  - @tokenami/config@0.0.16
+  - @tokenami/dev@0.0.16
+
 ## 0.0.16-next.0
 
 ### Patch Changes
