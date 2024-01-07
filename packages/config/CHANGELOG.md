@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.17
+
+### Patch Changes
+
+- 93831ba: Improve `tokenami init` DX by asking for folder instead of glob
+
 ## 0.0.17-next.0
 
 ### Patch Changes
