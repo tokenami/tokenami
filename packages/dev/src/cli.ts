@@ -27,9 +27,9 @@ const questions = [
   },
   {
     type: 'input',
-    name: 'include',
-    message: 'Which file paths should Tokenami watch for its properties?',
-    default: './app/**/*.{js,jsx,ts,tsx}',
+    name: 'folder',
+    message: 'What folder should Tokenami watch for token properties?',
+    default: './app',
   },
 ];
 
@@ -53,7 +53,8 @@ const run = () => {
 
       const answers = await inquirer.prompt(questions);
       const type = hasTsConfig ? 'ts' : hasJsConfig ? 'js' : answers.type;
-      const include = `'${answers.include}'`;
+      const extensions = type === 'ts' ? 'ts,tsx' : 'js,jsx';
+      const include = `'${answers.folder}/**/*.{${extensions}}'`;
       const configPath = utils.getConfigPath(cwd, flags?.config, type);
       const outDir = pathe.dirname(configPath);
       const initialConfig = utils.generateConfig(include, configPath);
@@ -66,6 +67,7 @@ const run = () => {
       fs.writeFileSync(configPath, initialConfig, { flag: 'w' });
       fs.writeFileSync(utils.getTypeDefsPath(configPath), typeDefs, { flag: 'w' });
       fs.writeFileSync(utils.getCiTypeDefsPath(configPath), ciTypeDefs, { flag: 'w' });
+      log.debug(`Project successfully configured in './tokenami'`);
     });
 
   cli
