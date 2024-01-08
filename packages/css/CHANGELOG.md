@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.18
+
+### Patch Changes
+
+- bf967a5: Remove styles associated with token values if they're unused
+- Updated dependencies [bf967a5]
+  - @tokenami/dev@0.0.18
+  - @tokenami/config@0.0.18
+
 ## 0.0.18-next.0
 
 ### Patch Changes
