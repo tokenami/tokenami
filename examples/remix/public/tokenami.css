@@ -24,20 +24,17 @@
 
 :root {
   --grid: .25rem;
-  --anim_wiggle: wiggle 1s ease-in-out infinite;
-  --color_slate-100: #f1f5f9;
-  --color_slate-700: #334155;
-  --color_sky-500: #0ea5e9;
-  --font_serif: serif;
-  --font_sans: sans-serif;
-  --radii_rounded: 10px;
-  --radii_circle: 9999px;
-  --radii_none: none;
-  --size_auto: auto;
   --size_fill: 100%;
+  --color_sky-500: #0ea5e9;
   --size_screen-h: 100vh;
-  --pet_cat: "🐱";
-  --pet_dog: "🐶";
+  --color_slate-100: #f1f5f9;
+  --radii_rounded: 10px;
+  --font_sans: sans-serif;
+  --color_slate-700: #334155;
+  --anim_wiggle: wiggle 1s ease-in-out infinite;
+  --radii_circle: 9999px;
+  --size_auto: auto;
+  --radii_none: none;
 }
 
 * {
