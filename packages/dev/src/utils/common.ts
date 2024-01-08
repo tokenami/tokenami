@@ -89,15 +89,18 @@ function getCiTypeDefsPath(configPath: string) {
  * getValuesByTokenValueProperty
  * -----------------------------------------------------------------------------------------------*/
 
-function getValuesByTokenValueProperty(theme: Tokenami.Theme, themeKeys?: string[]) {
-  const plucked = themeKeys ? Object.fromEntries(themeKeys.map((key) => [key, theme[key]])) : theme;
-  const entries = Object.entries(plucked).flatMap(([themeKey, values = []]) => {
-    return Object.entries(values).map(([token, value]) => {
-      const tokenValueProperty = Tokenami.tokenValue(themeKey, token).replace(/var\((.+)\)/, '$1');
-      return [tokenValueProperty, value];
-    });
+function getValuesByTokenValueProperty(used: Tokenami.TokenValue[], theme: Tokenami.Theme) {
+  const themeKeys = Object.keys(theme);
+  const entries = used.flatMap((tokenValue) => {
+    const parts = Tokenami.getTokenValueParts(tokenValue);
+    const [tokenValueProperty] = tokenValue.match(/--[\w-]+/) || [];
+    const value = theme[parts.themeKey]?.[parts.token];
+    if (!tokenValueProperty || value == null) return [];
+    return [[tokenValueProperty, value]] as [[string, typeof value]];
   });
-  return Object.fromEntries(entries);
+  // make rules a deterministic order (theme key order) instead of usage order
+  const sorted = entries.sort((a, b) => themeKeys.indexOf(a[0]) - themeKeys.indexOf(b[0]));
+  return Object.fromEntries(sorted);
 }
 
 /* -------------------------------------------------------------------------------------------------

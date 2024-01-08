@@ -9,13 +9,15 @@ import * as utils from './utils';
 
 type Styles = { [key: string]: string | Styles };
 
-function generate(
-  usedTokenProperties: Tokenami.TokenProperty[],
-  output: string,
-  config: Tokenami.Config,
-  minify?: boolean,
-  targets?: lightning.Targets
-) {
+function generate(params: {
+  tokenProperties: Tokenami.TokenProperty[];
+  tokenValues: Tokenami.TokenValue[];
+  output: string;
+  config: Tokenami.Config;
+  minify?: boolean;
+  targets?: lightning.Targets;
+}) {
+  const { config, minify, output, targets } = params;
   // TODO: use `@layers` when lightningcss adds browserslist support for layers
   // https://github.com/parcel-bundler/lightningcss/issues/423#issuecomment-1850055070
   const layers = {
@@ -26,18 +28,28 @@ function generate(
     responsiveStyles: {} as Record<string, [Styles]>,
   } satisfies Record<string, Styles | [Styles] | Record<string, [Styles]>>;
 
-  if (!usedTokenProperties.length) return '';
+  if (!params.tokenProperties.length) return '';
 
   layers.root[':root'] = {
     [Tokenami.tokenProperty('grid')]: config.grid,
-    ...utils.getValuesByTokenValueProperty(config.theme),
+    ...utils.getValuesByTokenValueProperty(params.tokenValues, params.config.theme),
   };
 
-  Object.entries(config.keyframes || {}).forEach(([name, config]) => {
-    layers.atRules[`@keyframes ${name}`] = config;
+  const themeValues = params.tokenValues.flatMap((tokenValue) => {
+    const parts = Tokenami.getTokenValueParts(tokenValue);
+    const value = config.theme[parts.themeKey]?.[parts.token];
+    return value == null ? [] : [value];
   });
 
-  usedTokenProperties.forEach((usedTokenProperty) => {
+  Object.entries(params.config.keyframes || {}).forEach(([name, styles]) => {
+    const nameRegex = new RegExp(`\\b${name}\\b`);
+    const isUsingKeyframeName = themeValues.some((value) => nameRegex.test(String(value)));
+    if (isUsingKeyframeName) {
+      layers.atRules[`@keyframes ${name}`] = styles;
+    }
+  });
+
+  params.tokenProperties.forEach((usedTokenProperty) => {
     const parts = Tokenami.getTokenPropertyParts(usedTokenProperty, config);
     if (!parts) return;
 
