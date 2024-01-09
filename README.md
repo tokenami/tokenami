@@ -95,7 +95,7 @@ https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-96518
 
 ## Getting started
 
-Tokenami offers a CLI tool for generating static styles, and a TypeScript plugin to enhance the developer experience. An optional CSS utility is also provided and recommended when composing across component boundaries.
+Tokenami offers a CLI tool for generating static styles, and a TypeScript plugin to enhance the developer experience. An optional [~3kb](https://bundlephobia.com/package/@tokenami/css) CSS utility is also provided and recommended when composing across component boundaries.
 
 ### Installation
 
@@ -546,7 +546,7 @@ If your stylesheet is outside the remix `app` directory, update `remix.config.js
 
 Attribute substring selectors are known for being less efficient than other simpler selectors, however, they are unlikely to significantly impact performance in most cases. Despite being relatively less efficient, modern browsers handle these selectors well enough that the performance impact would be minimal for typical applications.
 
-Comparatively, historical CSS-in-JS solutions involved style injection techniques which could significantly hinder performance. In this context, attribute substring selectors will offer a considerable improvement.
+Comparatively, historical CSS-in-JS solutions involved style injection techniques which could [significantly hinder performance](https://dev.to/srmagura/why-were-breaking-up-wiht-css-in-js-4g9b). In this context, attribute substring selectors will offer a considerable improvement.
 
 ### Supported frameworks
 
