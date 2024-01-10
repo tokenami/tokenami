@@ -1,0 +1,14 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@tokenami/example-remix": "0.0.0",
+    "@tokenami/config": "0.0.18",
+    "@tokenami/css": "0.0.18",
+    "@tokenami/dev": "0.0.18",
+    "@tokenami/ts-plugin": "0.0.18"
+  },
+  "changesets": [
+    "small-parrots-join"
+  ]
+}

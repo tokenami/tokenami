@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.19-next.0
+
+### Patch Changes
+
+- 270c30a: Only generate `var` selectors when used
+- Updated dependencies [270c30a]
+  - @tokenami/config@0.0.19-next.0
+  - @tokenami/dev@0.0.19-next.0
+
 ## 0.0.18
 
 ### Patch Changes

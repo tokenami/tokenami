@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.19-next.0
+
+### Patch Changes
+
+- 270c30a: Only generate `var` selectors when used
+
 ## 0.0.18
 
 ### Patch Changes
