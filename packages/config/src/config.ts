@@ -21,9 +21,11 @@ const tokenPropertyRegex = /(?<!var\()--((\w)([\w-]+)?)/;
 const variantPropertyRegex = /(?<!var\()--((\w)([\w-]+)_([\w-]+))/;
 const tokenValueRegex = /var\(--([\w-]+)_([\w-]+)\)/;
 const aritraryValueRegex = /var\(---,(.+)\)/;
+const gridValueRegex = /^\d+/;
 
-type GridValue = v.Output<typeof gridValueSchema>;
-const gridValueSchema = v.number();
+type GridValue = number;
+const gridValueRegexSchema = v.regex(gridValueRegex);
+const gridValueSchema = v.string([gridValueRegexSchema]);
 const GridValue = { safeParse: (input: unknown) => v.safeParse(gridValueSchema, input) };
 
 type TokenProperty<P extends string = string> = `--${P}`;
@@ -46,7 +48,11 @@ const tokenValueSchema = v.string([tokenValueRegexSchema]) as v.StringSchema<Tok
 const TokenValue = { safeParse: (input: unknown) => v.safeParse(tokenValueSchema, input) };
 
 type ArbitraryValue = `var(---,${string})`;
-const ArbitraryValue = v.string([v.regex(aritraryValueRegex)]);
+const arbitraryValueRegexSchema = v.regex(aritraryValueRegex);
+const arbitraryValueSchema = v.string([
+  arbitraryValueRegexSchema,
+]) as v.StringSchema<ArbitraryValue>;
+const ArbitraryValue = { safeParse: (input: unknown) => v.safeParse(arbitraryValueSchema, input) };
 
 type ThemeKey =
   | 'alpha'

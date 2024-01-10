@@ -96,7 +96,7 @@ function getValuesByTokenValueProperty(used: Tokenami.TokenValue[], theme: Token
     const [tokenValueProperty] = tokenValue.match(/--[\w-]+/) || [];
     const value = theme[parts.themeKey]?.[parts.token];
     if (!tokenValueProperty || value == null) return [];
-    return [[tokenValueProperty, value]] as [[string, typeof value]];
+    return [[tokenValueProperty, value]] as const;
   });
   // make rules a deterministic order (theme key order) instead of usage order
   const sorted = entries.sort((a, b) => themeKeys.indexOf(a[0]) - themeKeys.indexOf(b[0]));

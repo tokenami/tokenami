@@ -5,10 +5,11 @@
   "sideEffects": false,
   "scripts": {
     "prepare": "tokenami",
-    "build": "tokenami --minify && remix build",
+    "build": "pnpm build:css --minify && remix build",
+    "build:css": "tokenami",
     "dev": "concurrently \"pnpm:dev:*\"",
     "dev:app": "remix dev",
-    "dev:css": "tokenami --watch",
+    "dev:css": "pnpm build:css --watch",
     "start": "remix-serve build",
     "typecheck": "tsc --noEmit",
     "typecheck:ci": "tsc --noEmit --project tsconfig.ci.json",
