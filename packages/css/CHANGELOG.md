@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.19-next.1
+
+### Patch Changes
+
+- dff653f: Remove default `grid` config for border properties
+- Updated dependencies [dff653f]
+  - @tokenami/config@0.0.19-next.1
+  - @tokenami/dev@0.0.19-next.1
+
 ## 0.0.19-next.0
 
 ### Patch Changes

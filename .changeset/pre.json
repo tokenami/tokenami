@@ -9,6 +9,7 @@
     "@tokenami/ts-plugin": "0.0.18"
   },
   "changesets": [
-    "small-parrots-join"
+    "small-parrots-join",
+    "strange-apples-brake"
   ]
 }
