@@ -131,6 +131,14 @@
   border: var(--border);
 }
 
+[style*="--border-right-width:"] {
+  border-right-width: var(--border-right-width);
+}
+
+[style*="--border-left-width:"] {
+  border-left-width: var(--border-left-width);
+}
+
 [style*="--border-radius:"] {
   border-radius: var(--border-radius);
 }
@@ -236,14 +244,6 @@
 
 [style*="--width:"] {
   width: calc(var(--grid) * var(--width));
-}
-
-[style*="--border-right-width:var"], [style*="--border-right-width: var"] {
-  border-right-width: var(--border-right-width);
-}
-
-[style*="--border-left-width:var"], [style*="--border-left-width: var"] {
-  border-left-width: var(--border-left-width);
 }
 
 [style*="--height:var"], [style*="--height: var"] {
