@@ -1,5 +1,12 @@
 # @tokenami/config
 
+## 0.0.19
+
+### Patch Changes
+
+- 270c30a: Only generate `var` selectors when used
+- dff653f: Remove default `grid` config for border properties
+
 ## 0.0.19-next.1
 
 ### Patch Changes
