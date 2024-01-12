@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.20
+
+### Patch Changes
+
+- ee3b40a: Add `Pick` and `Omit` utility types for `TokenamiProperties`
+- Updated dependencies [ee3b40a]
+  - @tokenami/dev@0.0.20
+  - @tokenami/config@0.0.20
+
 ## 0.0.20-next.0
 
 ### Patch Changes

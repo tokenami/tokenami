@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.20
+
+### Patch Changes
+
+- ee3b40a: Add `Pick` and `Omit` utility types for `TokenamiProperties`
+
 ## 0.0.20-next.0
 
 ### Patch Changes
