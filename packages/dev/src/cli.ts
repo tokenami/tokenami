@@ -14,6 +14,7 @@ import pkgJson from './../package.json';
 import { require } from './utils/require';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+type GenerateSheetParams = Parameters<typeof sheet.generate>[0];
 
 const questions = [
   {
@@ -89,8 +90,8 @@ const run = () => {
 
       async function regenerateStylesheet(file: string, config: Tokenami.Config) {
         const generateTime = startTimer();
-        const tokenEntries = await findUsedTokens(cwd, config);
-        generateStyles({ tokenEntries, cwd, out: flags.output, config, minify, targets });
+        const tokens = await findUsedTokens(cwd, config);
+        generateStyles({ ...tokens, cwd, out: flags.output, config, minify, targets });
         log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
       }
 
@@ -113,8 +114,8 @@ const run = () => {
         });
       }
 
-      const tokenEntries = await findUsedTokens(cwd, config);
-      generateStyles({ tokenEntries, cwd, out: flags.output, config, minify, targets });
+      const tokens = await findUsedTokens(cwd, config);
+      generateStyles({ ...tokens, cwd, out: flags.output, config, minify, targets });
       log.debug(`Ready in ${startTime()}ms.`);
     });
 
@@ -137,8 +138,6 @@ function getBrowsersList(config: any) {
 /* -------------------------------------------------------------------------------------------------
  * generateStyles
  * -----------------------------------------------------------------------------------------------*/
-
-type GenerateSheetParams = Parameters<typeof sheet.generate>[0];
 
 function generateStyles(
   params: Omit<GenerateSheetParams, 'output'> & { cwd: string; out: string }
@@ -169,56 +168,81 @@ function watch(cwd: string, include: readonly string[], exclude?: readonly strin
  * findUsedTokens
  * -----------------------------------------------------------------------------------------------*/
 
-const PROPERTY_REGEX = '(?<!var\\()--[\\w-]+';
-const SEPARATOR_REGEX = `['|"]?:[\\s]?['|"]?`;
-const VALUE_REGEX = 'var\\(--[\\w\\s,-]+\\)|[\\w]+';
-
-const CSS_PROPERTY_ENTRIES = new RegExp(
-  `(${PROPERTY_REGEX})${SEPARATOR_REGEX}(${VALUE_REGEX})`,
-  'g'
-);
+// this will match any objects, but also objects within (and including) `${name} = css()`
+// or `${name} = css.compose()`. we need to match the latter so we can generate class name
+// and check for `responsive` config
+// thanks chat-gpt 😅
+const OBJECTS_REGEX =
+  /css(?:\.compose)?\(\s*({[\s\S]*?})(?:\s*,\s*{[\s\S]*?})*\s*\)|{[\s\S]*?}(?!\s*,)/g;
 
 async function findUsedTokens(cwd: string, config: Tokenami.Config) {
   const include = config.include as Writeable<typeof config.include>;
   const exclude = config.exclude as Writeable<typeof config.exclude>;
-  const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore: exclude });
-  return entries.flatMap((entry) => {
-    const fileContent = fs.readFileSync(entry, 'utf8');
-    const tokenEntries = matchTokenEntries(fileContent);
-    const responsiveEntries = matchResponsiveCssUtilEntries(fileContent, config.responsive);
-    return [...tokenEntries, ...responsiveEntries];
+  const files = await glob(include, { cwd, onlyFiles: true, stats: false, ignore: exclude });
+  const result: Pick<GenerateSheetParams, 'atomicEntries' | 'composeBlockEntries'> = {
+    atomicEntries: [],
+    composeBlockEntries: [],
+  };
+  files.forEach((file) => {
+    const fileContent = fs.readFileSync(file, 'utf8');
+    const matchObjects = Array.from(fileContent.matchAll(OBJECTS_REGEX));
+    matchObjects.forEach(([match, baseStyles = match]) => {
+      const isComposeBlock = Boolean(match.match('compose'));
+      const baseEntries = matchTokenEntries(baseStyles);
+      const otherStyles = match.replace(baseStyles, '');
+      const otherEntries = matchTokenEntries(otherStyles);
+      const otherResponsiveEntries = matchResponsiveEntries(otherStyles, config.responsive);
+      result.composeBlockEntries = [
+        ...result.composeBlockEntries,
+        isComposeBlock ? baseEntries : [],
+      ];
+      result.atomicEntries = [
+        ...result.atomicEntries,
+        ...(isComposeBlock ? [] : baseEntries),
+        ...otherEntries,
+        ...otherResponsiveEntries,
+      ];
+    });
   });
+  return result;
 }
 
 /* -------------------------------------------------------------------------------------------------
  * matchTokenEntries
  * -----------------------------------------------------------------------------------------------*/
 
+const PROPERTY_REGEX = '(?<!var\\()--[\\w-]+';
+const SEPARATOR_REGEX = `['|"]?:[\\s]?['|"]?`;
+const VALUE_REGEX = 'var\\(--[\\w\\s,-]+\\)|[\\w]+';
+const CSS_PROPERTY_ENTRIES = new RegExp(
+  `(${PROPERTY_REGEX})${SEPARATOR_REGEX}(${VALUE_REGEX})`,
+  'g'
+);
+
 function matchTokenEntries(fileContent: string) {
-  const matches = fileContent.matchAll(CSS_PROPERTY_ENTRIES) || [];
+  const matches = Array.from(fileContent.matchAll(CSS_PROPERTY_ENTRIES));
   return Array.from(matches).flatMap(([, property, value]) => {
     const tokenProperty = Tokenami.TokenProperty.safeParse(property);
-    return tokenProperty.success ? [[tokenProperty.output, value!] as const] : [];
+    return tokenProperty.success
+      ? [[tokenProperty.output, value!] as [Tokenami.TokenProperty, string]]
+      : [];
   });
 }
 
 /* -------------------------------------------------------------------------------------------------
- * matchResponsiveCssUtilEntries
+ * matchResponsiveEntries
  * -----------------------------------------------------------------------------------------------*/
 
-const RESPONSIVE_TRUE_REGEX = /css\(([\s\S]*?)\{([\s\S]*?)responsive:\strue([\s\S]*?)\}/;
+const RESPONSIVE_TRUE_REGEX = /responsive:\strue/;
 
-function matchResponsiveCssUtilEntries(
-  fileContent: string,
-  responsiveConfig: Tokenami.Config['responsive']
-) {
-  const responsiveCssBlocks = fileContent.match(RESPONSIVE_TRUE_REGEX);
-  if (!responsiveCssBlocks) return [];
-  return responsiveCssBlocks.flatMap((block) => {
-    const entries = matchTokenEntries(block);
-    return entries.flatMap(([tokenProperty, value]) => {
-      const variants = utils.getResponsivePropertyVariants(tokenProperty, responsiveConfig);
-      return variants.map((responsiveProperty) => [responsiveProperty, value] as const);
+function matchResponsiveEntries(block: string, responsiveConfig: Tokenami.Config['responsive']) {
+  const isResponsiveBlock = block.match(RESPONSIVE_TRUE_REGEX);
+  if (!isResponsiveBlock) return [];
+  const entries = matchTokenEntries(block);
+  return entries.flatMap(([tokenProperty, value]) => {
+    const variants = utils.getResponsivePropertyVariants(tokenProperty, responsiveConfig);
+    return variants.map((responsiveProperty) => {
+      return [responsiveProperty, value] as [Tokenami.TokenProperty, string];
     });
   });
 }

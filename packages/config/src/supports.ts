@@ -5,7 +5,6 @@ const properties = [
   '-webkit-line-clamp',
   'accent-color',
   'align-tracks',
-  'all',
 
   'animation',
   'animation-composition',

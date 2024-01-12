@@ -80,6 +80,7 @@ https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-96518
   - [Installation](#user-contenty-installation-1)
   - [Usage](#user-content-usage)
   - [Overrides](#user-content-overrides)
+  - [Compose](#user-content-overrides)
   - [TypeScript](#user-content-typescript)
 - [Advanced](#user-content-advanced)
   - [Selectors](#user-content-selectors)
@@ -322,6 +323,35 @@ function Button(props) {
 }
 ```
 
+### Compose
+
+The `compose` API provides an optimisation that will compose your styles using reusable atomic **classes** and fallback to the `style` attribute when necessary for overrides.
+
+Using the original CSS utility example, the following demonstraates the changes required to use it:
+
+```diff
+import { css } from '@tokenami/css';
+
+function Button({ size, className, style, ...props }) {
+-  return <button {...props} style={button({ size }, style)} />;
++  return <button {...props} style={button({ size }, style)} className={button.class(className)} />;
+}
+
+- const button = css(
++ const button = css.compose(
+  { '---padding': 4 },
+  {
+    size: {
+      small: { '--padding': 2 },
+      large: { '--padding': 6 },
+    },
+  },
+  { responsive: true }
+);
+```
+
+Atomic classes will be automcatically generated for you. This helps avoid style repetition in your HTML and is useful if you'd like to cache your styles for longer than what might be possible for your HTML content.
+
 ### TypeScript
 
 Use the `Variants` type to extend your component prop types:
@@ -544,9 +574,7 @@ If your stylesheet is outside the remix `app` directory, update `remix.config.js
 
 ### Efficiency of Tokenami's attribute substring selectors
 
-Attribute substring selectors are known for being less efficient than other simpler selectors, however, they are unlikely to significantly impact performance in most cases. Despite being relatively less efficient, modern browsers handle these selectors well enough that the performance impact would be minimal for typical applications.
-
-Comparatively, historical CSS-in-JS solutions involved style injection techniques which could [significantly hinder performance](https://dev.to/srmagura/why-were-breaking-up-wiht-css-in-js-4g9b). In this context, attribute substring selectors will offer a considerable improvement.
+Attribute substring selectors are known for being less efficient than other simpler selectors. While they are unlikely to significantly impact performance in most cases, Tokenami provides a [compose](#user-content-compose) API to reduce the use of these slectors by using atomic classes instead.
 
 ### Supported frameworks
 

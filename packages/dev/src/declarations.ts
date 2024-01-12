@@ -74,7 +74,6 @@ type Property = {
 type Properties = Property['-webkit-line-clamp'] &
   Property['accent-color'] &
   Property['align-tracks'] &
-  Property['all'] &
   Property['animation'] &
   Property['animation-composition'] &
   Property['animation-delay'] &
