@@ -489,4 +489,18 @@ interface TokenamiProperties extends Properties {
   [customProperty: `---${string}`]: string | number | undefined;
 }
 
-export type { TokenamiConfig, TokenamiFinalConfig, TokenamiProperties };
+type TokenamiPropertiesPick<P extends keyof Property> = Pick<Property, P> extends infer T
+  ? T[keyof T]
+  : never;
+
+type TokenamiPropertiesOmit<P extends keyof Property> = Omit<Property, P> extends infer T
+  ? T[keyof T]
+  : never;
+
+export type {
+  TokenamiConfig,
+  TokenamiFinalConfig,
+  TokenamiProperties,
+  TokenamiPropertiesPick,
+  TokenamiPropertiesOmit,
+};
