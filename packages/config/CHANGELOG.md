@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.21
+
+### Patch Changes
+
+- 9370aeb: Fix selector specificity order
+
 ## 0.0.21-next.0
 
 ### Patch Changes
