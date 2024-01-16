@@ -1,5 +1,14 @@
 # @tokenami/ts-plugin
 
+## 0.0.21-next.0
+
+### Patch Changes
+
+- 9370aeb: Fix selector specificity order
+- Updated dependencies [9370aeb]
+  - @tokenami/config@0.0.21-next.0
+  - @tokenami/dev@0.0.21-next.0
+
 ## 0.0.20
 
 ### Patch Changes
