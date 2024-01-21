@@ -60,7 +60,7 @@ export default function Index() {
             </p>
             <div style={{ '--m': 5 }}>
               <div style={{ '--mx': 3 }}>
-                <p style={{ '--ml': 12 }}>Testing aliases</p>
+                <div style={{ '--ml': 12 }}>Testing aliases</div>
               </div>
             </div>
           </blockquote>
@@ -82,6 +82,7 @@ export default function Index() {
           '--font-size': 'var(---,20px)',
           '--2xl_font-size': 'var(---, 25px)',
           '--bg-color': 'var(--color_slate-100)',
+          '--md_background-color': 'var(--color_sky-500)',
           '--hover_background-color': 'var(--color_slate-700)',
           '--hover_color': 'var(---,white)',
           '--transition': 'var(---,all 150ms)',

@@ -4,159 +4,176 @@ import * as lightning from 'lightningcss';
 import * as utils from './utils';
 import deepmerge from 'deepmerge';
 
+type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
+  order: number;
+  value: string;
+};
+
 /* -------------------------------------------------------------------------------------------------
  * generate
  * -----------------------------------------------------------------------------------------------*/
 
 type Styles = { [key: string]: string | Styles };
+type TokenEntry = readonly [Tokenami.TokenProperty, string];
 
 function generate(params: {
-  tokenEntries: (readonly [Tokenami.TokenProperty, string])[];
+  tokenEntries: TokenEntry[];
   output: string;
   config: Tokenami.Config;
   minify?: boolean;
   targets?: lightning.Targets;
 }) {
-  const { config, minify, output, targets } = params;
-  // TODO: use `@layers` when lightningcss adds browserslist support for layers
-  // https://github.com/parcel-bundler/lightningcss/issues/423#issuecomment-1850055070
-  const layers = {
-    atRules: {} as any,
-    root: { ':root': {} },
-    reset: { '*': {} },
-    styles: [{}],
-    varStyles: [{}],
-    responsiveStyles: {} as Record<string, [Styles]>,
-    varResponsiveStyles: {} as Record<string, [Styles]>,
-  } satisfies Record<string, Styles | [Styles] | Record<string, [Styles]>>;
-
   if (!params.tokenEntries.length) return '';
 
-  const tokenValues = params.tokenEntries.flatMap(([, value]) => {
+  const tokenValues = getTokenValues(params.tokenEntries);
+  const propertyConfigs = getPropertyConfigs(params.tokenEntries, params.config);
+  const selectorKeys = Object.keys(params.config.selectors || {});
+  const responsiveKeys = Object.keys(params.config.responsive || {});
+
+  let styles = {
+    reset: [] as Styles[],
+    atomic: [] as Styles[],
+    selectors: new Map<string, Styles[]>(selectorKeys.map((key) => [key, []])),
+    responsive: new Map<string, Styles[]>(responsiveKeys.map((key) => [key, []])),
+  };
+
+  propertyConfigs.forEach(([property, configs]) => {
+    const reset = getResetTokenValue(property, params.config);
+    const tokenProperty = Tokenami.tokenProperty(property);
+    const sortedConfigs = configs.sort((a, b) => a.order - b.order);
+    const variants = sortedConfigs.flatMap((config) => (config.variant ? [config.variant] : []));
+    const uniqueVariants = Array.from(new Set(variants));
+
+    const toggles = uniqueVariants.map((toggle) => {
+      const variantProperty = Tokenami.variantProperty(toggle, property);
+      const value = `var(${variantProperty})`;
+      return { [hashVariantProperty(toggle, property)]: `var(--${toggle}) ${value}` };
+    });
+
+    const propertyValue = uniqueVariants.reduce(
+      (fallback, variant) => `var(${hashVariantProperty(variant, property)}, ${fallback})`,
+      `var(${tokenProperty})`
+    );
+
+    if (reset) {
+      styles.reset.push({ [`${tokenProperty}`]: reset });
+    }
+
+    sortedConfigs.forEach((config) => {
+      const responsive = config.responsive && params.config.responsive?.[config.responsive];
+      const selector = config.selector && params.config.selectors?.[config.selector];
+      const selectors = Array.isArray(selector) ? selector : selector ? [selector] : ['&'];
+      const nestedSelectors = [responsive, ...selectors].filter(Boolean) as string[];
+      const tokenPropertyOrAlias = Tokenami.tokenProperty(config.name);
+
+      styles.atomic.push({
+        [`/*${property}*/[style*="${tokenPropertyOrAlias}:"]`]: Object.assign({}, ...toggles, {
+          [property]: propertyValue,
+        }),
+      });
+
+      if (config.responsive || config.selector) {
+        styles.reset.push({ [`--${config.variant}`]: 'initial' });
+
+        const toggles = config.responsive
+          ? styles.responsive.get(config.responsive)
+          : styles.selectors.get(config.selector!);
+
+        const toggle = nestedSelectors.reduceRight(
+          (declaration, template) => ({ [template.replace('&', '[style]')]: declaration }),
+          { [`--${config.variant}`]: '' } as Styles
+        );
+
+        toggles?.push(toggle);
+      }
+    });
+  });
+
+  const sheet = Object.assign(
+    generateKeyframeRules(tokenValues, params.config),
+    { ':root': generateRootStyles(tokenValues, params.config) },
+    { '*': Object.assign({}, ...styles.reset) },
+    ...styles.atomic,
+    deepMergeGroups(styles.selectors),
+    deepMergeGroups(styles.responsive)
+  );
+
+  const transformed = lightning.transform({
+    code: Buffer.from(stringify(sheet)),
+    filename: params.output,
+    minify: params.minify,
+    targets: params.targets,
+  });
+
+  return transformed.code.toString();
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getTokenValues
+ * -----------------------------------------------------------------------------------------------*/
+
+function getTokenValues(tokenEntries: TokenEntry[]) {
+  return tokenEntries.flatMap(([, value]) => {
     const tokenValue = Tokenami.TokenValue.safeParse(value);
     return tokenValue.success ? [tokenValue.output] : [];
   });
+}
 
-  layers.root[':root'] = {
-    [Tokenami.tokenProperty('grid')]: config.grid,
-    ...utils.getValuesByTokenValueProperty(tokenValues, params.config.theme),
-  };
+/* -------------------------------------------------------------------------------------------------
+ * getPropertyConfigs
+ * -----------------------------------------------------------------------------------------------*/
 
+function getPropertyConfigs(tokenEntries: TokenEntry[], config: Tokenami.Config) {
+  let propertyConfigs: [Tokenami.CSSProperty, PropertyConfig[]][] = [];
+
+  tokenEntries.forEach(([tokenProperty, tokenValue]) => {
+    const parts = Tokenami.getTokenPropertyParts(tokenProperty, config);
+    const properties = parts?.alias && utils.getLonghandsForAlias(parts.alias, config);
+    if (!properties || !properties.length) return;
+
+    properties.forEach((property) => {
+      const specificity = utils.getSpecifictyOrderForCSSProperty(property);
+      if (specificity > -1) {
+        const responsiveOrder = parts.responsive ? 1 : 0;
+        const selectorOrder = parts.selector ? 2 : 0;
+        const order = responsiveOrder + selectorOrder;
+        propertyConfigs[specificity] ??= [property, []];
+        propertyConfigs[specificity]![1].push({ ...parts, order, value: tokenValue });
+      }
+    });
+  });
+
+  return propertyConfigs;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * generateKeyframeRules
+ * -----------------------------------------------------------------------------------------------*/
+
+function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
   const themeValues = tokenValues.flatMap((tokenValue) => {
     const parts = Tokenami.getTokenValueParts(tokenValue);
     const value = config.theme[parts.themeKey]?.[parts.token];
     return value == null ? [] : [value];
   });
-
-  Object.entries(params.config.keyframes || {}).forEach(([name, styles]) => {
+  const entries = Object.entries(config.keyframes || {}).flatMap(([name, styles]) => {
     const nameRegex = new RegExp(`\\b${name}\\b`);
-    const isUsingKeyframeName = themeValues.some((value) => nameRegex.test(String(value)));
-    if (isUsingKeyframeName) {
-      layers.atRules[`@keyframes ${name}`] = styles;
-    }
+    const isUsingKeyframeName = themeValues.some((value) => nameRegex.test(value));
+    if (!isUsingKeyframeName) return [];
+    return [[`@keyframes ${name}`, styles] as const];
   });
-
-  params.tokenEntries.forEach(([usedTokenProperty, usedTokenValue]) => {
-    const parts = Tokenami.getTokenPropertyParts(usedTokenProperty, config);
-    if (!parts) return;
-
-    const longhands = utils.getLonghandsForAlias(parts.alias, config);
-    const configResponsive = parts.responsive && config?.responsive?.[parts.responsive];
-    const configSelector = parts.selector && config?.selectors?.[parts.selector];
-    const hasVariants = configResponsive || configSelector;
-
-    for (let property of longhands) {
-      if (!isSupportedProperty(property)) continue;
-      const specificity = utils.getSpecifictyOrderForCSSProperty(property);
-      const propertyConfig = config.properties?.[property];
-      const isGridProperty = propertyConfig?.includes('grid') || false;
-      const isGridValue = Tokenami.GridValue.safeParse(usedTokenValue).success;
-      const isVarLayer = isGridProperty && !isGridValue;
-      const selector = `/*${property}*/${createSelector({ name: parts.name })}`;
-      const valueVar = `var(${Tokenami.tokenProperty(property)})`;
-      // variants fallback to initital in case the variant is deselected in dev tools.
-      // it will fall back to any non-variant values applied to the same element
-      const variantValueVar = `var(${usedTokenProperty}, ${valueVar})`;
-      const getStyles = (value: string): Styles => ({ [property]: value });
-      const getVariantStyles = (value: string) => {
-        const baseStyles = getStyles(value);
-        return [configResponsive].concat(configSelector).reduce((styles, template) => {
-          return template ? { [template]: styles } : styles;
-        }, baseStyles);
-      };
-
-      const declaration = hasVariants ? getVariantStyles(variantValueVar) : getStyles(valueVar);
-      let styles = { [selector]: declaration };
-
-      if (isGridProperty) {
-        if (isGridValue) {
-          const gridCalcDeclaration = hasVariants
-            ? getVariantStyles(getGridCalcValue(variantValueVar))
-            : getStyles(getGridCalcValue(valueVar));
-          styles = { [selector]: gridCalcDeclaration };
-        } else {
-          const varSelector = `/*${property}*/${createVarSelector({ name: parts.name })}`;
-          styles = { [varSelector]: declaration };
-        }
-      }
-
-      layers.reset['*'] = {
-        ...layers.reset['*'],
-        // we set to `var(---)` to activate property fallbacks that reference this alias
-        // https://codepen.io/jjenzz/pen/wvOGdrY
-        [Tokenami.tokenProperty(parts.alias)]: 'var(---)',
-        [Tokenami.tokenProperty(property)]: getResetTokenValue(property, config),
-      };
-
-      if (configResponsive) {
-        const layer = isVarLayer ? layers.varResponsiveStyles : layers.responsiveStyles;
-        const entry = (layer[configResponsive] ??= [{}]);
-        entry[specificity] = Object.assign({}, entry[specificity], styles);
-      } else {
-        const layer = isVarLayer ? layers.varStyles : layers.styles;
-        layer[specificity] = Object.assign({}, layer[specificity], styles);
-      }
-    }
-  });
-
-  const responsiveStyles = deepmerge(layers.responsiveStyles, layers.varResponsiveStyles);
-  const sheet = Object.assign(
-    layers.atRules,
-    layers.root,
-    layers.reset,
-    ...layers.styles,
-    ...layers.varStyles,
-    ...Object.values(responsiveStyles).flat()
-  );
-
-  const code = Buffer.from(stringify(sheet));
-  const transformed = lightning.transform({ filename: output, code, minify, targets });
-  return transformed.code.toString();
-}
-
-function getGridCalcValue(value: string) {
-  const gridVar = `var(${Tokenami.tokenProperty('grid')})`;
-  return `calc(${gridVar} * ${value})`;
+  return Object.fromEntries(entries);
 }
 
 /* -------------------------------------------------------------------------------------------------
- * createSelector
+ * generateRootStyles
  * -----------------------------------------------------------------------------------------------*/
 
-function createSelector(params: { name: string; value?: string; template?: string }) {
-  const { template = '&', name, value = '' } = params || {};
-  const tokenProperty = Tokenami.tokenProperty(name);
-  return template.replace('&', `[style*="${tokenProperty}:${value}"]`);
-}
-
-/* -------------------------------------------------------------------------------------------------
- * createVarSelector
- * -----------------------------------------------------------------------------------------------*/
-
-function createVarSelector(params: Parameters<typeof createSelector>[0]) {
-  const noSpace = createSelector({ ...params, value: 'var' });
-  const withSpace = createSelector({ ...params, value: ' var' });
-  return `${noSpace}, ${withSpace}`;
+function generateRootStyles(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
+  return {
+    [Tokenami.tokenProperty('grid')]: config.grid,
+    ...utils.getThemeValuesByTokenValues(tokenValues, config.theme),
+  };
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -164,21 +181,42 @@ function createVarSelector(params: Parameters<typeof createSelector>[0]) {
  * -----------------------------------------------------------------------------------------------*/
 
 function getResetTokenValue(cssProperty: Tokenami.CSSProperty, config: Tokenami.Config) {
-  const aliased = Object.entries(config.aliases || {}).flatMap(([alias, properties]) => {
-    return properties?.includes(cssProperty) ? [alias] : [];
-  });
-  return aliased.reduce(
-    (fallback, alias) => `var(${Tokenami.tokenProperty(alias)}, ${fallback})`,
-    ''
-  );
+  const aliasEntries = Object.entries(config.aliases || {});
+  return aliasEntries
+    .flatMap(([alias, properties]) => (properties?.includes(cssProperty) ? [alias] : []))
+    .reduce((fallback, alias) => `var(${Tokenami.tokenProperty(alias)}, ${fallback})`, '')
+    .replace(', )', ')');
 }
 
 /* -------------------------------------------------------------------------------------------------
- * isSupportedProperty
+ * hash
  * -----------------------------------------------------------------------------------------------*/
 
-function isSupportedProperty(property: string): property is Tokenami.CSSProperty {
-  return Tokenami.properties.includes(property as any);
+function hash(str: string) {
+  let hash = 0;
+  for (let i = 0, len = str.length; i < len; i++) {
+    let chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0;
+  }
+  return Math.abs(hash).toString(32);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * hashVariant
+ * -----------------------------------------------------------------------------------------------*/
+
+function hashVariantProperty(variant: string, property: string) {
+  return `--_${hash(variant + property)}`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * deepMergeGroups
+ * -----------------------------------------------------------------------------------------------*/
+
+function deepMergeGroups(styles: Map<string, Styles[]>) {
+  const flattened = Array.from(styles.values()).flat();
+  return flattened.reduce((a, b) => deepmerge(a, b));
 }
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -17,9 +17,9 @@ function arbitraryValue(value: string): ArbitraryValue {
   return `var(---,${value})`;
 }
 
-const tokenPropertyRegex = /(?<!var\()--((\w)([\w-]+)?)/;
+const tokenPropertyRegex = /(?<!var\()--([a-z]([a-z-]+)?)/;
 const variantPropertyRegex = /(?<!var\()--((\w)([\w-]+)_([\w-]+))/;
-const tokenValueRegex = /var\(--([\w-]+)_([\w-]+)\)/;
+const tokenValueRegex = /var\((--([\w-]+)_([\w-]+))\)/;
 const aritraryValueRegex = /var\(---,(.+)\)/;
 const gridValueRegex = /^\d+/;
 
@@ -71,7 +71,7 @@ type ThemeKey =
   | 'z'
   | (string & {});
 
-type ThemeValues = Record<string, string | number>;
+type ThemeValues = Record<string, string>;
 type Theme = Partial<Record<ThemeKey, ThemeValues>>;
 type Aliases = Record<string, readonly (Supports.CSSProperty | (string & {}))[]>;
 type PropertiesOptions = readonly ('grid' | ThemeKey)[];
@@ -115,27 +115,24 @@ function getTokenPropertyName(tokenProperty: TokenProperty) {
  * getTokenPropertyParts
  * -----------------------------------------------------------------------------------------------*/
 
-type Parts = {
+type PropertyParts = {
   name: string;
   alias: string;
   responsive?: string;
   selector?: string;
+  variant?: string;
 };
 
-function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): Parts | null {
+function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): PropertyParts | null {
   const name = getTokenPropertyName(tokenProperty);
-  const [alias, ...variants] = name.split('_').reverse() as [string, ...string[]];
-  const responsiveVariants = variants.filter((variant) => config.responsive?.[variant]);
-  const selectorVariants = variants.filter((variant) => config.selectors?.[variant]);
-  const validVariants = responsiveVariants.concat(selectorVariants);
-  const isValidResponsive = responsiveVariants.length <= 1;
-  // we only allow 1 selector to enforce custom selectors for chained selectors
-  const isValidSelector = selectorVariants.length <= 1;
-  const isValidVariants = variants.length === validVariants.length;
-  const isValid = isValidResponsive && isValidSelector && isValidVariants;
-  const [responsive] = responsiveVariants;
-  const [selector] = selectorVariants;
-  return isValid ? { name, alias, responsive, selector } : null;
+  const [alias, ...variants] = name.split('_').reverse() as [string, ...(string | undefined)[]];
+  const [v1, v2, ...invalidVariants] = variants.reverse();
+  const responsive = config.responsive?.[v1!] && v1;
+  const selector = (config.selectors?.[v1!] && v1) || (config.selectors?.[v2!] && v2);
+  const hasInvalidVariant = v1 && !responsive && !selector;
+  const variant = [responsive, selector].filter(Boolean).join('_');
+  if (invalidVariants.length || hasInvalidVariant) return null;
+  return { name, alias, responsive, selector, variant };
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -143,8 +140,9 @@ function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): Pa
  * -----------------------------------------------------------------------------------------------*/
 
 function getTokenValueParts(tokenValue: TokenValue) {
-  const [, key, token] = tokenValue.split(tokenValueRegex) as [string, string, string];
-  return { themeKey: key, token };
+  type Parts = [string, string, string, string];
+  const [, property, themeKey, token] = tokenValue.split(tokenValueRegex) as Parts;
+  return { property, themeKey, token };
 }
 
 /* ---------------------------------------------------------------------------------------------- */

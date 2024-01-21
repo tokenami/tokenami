@@ -1,8 +1,6 @@
-import * as Tokenami from '@tokenami/config';
+import type { CSSProperty } from './supports';
 
-type SupportedProperty = (typeof Tokenami.properties)[number];
-
-export const mapShorthandToLonghands = {
+const mapShorthandToLonghands = {
   animation: [
     'animation-name',
     'animation-duration',
@@ -186,4 +184,8 @@ export const mapShorthandToLonghands = {
     'transition-timing-function',
     'transition-delay',
   ],
-} satisfies Partial<Record<SupportedProperty, SupportedProperty[]>>;
+} satisfies Partial<Record<CSSProperty, CSSProperty[]>>;
+
+/* ---------------------------------------------------------------------------------------------- */
+
+export { mapShorthandToLonghands };

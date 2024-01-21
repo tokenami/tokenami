@@ -86,17 +86,16 @@ function getCiTypeDefsPath(configPath: string) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getValuesByTokenValueProperty
+ * getThemeValuesByTokenValues
  * -----------------------------------------------------------------------------------------------*/
 
-function getValuesByTokenValueProperty(used: Tokenami.TokenValue[], theme: Tokenami.Theme) {
+function getThemeValuesByTokenValues(used: Tokenami.TokenValue[], theme: Tokenami.Theme) {
   const themeKeys = Object.keys(theme);
   const entries = used.flatMap((tokenValue) => {
     const parts = Tokenami.getTokenValueParts(tokenValue);
-    const [tokenValueProperty] = tokenValue.match(/--[\w-]+/) || [];
     const value = theme[parts.themeKey]?.[parts.token];
-    if (!tokenValueProperty || value == null) return [];
-    return [[tokenValueProperty, value]] as const;
+    if (value == null) return [];
+    return [[parts.property, value]] as const;
   });
   // make rules a deterministic order (theme key order) instead of usage order
   const sorted = entries.sort((a, b) => themeKeys.indexOf(a[0]) - themeKeys.indexOf(b[0]));
@@ -110,9 +109,11 @@ function getValuesByTokenValueProperty(used: Tokenami.TokenValue[], theme: Token
  * and `padding-right`, so this gets an array of longhand properties for a given alias.
  * -----------------------------------------------------------------------------------------------*/
 
-function getLonghandsForAlias(alias: string, config: Tokenami.Config): string[] {
+function getLonghandsForAlias(alias: string, config: Tokenami.Config) {
   const longhands: string[] = (config.aliases as any)?.[alias];
-  return longhands || (Tokenami.properties.includes(alias as any) ? [alias] : []);
+  const result = longhands || [alias];
+  const valid = result.filter((property) => Tokenami.properties.includes(property as any));
+  return valid as Tokenami.CSSProperty[];
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -205,7 +206,7 @@ export {
   generateTypeDefs,
   generateCiTypeDefs,
   generateSolidJsTypeDefs,
-  getValuesByTokenValueProperty,
+  getThemeValuesByTokenValues,
   getLonghandsForAlias,
   getResponsivePropertyVariants,
   getSpecifictyOrderForCSSProperty,
