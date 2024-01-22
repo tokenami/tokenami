@@ -82,7 +82,6 @@ export default function Index() {
           '--font-size': 'var(---,20px)',
           '--2xl_font-size': 'var(---, 25px)',
           '--bg-color': 'var(--color_slate-100)',
-          '--md_background-color': 'var(--color_sky-500)',
           '--hover_background-color': 'var(--color_slate-700)',
           '--hover_color': 'var(---,white)',
           '--transition': 'var(---,all 150ms)',

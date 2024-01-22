@@ -9,6 +9,8 @@ type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   value: string;
 };
 
+const TOGGLE_OFF = 'initial';
+
 /* -------------------------------------------------------------------------------------------------
  * generate
  * -----------------------------------------------------------------------------------------------*/
@@ -47,33 +49,27 @@ function generate(params: {
     const toggles = uniqueVariants.map((toggle) => {
       const variantProperty = Tokenami.variantProperty(toggle, property);
       const value = `var(${variantProperty})`;
+      styles.reset.push({ [variantProperty]: TOGGLE_OFF });
       return { [hashVariantProperty(toggle, property)]: `var(--${toggle}) ${value}` };
     });
 
     const propertyValue = uniqueVariants.reduce(
       (fallback, variant) => `var(${hashVariantProperty(variant, property)}, ${fallback})`,
-      `var(${tokenProperty})`
+      `var(${tokenProperty}, revert)`
     );
 
-    if (reset) {
-      styles.reset.push({ [`${tokenProperty}`]: reset });
-    }
+    styles.reset.push({ [`${tokenProperty}`]: reset || TOGGLE_OFF });
 
     sortedConfigs.forEach((config) => {
       const responsive = config.responsive && params.config.responsive?.[config.responsive];
       const selector = config.selector && params.config.selectors?.[config.selector];
       const selectors = Array.isArray(selector) ? selector : selector ? [selector] : ['&'];
       const nestedSelectors = [responsive, ...selectors].filter(Boolean) as string[];
-      const tokenPropertyOrAlias = Tokenami.tokenProperty(config.name);
 
-      styles.atomic.push({
-        [`/*${property}*/[style*="${tokenPropertyOrAlias}:"]`]: Object.assign({}, ...toggles, {
-          [property]: propertyValue,
-        }),
-      });
+      styles.atomic.push(Object.assign({}, ...toggles, { [property]: propertyValue }));
 
       if (config.responsive || config.selector) {
-        styles.reset.push({ [`--${config.variant}`]: 'initial' });
+        styles.reset.push({ [`--${config.variant}`]: TOGGLE_OFF });
 
         const toggles = config.responsive
           ? styles.responsive.get(config.responsive)
@@ -92,8 +88,7 @@ function generate(params: {
   const sheet = Object.assign(
     generateKeyframeRules(tokenValues, params.config),
     { ':root': generateRootStyles(tokenValues, params.config) },
-    { '*': Object.assign({}, ...styles.reset) },
-    ...styles.atomic,
+    { '[style]': Object.assign({}, ...styles.reset, ...styles.atomic) },
     deepMergeGroups(styles.selectors),
     deepMergeGroups(styles.responsive)
   );
