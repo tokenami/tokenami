@@ -2,10 +2,11 @@ import type * as CSS from 'csstype';
 
 // in specificity order
 const properties = [
+  // @ts-ignore this replaces `--all`
+  'reset',
   '-webkit-line-clamp',
   'accent-color',
   'align-tracks',
-  'all',
 
   'animation',
   'animation-composition',

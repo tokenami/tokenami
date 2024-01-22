@@ -58,7 +58,7 @@ function generate(params: {
       `var(${tokenProperty}, revert)`
     );
 
-    styles.reset.push({ [`${tokenProperty}`]: reset || TOGGLE_OFF });
+    styles.reset.push({ [`${tokenProperty}`]: reset });
 
     sortedConfigs.forEach((config) => {
       const responsive = config.responsive && params.config.responsive?.[config.responsive];
@@ -177,10 +177,13 @@ function generateRootStyles(tokenValues: Tokenami.TokenValue[], config: Tokenami
 
 function getResetTokenValue(cssProperty: Tokenami.CSSProperty, config: Tokenami.Config) {
   const aliasEntries = Object.entries(config.aliases || {});
-  return aliasEntries
-    .flatMap(([alias, properties]) => (properties?.includes(cssProperty) ? [alias] : []))
-    .reduce((fallback, alias) => `var(${Tokenami.tokenProperty(alias)}, ${fallback})`, '')
-    .replace(', )', ')');
+  const matchEntries = aliasEntries.flatMap(([alias, properties]) =>
+    properties?.includes(cssProperty) ? [alias] : []
+  );
+  return matchEntries.reduce(
+    (fallback, alias) => `var(${Tokenami.tokenProperty(alias)}, ${fallback})`,
+    'var(--reset)'
+  );
 }
 
 /* -------------------------------------------------------------------------------------------------

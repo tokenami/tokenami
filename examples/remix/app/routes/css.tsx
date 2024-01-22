@@ -4,7 +4,7 @@ export const links = () => [{ rel: 'stylesheet', href: '/tokenami.css' }];
 
 export default function Index() {
   const button = css(
-    { '--all': 'unset' },
+    { '--reset': '/**/' },
     {
       size: {
         small: {
