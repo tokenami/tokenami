@@ -1,6 +1,7 @@
-import type { CSSProperty } from './supports';
+import { type CSSProperty, properties } from './supports';
 
 const mapShorthandToLonghands = {
+  all: properties.filter((property) => property === 'all'),
   animation: [
     'animation-name',
     'animation-duration',
@@ -21,7 +22,17 @@ const mapShorthandToLonghands = {
     'background-repeat',
     'background-size',
   ],
-  border: ['border-style', 'border-color', 'border-width'],
+  border: [
+    'border-top',
+    'border-right',
+    'border-bottom',
+    'border-left',
+    'border-color',
+    'border-style',
+    'border-width',
+    'border-image',
+    'border-radius',
+  ],
   'border-top': ['border-top-width', 'border-top-style', 'border-top-color'],
   'border-right': ['border-right-width', 'border-right-style', 'border-right-color'],
   'border-bottom': ['border-bottom-width', 'border-bottom-style', 'border-bottom-color'],
@@ -57,7 +68,13 @@ const mapShorthandToLonghands = {
     'border-bottom-right-radius',
     'border-bottom-left-radius',
   ],
-  'border-block': ['border-block-width', 'border-block-style', 'border-block-color'],
+  'border-block': [
+    'border-block-width',
+    'border-block-style',
+    'border-block-color',
+    'border-block-start',
+    'border-block-end',
+  ],
   'border-block-width': ['border-block-start-width', 'border-block-end-width'],
   'border-block-style': ['border-block-start-style', 'border-block-end-style'],
   'border-block-color': ['border-block-start-color', 'border-block-end-color'],
@@ -71,7 +88,13 @@ const mapShorthandToLonghands = {
     'border-block-end-style',
     'border-block-end-color',
   ],
-  'border-inline': ['border-inline-width', 'border-inline-style', 'border-inline-color'],
+  'border-inline': [
+    'border-inline-width',
+    'border-inline-style',
+    'border-inline-color',
+    'border-inline-start',
+    'border-inline-end',
+  ],
   'border-inline-width': ['border-inline-start-width', 'border-inline-end-width'],
   'border-inline-style': ['border-inline-start-style', 'border-inline-end-style'],
   'border-inline-color': ['border-inline-start-color', 'border-inline-end-color'],

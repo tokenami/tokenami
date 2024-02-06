@@ -12,7 +12,7 @@ type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type ReponsiveKey = Extract<keyof TokenamiFinalConfig['responsive'], string>;
 type ResponsiveValue<T> = T extends string ? `${ReponsiveKey}_${T}` : never;
 
-type Override = TokenamiProperties | false | undefined;
+type Override = TokenamiProperties | Record<string, any> | false | undefined;
 type Variants<C> = { [V in keyof C]?: VariantValue<keyof C[V]> };
 type ResponsiveVariants<C> = {
   [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> };
@@ -24,28 +24,72 @@ type SelectedVariants<V, R> =
 
 interface CSS {
   [_LONGHANDS]?: typeof Tokenami.mapShorthandToLonghands;
+
   // return type is purposfully `{}` to support `style` attribute type for different frameworks.
   // returning `TokenamiProperties` is not enough here bcos that type can create circular refs
   // in frameworks like SolidJS that use `CSS.PropertiesHyphen` as style attr type. i'm unsure
   // what usecases requires an accurate return type here, so open to investigating further if we
   // discover usecases later.
-  <V extends VariantsConfig | undefined, R>(
+  (baseStyles: TokenamiProperties, ...overrides: Override[]): {};
+
+  compose: <V extends VariantsConfig | undefined, R>(
     baseStyles: TokenamiProperties,
     variantsConfig?: V & VariantsConfig,
     options?: undefined extends V ? never : { responsive: R & boolean }
-  ): (variants?: SelectedVariants<V, R>, ...overrides: Override[]) => {};
+  ) => (variants?: SelectedVariants<V, R>, ...overrides: Override[]) => {};
 }
 
-const css: CSS = (baseStyles, variantsConfig, options) => {
-  const cache: Record<string, Record<string, any>> = {};
+const cache: Record<string, TokenamiProperties> = {};
+
+const css: CSS = (baseStyles, ...overrides) => {
+  const cacheId = JSON.stringify({ baseStyles, overrides });
+  const cached = cache[cacheId];
+
+  if (cached) return cached;
+
+  // we mutate this object, so we need to make a copy
+  let overriddenStyles = Object.assign({}, baseStyles);
+
+  overrides.forEach((overrideStyle) => {
+    if (!overrideStyle) return;
+    for (let key in overrideStyle) {
+      const tokenProperty = key as keyof TokenamiProperties;
+      const property = Tokenami.getTokenPropertyName(tokenProperty);
+      override(overriddenStyles, property);
+    }
+    // this must happen each iteration so that each override applies to the
+    // mutated css object from the previous override iteration
+    Object.assign(overriddenStyles, overrideStyle);
+  });
+
+  Object.entries(overriddenStyles).forEach(([property, value]) => {
+    const tokenProperty = Tokenami.TokenProperty.safeParse(property);
+    if (tokenProperty.success && typeof value === 'number' && value > 0) {
+      const gridVar = Tokenami.tokenProperty('grid');
+      (overriddenStyles as any)[tokenProperty.output] = `calc(var(${gridVar}) * ${value})`;
+    }
+  });
+
+  cache[cacheId] = overriddenStyles;
+  return overriddenStyles;
+};
+
+css[_LONGHANDS] = Tokenami.mapShorthandToLonghands;
+
+/* -------------------------------------------------------------------------------------------------
+ * compose
+ * -----------------------------------------------------------------------------------------------*/
+
+css.compose = (baseStyles, variantsConfig, options) => {
+  const cache: Record<string, TokenamiProperties> = {};
 
   return function generate(variants, ...overrides) {
-    const cacheId = JSON.stringify({ variants, overrides });
+    const cacheId = JSON.stringify({ baseStyles, variants, overrides });
     const cached = cache[cacheId];
 
     if (cached) return cached;
 
-    const variantStyles = variants
+    const variantStyles: TokenamiProperties[] = variants
       ? Object.entries(variants).flatMap(([key, variant]) => {
           if (!variant) return [];
           const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
@@ -56,24 +100,9 @@ const css: CSS = (baseStyles, variantsConfig, options) => {
         })
       : [];
 
-    const overrideStyles = [...variantStyles, ...overrides];
-    // we mutate this object, so we need to make a copy
-    let overriddenStyles = Object.assign({}, baseStyles);
-
-    overrideStyles.forEach((overrideStyle) => {
-      if (overrideStyle) {
-        for (let tokenProperty in overrideStyle) {
-          const property = Tokenami.getTokenPropertyName(tokenProperty as keyof TokenamiProperties);
-          override(overriddenStyles, property);
-        }
-        // this must happen each iteration so that each override applies to the
-        // mutated css object from the previous override iteration
-        Object.assign(overriddenStyles, overrideStyle);
-      }
-    });
-
-    cache[cacheId] = overriddenStyles;
-    return overriddenStyles;
+    const styles = css(baseStyles, ...variantStyles, ...overrides);
+    cache[cacheId] = styles;
+    return styles;
   };
 };
 

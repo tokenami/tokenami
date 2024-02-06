@@ -9,7 +9,7 @@
     "moduleResolution": "Bundler",
     "paths": {
       "@tokenami/config": ["../config/src"],
-      "@tokenami/dev": ["./src/index.ts"]
+      "@tokenami/css": ["../css/src/index.ts"]
     }
   }
 }

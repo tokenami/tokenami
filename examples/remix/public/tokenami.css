@@ -1,23 +1,9 @@
-@-webkit-keyframes wiggle {
-  0%, 100% {
-    -webkit-transform: rotate(-3deg);
-    transform: rotate(-3deg);
-  }
-
-  50% {
-    -webkit-transform: rotate(3deg);
-    transform: rotate(3deg);
-  }
-}
-
 @keyframes wiggle {
   0%, 100% {
-    -webkit-transform: rotate(-3deg);
     transform: rotate(-3deg);
   }
 
   50% {
-    -webkit-transform: rotate(3deg);
     transform: rotate(3deg);
   }
 }
@@ -38,154 +24,229 @@
 }
 
 [style] {
+  --all: initial;
   --hover_animation: initial;
-  --animation: var(--reset);
-  --hover: initial;
+  --background-color: initial;
+  --bg-color: initial;
   --hover_background-color: initial;
   --focus-hover_background-color: initial;
   --md_focus-hover_background-color: initial;
-  --background-color: var(--bg-color, var(--reset));
-  --focus-hover: initial;
-  --md_focus-hover: initial;
-  --background-image: var(--reset);
-  --background-position-x: var(--reset);
-  --background-position-y: var(--reset);
-  --background-size: var(--reset);
-  --border: var(--reset);
-  --border-right-width: var(--reset);
-  --border-left-width: var(--reset);
+  --background-image: initial;
+  --background-position-x: initial;
+  --background-position-y: initial;
+  --background-size: initial;
+  --border: initial;
+  --border-right-width: initial;
+  --border-left-width: initial;
+  --border-radius: initial;
   --md_border-radius: initial;
   --lg_border-radius: initial;
   --xl_border-radius: initial;
-  --border-radius: var(--reset);
-  --md: initial;
-  --lg: initial;
-  --xl: initial;
+  --2xl_border-radius: initial;
+  --color: initial;
   --hover_color: initial;
-  --color: var(--reset);
+  --display: initial;
   --md_display: initial;
-  --display: var(--reset);
-  --flex-direction: var(--reset);
-  --font-family: var(--reset);
-  --font-size: var(--reset);
-  --font-weight: var(--reset);
+  --flex-direction: initial;
+  --font-family: initial;
+  --font-size: initial;
+  --2xl_font-size: initial;
+  --font-weight: initial;
+  --height: initial;
   --md_height: initial;
   --lg_height: initial;
   --xl_height: initial;
-  --height: var(--reset);
-  --line-height: var(--reset);
-  --margin: var(--m, var(--reset));
-  --margin-right: var(--mr, var(--mx, var(--reset)));
-  --margin-bottom: var(--mb, var(--my, var(--reset)));
-  --margin-left: var(--ml, var(--mx, var(--reset)));
-  --min-height: var(--reset);
+  --2xl_height: initial;
+  --line-height: initial;
+  --m: initial;
+  --mx: initial;
+  --mb: initial;
+  --ml: initial;
+  --min-height: initial;
+  --object-fit: initial;
   --md_object-fit: initial;
   --lg_object-fit: initial;
   --xl_object-fit: initial;
-  --object-fit: var(--reset);
-  --overflow: var(--reset);
-  --md_padding: initial;
-  --padding: var(--p, var(--reset));
-  --padding-top: var(--pt, var(--py, var(--reset)));
-  --padding-right: var(--pr, var(--px, var(--reset)));
-  --padding-bottom: var(--pb, var(--py, var(--reset)));
-  --padding-left: var(--pl, var(--px, var(--reset)));
-  --justify-content: var(--reset);
-  --align-items: var(--reset);
+  --2xl_object-fit: initial;
+  --overflow: initial;
+  --p: initial;
+  --md_p: initial;
+  --padding: initial;
+  --py: initial;
+  --pt: initial;
+  --padding-top: initial;
+  --px: initial;
+  --padding-right: initial;
+  --padding-bottom: initial;
+  --padding-left: initial;
+  --pl: initial;
+  --justify-content: initial;
+  --align-items: initial;
+  --text-align: initial;
   --md_text-align: initial;
-  --text-align: var(--reset);
-  --transition: var(--reset);
+  --transition: initial;
+  --width: initial;
   --md_width: initial;
   --lg_width: initial;
   --xl_width: initial;
-  --width: var(--reset);
-  --_1upk2ho: var(--hover) var(--hover_animation);
-  -webkit-animation: var(--_1upk2ho, var(--animation, revert));
-  animation: var(--_1upk2ho, var(--animation, revert));
-  --_4dvc60: var(--hover) var(--hover_background-color);
-  --_g2kfvl: var(--focus-hover) var(--focus-hover_background-color);
-  --_1atsbkt: var(--md_focus-hover) var(--md_focus-hover_background-color);
-  background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_4dvc60, var(--background-color, revert))));
-  background-image: var(--background-image, revert);
-  background-position-x: var(--background-position-x, revert);
-  background-position-y: var(--background-position-y, revert);
-  background-size: var(--background-size, revert);
-  border: var(--border, revert);
-  border-right-width: var(--border-right-width, revert);
-  border-left-width: var(--border-left-width, revert);
-  --_176qpn4: var(--md) var(--md_border-radius);
-  --_1aut28: var(--lg) var(--lg_border-radius);
-  --_1hh3291: var(--xl) var(--xl_border-radius);
-  border-radius: var(--_1hh3291, var(--_1aut28, var(--_176qpn4, var(--border-radius, revert))));
-  --_853it7: var(--hover) var(--hover_color);
-  color: var(--_853it7, var(--color, revert));
-  --_cbroqb: var(--md) var(--md_display);
-  display: var(--_cbroqb, var(--display, revert));
-  flex-direction: var(--flex-direction, revert);
-  font-family: var(--font-family, revert);
-  font-size: var(--font-size, revert);
-  font-weight: var(--font-weight, revert);
-  --_1hvgbk2: var(--md) var(--md_height);
-  --_midacu: var(--lg) var(--lg_height);
-  --_131ipn5: var(--xl) var(--xl_height);
-  height: var(--_131ipn5, var(--_midacu, var(--_1hvgbk2, var(--height, revert))));
-  line-height: var(--line-height, revert);
-  margin: var(--margin, revert);
-  margin-right: var(--margin-right, revert);
-  margin-bottom: var(--margin-bottom, revert);
-  margin-left: var(--margin-left, revert);
-  min-height: var(--min-height, revert);
-  --_1883ll6: var(--md) var(--md_object-fit);
-  --_1j7l71u: var(--lg) var(--lg_object-fit);
-  --_1abk9c9: var(--xl) var(--xl_object-fit);
-  object-fit: var(--_1abk9c9, var(--_1j7l71u, var(--_1883ll6, var(--object-fit, revert))));
-  overflow: var(--overflow, revert);
-  --_1tfdub6: var(--md) var(--md_padding);
-  padding: var(--_1tfdub6, var(--padding, revert));
-  padding-top: var(--padding-top, revert);
-  padding-right: var(--padding-right, revert);
-  padding-bottom: var(--padding-bottom, revert);
-  padding-left: var(--padding-left, revert);
-  justify-content: var(--justify-content, revert);
-  align-items: var(--align-items, revert);
-  --_1hooa64: var(--md) var(--md_text-align);
-  text-align: var(--_1hooa64, var(--text-align, revert));
-  -webkit-transition: var(--transition, revert);
-  transition: var(--transition, revert);
-  --_rmk1kf: var(--md) var(--md_width);
-  --_3q4l9b: var(--lg) var(--lg_width);
-  --_1qgla5e: var(--xl) var(--xl_width);
-  width: var(--_1qgla5e, var(--_3q4l9b, var(--_rmk1kf, var(--width, revert))));
+  --2xl_width: initial;
+  --border-block-end: initial;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  [style]:hover {
-    --hover: ;
+@layer tk-short {
+  [style] {
+    all: var(--all, revert-layer);
+    border: var(--border, revert-layer);
+    border-radius: var(--border-radius, revert-layer);
+    margin: var(--margin, var(--m, revert-layer));
+    overflow: var(--overflow, revert-layer);
+    padding: var(--padding, var(--p, revert-layer));
+    transition: var(--transition, revert-layer);
   }
 }
 
-[style]:focus:hover {
-  --focus-hover: ;
+@layer tk-long {
+  [style] {
+    background-color: var(--background-color, var(--bg-color, revert-layer));
+    background-image: var(--background-image, revert-layer);
+    background-position-x: var(--background-position-x, revert-layer);
+    background-position-y: var(--background-position-y, revert-layer);
+    background-size: var(--background-size, revert-layer);
+    border-right-width: var(--border-right-width, revert-layer);
+    border-left-width: var(--border-left-width, revert-layer);
+    color: var(--color, revert-layer);
+    display: var(--display, revert-layer);
+    flex-direction: var(--flex-direction, revert-layer);
+    font-family: var(--font-family, revert-layer);
+    font-size: var(--font-size, revert-layer);
+    font-weight: var(--font-weight, revert-layer);
+    height: var(--height, revert-layer);
+    line-height: var(--line-height, revert-layer);
+    margin-right: var(--margin-right, var(--mr, var(--mx, revert-layer)));
+    margin-bottom: var(--margin-bottom, var(--mb, var(--my, revert-layer)));
+    margin-left: var(--margin-left, var(--ml, var(--mx, revert-layer)));
+    min-height: var(--min-height, revert-layer);
+    object-fit: var(--object-fit, revert-layer);
+    padding-top: var(--padding-top, var(--pt, var(--py, revert-layer)));
+    padding-right: var(--padding-right, var(--pr, var(--px, revert-layer)));
+    padding-bottom: var(--padding-bottom, var(--pb, var(--py, revert-layer)));
+    padding-left: var(--padding-left, var(--pl, var(--px, revert-layer)));
+    justify-content: var(--justify-content, revert-layer);
+    align-items: var(--align-items, revert-layer);
+    text-align: var(--text-align, revert-layer);
+    width: var(--width, revert-layer);
+  }
 }
 
-@media (min-width: 700px) {
+@layer tk-short-logical {
+  [style] {
+    border-block-end: var(--border-block-end, revert-layer);
+  }
+}
+
+@layer tk-md-short {
+  @media (width >= 700px) {
+    [style] {
+      border-radius: var(--md_border-radius, revert-layer);
+      padding: var(--md_padding, var(--md_p, revert-layer));
+    }
+  }
+}
+
+@layer tk-md-long {
+  @media (width >= 700px) {
+    [style] {
+      display: var(--md_display, revert-layer);
+      height: var(--md_height, revert-layer);
+      object-fit: var(--md_object-fit, revert-layer);
+      text-align: var(--md_text-align, revert-layer);
+      width: var(--md_width, revert-layer);
+    }
+  }
+}
+
+@layer tk-lg-short {
+  @media (width >= 1024px) {
+    [style] {
+      border-radius: var(--lg_border-radius, revert-layer);
+    }
+  }
+}
+
+@layer tk-lg-long {
+  @media (width >= 1024px) {
+    [style] {
+      height: var(--lg_height, revert-layer);
+      object-fit: var(--lg_object-fit, revert-layer);
+      width: var(--lg_width, revert-layer);
+    }
+  }
+}
+
+@layer tk-xl-short {
+  @media (width >= 1280px) {
+    [style] {
+      border-radius: var(--xl_border-radius, revert-layer);
+    }
+  }
+}
+
+@layer tk-xl-long {
+  @media (width >= 1280px) {
+    [style] {
+      height: var(--xl_height, revert-layer);
+      object-fit: var(--xl_object-fit, revert-layer);
+      width: var(--xl_width, revert-layer);
+    }
+  }
+}
+
+@layer tk-2xl-short {
+  @media (width >= 1536px) {
+    [style] {
+      border-radius: var(--2xl_border-radius, revert-layer);
+    }
+  }
+}
+
+@layer tk-2xl-long {
+  @media (width >= 1536px) {
+    [style] {
+      font-size: var(--2xl_font-size, revert-layer);
+      height: var(--2xl_height, revert-layer);
+      object-fit: var(--2xl_object-fit, revert-layer);
+      width: var(--2xl_width, revert-layer);
+    }
+  }
+}
+
+@layer tk-hover-short {
+  @media (hover: hover) and (pointer: fine) {
+    [style]:hover {
+      animation: var(--hover_animation, revert-layer);
+    }
+  }
+}
+
+@layer tk-hover-long {
+  @media (hover: hover) and (pointer: fine) {
+    [style]:hover {
+      background-color: var(--hover_background-color, var(--hover_bg-color, revert-layer));
+      color: var(--hover_color, revert-layer);
+    }
+  }
+}
+
+@layer tk-focus-hover-long {
   [style]:focus:hover {
-    --md_focus-hover: ;
-  }
-
-  [style] {
-    --md: ;
+    background-color: var(--focus-hover_background-color, var(--focus-hover_bg-color, revert-layer));
   }
 }
 
-@media (min-width: 1024px) {
-  [style] {
-    --lg: ;
-  }
-}
-
-@media (min-width: 1280px) {
-  [style] {
-    --xl: ;
+@layer tk-focus-hover-md-long {
+  @media (width >= 700px) {
+    [style]:focus:hover {
+      background-color: var(--md_focus-hover_background-color, var(--md_focus-hover_bg-color, revert-layer));
+    }
   }
 }

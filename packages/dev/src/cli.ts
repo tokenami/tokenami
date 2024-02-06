@@ -41,8 +41,6 @@ const run = () => {
     .command('init')
     .option('-c, --config [path]', 'Path to a custom config file')
     .action(async (_, flags) => {
-      const projectPkgJsonPath = pathe.join(cwd, 'package.json');
-      const projectPkgJson = fs.readFileSync(projectPkgJsonPath, 'utf-8');
       const tsconfigPath = pathe.join(cwd, 'tsconfig.json');
       const jsconfigPath = pathe.join(cwd, 'jsconfig.json');
       const hasTsConfig = fs.existsSync(tsconfigPath);
@@ -59,9 +57,7 @@ const run = () => {
       const outDir = pathe.dirname(configPath);
       const initialConfig = utils.generateConfig(include, configPath);
       const ciTypeDefs = utils.generateCiTypeDefs(configPath);
-      const typeDefs = projectPkgJson.match('solid-js')
-        ? utils.generateSolidJsTypeDefs(configPath)
-        : utils.generateTypeDefs(configPath);
+      const typeDefs = utils.generateTypeDefs(configPath);
 
       fs.mkdirSync(outDir, { recursive: true });
       fs.writeFileSync(configPath, initialConfig, { flag: 'w' });
@@ -185,7 +181,7 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config) {
   return entries.flatMap((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
     const tokenEntries = matchTokenEntries(fileContent);
-    const responsiveEntries = matchResponsiveCssUtilEntries(fileContent, config.responsive);
+    const responsiveEntries = matchResponsiveComposeVariantsEntries(fileContent, config.responsive);
     return [...tokenEntries, ...responsiveEntries];
   });
 }
@@ -203,12 +199,12 @@ function matchTokenEntries(fileContent: string) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * matchResponsiveCssUtilEntries
+ * matchResponsiveComposeVariantsEntries
  * -----------------------------------------------------------------------------------------------*/
 
-const RESPONSIVE_TRUE_REGEX = /css\(([\s\S]*?)\{([\s\S]*?)responsive:\strue([\s\S]*?)\}/;
+const RESPONSIVE_TRUE_REGEX = /css\.compose\(([\s\S]*?)\{([\s\S]*?)responsive:\strue([\s\S]*?)\}/;
 
-function matchResponsiveCssUtilEntries(
+function matchResponsiveComposeVariantsEntries(
   fileContent: string,
   responsiveConfig: Tokenami.Config['responsive']
 ) {

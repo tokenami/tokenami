@@ -17,7 +17,7 @@ function arbitraryValue(value: string): ArbitraryValue {
   return `var(---,${value})`;
 }
 
-const tokenPropertyRegex = /(?<!var\()--([a-z]([a-z-]+)?)/;
+const tokenPropertyRegex = /(?<!var\()--(\w([\w-]+)?)/;
 const variantPropertyRegex = /(?<!var\()--((\w)([\w-]+)_([\w-]+))/;
 const tokenValueRegex = /var\((--([\w-]+)_([\w-]+))\)/;
 const aritraryValueRegex = /var\(---,(.+)\)/;

@@ -155,14 +155,6 @@ function generateCiTypeDefs(configPath: string) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * generateSolidJsTypeDefs
- * -----------------------------------------------------------------------------------------------*/
-
-function generateSolidJsTypeDefs(configPath: string) {
-  return generateTypeDefs(configPath, '../stubs/tokenami.env.solidjs.d.ts');
-}
-
-/* -------------------------------------------------------------------------------------------------
  * getSpecifictyOrderForCSSProperty
  * -----------------------------------------------------------------------------------------------*/
 
@@ -205,7 +197,6 @@ export {
   generateConfig,
   generateTypeDefs,
   generateCiTypeDefs,
-  generateSolidJsTypeDefs,
   getThemeValuesByTokenValues,
   getLonghandsForAlias,
   getResponsivePropertyVariants,
