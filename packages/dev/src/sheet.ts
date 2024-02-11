@@ -34,6 +34,7 @@ function generate(params: {
 }) {
   if (!params.tokenEntries.length) return '';
 
+  const tokenProperties = Array.from(new Map(params.tokenEntries).keys());
   const tokenValues = getTokenValues(params.tokenEntries);
   const propertyConfigs = getPropertyConfigs(params.tokenEntries, params.config);
   const selectorKeys = Object.keys(params.config.selectors || {});
@@ -48,7 +49,7 @@ function generate(params: {
 
   propertyConfigs.forEach((config) => {
     const tokenProperty = Tokenami.tokenProperty(config.cssProperty);
-    const fallbackValue = getPropertyFallbacks(config, params.config);
+    const fallbackValue = getPropertyFallback(tokenProperties, config, params.config);
     const responsive = config.responsive && params.config.responsive?.[config.responsive];
     const selector = config.selector && params.config.selectors?.[config.selector];
     const selectors = Array.isArray(selector) ? selector : selector ? [selector] : ['&'];
@@ -193,21 +194,23 @@ function generateRootStyles(tokenValues: Tokenami.TokenValue[], config: Tokenami
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getPropertyFallbacks
+ * getPropertyFallback
  * -----------------------------------------------------------------------------------------------*/
 
-// TODO: Only return the fallbacks that are actually used
-function getPropertyFallbacks(propertyConfig: PropertyConfig, config: Tokenami.Config) {
-  const aliasEntries = Object.entries(config.aliases || {});
-  const matchEntries = aliasEntries.flatMap(([alias, properties]) => {
-    return properties?.includes(propertyConfig.cssProperty) ? [alias] : [];
-  });
-  return matchEntries.reduce((fallback, alias) => {
-    const property = propertyConfig.variant
+function getPropertyFallback(
+  usedTokenProperties: Tokenami.TokenProperty[],
+  propertyConfig: PropertyConfig,
+  config: Tokenami.Config
+) {
+  const aliases = Object.entries(config.aliases || {}).flatMap(([alias, properties = []]) => {
+    if (!properties.includes(propertyConfig.cssProperty)) return [];
+    const tokenProperty = propertyConfig.variant
       ? Tokenami.variantProperty(propertyConfig.variant, alias)
       : Tokenami.tokenProperty(alias);
-    return `var(${property}, ${fallback})`;
-  }, 'revert-layer');
+    return usedTokenProperties.includes(tokenProperty) ? [tokenProperty] : [];
+  });
+
+  return aliases.reduce((fallback, alias) => `var(${alias}, ${fallback})`, 'revert-layer');
 }
 
 /* ---------------------------------------------------------------------------------------------- */

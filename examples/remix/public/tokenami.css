@@ -122,14 +122,14 @@
     font-weight: var(--font-weight, revert-layer);
     height: var(--height, revert-layer);
     line-height: var(--line-height, revert-layer);
-    margin-right: var(--margin-right, var(--mr, var(--mx, revert-layer)));
-    margin-bottom: var(--margin-bottom, var(--mb, var(--my, revert-layer)));
+    margin-right: var(--margin-right, var(--mx, revert-layer));
+    margin-bottom: var(--margin-bottom, var(--mb, revert-layer));
     margin-left: var(--margin-left, var(--ml, var(--mx, revert-layer)));
     min-height: var(--min-height, revert-layer);
     object-fit: var(--object-fit, revert-layer);
     padding-top: var(--padding-top, var(--pt, var(--py, revert-layer)));
-    padding-right: var(--padding-right, var(--pr, var(--px, revert-layer)));
-    padding-bottom: var(--padding-bottom, var(--pb, var(--py, revert-layer)));
+    padding-right: var(--padding-right, var(--px, revert-layer));
+    padding-bottom: var(--padding-bottom, var(--py, revert-layer));
     padding-left: var(--padding-left, var(--pl, var(--px, revert-layer)));
     justify-content: var(--justify-content, revert-layer);
     align-items: var(--align-items, revert-layer);
@@ -231,7 +231,7 @@
 @layer tk-hover-long {
   @media (hover: hover) and (pointer: fine) {
     [style]:hover {
-      background-color: var(--hover_background-color, var(--hover_bg-color, revert-layer));
+      background-color: var(--hover_background-color, revert-layer);
       color: var(--hover_color, revert-layer);
     }
   }
@@ -239,14 +239,14 @@
 
 @layer tk-focus-hover-long {
   [style]:focus:hover {
-    background-color: var(--focus-hover_background-color, var(--focus-hover_bg-color, revert-layer));
+    background-color: var(--focus-hover_background-color, revert-layer);
   }
 }
 
 @layer tk-focus-hover-md-long {
   @media (width >= 700px) {
     [style]:focus:hover {
-      background-color: var(--md_focus-hover_background-color, var(--md_focus-hover_bg-color, revert-layer));
+      background-color: var(--md_focus-hover_background-color, revert-layer);
     }
   }
 }
