@@ -14,9 +14,6 @@ type EntryConfigItem = {
 function init(modules: { typescript: typeof tslib }) {
   const ts = modules.typescript;
   let entryConfigMap = new Map<string, EntryConfigItem>();
-  // precomputed selector completions reference this object but we mutate the reference when
-  // completions open to ensure the correct config.
-  let selectorReplacementConfig = { quote: "'", span: { start: 0, length: 1 } };
 
   /* ---------------------------------------------------------------------------------------------
    * getSelectorCompletions
@@ -55,14 +52,7 @@ function init(modules: { typescript: typeof tslib }) {
       const kind = tslib.ScriptElementKind.memberVariableElement;
       const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
       entryConfigMap.set(name, { kind, kindModifiers, value: String(value) });
-      return {
-        name,
-        kind,
-        kindModifiers,
-        sortText: name,
-        insertText: name + selectorReplacementConfig.quote,
-        replacementSpan: selectorReplacementConfig.span,
-      };
+      return { name, kind, kindModifiers, sortText: name, insertText: name };
     };
   };
 
@@ -250,7 +240,6 @@ function init(modules: { typescript: typeof tslib }) {
       const node = findNodeAtPosition(sourceFile, position);
       if (!node || !ts.isStringLiteral(node)) return original;
 
-      const quoteMark = node.getText().slice(-1);
       const isTokenValueEntries = original.entries.some(
         (entry) => TokenamiConfig.TokenValue.safeParse(entry.name).success
       );
@@ -273,8 +262,7 @@ function init(modules: { typescript: typeof tslib }) {
               entry.name = name;
               entry.sortText = entryName;
               entry.kindModifiers = kindModifiers;
-              entry.insertText = `${entryName}${quoteMark}`;
-              entry.replacementSpan = { start: position, length: node.text.length + 1 };
+              entry.insertText = entryName;
               entry.labelDetails = { detail: '', description: entryName };
               entryConfigMap.set(name, { kind: entry.kind, kindModifiers, value });
             }
@@ -288,13 +276,10 @@ function init(modules: { typescript: typeof tslib }) {
           // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
           if (!property.success) return [];
           entry.sortText = property.output;
-          entry.insertText = `${property.output}${quoteMark}`;
-          entry.replacementSpan = { start: position, length: node.text.length + 1 };
+          entry.insertText = property.output;
           return [entry];
         });
 
-        selectorReplacementConfig.quote = quoteMark;
-        selectorReplacementConfig.span.start = position;
         original.entries = original.entries.concat(selectorCompletions);
       }
 
