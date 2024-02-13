@@ -14,6 +14,11 @@ const baseStyles = Object.freeze({
   '--border': '1px solid',
 }) as any;
 
+const baseStylesOutput = {
+  ...baseStyles,
+  '--md_padding': 'calc(var(--grid) * 2)',
+};
+
 const disabledStyles = Object.freeze({
   '--font-weight': 'normal',
 }) as any;
@@ -33,7 +38,7 @@ const secondaryStyles = Object.freeze({
   '--font-family': 'serif',
 }) as any;
 
-const button = css(
+const button = css.compose(
   baseStyles,
   {
     disabled: { true: disabledStyles, false: enabledStyles },
@@ -62,7 +67,7 @@ describe('css', () => {
     });
 
     it<TestContext>('should output base styles only', (context) => {
-      expect(context.output).toEqual(baseStyles);
+      expect(context.output).toEqual(baseStylesOutput);
     });
   });
 
@@ -72,7 +77,7 @@ describe('css', () => {
     });
 
     it<TestContext>('should include base styles', (context) => {
-      expect(hasStyles(context.output, baseStyles)).toBe(true);
+      expect(hasStyles(context.output, baseStylesOutput)).toBe(true);
     });
 
     it<TestContext>('should include variant styles', (context) => {
@@ -92,7 +97,7 @@ describe('css', () => {
     });
 
     it<TestContext>('should include base styles', (context) => {
-      expect(hasStyles(context.output, baseStyles)).toBe(true);
+      expect(hasStyles(context.output, baseStylesOutput)).toBe(true);
     });
 
     it<TestContext>('should not include other variant styles', (context) => {
@@ -114,7 +119,7 @@ describe('css', () => {
     });
 
     it<TestContext>('should include base styles', (context) => {
-      expect(hasStyles(context.output, baseStyles)).toBe(true);
+      expect(hasStyles(context.output, baseStylesOutput)).toBe(true);
     });
 
     it<TestContext>('should include override styles', (context) => {
@@ -142,7 +147,11 @@ describe('css', () => {
     });
 
     it<TestContext>('should add shorthand styles', (context) => {
-      const expected = { '--font': 'arial', '--padding': 30, '--border': '1px dashed' };
+      const expected = {
+        '--font': 'arial',
+        '--padding': 'calc(var(--grid) * 30)',
+        '--border': '1px dashed',
+      };
       expect(hasStyles(context.output, expected)).toBe(true);
     });
   });

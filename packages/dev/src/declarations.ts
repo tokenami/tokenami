@@ -30,19 +30,21 @@ type TokenVar<ThemeKey> = ThemeKey extends string
     : never
   : never;
 
+type ThemeKey<P> = P extends keyof PropertyConfig
+  ? PropertyConfig[P][number] extends infer TK
+    ? TK
+    : never
+  : never;
+
 type CSSPropertyValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.PropertiesHyphen[P] : never;
 
 type ThemePropertyValue<ThemeKey> = ThemeKey extends 'grid'
   ? TokenVar<ThemeKey> | Tokenami.ArbitraryValue | Tokenami.GridValue
   : TokenVar<ThemeKey> | Tokenami.ArbitraryValue;
 
-type PropertyValue<P> = P extends keyof PropertyConfig
-  ? PropertyConfig[P][number] extends infer ThemeKey
-    ? ThemeKey extends never
-      ? CSSPropertyValue<P>
-      : ThemePropertyValue<ThemeKey>
-    : never
-  : CSSPropertyValue<P>;
+type PropertyValue<P> = ThemeKey<P> extends never
+  ? CSSPropertyValue<P>
+  : ThemePropertyValue<ThemeKey<P>>;
 
 type PropertyValues = {
   [P in Tokenami.CSSProperty]: PropertyValue<P>;
@@ -72,9 +74,9 @@ type Property = {
 };
 
 type Properties = Property['-webkit-line-clamp'] &
+  Property['all'] &
   Property['accent-color'] &
   Property['align-tracks'] &
-  Property['all'] &
   Property['animation'] &
   Property['animation-composition'] &
   Property['animation-delay'] &
@@ -102,7 +104,6 @@ type Properties = Property['-webkit-line-clamp'] &
   Property['background-position-y'] &
   Property['background-repeat'] &
   Property['background-size'] &
-  Property['block-overflow'] &
   Property['block-size'] &
   Property['border'] &
   Property['border-style'] &

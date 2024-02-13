@@ -32,11 +32,14 @@ describe('css returned from createCss', () => {
         },
       } as any);
 
-      context.output = css({
-        '--color': 'var(---, red)',
-        '--padding': 'var(---, 10px)',
-        '--padding-left': 'var(---, 30px)',
-      })(null, ...overrides);
+      context.output = css(
+        {
+          '--color': 'var(---, red)',
+          '--padding': 'var(---, 10px)',
+          '--padding-left': 'var(---, 30px)',
+        },
+        ...overrides
+      );
     });
 
     it<TestContext>('should remove longhand styles', (context) => {
@@ -50,7 +53,7 @@ describe('css returned from createCss', () => {
     });
 
     it<TestContext>('should keep shorthand styles', (context) => {
-      const expected = { '--p': 40 };
+      const expected = { '--p': 'calc(var(--grid) * 40)' };
       expect(hasStyles(context.output, expected)).toBe(true);
     });
 
@@ -68,11 +71,14 @@ describe('css returned from createCss', () => {
           },
         } as any);
 
-        context.outputReorderedAliases = css({
-          '--color': 'var(---, red)',
-          '--padding': 'var(---, 10px)',
-          '--padding-left': 'var(---, 30px)',
-        })(null, ...overrides);
+        context.outputReorderedAliases = css(
+          {
+            '--color': 'var(---, red)',
+            '--padding': 'var(---, 10px)',
+            '--padding-left': 'var(---, 30px)',
+          },
+          ...overrides
+        );
       });
 
       it<TestContext>('should not change output', (context) => {
@@ -96,11 +102,11 @@ describe('css returned from createCss', () => {
       } as any);
 
       // @ts-expect-error tests don't have `tokenami.d.ts` so aliases will error here.
-      context.output = css({ '--pr': '10px', '--pl': '30px' })(null, { '--px': 20 });
+      context.output = css({ '--pr': '10px', '--pl': '30px' }, { '--px': 20 });
     });
 
     it<TestContext>('should override correctly', (context) => {
-      expect(context.output).toStrictEqual({ '--px': 20 });
+      expect(context.output).toStrictEqual({ '--px': 'calc(var(--grid) * 20)' });
     });
   });
 });

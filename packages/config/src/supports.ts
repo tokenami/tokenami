@@ -1,11 +1,94 @@
 import type * as CSS from 'csstype';
 
+const logicalProperties = [
+  'block-size',
+  'border-block',
+  'border-block-width',
+  'border-block-style',
+  'border-block-color',
+  'border-block-start',
+  'border-block-end',
+  'border-block-start-color',
+  'border-block-start-style',
+  'border-block-start-width',
+  'border-block-end-color',
+  'border-block-end-style',
+  'border-block-end-width',
+
+  'border-inline',
+  'border-inline-color',
+  'border-inline-style',
+  'border-inline-width',
+  'border-inline-start',
+  'border-inline-end',
+  'border-inline-start-color',
+  'border-inline-start-style',
+  'border-inline-start-width',
+  'border-inline-end-color',
+  'border-inline-end-style',
+  'border-inline-end-width',
+
+  'contain-intrinsic-block-size',
+  'contain-intrinsic-inline-size',
+
+  'inset-block',
+  'inset-block-end',
+  'inset-block-start',
+
+  'inset-inline',
+  'inset-inline-end',
+  'inset-inline-start',
+
+  'margin-block',
+  'margin-block-end',
+  'margin-block-start',
+
+  'margin-inline',
+  'margin-inline-end',
+  'margin-inline-start',
+
+  'max-block-size',
+  'min-block-size',
+  'max-inline-size',
+  'min-inline-size',
+
+  'overflow-block',
+  'overflow-inline',
+
+  'overscroll-behavior-block',
+  'overscroll-behavior-inline',
+
+  'padding-block',
+  'padding-block-end',
+  'padding-block-start',
+
+  'padding-inline',
+  'padding-inline-end',
+  'padding-inline-start',
+
+  'scroll-margin-block',
+  'scroll-margin-block-end',
+  'scroll-margin-block-start',
+
+  'scroll-margin-inline',
+  'scroll-margin-inline-end',
+  'scroll-margin-inline-start',
+
+  'scroll-padding-block',
+  'scroll-padding-block-end',
+  'scroll-padding-block-start',
+
+  'scroll-padding-inline',
+  'scroll-padding-inline-end',
+  'scroll-padding-inline-start',
+] as const satisfies readonly (keyof CSS.PropertiesHyphen)[];
+
 // in specificity order
 const properties = [
+  'all',
   '-webkit-line-clamp',
   'accent-color',
   'align-tracks',
-  'all',
 
   'animation',
   'animation-composition',
@@ -37,9 +120,6 @@ const properties = [
   'background-repeat',
   'background-size',
 
-  'block-overflow',
-  'block-size',
-
   'border',
   'border-style',
   'border-color',
@@ -65,38 +145,12 @@ const properties = [
   'border-left-style',
   'border-left-width',
 
-  'border-block',
-  'border-block-width',
-  'border-block-style',
-  'border-block-color',
-  'border-block-start',
-  'border-block-end',
-  'border-block-start-color',
-  'border-block-start-style',
-  'border-block-start-width',
-  'border-block-end-color',
-  'border-block-end-style',
-  'border-block-end-width',
-
   'border-image',
   'border-image-outset',
   'border-image-repeat',
   'border-image-slice',
   'border-image-source',
   'border-image-width',
-
-  'border-inline',
-  'border-inline-color',
-  'border-inline-style',
-  'border-inline-width',
-  'border-inline-start',
-  'border-inline-end',
-  'border-inline-start-color',
-  'border-inline-start-style',
-  'border-inline-start-width',
-  'border-inline-end-color',
-  'border-inline-end-style',
-  'border-inline-end-width',
 
   'border-radius',
   'border-top-left-radius',
@@ -140,9 +194,7 @@ const properties = [
   'column-width',
 
   'contain',
-  'contain-intrinsic-block-size',
   'contain-intrinsic-height',
-  'contain-intrinsic-inline-size',
   'contain-intrinsic-size',
   'contain-intrinsic-width',
 
@@ -238,14 +290,6 @@ const properties = [
   'bottom',
   'left',
 
-  'inset-block',
-  'inset-block-end',
-  'inset-block-start',
-
-  'inset-inline',
-  'inset-inline-end',
-  'inset-inline-start',
-
   'isolation',
   'justify-tracks',
   'letter-spacing',
@@ -265,14 +309,6 @@ const properties = [
   'margin-right',
   'margin-bottom',
   'margin-left',
-
-  'margin-block',
-  'margin-block-end',
-  'margin-block-start',
-
-  'margin-inline',
-  'margin-inline-end',
-  'margin-inline-start',
 
   'margin-trim',
 
@@ -299,14 +335,14 @@ const properties = [
   'math-depth',
   'math-shift',
   'math-style',
-  'max-block-size',
+
   'max-height',
-  'max-inline-size',
+
   'max-lines',
   'max-width',
-  'min-block-size',
+
   'min-height',
-  'min-inline-size',
+
   'min-width',
   'mix-blend-mode',
   'object-fit',
@@ -331,16 +367,12 @@ const properties = [
 
   'overflow',
   'overflow-anchor',
-  'overflow-block',
   'overflow-clip-margin',
-  'overflow-inline',
   'overflow-wrap',
   'overflow-x',
   'overflow-y',
 
   'overscroll-behavior',
-  'overscroll-behavior-block',
-  'overscroll-behavior-inline',
   'overscroll-behavior-x',
   'overscroll-behavior-y',
 
@@ -349,14 +381,6 @@ const properties = [
   'padding-right',
   'padding-bottom',
   'padding-left',
-
-  'padding-block',
-  'padding-block-end',
-  'padding-block-start',
-
-  'padding-inline',
-  'padding-inline-end',
-  'padding-inline-start',
 
   'page',
   'page-break-after',
@@ -398,27 +422,11 @@ const properties = [
   'scroll-margin-bottom',
   'scroll-margin-left',
 
-  'scroll-margin-block',
-  'scroll-margin-block-end',
-  'scroll-margin-block-start',
-
-  'scroll-margin-inline',
-  'scroll-margin-inline-end',
-  'scroll-margin-inline-start',
-
   'scroll-padding',
   'scroll-padding-top',
   'scroll-padding-right',
   'scroll-padding-bottom',
   'scroll-padding-left',
-
-  'scroll-padding-block',
-  'scroll-padding-block-end',
-  'scroll-padding-block-start',
-
-  'scroll-padding-inline',
-  'scroll-padding-inline-end',
-  'scroll-padding-inline-start',
 
   'scroll-snap-align',
   'scroll-snap-stop',
@@ -489,10 +497,13 @@ const properties = [
   'writing-mode',
   'z-index',
   'zoom',
+
+  // logical properties have higher specificity
+  ...logicalProperties,
 ] as const satisfies readonly (keyof CSS.PropertiesHyphen)[];
 
 /* ---------------------------------------------------------------------------------------------- */
 
 export type CSSProperty = (typeof properties)[number];
 
-export { properties };
+export { properties, logicalProperties };

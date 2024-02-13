@@ -46,7 +46,7 @@
       "Chrome >= 90"
     ],
     "development": [
-      "Chrome >= 14"
+      "Chrome >= 120"
     ]
   }
 }

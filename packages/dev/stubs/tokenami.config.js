@@ -1,4 +1,4 @@
-import { createConfig } from '@tokenami/dev';
+import { createConfig } from '@tokenami/css';
 
 export default createConfig({
   include: [],
