@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.22-next.0
+
+### Patch Changes
+
+- c5eeac1: Replace `[style*=""]` selectors with cascade layers [#192](https://github.com/tokenami/tokenami/pull/192)
+
 ## 0.0.21
 
 ### Patch Changes
