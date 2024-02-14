@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.22-next.1
+
+### Patch Changes
+
+- 207931f: Fix the unused layers regex for production builds
+
 ## 0.0.22-next.0
 
 ### Patch Changes

@@ -9,6 +9,7 @@
     "@tokenami/ts-plugin": "0.0.21"
   },
   "changesets": [
-    "angry-guests-brush"
+    "angry-guests-brush",
+    "tall-onions-give"
   ]
 }
