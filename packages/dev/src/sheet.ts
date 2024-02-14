@@ -11,7 +11,7 @@ const LAYER = {
 };
 
 const LAYERS = Object.values(LAYER);
-const UNUSED_LAYERS_REGEX = /[\n]?@layer .+;[\n]?/g;
+const UNUSED_LAYERS_REGEX = /[\n]?@layer[a-z-,\s]+;[\n]?/g;
 
 type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   order: number;
