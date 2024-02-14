@@ -12,7 +12,7 @@ type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type ReponsiveKey = Extract<keyof TokenamiFinalConfig['responsive'], string>;
 type ResponsiveValue<T> = T extends string ? `${ReponsiveKey}_${T}` : never;
 
-type Override = TokenamiProperties | Record<string, any> | false | undefined;
+type Override = TokenamiProperties | false | undefined;
 type Variants<C> = { [V in keyof C]?: VariantValue<keyof C[V]> };
 type ResponsiveVariants<C> = {
   [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> };
