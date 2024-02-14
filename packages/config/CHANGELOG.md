@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.22-next.2
+
+### Patch Changes
+
+- c9bde91: Remove wide record type from css util
+
 ## 0.0.22-next.1
 
 ### Patch Changes

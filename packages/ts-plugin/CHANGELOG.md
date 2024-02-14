@@ -1,5 +1,14 @@
 # @tokenami/ts-plugin
 
+## 0.0.22-next.2
+
+### Patch Changes
+
+- c9bde91: Remove wide record type from css util
+- Updated dependencies [c9bde91]
+  - @tokenami/dev@0.0.22-next.2
+  - @tokenami/config@0.0.22-next.2
+
 ## 0.0.22-next.1
 
 ### Patch Changes
