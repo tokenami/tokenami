@@ -1,5 +1,17 @@
 # @tokenami/config
 
+## 0.0.22
+
+### Patch Changes
+
+- c5eeac1: Replace `[style*=""]` selectors with cascade layers [#192](https://github.com/tokenami/tokenami/pull/192)
+- c9bde91: Remove wide record type from css util
+- d2a8eda: Fix `getTokenPropertyParts` when there is an invalid/valid selector combination
+- d739220: Allow external stylesheet to be used in `includes` to generate styles for external packages
+- b42133e: Remove redundant type import in stubs
+- 207931f: Fix the unused layers regex for production builds
+- 8a7c373: Fix `getTokenPropertyParts` when there is an invalid/valid selector combination
+
 ## 0.0.22-next.6
 
 ### Patch Changes
