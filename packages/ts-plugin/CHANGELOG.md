@@ -1,5 +1,14 @@
 # @tokenami/ts-plugin
 
+## 0.0.22-next.5
+
+### Patch Changes
+
+- b42133e: Remove redundant type import in stubs
+- Updated dependencies [b42133e]
+  - @tokenami/config@0.0.22-next.5
+  - @tokenami/dev@0.0.22-next.5
+
 ## 0.0.22-next.4
 
 ### Patch Changes

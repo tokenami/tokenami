@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.22-next.5
+
+### Patch Changes
+
+- b42133e: Remove redundant type import in stubs
+
 ## 0.0.22-next.4
 
 ### Patch Changes
