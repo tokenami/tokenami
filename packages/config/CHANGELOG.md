@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.22-next.3
+
+### Patch Changes
+
+- 8a7c373: Fix `getTokenPropertyParts` when there is an invalid/valid selector combination
+
 ## 0.0.22-next.2
 
 ### Patch Changes
