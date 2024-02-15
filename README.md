@@ -3,7 +3,7 @@
 <div align="center">
   <h3>Tokenami</h3>
   <p align="center">
-    Atomic CSS in the style attribute.
+    Atomic CSS-in-JS, in the style attribute.
   </p>
   <p align="center">
     Type-safe static styles with theming, responsive variant support, and no bundler integration.
@@ -47,11 +47,10 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 - Smaller stylesheet made possible by atomic CSS variables
 - Config file for defining your theme
 - Feature-rich intellisense when authoring styles
-- Fully typed `style` attribute for ad-hoc styles, including media queries and pseudo-classes/selectors
 - A tiny `css` utility with variants, and responsive variants support
 - Seamless composition across component boundaries using the `css` utility
-- Runtime style support e.g. `style={{ '--color': props.color }}`
-- Aliasable properties e.g. `style={{ '--p': 4 }}` for padding
+- Runtime style support e.g. `style={css({ '--color': props.color })}`
+- Aliasable properties e.g. `style={css({ '--p': 4 })}` for padding
 - Custom selector support enabling sibling or descendant selectors
 - Improved debugging experience in dev tools
 - Statically generated styles
@@ -59,11 +58,11 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 </details>
 
 > [!Warning]
-> This is a pre-alpha version of tokenami so there will be bugs and missing features. Please check the [existing issues](https://github.com/tokenami/tokenami/issues) for planned features/known bugs before creating new ones.
+> This is a pre-alpha version of tokenami so there will be bugs, breaking changes, and missing features. Please check the [existing issues](https://github.com/tokenami/tokenami/issues) for planned features/known bugs before creating new ones.
 
 ## Demo
 
-https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-965188ed3a62
+https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e99714ef
 
 ## Contents
 
@@ -77,8 +76,9 @@ https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-96518
   - [Styling](#user-content-styling)
   - [Responsive styles](#user-content-responsive-styles)
 - [CSS utility](#user-content-css-utility)
-  - [Installation](#user-contenty-installation-1)
   - [Usage](#user-content-usage)
+  - [Variants](#user-variants)
+  - [Responsive variants](#user-responsive-variants)
   - [Overrides](#user-content-overrides)
   - [TypeScript](#user-content-typescript)
 - [Advanced](#user-content-advanced)
@@ -89,20 +89,27 @@ https://github.com/tokenami/tokenami/assets/175330/77070822-25af-4b06-a92a-96518
   - [Continuous Integration](#user-content-continuous-integration)
 - [Support](#user-content-support)
   - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
-  - [Efficiency of Tokenami's attribute substring selectors](#user-content-efficiency-of-tokenamis-attribute-substring-selectors)
   - [Supported frameworks](#user-content-supported-frameworks)
+  - [Supported browsers](#user-content-supported-browsers)
+- [Contributors](#user-contributors)
 - [Credits](#user-content-credits)
 
 ## Getting started
 
-Tokenami offers a CLI tool for generating static styles, and a TypeScript plugin to enhance the developer experience. An optional [~3kb](https://bundlephobia.com/package/@tokenami/css) CSS utility is also provided and recommended when composing across component boundaries.
+Tokenami offers a CLI tool for generating static styles, a [~3kb](https://bundlephobia.com/package/@tokenami/css) CSS utility for authoring your styles, and a TypeScript plugin to enhance the developer experience.
 
 ### Installation
 
-Install and initialise using your package manager of choice. For example:
+Install using your package manager of choice. For example:
 
 ```sh
 npm install @tokenami/dev @tokenami/ts-plugin -D
+npm install @tokenami/css
+```
+
+And then initialise your tokenami project:
+
+```sh
 npx tokenami init
 ```
 
@@ -133,10 +140,14 @@ Make sure to adjust the output path to your desired location for styles. It will
 
 ### Use Tokenami
 
-Reference your output CSS file in the `<head>` of your document and start styling inline with Tokenami properties:
+Reference your output CSS file in the `<head>` of your document, and start styling inline with Tokenami properties:
 
 ```tsx
-<h1 style={{ '--margin-top': 0, '--margin-bottom': 5 }}>Hello, World!</h1>
+import { css } from '@tokenami/css';
+
+function Page() {
+  return <h1 style={css({ '--margin-top': 0, '--margin-bottom': 5 })}>Hello, World!</h1>;
+}
 ```
 
 ## Core concepts
@@ -213,13 +224,13 @@ module.exports = createConfig({
 Use by following the [property spec](#user-content-styling):
 
 ```tsx
-<div style={{ '--medium_padding': 4 }} />
+<div style={css({ '--medium_padding': 4 })} />
 ```
 
 Responsive rules can also be combined with [selectors](#user-content-selectors):
 
 ```tsx
-<div style={{ '--medium_hover_padding': 4 }} />
+<div style={css({ '--medium_hover_padding': 4 })} />
 ```
 
 For documentation on responsive variants, refer to the [CSS utility](#user-content-css-utility) section.
@@ -248,33 +259,31 @@ module.exports = createConfig({
 Use by following the [token spec](#user-content-styling):
 
 ```tsx
-<div style={{ '--animation': 'var(--anim_wiggle)' }} />
+<div style={css({ '--animation': 'var(--anim_wiggle)' })} />
 ```
 
 ## CSS utility
 
-Tokenami provides a CSS utility to abstract styles from your views and correctly merge styles across component boundaries. It also provides a variants API.
-
-### Installation
-
-Install using your package manager of choice. For example:
-
-```sh
-npm install @tokenami/css
-```
+Tokenami provides a CSS utility to author your styles and correctly merge them across component boundaries. It also provides a variants API.
 
 ### Usage
 
-Import and use the utility directly:
+The `css` utility accepts your base styles as the first parameter, and then any number of overrides as additional parameters.
 
 ```tsx
-import { css } from '@tokenami/css';
-
 function Button({ size, style, ...props }) {
-  return <button {...props} style={button({ size }, style)} />;
+  return <button {...props} style={css({ '---padding': 4 }, props.style)} />;
 }
+```
 
-const button = css(
+In the above example, we're passing `props.style` as an override to ensure composed styles will merge correctly across component boundaries.
+
+### Variants
+
+The `css` utility provides a `compose` API for authoring variants. The first parameter passed to `css.compose` represents your base styles, the second is for your variant definitions, and the third enables responsive variants.
+
+```tsx
+const button = css.compose(
   { '---padding': 4 },
   {
     size: {
@@ -284,9 +293,15 @@ const button = css(
   },
   { responsive: true }
 );
+
+function Button({ size, style, ...props }) {
+  return <button {...props} style={button({ size }, style)} />;
+}
 ```
 
-The first parameter passed to the `css` utility represents your base styles, the second is for optional variants, and the third enables responsive variants.
+The function returned by `css.compose` accepts your chosen variants as the first parameter, and then any number of overrides as additional parameters.
+
+### Responsive variants
 
 Responsive variants allow you to prefix the variant name with a responsive key from your configuration. For example, the following button will apply the large `size` variant at the medium breakpoint:
 
@@ -296,29 +311,17 @@ function Button() {
 }
 ```
 
-Adding `responsive: true` will generate the atomic CSS for the responsive variants regardless of whether they're used so this is purposefully opt-in to allow greater control.
+Adding `responsive: true` to your `css.compose` config will generate the atomic CSS for the responsive variants regardless of whether they're used, so this is purposefully opt-in to allow greater control.
 
 ### Overrides
 
-The function returned by the `css` utility accepts your chosen variants as the first parameter, and then any number of overrides as additional parameters. Overrides can be applied conditionally and last override wins.
+Overrides can be applied conditionally and last override wins.
 
 ```tsx
 function Button(props) {
-  const { size, style, ...buttonProps } = props;
+  const { style, ...buttonProps } = props;
   const disabled = props.disabled && { '--opacity': 0.5 };
-  return <button {...buttonProps} style={button({ size }, disabled, style)} />;
-}
-```
-
-Overrides can also be used for compounding variants:
-
-```tsx
-function Button(props) {
-  const { variant = 'primary', outline = true, style, ...buttonProps } = props;
-  const isPrimary = variant === 'primary';
-  const primaryOutlined = isPrimary && outline && { '--background-color': 'transparent' };
-
-  return <button {...buttonProps} style={button({ size, outline }, primaryOutlined, style)} />;
+  return <button {...buttonProps} style={css({ '--p': 4 }, disabled, style)} />;
 }
 ```
 
@@ -337,7 +340,7 @@ function Button(props: ButtonProps) {
   return <button {...buttonProps} style={button({ size }, style)} />;
 }
 
-const button = css(
+const button = css.compose(
   { '---padding': 4 },
   {
     size: {
@@ -357,7 +360,7 @@ Tokenami provides some [common default selectors](https://github.com/tokenami/to
 Use the ampersand (`&`) to specify where the current element's selector should be injected:
 
 ```ts
-const { createConfig, defaultConfig } = require('@tokenami/dev');
+const { createConfig, defaultConfig } = require('@tokenami/css');
 
 module.exports = createConfig({
   // ...
@@ -373,14 +376,14 @@ Use by following the [property spec](#user-content-styling):
 ```tsx
 <div className="parent">
   <img src="..." alt="" />
-  <button style={{ '--parent-hover_font-weight': 'bold' }} />
+  <button style={css({ '--parent-hover_font-weight': 'bold' })} />
 </div>
 ```
 
 Selectors can also be combined with [responsive rules](#user-content-responsive-styles):
 
 ```tsx
-<button style={{ '--medium_parent-hover_font-weight': 'bold' }} />
+<button style={css({ '--medium_parent-hover_font-weight': 'bold' })} />
 ```
 
 #### Nested selectors
@@ -401,18 +404,11 @@ This example will apply hover styles for users with a precise pointing device, s
 
 ### Aliases
 
-Aliases allow you to create shorthand names for properties or other aliases. When using custom aliases, the `css` utility is recommended. It ensures properties are merged correctly across component boundaries.
+Aliases allow you to create shorthand names for properties or other aliases. When using custom aliases, the `css` utility must be configured to ensure aliased properties are merged correctly across component boundaries.
 
 #### Configure utility
 
-In your `.tokenami/tokenami.config` file, change the `@tokenami/dev` import to `@tokenami/css`:
-
-```diff
-- const { createConfig } = require('@tokenami/dev');
-+ const { createConfig } = require('@tokenami/css');
-```
-
-Then create a file in your project to configure the utility. You can name this file however you like, e.g. `css.ts`:
+Create a file in your project to configure the utility. You can name this file however you like, e.g. `css.ts`:
 
 ```ts
 // css.ts
@@ -422,7 +418,7 @@ import config from '../.tokenami/tokenami.config';
 export const css = createCss(config);
 ```
 
-Now you can import the utility from the file you created and it will handle aliases correctly.
+Use the `css` utility exported from the file you created and it will handle aliases correctly.
 
 #### Create aliases
 
@@ -453,7 +449,7 @@ function Button(props) {
 }
 
 function App() {
-  return <Button style={{ '--p': 10 }} />;
+  return <Button style={css({ '--p': 10 })} />;
 }
 ```
 
@@ -466,7 +462,7 @@ Tokenami provides sensible defaults to restrict which values can be passed to pr
 You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.default.ts#L68) by overriding the `properties` object:
 
 ```ts
-const { createConfig, defaultConfig } = require('@tokenami/dev');
+const { createConfig, defaultConfig } = require('@tokenami/css');
 
 module.exports = createConfig({
   theme: {
@@ -491,17 +487,20 @@ With this configuration, using `'--content': 'var(--container_half)'` would erro
 
 ```tsx
 <div
-  style={{
+  style={css({
     '--width': 75 /*  300px with a 4px grid */,
     '--height': 'var(--container_half)',
     '--after_content': 'var(--pet_cat)',
-  }}
+  })}
 />
 ```
 
 ### Browserslist
 
 Tokenami only supports [browserslist](https://browsersl.ist/) in your `package.json`. You can use it to add autoprefixing to your CSS properties in the generated CSS file. However, it currently doesn't support vendor-prefixed **values**, which is being tracked in [this issue](https://github.com/tokenami/tokenami/issues/103).
+
+> [!Note]
+> Tokenami does not support browsers below the listed [supported browser versions](#user-content-supported-browsers).
 
 ### Continuous Integration
 
@@ -542,15 +541,21 @@ export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
 If your stylesheet is outside the remix `app` directory, update `remix.config.js` to include it in [`watchPaths`](https://remix.run/docs/en/main/file-conventions/remix-config#watchpaths) and update the import path appropriately.
 
-### Efficiency of Tokenami's attribute substring selectors
-
-Attribute substring selectors are known for being less efficient than other simpler selectors, however, they are unlikely to significantly impact performance in most cases. Despite being relatively less efficient, modern browsers handle these selectors well enough that the performance impact would be minimal for typical applications.
-
-Comparatively, historical CSS-in-JS solutions involved style injection techniques which could [significantly hinder performance](https://dev.to/srmagura/why-were-breaking-up-wiht-css-in-js-4g9b). In this context, attribute substring selectors will offer a considerable improvement.
-
 ### Supported frameworks
 
 Tokenami is in early stages of development and currently only supports applications built using React or SolidJS.
+
+### Supported browsers
+
+Tokenami relies on [cascade layers](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Cascade_layers) so only supports [browsers with `@layer` support](https://caniuse.com/?search=%40layer).
+
+| <img src="https://github.com/tokenami/tokenami/assets/175330/8588dacd-a77f-44ee-9111-cea6601ebc35" alt="Edge" width="24px" height="24px" /><br/>Edge | <img src="https://github.com/tokenami/tokenami/assets/175330/b2b38574-5290-44ba-bb28-87e139f8efb8" alt="Firefox" width="24px" height="24px" /><br/>Firefox | <img src="https://github.com/tokenami/tokenami/assets/175330/ae970301-390d-426e-9ea7-974267917df6" alt="Chrome" width="24px" height="24px" /><br/>Chrome | <img src="https://github.com/tokenami/tokenami/assets/175330/16c7374c-a466-4fbe-9459-44c3b30bb688" alt="Safari" width="24px" height="24px" /><br/>Safari | <img src="https://github.com/tokenami/tokenami/assets/175330/16c7374c-a466-4fbe-9459-44c3b30bb688" alt="iOS Safari" width="24px" height="24px" /><br/>iOS Safari | <img src="https://github.com/tokenami/tokenami/assets/175330/e9eaad5e-ef39-4423-ad4b-2e61c0bcc873" alt="Opera" width="24px" height="24px" /><br/>Opera |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 99+                                                                                                                                                  | 97+                                                                                                                                                        | 99+                                                                                                                                                      | 15.4+                                                                                                                                                    | 15.4+                                                                                                                                                            | 86+                                                                                                                                                    |
+
+## Contributors
+
+- Paweł Błaszczyk ([@pawelblaszczyk\_](https://twitter.com/pawelblaszczyk_))
 
 ## Credits
 
