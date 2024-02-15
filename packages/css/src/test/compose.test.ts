@@ -16,7 +16,7 @@ const baseStyles = Object.freeze({
 
 const baseStylesOutput = {
   ...baseStyles,
-  '--md_padding': 'calc(var(--grid) * 2)',
+  '--md_padding': 'calc(var(--_grid) * 2)',
 };
 
 const disabledStyles = Object.freeze({
@@ -149,7 +149,7 @@ describe('css', () => {
     it<TestContext>('should add shorthand styles', (context) => {
       const expected = {
         '--font': 'arial',
-        '--padding': 'calc(var(--grid) * 30)',
+        '--padding': 'calc(var(--_grid) * 30)',
         '--border': '1px dashed',
       };
       expect(hasStyles(context.output, expected)).toBe(true);
