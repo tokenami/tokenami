@@ -183,7 +183,9 @@ function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): Pr
   const [alias, ...variants] = name.split('_').reverse() as [string, ...(string | undefined)[]];
   const [v1, v2, ...invalidVariants] = variants.reverse();
   const responsive = config.responsive?.[v1!] && v1;
-  const selector = responsive ? config.selectors?.[v2!] && v2 : config.selectors?.[v1!] && v1;
+  const selectorVariant1 = config.selectors?.[v1!] && !v2 ? v1 : undefined;
+  const selectorVariant2 = responsive && config.selectors?.[v2!] && v2;
+  const selector = selectorVariant1 || selectorVariant2;
   const hasInvalidVariant = v1 && !responsive && !selector;
   const variant = [responsive, selector].filter(Boolean).join('_');
   if (invalidVariants.length || hasInvalidVariant) return null;
