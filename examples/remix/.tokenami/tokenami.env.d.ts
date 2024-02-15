@@ -1,4 +1,3 @@
-import { TokenamiProperties } from '@tokenami/dev';
 import config from './tokenami.config';
 
 export type Config = typeof config;
