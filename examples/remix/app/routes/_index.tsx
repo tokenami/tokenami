@@ -9,7 +9,7 @@ export default function Index() {
     <div
       style={css({
         '---radial-gradient': 'radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)',
-        '---grid-bg-size': 'calc(var(--grid) * 5)',
+        '---grid-bg-size': 'calc(var(--_grid) * 5)',
         '--background-size': 'var(---,var(---grid-bg-size) var(---grid-bg-size))',
         '--background-image': 'var(---,var(---radial-gradient))',
         '--background-color': 'var(--color_sky-500)',

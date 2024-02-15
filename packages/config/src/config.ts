@@ -1,58 +1,113 @@
 import * as v from 'valibot';
 import * as Supports from './supports';
 
+/* -------------------------------------------------------------------------------------------------
+ * GridProperty
+ * -----------------------------------------------------------------------------------------------*/
+
+type GridProperty = '--_grid';
+const gridPropertyRegex = /--_grid/;
+
+const GridProperty = {
+  safeParse: (input: unknown) => {
+    const schema = v.string([v.regex(gridPropertyRegex)]);
+    v.safeParse(schema, input);
+  },
+};
+
+function gridProperty(): GridProperty {
+  return `--_grid`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * GridValue
+ * -----------------------------------------------------------------------------------------------*/
+
+type GridValue = number;
+const gridValueRegex = /^\d+/;
+
+const GridValue = {
+  safeParse: (input: unknown) => {
+    const schema = v.string([v.regex(gridValueRegex)]);
+    v.safeParse(schema, input);
+  },
+};
+
+/* -------------------------------------------------------------------------------------------------
+ * TokenProperty
+ * -----------------------------------------------------------------------------------------------*/
+
+type TokenProperty<P extends string = string> = `--${P}`;
+const tokenPropertyRegex = /(?<!var\()--(\w([\w-]+)?)/;
+
+const TokenProperty = {
+  safeParse: (input: unknown) => {
+    const schema = v.string([v.regex(tokenPropertyRegex)]) as v.StringSchema<TokenProperty>;
+    return v.safeParse(schema, input);
+  },
+};
+
 function tokenProperty(name: string): TokenProperty {
   return `--${name}`;
 }
+
+/* -------------------------------------------------------------------------------------------------
+ * VariantProperty
+ * -----------------------------------------------------------------------------------------------*/
+
+type VariantProperty<P extends string = string, V extends string = string> = `--${V}_${P}`;
+const variantPropertyRegex = /(?<!var\()--((\w)([\w-]+)_([\w-]+))/;
+
+const VariantProperty = {
+  safeParse: (input: unknown) => {
+    const schema = v.string([v.regex(variantPropertyRegex)]) as v.StringSchema<VariantProperty>;
+    return v.safeParse(schema, input);
+  },
+};
 
 function variantProperty(variant: string, name: string): TokenProperty {
   return `--${variant}_${name}`;
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * TokenValue
+ * -----------------------------------------------------------------------------------------------*/
+
+type TokenValue<TK extends string = string, V extends string = string> = `var(--${TK}_${V})`;
+const tokenValueRegex = /var\((--([\w-]+)_([\w-]+))\)/;
+
+const TokenValue = {
+  safeParse: (input: unknown) => {
+    const schema = v.string([v.regex(tokenValueRegex)]) as v.StringSchema<TokenValue>;
+    return v.safeParse(schema, input);
+  },
+};
+
 function tokenValue<TK extends string, N extends string>(themeKey: TK, name: N): TokenValue<TK, N> {
   return `var(--${themeKey}_${name})`;
 }
+
+/* -------------------------------------------------------------------------------------------------
+ * ArbitraryValue
+ * -----------------------------------------------------------------------------------------------*/
+
+type ArbitraryValue = `var(---,${string})`;
+const aritraryValueRegex = /var\(---,(.+)\)/;
+
+const ArbitraryValue = {
+  safeParse: (input: unknown) => {
+    const schema = v.string([v.regex(aritraryValueRegex)]) as v.StringSchema<ArbitraryValue>;
+    return v.safeParse(schema, input);
+  },
+};
 
 function arbitraryValue(value: string): ArbitraryValue {
   return `var(---,${value})`;
 }
 
-const tokenPropertyRegex = /(?<!var\()--(\w([\w-]+)?)/;
-const variantPropertyRegex = /(?<!var\()--((\w)([\w-]+)_([\w-]+))/;
-const tokenValueRegex = /var\((--([\w-]+)_([\w-]+))\)/;
-const aritraryValueRegex = /var\(---,(.+)\)/;
-const gridValueRegex = /^\d+/;
-
-type GridValue = number;
-const gridValueRegexSchema = v.regex(gridValueRegex);
-const gridValueSchema = v.string([gridValueRegexSchema]);
-const GridValue = { safeParse: (input: unknown) => v.safeParse(gridValueSchema, input) };
-
-type TokenProperty<P extends string = string> = `--${P}`;
-const tokenPropertyRegexSchema = v.regex(tokenPropertyRegex);
-const tokenPropertySchema = v.string([tokenPropertyRegexSchema]) as v.StringSchema<TokenProperty>;
-const TokenProperty = { safeParse: (input: unknown) => v.safeParse(tokenPropertySchema, input) };
-
-type VariantProperty<P extends string = string, V extends string = string> = `--${V}_${P}`;
-const variantPropertyRegexSchema = v.regex(variantPropertyRegex);
-const variantPropertySchema = v.string([
-  variantPropertyRegexSchema,
-]) as v.StringSchema<VariantProperty>;
-const VariantProperty = {
-  safeParse: (input: unknown) => v.safeParse(variantPropertySchema, input),
-};
-
-type TokenValue<TK extends string = string, V extends string = string> = `var(--${TK}_${V})`;
-const tokenValueRegexSchema = v.regex(tokenValueRegex);
-const tokenValueSchema = v.string([tokenValueRegexSchema]) as v.StringSchema<TokenValue>;
-const TokenValue = { safeParse: (input: unknown) => v.safeParse(tokenValueSchema, input) };
-
-type ArbitraryValue = `var(---,${string})`;
-const arbitraryValueRegexSchema = v.regex(aritraryValueRegex);
-const arbitraryValueSchema = v.string([
-  arbitraryValueRegexSchema,
-]) as v.StringSchema<ArbitraryValue>;
-const ArbitraryValue = { safeParse: (input: unknown) => v.safeParse(arbitraryValueSchema, input) };
+/* -------------------------------------------------------------------------------------------------
+ * Config
+ * -----------------------------------------------------------------------------------------------*/
 
 type ThemeKey =
   | 'alpha'
@@ -149,12 +204,14 @@ function getTokenValueParts(tokenValue: TokenValue) {
 
 export type { Config, Theme, Aliases };
 export {
+  GridProperty,
   TokenProperty,
   VariantProperty,
   TokenValue,
   GridValue,
   ArbitraryValue,
   //
+  gridProperty,
   tokenProperty,
   variantProperty,
   tokenValue,

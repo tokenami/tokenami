@@ -85,8 +85,8 @@ const run = () => {
 
       async function regenerateStylesheet(file: string, config: Tokenami.Config) {
         const generateTime = startTimer();
-        const tokenEntries = await findUsedTokens(cwd, config);
-        generateStyles({ tokenEntries, cwd, out: flags.output, config, minify, targets });
+        const tokens = await findUsedTokens(cwd, config);
+        generateStyles({ tokens, cwd, out: flags.output, config, minify, targets });
         log.debug(`Generated styles from ${file} in ${generateTime()}ms.`);
       }
 
@@ -109,8 +109,8 @@ const run = () => {
         });
       }
 
-      const tokenEntries = await findUsedTokens(cwd, config);
-      generateStyles({ tokenEntries, cwd, out: flags.output, config, minify, targets });
+      const tokens = await findUsedTokens(cwd, config);
+      generateStyles({ tokens, cwd, out: flags.output, config, minify, targets });
       log.debug(`Ready in ${startTime()}ms.`);
     });
 
@@ -165,56 +165,73 @@ function watch(cwd: string, include: readonly string[], exclude?: readonly strin
  * findUsedTokens
  * -----------------------------------------------------------------------------------------------*/
 
-const PROPERTY_REGEX = '(?<!var\\()--[\\w-]+';
-const SEPARATOR_REGEX = `['|"]?:[\\s]?['|"]?`;
-const VALUE_REGEX = 'var\\(--[\\w\\s,-]+\\)|[\\w]+';
+interface UsedTokens {
+  properties: Tokenami.TokenProperty[];
+  values: Tokenami.TokenValue[];
+}
 
-const CSS_PROPERTY_ENTRIES = new RegExp(
-  `(${PROPERTY_REGEX})${SEPARATOR_REGEX}(${VALUE_REGEX})`,
-  'g'
-);
-
-async function findUsedTokens(cwd: string, config: Tokenami.Config) {
+async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<UsedTokens> {
   const include = config.include as Writeable<typeof config.include>;
   const exclude = config.exclude as Writeable<typeof config.exclude>;
   const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore: exclude });
-  return entries.flatMap((entry) => {
+  let tokenProperties: Tokenami.TokenProperty[] = [];
+  let tokenValues: Tokenami.TokenValue[] = [];
+  entries.forEach((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
-    const tokenEntries = matchTokenEntries(fileContent);
-    const responsiveEntries = matchResponsiveComposeVariantsEntries(fileContent, config.responsive);
-    return [...tokenEntries, ...responsiveEntries];
+    const tokens = matchTokens(fileContent, config.theme);
+    const responsiveProperties = matchResponsiveComposeVariants(fileContent, config);
+    tokenProperties = [...tokenProperties, ...tokens.properties, ...responsiveProperties];
+    tokenValues = [...tokenValues, ...tokens.values];
   });
+  return { properties: tokenProperties, values: tokenValues };
 }
 
 /* -------------------------------------------------------------------------------------------------
- * matchTokenEntries
+ * matchTokens
  * -----------------------------------------------------------------------------------------------*/
 
-function matchTokenEntries(fileContent: string) {
-  const matches = fileContent.matchAll(CSS_PROPERTY_ENTRIES) || [];
-  return Array.from(matches).flatMap(([, property, value]) => {
-    const tokenProperty = Tokenami.TokenProperty.safeParse(property);
-    return tokenProperty.success ? [[tokenProperty.output, value!] as const] : [];
+// we match all css variable looking things and determine whether they're a tokenami value/property
+// based on tokenami config. we purposefully don't match `var(...)` for values because we want
+// consumers to be able to pass a generated stylesheet to `includes` to support external design
+// system packages.
+const CSS_VARIABLE_REGEX = /--[\w-]+/g;
+
+function matchTokens(fileContent: string, theme: Tokenami.Config['theme']) {
+  const matches = Array.from(fileContent.match(CSS_VARIABLE_REGEX) || []);
+  const uniqueMatches = utils.unique(matches);
+  const variableMatches = uniqueMatches.filter((match) => match !== Tokenami.gridProperty());
+
+  const values = variableMatches.flatMap((match) => {
+    const valueProperty = Tokenami.TokenValue.safeParse(`var(${match})`);
+    if (!valueProperty.success) return [];
+    const parts = Tokenami.getTokenValueParts(valueProperty.output);
+    const value = theme[parts.themeKey]?.[parts.token];
+    return value == null ? [] : [valueProperty.output];
   });
+
+  const properties = variableMatches.flatMap((match) => {
+    const tokenProperty = Tokenami.TokenProperty.safeParse(match);
+    const isValue = (values as string[]).includes(`var(${match})`);
+    if (isValue || !tokenProperty.success) return [];
+    return tokenProperty.output;
+  });
+
+  return { properties, values };
 }
 
 /* -------------------------------------------------------------------------------------------------
- * matchResponsiveComposeVariantsEntries
+ * matchResponsiveComposeVariants
  * -----------------------------------------------------------------------------------------------*/
 
 const RESPONSIVE_TRUE_REGEX = /css\.compose\(([\s\S]*?)\{([\s\S]*?)responsive:\strue([\s\S]*?)\}/;
 
-function matchResponsiveComposeVariantsEntries(
-  fileContent: string,
-  responsiveConfig: Tokenami.Config['responsive']
-) {
+function matchResponsiveComposeVariants(fileContent: string, config: Tokenami.Config) {
   const responsiveCssBlocks = fileContent.match(RESPONSIVE_TRUE_REGEX);
   if (!responsiveCssBlocks) return [];
   return responsiveCssBlocks.flatMap((block) => {
-    const entries = matchTokenEntries(block);
-    return entries.flatMap(([tokenProperty, value]) => {
-      const variants = utils.getResponsivePropertyVariants(tokenProperty, responsiveConfig);
-      return variants.map((responsiveProperty) => [responsiveProperty, value] as const);
+    const tokens = matchTokens(block, config.theme);
+    return tokens.properties.flatMap((tokenProperty) => {
+      return utils.getResponsivePropertyVariants(tokenProperty, config.responsive);
     });
   });
 }

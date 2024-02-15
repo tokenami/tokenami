@@ -65,7 +65,7 @@ const css: CSS = (baseStyles, ...overrides) => {
   Object.entries(overriddenStyles).forEach(([property, value]) => {
     const tokenProperty = Tokenami.TokenProperty.safeParse(property);
     if (tokenProperty.success && typeof value === 'number' && value > 0) {
-      const gridVar = Tokenami.tokenProperty('grid');
+      const gridVar = Tokenami.gridProperty();
       (overriddenStyles as any)[tokenProperty.output] = `calc(var(${gridVar}) * ${value})`;
     }
   });

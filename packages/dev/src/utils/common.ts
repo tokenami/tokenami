@@ -176,6 +176,14 @@ function getResponsivePropertyVariants(
   });
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * unique
+ * -----------------------------------------------------------------------------------------------*/
+
+function unique<T>(items: T[]) {
+  return Array.from(new Set(items));
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
 let jiti: ReturnType<typeof jitiFactory> | null = null;
@@ -201,4 +209,5 @@ export {
   getLonghandsForAlias,
   getResponsivePropertyVariants,
   getSpecifictyOrderForCSSProperty,
+  unique,
 };

@@ -9,7 +9,7 @@
 }
 
 :root {
-  --grid: .25rem;
+  --_grid: .25rem;
   --size_fill: 100%;
   --color_sky-500: #0ea5e9;
   --size_screen-h: 100vh;
@@ -131,7 +131,7 @@
     all: var(--all, revert-layer);
     border: var(--border, revert-layer);
     border-radius: var(--border-radius, revert-layer);
-    margin: var(--margin, var(--m, revert-layer));
+    margin: var(--m, revert-layer);
     overflow: var(--overflow, revert-layer);
     padding: var(--padding, var(--p, revert-layer));
     transition: var(--transition, revert-layer);
@@ -155,9 +155,9 @@
     font-weight: var(--font-weight, revert-layer);
     height: var(--height, revert-layer);
     line-height: var(--line-height, revert-layer);
-    margin-right: var(--margin-right, var(--mx, revert-layer));
-    margin-bottom: var(--margin-bottom, var(--mb, revert-layer));
-    margin-left: var(--margin-left, var(--ml, var(--mx, revert-layer)));
+    margin-right: var(--mx, revert-layer);
+    margin-bottom: var(--mb, revert-layer);
+    margin-left: var(--ml, var(--mx, revert-layer));
     min-height: var(--min-height, revert-layer);
     object-fit: var(--object-fit, revert-layer);
     padding-top: var(--padding-top, var(--pt, var(--py, revert-layer)));
@@ -179,7 +179,7 @@
 
 @layer tk-selector-short {
   [style] {
-    animation: var(--_1upk2ho, var(--animation, revert-layer));
+    animation: var(--_1upk2ho, revert-layer);
     border-radius: var(--_1a98csj, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, var(--border-radius, revert-layer)))));
     padding: var(--_1tfdub6, var(--padding, var(--p, revert-layer)));
   }

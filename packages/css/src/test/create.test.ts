@@ -53,7 +53,7 @@ describe('css returned from createCss', () => {
     });
 
     it<TestContext>('should keep shorthand styles', (context) => {
-      const expected = { '--p': 'calc(var(--grid) * 40)' };
+      const expected = { '--p': 'calc(var(--_grid) * 40)' };
       expect(hasStyles(context.output, expected)).toBe(true);
     });
 
@@ -106,7 +106,7 @@ describe('css returned from createCss', () => {
     });
 
     it<TestContext>('should override correctly', (context) => {
-      expect(context.output).toStrictEqual({ '--px': 'calc(var(--grid) * 20)' });
+      expect(context.output).toStrictEqual({ '--px': 'calc(var(--_grid) * 20)' });
     });
   });
 });
