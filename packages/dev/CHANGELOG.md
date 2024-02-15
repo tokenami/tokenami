@@ -1,5 +1,13 @@
 # @tokenami/dev
 
+## 0.0.22-next.6
+
+### Patch Changes
+
+- d2a8eda: Fix `getTokenPropertyParts` when there is an invalid/valid selector combination
+- Updated dependencies [d2a8eda]
+  - @tokenami/config@0.0.22-next.6
+
 ## 0.0.22-next.5
 
 ### Patch Changes
