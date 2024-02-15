@@ -1,5 +1,14 @@
 # @tokenami/ts-plugin
 
+## 0.0.22-next.4
+
+### Patch Changes
+
+- d739220: Allow external stylesheet to be used in `includes` to generate styles for external packages
+- Updated dependencies [d739220]
+  - @tokenami/config@0.0.22-next.4
+  - @tokenami/dev@0.0.22-next.4
+
 ## 0.0.22-next.3
 
 ### Patch Changes

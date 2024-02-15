@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.22-next.4
+
+### Patch Changes
+
+- d739220: Allow external stylesheet to be used in `includes` to generate styles for external packages
+
 ## 0.0.22-next.3
 
 ### Patch Changes
