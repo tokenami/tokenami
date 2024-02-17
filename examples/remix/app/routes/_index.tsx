@@ -117,9 +117,10 @@ export default function Index() {
   );
 }
 
-const quoteImage = css.compose(
-  { '--object-fit': 'cover' },
-  {
+const quoteImage = css.compose({
+  '--object-fit': 'cover',
+
+  responsiveVariants: {
     variant: {
       circle: {
         '--width': 24,
@@ -133,5 +134,4 @@ const quoteImage = css.compose(
       },
     },
   },
-  { responsive: true }
-);
+});

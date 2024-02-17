@@ -85,14 +85,6 @@
   --mb: initial;
   --ml: initial;
   --min-height: initial;
-  --_1883ll6: var(--md) var(--md_object-fit);
-  --md_object-fit: initial;
-  --_1j7l71u: var(--lg) var(--lg_object-fit);
-  --lg_object-fit: initial;
-  --_1abk9c9: var(--xl) var(--xl_object-fit);
-  --xl_object-fit: initial;
-  --_10dq7t9: var(--2xl) var(--2xl_object-fit);
-  --2xl_object-fit: initial;
   --object-fit: initial;
   --overflow: initial;
   --_1tfdub6: var(--md) var(--md_padding, var(--md_p));
@@ -192,7 +184,6 @@
     display: var(--_cbroqb, var(--display, revert-layer));
     font-size: var(--_1qfo97, var(--font-size, revert-layer));
     height: var(--_18bne5j, var(--_131ipn5, var(--_midacu, var(--_1hvgbk2, var(--height, revert-layer)))));
-    object-fit: var(--_10dq7t9, var(--_1abk9c9, var(--_1j7l71u, var(--_1883ll6, var(--object-fit, revert-layer)))));
     text-align: var(--_1hooa64, var(--text-align, revert-layer));
     width: var(--_lgvp90, var(--_1qgla5e, var(--_3q4l9b, var(--_rmk1kf, var(--width, revert-layer)))));
   }

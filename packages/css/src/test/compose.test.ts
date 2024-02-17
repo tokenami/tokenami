@@ -7,45 +7,43 @@ import { css, convertToMediaStyles } from '../css';
  * -----------------------------------------------------------------------------------------------*/
 
 // freeze configs to ensure tests fail if `css` mutates them
-
 const baseStyles = Object.freeze({
   '--padding': '10px',
   '--md_padding': 2,
   '--border': '1px solid',
-}) as any;
+}) as {};
 
-const baseStylesOutput = {
+const baseStylesOutput = Object.freeze({
   ...baseStyles,
   '--md_padding': 'calc(var(--_grid) * 2)',
-};
+}) as {};
 
 const disabledStyles = Object.freeze({
   '--font-weight': 'normal',
-}) as any;
+}) as {};
 
 const enabledStyles = Object.freeze({
   '--font-weight': 'bold',
-}) as any;
+}) as {};
 
 const primaryStyles = Object.freeze({
   '--color': 'violet',
   '--border-color': 'darkviolet',
-}) as any;
+}) as {};
 
 const secondaryStyles = Object.freeze({
   '--color': 'gray',
   '--border-color': 'lightgray',
   '--font-family': 'serif',
-}) as any;
+}) as {};
 
-const button = css.compose(
-  baseStyles,
-  {
+const button = css.compose({
+  ...baseStyles,
+  responsiveVariants: {
     disabled: { true: disabledStyles, false: enabledStyles },
     type: { primary: primaryStyles, secondary: secondaryStyles },
   },
-  { responsive: true }
-);
+});
 
 /* -------------------------------------------------------------------------------------------------
  * tests

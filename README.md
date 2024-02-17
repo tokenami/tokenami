@@ -77,9 +77,10 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
   - [Responsive styles](#user-content-responsive-styles)
 - [CSS utility](#user-content-css-utility)
   - [Usage](#user-content-usage)
+  - [Overrides](#user-content-overrides)
+- [CSS compose](#user-content-css-compose)
   - [Variants](#user-variants)
   - [Responsive variants](#user-responsive-variants)
-  - [Overrides](#user-content-overrides)
   - [TypeScript](#user-content-typescript)
 - [Advanced](#user-content-advanced)
   - [Selectors](#user-content-selectors)
@@ -88,9 +89,9 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
   - [Browserslist](#user-content-browserslist)
   - [Continuous Integration](#user-content-continuous-integration)
 - [Support](#user-content-support)
-  - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
   - [Supported frameworks](#user-content-supported-frameworks)
   - [Supported browsers](#user-content-supported-browsers)
+  - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
 - [Contributors](#user-contributors)
 - [Credits](#user-content-credits)
 
@@ -233,7 +234,7 @@ Responsive rules can also be combined with [selectors](#user-content-selectors):
 <div style={css({ '--medium_hover_padding': 4 })} />
 ```
 
-For documentation on responsive variants, refer to the [CSS utility](#user-content-css-utility) section.
+For documentation on responsive variants, refer to the [CSS compose](#user-content-css-compose) section.
 
 ### Animation
 
@@ -264,7 +265,7 @@ Use by following the [token spec](#user-content-styling):
 
 ## CSS utility
 
-Tokenami provides a CSS utility to author your styles and correctly merge them across component boundaries. It also provides a variants API.
+Tokenami provides a CSS utility to author your styles and correctly merge them across component boundaries.
 
 ### Usage
 
@@ -278,21 +279,34 @@ function Button({ size, style, ...props }) {
 
 In the above example, we're passing `props.style` as an override to ensure composed styles will merge correctly across component boundaries.
 
-### Variants
+### Overrides
 
-The `css` utility provides a `compose` API for authoring variants. The first parameter passed to `css.compose` represents your base styles, the second is for your variant definitions, and the third enables responsive variants.
+Overrides can be applied conditionally and last override wins. They are applied as additional parameters to the `css` utility.
 
 ```tsx
-const button = css.compose(
-  { '---padding': 4 },
-  {
+function Button({ style, ...props }) {
+  const disabled = props.disabled && { '--opacity': 0.5 };
+  return <button {...props} style={css({ '--p': 4 }, disabled, style)} />;
+}
+```
+
+## CSS compose
+
+Use the `css.compose` API to author variants.
+
+### Variants
+
+```tsx
+const button = css.compose({
+  '---padding': 4,
+
+  variants: {
     size: {
       small: { '--padding': 2 },
       large: { '--padding': 6 },
     },
   },
-  { responsive: true }
-);
+});
 
 function Button({ size, style, ...props }) {
   return <button {...props} style={button({ size }, style)} />;
@@ -311,18 +325,20 @@ function Button() {
 }
 ```
 
-Adding `responsive: true` to your `css.compose` config will generate the atomic CSS for the responsive variants regardless of whether they're used, so this is purposefully opt-in to allow greater control.
+To enable it, rename the `variants` property to `responsiveVariants`. This will generate the atomic CSS for the responsive variants regardless of whether they're used, so it is purposefully opt-in to allow greater control.
 
-### Overrides
+```diff
+const button = css.compose({
+  '---padding': 4,
 
-Overrides can be applied conditionally and last override wins.
-
-```tsx
-function Button(props) {
-  const { style, ...buttonProps } = props;
-  const disabled = props.disabled && { '--opacity': 0.5 };
-  return <button {...buttonProps} style={css({ '--p': 4 }, disabled, style)} />;
-}
+-  variants: {
++  responsiveVariants: {
+    size: {
+      small: { '--padding': 2 },
+      large: { '--padding': 6 },
+    },
+  },
+});
 ```
 
 ### TypeScript
@@ -330,25 +346,10 @@ function Button(props) {
 Use the `Variants` type to extend your component prop types:
 
 ```tsx
-import { type Variants, css } from '@tokenami/css';
+import { type Variants } from '@tokenami/css';
 
 type ButtonElementProps = React.ComponentPropsWithoutRef<'button'>;
-interface ButtonProps extends ButtonElementProps, Variants<typeof button> {}
-
-function Button(props: ButtonProps) {
-  const { size = 'small', style, ...buttonProps } = props;
-  return <button {...buttonProps} style={button({ size }, style)} />;
-}
-
-const button = css.compose(
-  { '---padding': 4 },
-  {
-    size: {
-      small: { '--padding': 2 },
-      large: { '--padding': 6 },
-    },
-  }
-);
+interface ButtonProps extends ButtonElementProps, Variants<typeof styles.button> {}
 ```
 
 ## Advanced
@@ -442,10 +443,8 @@ module.exports = createConfig({
 With the above config, `p` is shorthand for `pt`, `pr`, `pb`, `pl`, `px`, `py`, and `padding`. This allows the `css` utility to remove those properties when `--p` is passed as an override:
 
 ```tsx
-const button = css({ '--pr': 4 });
-
 function Button(props) {
-  return <button style={button(null, props.style)} />;
+  return <button style={css({ '--pr': 4 }, props.style)} />;
 }
 
 function App() {
@@ -529,18 +528,6 @@ tsc --noEmit --project tsconfig.ci.json
 
 Before raising a bug, please double-check that it isn't [already in my todo list](https://github.com/tokenami/tokenami/issues). Some common pitfalls are listed below. If you need additional support or encounter any issues, please don't hesitate to join the [Tokenami discord server](https://discord.gg/CAU4HNR4XK).
 
-### HMR not working as expected in Remix
-
-When adding the stylesheet to the `links` export, make sure to import it instead of referencing a path in the `href` property:
-
-```tsx
-import styles from '~/tokenami.css';
-
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
-```
-
-If your stylesheet is outside the remix `app` directory, update `remix.config.js` to include it in [`watchPaths`](https://remix.run/docs/en/main/file-conventions/remix-config#watchpaths) and update the import path appropriately.
-
 ### Supported frameworks
 
 Tokenami is in early stages of development and currently only supports applications built using React or SolidJS.
@@ -552,6 +539,18 @@ Tokenami relies on [cascade layers](https://developer.mozilla.org/en-US/docs/Lea
 | <img src="https://github.com/tokenami/tokenami/assets/175330/8588dacd-a77f-44ee-9111-cea6601ebc35" alt="Edge" width="24px" height="24px" /><br/>Edge | <img src="https://github.com/tokenami/tokenami/assets/175330/b2b38574-5290-44ba-bb28-87e139f8efb8" alt="Firefox" width="24px" height="24px" /><br/>Firefox | <img src="https://github.com/tokenami/tokenami/assets/175330/ae970301-390d-426e-9ea7-974267917df6" alt="Chrome" width="24px" height="24px" /><br/>Chrome | <img src="https://github.com/tokenami/tokenami/assets/175330/16c7374c-a466-4fbe-9459-44c3b30bb688" alt="Safari" width="24px" height="24px" /><br/>Safari | <img src="https://github.com/tokenami/tokenami/assets/175330/16c7374c-a466-4fbe-9459-44c3b30bb688" alt="iOS Safari" width="24px" height="24px" /><br/>iOS Safari | <img src="https://github.com/tokenami/tokenami/assets/175330/e9eaad5e-ef39-4423-ad4b-2e61c0bcc873" alt="Opera" width="24px" height="24px" /><br/>Opera |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 99+                                                                                                                                                  | 97+                                                                                                                                                        | 99+                                                                                                                                                      | 15.4+                                                                                                                                                    | 15.4+                                                                                                                                                            | 86+                                                                                                                                                    |
+
+### HMR not working as expected in Remix
+
+When adding the stylesheet to the `links` export, make sure to import it instead of referencing a path in the `href` property:
+
+```tsx
+import styles from '~/tokenami.css';
+
+export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
+```
+
+If your stylesheet is outside the remix `app` directory, update `remix.config.js` to include it in [`watchPaths`](https://remix.run/docs/en/main/file-conventions/remix-config#watchpaths) and update the import path appropriately.
 
 ## Contributors
 
