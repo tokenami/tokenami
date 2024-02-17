@@ -9,6 +9,7 @@
     "@tokenami/ts-plugin": "0.0.25"
   },
   "changesets": [
-    "cold-balloons-tell"
+    "cold-balloons-tell",
+    "small-months-marry"
   ]
 }

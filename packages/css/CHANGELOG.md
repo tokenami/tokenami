@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.26-next.1
+
+### Patch Changes
+
+- b08def7: Allow `props.style` to be passed to `css` overrides
+- Updated dependencies [b08def7]
+  - @tokenami/config@0.0.26-next.1
+  - @tokenami/dev@0.0.26-next.1
+
 ## 0.0.26-next.0
 
 ### Patch Changes
