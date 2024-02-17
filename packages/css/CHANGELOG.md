@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.25
+
+### Patch Changes
+
+- 1ffb09f: Remove `all` from shorthands to prevent max callstack error
+- Updated dependencies [1ffb09f]
+  - @tokenami/config@0.0.25
+  - @tokenami/dev@0.0.25
+
 ## 0.0.25-next.0
 
 ### Patch Changes
