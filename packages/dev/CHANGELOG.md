@@ -1,5 +1,13 @@
 # @tokenami/dev
 
+## 0.0.27
+
+### Patch Changes
+
+- f952a2f: Remove redundant fallbacks from styleasheet
+- Updated dependencies [f952a2f]
+  - @tokenami/config@0.0.27
+
 ## 0.0.27-next.0
 
 ### Patch Changes
