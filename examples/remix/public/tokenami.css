@@ -27,7 +27,6 @@
   --all: initial;
   --_1upk2ho: var(--hover) var(--hover_animation);
   --hover_animation: initial;
-  --animation: initial;
   --hover: initial;
   --_4dvc60: var(--hover) var(--hover_background-color);
   --hover_background-color: initial;
@@ -165,21 +164,21 @@
 
 @layer tk-selector-short {
   [style] {
-    animation: var(--_1upk2ho, var(--animation, revert-layer));
-    border-radius: var(--_1a98csj, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, var(--border-radius, revert-layer)))));
-    padding: var(--_1tfdub6, var(--padding, revert-layer));
+    animation: var(--_1upk2ho, revert-layer);
+    border-radius: var(--_1a98csj, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, revert-layer))));
+    padding: var(--_1tfdub6, revert-layer);
   }
 }
 
 @layer tk-selector-long {
   [style] {
-    background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_4dvc60, var(--background-color, revert-layer))));
-    color: var(--_853it7, var(--color, revert-layer));
-    display: var(--_cbroqb, var(--display, revert-layer));
-    font-size: var(--_1qfo97, var(--font-size, revert-layer));
-    height: var(--_18bne5j, var(--_131ipn5, var(--_midacu, var(--_1hvgbk2, var(--height, revert-layer)))));
-    text-align: var(--_1hooa64, var(--text-align, revert-layer));
-    width: var(--_lgvp90, var(--_1qgla5e, var(--_3q4l9b, var(--_rmk1kf, var(--width, revert-layer)))));
+    background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_4dvc60, revert-layer)));
+    color: var(--_853it7, revert-layer);
+    display: var(--_cbroqb, revert-layer);
+    font-size: var(--_1qfo97, revert-layer);
+    height: var(--_18bne5j, var(--_131ipn5, var(--_midacu, var(--_1hvgbk2, revert-layer))));
+    text-align: var(--_1hooa64, revert-layer);
+    width: var(--_lgvp90, var(--_1qgla5e, var(--_3q4l9b, var(--_rmk1kf, revert-layer))));
   }
 }
 

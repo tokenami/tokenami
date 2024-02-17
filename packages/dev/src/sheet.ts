@@ -63,15 +63,12 @@ function generate(params: {
       const isLogicalProperty = Tokenami.logicalProperties.includes(cssProperty as any);
       const shortLayer = isLogicalProperty ? LAYER.SHORT_LOGICAL : LAYER.SHORT;
       const longLayer = isLogicalProperty ? LAYER.LONG_LOGICAL : LAYER.LONG;
-      const propertyValue = `var(${config.tokenProperty}, revert-layer)`;
       const propertyLayer = isShortProperty ? shortLayer : longLayer;
-
-      styles.reset.add(`${config.tokenProperty}: initial;`);
 
       if (config.variant) {
         const variantValue = uniqueVariants.reduce(
           (fallback, variant) => `var(${hashVariantProperty(variant, cssProperty)}, ${fallback})`,
-          propertyValue
+          'revert-layer'
         );
 
         const toggleProperty = Tokenami.tokenProperty(config.variant);
@@ -81,11 +78,12 @@ function generate(params: {
         );
 
         const declaration = `[style] { ${cssProperty}: ${variantValue}; }`;
-        styles.selectors.add(`@layer tk-selector-${propertyLayer} { ${declaration} }`);
         styles.reset.add(`${toggleProperty}: initial;`);
         styles.selectors.add(toggle);
+        styles.selectors.add(`@layer tk-selector-${propertyLayer} { ${declaration} }`);
       } else {
-        const declaration = `[style] { ${cssProperty}: ${propertyValue}; }`;
+        const declaration = `[style] { ${cssProperty}: var(${config.tokenProperty}, revert-layer); }`;
+        styles.reset.add(`${config.tokenProperty}: initial;`);
         styles.atomic.add(`@layer tk-${propertyLayer} { ${declaration} }`);
       }
     });
