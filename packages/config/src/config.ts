@@ -167,6 +167,16 @@ function getTokenPropertyName(tokenProperty: TokenProperty) {
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * getTokenPropertySplit
+ * -----------------------------------------------------------------------------------------------*/
+
+function getTokenPropertySplit(tokenProperty: TokenProperty) {
+  const name = getTokenPropertyName(tokenProperty);
+  const [alias, ...variants] = name.split('_').reverse() as [string, ...(string | undefined)[]];
+  return { alias, variants: variants.reverse() };
+}
+
+/* -------------------------------------------------------------------------------------------------
  * getTokenPropertyParts
  * -----------------------------------------------------------------------------------------------*/
 
@@ -180,8 +190,8 @@ type PropertyParts = {
 
 function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): PropertyParts | null {
   const name = getTokenPropertyName(tokenProperty);
-  const [alias, ...variants] = name.split('_').reverse() as [string, ...(string | undefined)[]];
-  const [v1, v2, ...invalidVariants] = variants.reverse();
+  const { alias, variants } = getTokenPropertySplit(tokenProperty);
+  const [v1, v2, ...invalidVariants] = variants;
   const responsive = config.responsive?.[v1!] && v1;
   const selectorVariant1 = config.selectors?.[v1!] && !v2 ? v1 : undefined;
   const selectorVariant2 = responsive && config.selectors?.[v2!] && v2;
@@ -202,6 +212,20 @@ function getTokenValueParts(tokenValue: TokenValue) {
   return { property, themeKey, token };
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * getCSSPropertiesForAlias
+ * -------------------------------------------------------------------------------------------------
+ * an alias can be used for multiple CSS properties e.g. `px` can apply to `padding-left`
+ * and `padding-right`, so this gets an array of CSS properties for a given alias.
+ * -----------------------------------------------------------------------------------------------*/
+
+function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']) {
+  const longhands: string[] = (aliases as any)?.[alias];
+  const result = longhands || [alias];
+  const valid = result.filter((property) => Supports.properties.includes(property as any));
+  return valid as Supports.CSSProperty[];
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
 export type { Config, Theme, Aliases };
@@ -219,7 +243,9 @@ export {
   tokenValue,
   arbitraryValue,
   getTokenPropertyName,
+  getTokenPropertySplit,
   getTokenPropertyParts,
   getTokenValueParts,
+  getCSSPropertiesForAlias,
   createConfig,
 };

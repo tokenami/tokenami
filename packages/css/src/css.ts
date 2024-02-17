@@ -1,7 +1,7 @@
 import type { TokenamiProperties, TokenamiFinalConfig } from '@tokenami/dev';
 import * as Tokenami from '@tokenami/config';
 
-const _LONGHANDS = Symbol();
+const _ALIASES = Symbol();
 
 /* -------------------------------------------------------------------------------------------------
  * css
@@ -24,7 +24,7 @@ type ComposeCSS<V, R> = TokenamiProperties & {
 };
 
 interface CSS {
-  [_LONGHANDS]?: typeof Tokenami.mapShorthandToLonghands;
+  [_ALIASES]?: Tokenami.Aliases;
 
   // return type is purposfully `{}` to support `style` attribute type for different frameworks.
   // returning `TokenamiProperties` is not enough here bcos that type can create circular refs
@@ -44,39 +44,48 @@ interface CSS {
 const cache: Record<string, TokenamiProperties> = {};
 
 const css: CSS = (baseStyles, ...overrides) => {
+  let overriddenStyles = {} as Record<string, any>;
   const cacheId = JSON.stringify({ baseStyles, overrides });
   const cached = cache[cacheId];
 
   if (cached) return cached;
 
-  // we mutate this object, so we need to make a copy
-  let overriddenStyles = Object.assign({}, baseStyles);
+  [baseStyles, ...overrides].forEach((originalOverrideStyle) => {
+    if (!originalOverrideStyle) return;
+    // we mutate this so make a copy
+    let overrideStyle = Object.assign({}, originalOverrideStyle);
 
-  overrides.forEach((overrideStyle) => {
-    if (!overrideStyle) return;
-    for (let key in overrideStyle) {
+    Object.entries(overrideStyle).forEach(([key, value]) => {
+      if (!Tokenami.TokenProperty.safeParse(key).success) return;
       const tokenProperty = key as keyof TokenamiProperties;
-      const property = Tokenami.getTokenPropertyName(tokenProperty);
-      override(overriddenStyles, property);
-    }
+      const parts = Tokenami.getTokenPropertySplit(tokenProperty);
+      const cssProperties = Tokenami.getCSSPropertiesForAlias(parts.alias, css[_ALIASES]);
+
+      cssProperties.forEach((cssProperty) => {
+        const tokenPropertyLong = createTokenProperty(tokenProperty, cssProperty);
+
+        delete overrideStyle[tokenProperty];
+        overrideLonghands(overriddenStyles, tokenPropertyLong);
+
+        if (typeof value === 'number' && value > 0) {
+          const gridVar = Tokenami.gridProperty();
+          (overrideStyle as any)[tokenPropertyLong] = `calc(var(${gridVar}) * ${value})`;
+        } else {
+          (overrideStyle as any)[tokenPropertyLong] = value;
+        }
+      });
+    });
+
     // this must happen each iteration so that each override applies to the
     // mutated css object from the previous override iteration
     Object.assign(overriddenStyles, overrideStyle);
-  });
-
-  Object.entries(overriddenStyles).forEach(([property, value]) => {
-    const tokenProperty = Tokenami.TokenProperty.safeParse(property);
-    if (tokenProperty.success && typeof value === 'number' && value > 0) {
-      const gridVar = Tokenami.gridProperty();
-      (overriddenStyles as any)[tokenProperty.output] = `calc(var(${gridVar}) * ${value})`;
-    }
   });
 
   cache[cacheId] = overriddenStyles;
   return overriddenStyles;
 };
 
-css[_LONGHANDS] = Tokenami.mapShorthandToLonghands;
+css[_ALIASES] = {};
 
 /* -------------------------------------------------------------------------------------------------
  * compose
@@ -117,31 +126,43 @@ css.compose = (config) => {
   };
 };
 
-css[_LONGHANDS] = Tokenami.mapShorthandToLonghands;
-
 /* -------------------------------------------------------------------------------------------------
  * createCss
  * -----------------------------------------------------------------------------------------------*/
 
 function createCss(config: Tokenami.Config) {
   if (!config.aliases) return css;
-  css[_LONGHANDS] = Object.assign({}, css[_LONGHANDS], config.aliases);
+  css[_ALIASES] = config.aliases;
   return css;
 }
 
-/* ---------------------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------------------
+ * overrideLonghands
+ * -----------------------------------------------------------------------------------------------*/
 
-function override(style: Record<string, any>, property: string) {
-  const longhands = (css[_LONGHANDS] as any)[property];
-  if (!longhands) return;
-  for (let longhand of longhands) {
-    const tokenProperty = Tokenami.tokenProperty(longhand);
-    if (style[tokenProperty]) {
-      delete style[tokenProperty];
-    }
-    override(style, longhand);
-  }
+function overrideLonghands(style: Record<string, any>, tokenProperty: Tokenami.TokenProperty) {
+  const parts = Tokenami.getTokenPropertySplit(tokenProperty);
+  const longhands: string[] = (Tokenami.mapShorthandToLonghands as any)[parts.alias] || [];
+  longhands.forEach((longhand) => {
+    const tokenPropertyLong = createTokenProperty(tokenProperty, longhand);
+    if (style[tokenPropertyLong]) delete style[tokenPropertyLong];
+    overrideLonghands(style, tokenPropertyLong);
+  });
 }
+
+/* -------------------------------------------------------------------------------------------------
+ * createTokenProperty
+ * -----------------------------------------------------------------------------------------------*/
+
+function createTokenProperty(tokenProperty: Tokenami.TokenProperty, cssProperty: string) {
+  const parts = Tokenami.getTokenPropertySplit(tokenProperty);
+  const aliasRegex = new RegExp(`${parts.alias}$`);
+  return tokenProperty.replace(aliasRegex, cssProperty) as Tokenami.TokenProperty;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * convertToMediaStyles
+ * -----------------------------------------------------------------------------------------------*/
 
 function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiProperties {
   const updatedEntries = Object.entries(styles).map(([property, value]) => {
@@ -152,5 +173,7 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
   });
   return Object.fromEntries(updatedEntries);
 }
+
+/* ---------------------------------------------------------------------------------------------- */
 
 export { createCss, css, convertToMediaStyles };

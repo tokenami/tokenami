@@ -27,6 +27,7 @@
   --all: initial;
   --_1upk2ho: var(--hover) var(--hover_animation);
   --hover_animation: initial;
+  --animation: initial;
   --hover: initial;
   --_4dvc60: var(--hover) var(--hover_background-color);
   --hover_background-color: initial;
@@ -35,7 +36,6 @@
   --_1atsbkt: var(--md_focus-hover) var(--md_focus-hover_background-color);
   --md_focus-hover_background-color: initial;
   --background-color: initial;
-  --bg-color: initial;
   --focus-hover: initial;
   --md_focus-hover: initial;
   --background-image: initial;
@@ -80,26 +80,20 @@
   --2xl_height: initial;
   --height: initial;
   --line-height: initial;
-  --m: initial;
-  --mx: initial;
-  --mb: initial;
-  --ml: initial;
+  --margin: initial;
+  --margin-right: initial;
+  --margin-bottom: initial;
+  --margin-left: initial;
   --min-height: initial;
   --object-fit: initial;
   --overflow: initial;
   --_1tfdub6: var(--md) var(--md_padding, var(--md_p));
   --md_padding: initial;
-  --p: initial;
   --padding: initial;
-  --md_p: initial;
-  --py: initial;
-  --pt: initial;
   --padding-top: initial;
-  --px: initial;
   --padding-right: initial;
   --padding-bottom: initial;
   --padding-left: initial;
-  --pl: initial;
   --justify-content: initial;
   --align-items: initial;
   --_1hooa64: var(--md) var(--md_text-align);
@@ -123,16 +117,16 @@
     all: var(--all, revert-layer);
     border: var(--border, revert-layer);
     border-radius: var(--border-radius, revert-layer);
-    margin: var(--m, revert-layer);
+    margin: var(--margin, revert-layer);
     overflow: var(--overflow, revert-layer);
-    padding: var(--padding, var(--p, revert-layer));
+    padding: var(--padding, revert-layer);
     transition: var(--transition, revert-layer);
   }
 }
 
 @layer tk-long {
   [style] {
-    background-color: var(--background-color, var(--bg-color, revert-layer));
+    background-color: var(--background-color, revert-layer);
     background-image: var(--background-image, revert-layer);
     background-position-x: var(--background-position-x, revert-layer);
     background-position-y: var(--background-position-y, revert-layer);
@@ -147,15 +141,15 @@
     font-weight: var(--font-weight, revert-layer);
     height: var(--height, revert-layer);
     line-height: var(--line-height, revert-layer);
-    margin-right: var(--mx, revert-layer);
-    margin-bottom: var(--mb, revert-layer);
-    margin-left: var(--ml, var(--mx, revert-layer));
+    margin-right: var(--margin-right, revert-layer);
+    margin-bottom: var(--margin-bottom, revert-layer);
+    margin-left: var(--margin-left, revert-layer);
     min-height: var(--min-height, revert-layer);
     object-fit: var(--object-fit, revert-layer);
-    padding-top: var(--padding-top, var(--pt, var(--py, revert-layer)));
-    padding-right: var(--padding-right, var(--px, revert-layer));
-    padding-bottom: var(--padding-bottom, var(--py, revert-layer));
-    padding-left: var(--padding-left, var(--pl, var(--px, revert-layer)));
+    padding-top: var(--padding-top, revert-layer);
+    padding-right: var(--padding-right, revert-layer);
+    padding-bottom: var(--padding-bottom, revert-layer);
+    padding-left: var(--padding-left, revert-layer);
     justify-content: var(--justify-content, revert-layer);
     align-items: var(--align-items, revert-layer);
     text-align: var(--text-align, revert-layer);
@@ -171,15 +165,15 @@
 
 @layer tk-selector-short {
   [style] {
-    animation: var(--_1upk2ho, revert-layer);
+    animation: var(--_1upk2ho, var(--animation, revert-layer));
     border-radius: var(--_1a98csj, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, var(--border-radius, revert-layer)))));
-    padding: var(--_1tfdub6, var(--padding, var(--p, revert-layer)));
+    padding: var(--_1tfdub6, var(--padding, revert-layer));
   }
 }
 
 @layer tk-selector-long {
   [style] {
-    background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_4dvc60, var(--background-color, var(--bg-color, revert-layer)))));
+    background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_4dvc60, var(--background-color, revert-layer))));
     color: var(--_853it7, var(--color, revert-layer));
     display: var(--_cbroqb, var(--display, revert-layer));
     font-size: var(--_1qfo97, var(--font-size, revert-layer));
