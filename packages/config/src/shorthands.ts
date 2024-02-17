@@ -1,7 +1,7 @@
-import { type CSSProperty, properties } from './supports';
+import { type CSSProperty } from './supports';
 
 const mapShorthandToLonghands = {
-  all: properties.filter((property) => property === 'all'),
+  all: [],
   animation: [
     'animation-name',
     'animation-duration',
