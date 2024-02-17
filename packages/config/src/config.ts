@@ -1,4 +1,3 @@
-import * as v from 'valibot';
 import * as Supports from './supports';
 
 /* -------------------------------------------------------------------------------------------------
@@ -9,10 +8,7 @@ type GridProperty = '--_grid';
 const gridPropertyRegex = /--_grid/;
 
 const GridProperty = {
-  safeParse: (input: unknown) => {
-    const schema = v.string([v.regex(gridPropertyRegex)]);
-    v.safeParse(schema, input);
-  },
+  safeParse: (input: unknown) => validate<GridProperty>(gridPropertyRegex, input),
 };
 
 function gridProperty(): GridProperty {
@@ -27,10 +23,7 @@ type GridValue = number;
 const gridValueRegex = /^\d+/;
 
 const GridValue = {
-  safeParse: (input: unknown) => {
-    const schema = v.string([v.regex(gridValueRegex)]);
-    v.safeParse(schema, input);
-  },
+  safeParse: (input: unknown) => validate<GridValue>(gridValueRegex, input),
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -41,10 +34,7 @@ type TokenProperty<P extends string = string> = `--${P}`;
 const tokenPropertyRegex = /(?<!var\()--(\w([\w-]+)?)/;
 
 const TokenProperty = {
-  safeParse: (input: unknown) => {
-    const schema = v.string([v.regex(tokenPropertyRegex)]) as v.StringSchema<TokenProperty>;
-    return v.safeParse(schema, input);
-  },
+  safeParse: (input: unknown) => validate<TokenProperty>(tokenPropertyRegex, input),
 };
 
 function tokenProperty(name: string): TokenProperty {
@@ -59,10 +49,7 @@ type VariantProperty<P extends string = string, V extends string = string> = `--
 const variantPropertyRegex = /(?<!var\()--((\w)([\w-]+)_([\w-]+))/;
 
 const VariantProperty = {
-  safeParse: (input: unknown) => {
-    const schema = v.string([v.regex(variantPropertyRegex)]) as v.StringSchema<VariantProperty>;
-    return v.safeParse(schema, input);
-  },
+  safeParse: (input: unknown) => validate<VariantProperty>(variantPropertyRegex, input),
 };
 
 function variantProperty(variant: string, name: string): TokenProperty {
@@ -77,10 +64,7 @@ type TokenValue<TK extends string = string, V extends string = string> = `var(--
 const tokenValueRegex = /var\((--([\w-]+)_([\w-]+))\)/;
 
 const TokenValue = {
-  safeParse: (input: unknown) => {
-    const schema = v.string([v.regex(tokenValueRegex)]) as v.StringSchema<TokenValue>;
-    return v.safeParse(schema, input);
-  },
+  safeParse: (input: unknown) => validate<TokenValue>(tokenValueRegex, input),
 };
 
 function tokenValue<TK extends string, N extends string>(themeKey: TK, name: N): TokenValue<TK, N> {
@@ -92,17 +76,33 @@ function tokenValue<TK extends string, N extends string>(themeKey: TK, name: N):
  * -----------------------------------------------------------------------------------------------*/
 
 type ArbitraryValue = `var(---,${string})`;
-const aritraryValueRegex = /var\(---,(.+)\)/;
+const arbitraryValueRegex = /var\(---,(.+)\)/;
 
 const ArbitraryValue = {
-  safeParse: (input: unknown) => {
-    const schema = v.string([v.regex(aritraryValueRegex)]) as v.StringSchema<ArbitraryValue>;
-    return v.safeParse(schema, input);
-  },
+  safeParse: (input: unknown) => validate<ArbitraryValue>(arbitraryValueRegex, input),
 };
 
 function arbitraryValue(value: string): ArbitraryValue {
   return `var(---,${value})`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * Validate
+ * -----------------------------------------------------------------------------------------------*/
+
+type Validated<T> = { success: true; output: T } | { success: false };
+
+function validate<T>(regex: RegExp, input: unknown): Validated<T> {
+  try {
+    const inputString = String(input);
+    if (regex.test(inputString)) {
+      return { success: true, output: inputString as T };
+    } else {
+      return { success: false };
+    }
+  } catch (e) {
+    return { success: false };
+  }
 }
 
 /* -------------------------------------------------------------------------------------------------
