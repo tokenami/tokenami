@@ -13,10 +13,10 @@ type ReponsiveKey = Extract<keyof TokenamiFinalConfig['responsive'], string>;
 type ResponsiveValue<T> = T extends string ? `${ReponsiveKey}_${T}` : never;
 
 type Override = TokenamiProperties | false | undefined;
-type Variants<C> = { [V in keyof C]?: VariantValue<keyof C[V]> };
-type ResponsiveVariants<C> = {
-  [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> };
-}[keyof C];
+type Variants<C> = undefined extends C ? {} : { [V in keyof C]?: VariantValue<keyof C[V]> };
+type ResponsiveVariants<C> = undefined extends C
+  ? {}
+  : { [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> } }[keyof C];
 
 type ComposeCSS<V, R> = TokenamiProperties & {
   variants?: V & VariantsConfig;
@@ -36,7 +36,7 @@ interface CSS {
   compose: <V extends VariantsConfig | undefined, R extends VariantsConfig | undefined>(
     config: ComposeCSS<V, R>
   ) => (
-    variants?: undefined extends R ? Variants<V> : Variants<R> & ResponsiveVariants<R>,
+    selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>,
     ...overrides: Override[]
   ) => {};
 }
@@ -83,13 +83,16 @@ css[_LONGHANDS] = Tokenami.mapShorthandToLonghands;
  * -----------------------------------------------------------------------------------------------*/
 
 css.compose = (config) => {
-  const { variants, responsiveVariants, ...baseStyles } = config as ComposeCSS<
-    VariantsConfig,
-    VariantsConfig
-  >;
+  const { variants, responsiveVariants, ...baseStyles } = config;
 
   return function generate(selectedVariants, ...overrides) {
-    const cacheId = JSON.stringify({ baseStyles, variants, overrides });
+    const cacheId = JSON.stringify({
+      baseStyles,
+      variants,
+      responsiveVariants,
+      selectedVariants,
+      overrides,
+    });
     const cached = cache[cacheId];
 
     if (cached) return cached;
@@ -102,7 +105,7 @@ css.compose = (config) => {
             const styles = responsiveVariants?.[type]?.[variant as any];
             return styles ? [convertToMediaStyles(bp, styles)] : [];
           } else {
-            const styles = variants?.[type]?.[variant as any];
+            const styles = (variants || responsiveVariants)?.[type]?.[variant as any];
             return styles ? [styles] : [];
           }
         })
