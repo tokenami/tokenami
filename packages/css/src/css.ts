@@ -1,5 +1,5 @@
-import * as Tokenami from '@tokenami/config';
 import type { TokenamiProperties, TokenamiFinalConfig } from '@tokenami/dev';
+import * as Tokenami from '@tokenami/config';
 
 const _LONGHANDS = Symbol();
 
@@ -18,9 +18,10 @@ type ResponsiveVariants<C> = {
   [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> };
 }[keyof C];
 
-type SelectedVariants<V, R> =
-  | null
-  | (undefined extends V ? null : Variants<V> & (R extends true ? ResponsiveVariants<V> : {}));
+type ComposeCSS<V, R> = TokenamiProperties & {
+  variants?: V & VariantsConfig;
+  responsiveVariants?: R & VariantsConfig;
+};
 
 interface CSS {
   [_LONGHANDS]?: typeof Tokenami.mapShorthandToLonghands;
@@ -32,11 +33,12 @@ interface CSS {
   // discover usecases later.
   (baseStyles: TokenamiProperties, ...overrides: Override[]): {};
 
-  compose: <V extends VariantsConfig | undefined, R>(
-    baseStyles: TokenamiProperties,
-    variantsConfig?: V & VariantsConfig,
-    options?: undefined extends V ? never : { responsive: R & boolean }
-  ) => (variants?: SelectedVariants<V, R>, ...overrides: Override[]) => {};
+  compose: <V extends VariantsConfig | undefined, R extends VariantsConfig | undefined>(
+    config: ComposeCSS<V, R>
+  ) => (
+    variants?: undefined extends R ? Variants<V> : Variants<R> & ResponsiveVariants<R>,
+    ...overrides: Override[]
+  ) => {};
 }
 
 const cache: Record<string, TokenamiProperties> = {};
@@ -80,23 +82,29 @@ css[_LONGHANDS] = Tokenami.mapShorthandToLonghands;
  * compose
  * -----------------------------------------------------------------------------------------------*/
 
-css.compose = (baseStyles, variantsConfig, options) => {
-  const cache: Record<string, TokenamiProperties> = {};
+css.compose = (config) => {
+  const { variants, responsiveVariants, ...baseStyles } = config as ComposeCSS<
+    VariantsConfig,
+    VariantsConfig
+  >;
 
-  return function generate(variants, ...overrides) {
+  return function generate(selectedVariants, ...overrides) {
     const cacheId = JSON.stringify({ baseStyles, variants, overrides });
     const cached = cache[cacheId];
 
     if (cached) return cached;
 
-    const variantStyles: TokenamiProperties[] = variants
-      ? Object.entries(variants).flatMap(([key, variant]) => {
+    const variantStyles: TokenamiProperties[] = selectedVariants
+      ? Object.entries(selectedVariants).flatMap(([key, variant]) => {
           if (!variant) return [];
           const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
-          const styles = variantsConfig?.[type]?.[variant as any];
-          const responsive = options?.responsive;
-          const updated = responsive && bp && styles ? convertToMediaStyles(bp, styles) : styles;
-          return updated ? [updated] : [];
+          if (bp) {
+            const styles = responsiveVariants?.[type]?.[variant as any];
+            return styles ? [convertToMediaStyles(bp, styles)] : [];
+          } else {
+            const styles = variants?.[type]?.[variant as any];
+            return styles ? [styles] : [];
+          }
         })
       : [];
 

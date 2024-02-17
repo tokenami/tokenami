@@ -30,6 +30,8 @@
   "dependencies": {
     "@stitches/stringify": "^1.2.8",
     "@tokenami/config": "workspace:*",
+    "acorn": "^8.11.3",
+    "acorn-walk": "^8.3.2",
     "browserslist": "^4.22.2",
     "cac": "^6.7.14",
     "chalk": "^5.2.0",

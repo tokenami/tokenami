@@ -10,6 +10,8 @@ import * as pathe from 'pathe';
 import * as sheet from './sheet';
 import * as log from './log';
 import * as utils from './utils';
+import * as acorn from 'acorn';
+import * as acornWalk from 'acorn-walk';
 import pkgJson from './../package.json';
 import { require } from './utils/require';
 
@@ -196,8 +198,8 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
 // system packages.
 const CSS_VARIABLE_REGEX = /--[\w-]+/g;
 
-function matchTokens(fileContent: string, theme: Tokenami.Config['theme']) {
-  const matches = Array.from(fileContent.match(CSS_VARIABLE_REGEX) || []);
+function matchTokens(content: string, theme: Tokenami.Config['theme']) {
+  const matches = Array.from(content.match(CSS_VARIABLE_REGEX) || []);
   const uniqueMatches = utils.unique(matches);
   const variableMatches = uniqueMatches.filter((match) => match !== Tokenami.gridProperty());
 
@@ -223,17 +225,39 @@ function matchTokens(fileContent: string, theme: Tokenami.Config['theme']) {
  * matchResponsiveComposeVariants
  * -----------------------------------------------------------------------------------------------*/
 
-const RESPONSIVE_TRUE_REGEX = /css\.compose\(([\s\S]*?)\{([\s\S]*?)responsive:\strue([\s\S]*?)\}/;
+const COMPOSE_BLOCKS_REGEX = /css\.compose\(\{([\s\S]*?)\}\)/g;
 
 function matchResponsiveComposeVariants(fileContent: string, config: Tokenami.Config) {
-  const responsiveCssBlocks = fileContent.match(RESPONSIVE_TRUE_REGEX);
-  if (!responsiveCssBlocks) return [];
-  return responsiveCssBlocks.flatMap((block) => {
-    const tokens = matchTokens(block, config.theme);
+  const composeBlocks = fileContent.match(COMPOSE_BLOCKS_REGEX);
+  if (!composeBlocks) return [];
+  const responsiveBlocks = composeBlocks.filter((block) => block.match('responsiveVariants'));
+
+  return responsiveBlocks.flatMap((block) => {
+    const ast = acorn.parse(block, { ecmaVersion: 2020 });
+    const responsiveVariants = findResponsiveVariants(ast);
+    const tokens = matchTokens(JSON.stringify(responsiveVariants), config.theme);
     return tokens.properties.flatMap((tokenProperty) => {
       return utils.getResponsivePropertyVariants(tokenProperty, config.responsive);
     });
   });
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * findResponsiveVariants
+ * -----------------------------------------------------------------------------------------------*/
+
+function findResponsiveVariants(node: acorn.AnyNode): acorn.ObjectExpression | null {
+  let responsiveVariantsNode = null;
+
+  acornWalk.simple(node, {
+    Property(node) {
+      if (node.key.type === 'Identifier' && node.key.name === 'responsiveVariants') {
+        responsiveVariantsNode = node;
+      }
+    },
+  });
+
+  return responsiveVariantsNode;
 }
 
 /* -------------------------------------------------------------------------------------------------

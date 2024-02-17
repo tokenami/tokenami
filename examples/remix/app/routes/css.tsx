@@ -2,9 +2,10 @@ import { css } from '~/css';
 
 export const links = () => [{ rel: 'stylesheet', href: '/tokenami.css' }];
 
-const button = css.compose(
-  { '--all': 'unset' },
-  {
+const button = css.compose({
+  '--all': 'unset',
+
+  variants: {
     size: {
       small: {
         '--padding-top': 'var(---,3px)',
@@ -18,8 +19,8 @@ const button = css.compose(
         '--border': 'var(---,3px solid red)',
       },
     },
-  }
-);
+  },
+});
 
 export default function Index() {
   return (
