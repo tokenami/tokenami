@@ -1,5 +1,13 @@
 # @tokenami/dev
 
+## 0.0.23
+
+### Patch Changes
+
+- ad995c1: Improve variants/responsive variants API
+- Updated dependencies [ad995c1]
+  - @tokenami/config@0.0.23
+
 ## 0.0.23-next.0
 
 ### Patch Changes
