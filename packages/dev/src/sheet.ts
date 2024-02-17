@@ -49,13 +49,7 @@ function generate(params: {
 
     uniqueVariants.forEach((toggle) => {
       const variantProperty = Tokenami.variantProperty(toggle, cssProperty);
-      const variantFallback = getVariantFallback(
-        tokenProperties,
-        cssProperty,
-        toggle,
-        params.config
-      );
-      const value = `var(${variantProperty}, ${variantFallback})`.replace(', )', ')');
+      const value = `var(${variantProperty})`;
       styles.reset.add(`${hashVariantProperty(toggle, cssProperty)}: var(--${toggle}) ${value};`);
       styles.reset.add(`${variantProperty}: initial;`);
     });
@@ -176,24 +170,6 @@ function generateRootStyles(tokenValues: Tokenami.TokenValue[], config: Tokenami
     [Tokenami.gridProperty()]: config.grid,
     ...utils.getThemeValuesByTokenValues(tokenValues, config.theme),
   });
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getVariantFallback
- * -----------------------------------------------------------------------------------------------*/
-
-function getVariantFallback(
-  usedTokenProperties: Tokenami.TokenProperty[],
-  cssProperty: Tokenami.CSSProperty,
-  variant: string,
-  config: Tokenami.Config
-) {
-  const aliases = Object.entries(config.aliases || {}).flatMap(([alias, properties = []]) => {
-    if (!properties.includes(cssProperty)) return [];
-    const tokenProperty = Tokenami.variantProperty(variant, alias);
-    return usedTokenProperties.includes(tokenProperty) ? [tokenProperty] : [];
-  });
-  return aliases.reduce((fallback, alias) => `var(${alias}, ${fallback})`, '');
 }
 
 /* -------------------------------------------------------------------------------------------------

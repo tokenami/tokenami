@@ -87,7 +87,7 @@
   --min-height: initial;
   --object-fit: initial;
   --overflow: initial;
-  --_1tfdub6: var(--md) var(--md_padding, var(--md_p));
+  --_1tfdub6: var(--md) var(--md_padding);
   --md_padding: initial;
   --padding: initial;
   --padding-top: initial;
