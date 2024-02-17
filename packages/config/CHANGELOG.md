@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.25-next.0
+
+### Patch Changes
+
+- 1ffb09f: Remove `all` from shorthands to prevent max callstack error
+
 ## 0.0.24
 
 ### Patch Changes
