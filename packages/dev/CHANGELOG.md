@@ -1,5 +1,15 @@
 # @tokenami/dev
 
+## 0.0.26
+
+### Patch Changes
+
+- fafdccb: Remove aliases from style output to ensure a consistent output across projects
+- b08def7: Allow `props.style` to be passed to `css` overrides
+- Updated dependencies [fafdccb]
+- Updated dependencies [b08def7]
+  - @tokenami/config@0.0.26
+
 ## 0.0.26-next.1
 
 ### Patch Changes
