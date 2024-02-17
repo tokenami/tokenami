@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.24-next.0
+
+### Patch Changes
+
+- fac6fb8: Remove valibot to reduce `css` bundle size
+
 ## 0.0.23
 
 ### Patch Changes
