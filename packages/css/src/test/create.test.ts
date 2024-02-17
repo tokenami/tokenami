@@ -22,9 +22,9 @@ describe('css returned from createCss', () => {
     beforeEach<TestContext>((context) => {
       const css = createCss({
         aliases: {
-          p: ['padding', 'pt', 'pr', 'pb', 'pl', 'px', 'py'],
-          px: ['padding-left', 'padding-right', 'pl', 'pr'],
-          py: ['padding-top', 'padding-bottom', 'pt', 'pb'],
+          p: ['padding'],
+          px: ['padding-left', 'padding-right', 'invalid'],
+          py: ['padding-top', 'padding-bottom', 'invalid'],
           pt: ['padding-top'],
           pr: ['padding-right'],
           pb: ['padding-bottom'],
@@ -42,18 +42,29 @@ describe('css returned from createCss', () => {
       );
     });
 
-    it<TestContext>('should remove longhand styles', (context) => {
+    it<TestContext>('should remove base padding styles', (context) => {
       const unexpected = {
-        '--pl': 10,
-        '--px': 20,
+        '--padding': 'var(---, 10px)',
         '--padding-left': 'var(---, 30px)',
-        '--padding': 'var(---, 30px)',
       };
       expect(hasSomeStyles(context.output, unexpected)).toBe(false);
     });
 
-    it<TestContext>('should keep shorthand styles', (context) => {
-      const expected = { '--p': 'calc(var(--_grid) * 40)' };
+    it<TestContext>('should remove first override padding styles', (context) => {
+      const unexpected = { '--padding-left': 'calc(var(--_grid) * 10)' };
+      expect(hasSomeStyles(context.output, unexpected)).toBe(false);
+    });
+
+    it<TestContext>('should remove second override padding styles', (context) => {
+      const unexpected = {
+        '--padding-left': 'calc(var(--_grid) * 20)',
+        '--padding-right': 'calc(var(--_grid) * 20)',
+      };
+      expect(hasSomeStyles(context.output, unexpected)).toBe(false);
+    });
+
+    it<TestContext>('should keep final override style', (context) => {
+      const expected = { '--padding': 'calc(var(--_grid) * 40)' };
       expect(hasStyles(context.output, expected)).toBe(true);
     });
 
@@ -65,9 +76,9 @@ describe('css returned from createCss', () => {
             pr: ['padding-right'],
             pb: ['padding-bottom'],
             pl: ['padding-left'],
-            p: ['pt', 'pr', 'pb', 'padding', 'pl', 'px', 'py'],
-            px: ['pl', 'padding-left', 'pr', 'padding-right'],
-            py: ['padding-top', 'pt', 'pb', 'padding-bottom'],
+            p: ['invalid', 'padding'],
+            px: ['padding-left', 'padding-right'],
+            py: ['padding-top', 'padding-bottom'],
           },
         } as any);
 
@@ -91,9 +102,9 @@ describe('css returned from createCss', () => {
     beforeEach<TestContext>((context) => {
       const css = createCss({
         aliases: {
-          p: ['padding', 'pt', 'pr', 'px', 'pl', 'py'],
-          px: ['pl', 'pr', 'padding-left', 'padding-right'],
-          py: ['pt', 'pb', 'padding-top', 'padding-bottom'],
+          p: ['padding'],
+          px: ['invalid', 'padding-left', 'padding-right'],
+          py: ['invalid', 'padding-top', 'padding-bottom'],
           pt: ['padding-top'],
           pr: ['padding-right'],
           pb: ['padding-bottom'],
@@ -106,7 +117,10 @@ describe('css returned from createCss', () => {
     });
 
     it<TestContext>('should override correctly', (context) => {
-      expect(context.output).toStrictEqual({ '--px': 'calc(var(--_grid) * 20)' });
+      expect(context.output).toStrictEqual({
+        '--padding-left': 'calc(var(--_grid) * 20)',
+        '--padding-right': 'calc(var(--_grid) * 20)',
+      });
     });
   });
 });

@@ -423,15 +423,15 @@ Use the `css` utility exported from the file you created and it will handle alia
 
 #### Create aliases
 
-The configuration expects the name of your new alias followed by an array of properties or aliases that it should replace when passed as an override to the `css` utility.
+The configuration expects the name of your new alias followed by an array of properties they map to.
 
 ```ts
 module.exports = createConfig({
   // ...
   aliases: {
-    p: ['pt', 'pr', 'pb', 'pl', 'px', 'py', 'padding'],
-    px: ['pl', 'pr', 'padding-left', 'padding-right'],
-    py: ['pt', 'pb', 'padding-top', 'padding-bottom'],
+    p: ['padding'],
+    px: ['padding-left', 'padding-right'],
+    py: ['padding-top', 'padding-bottom'],
     pt: ['padding-top'],
     pr: ['padding-right'],
     pb: ['padding-bottom'],
@@ -440,19 +440,7 @@ module.exports = createConfig({
 });
 ```
 
-With the above config, `p` is shorthand for `pt`, `pr`, `pb`, `pl`, `px`, `py`, and `padding`. This allows the `css` utility to remove those properties when `--p` is passed as an override:
-
-```tsx
-function Button(props) {
-  return <button style={css({ '--pr': 4 }, props.style)} />;
-}
-
-function App() {
-  return <Button style={css({ '--p': 10 })} />;
-}
-```
-
-In this example, `Button` will have `10` padding on all sides because we configured `--p` to take precendence over `--pr` when passed as an override. Without this config, the button would have `4` padding on the right because longhand properties have higher specificity in the atomic stylesheet.
+With the above config, `px` is shorthand for `padding-left` and `padding-right`. This allows the `css` utility to apply padding on the left and right when `--px` is used.
 
 ### Mapping properties to theme
 

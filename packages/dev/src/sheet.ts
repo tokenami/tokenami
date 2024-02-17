@@ -61,7 +61,6 @@ function generate(params: {
     });
 
     sortedConfigs.forEach((config) => {
-      const propertyValue = getPropertyFallback(tokenProperties, cssProperty, params.config);
       const responsive = config.responsive && params.config.responsive?.[config.responsive];
       const selector = config.selector && params.config.selectors?.[config.selector];
       const selectors = Array.isArray(selector) ? selector : selector ? [selector] : ['&'];
@@ -70,6 +69,7 @@ function generate(params: {
       const isLogicalProperty = Tokenami.logicalProperties.includes(cssProperty as any);
       const shortLayer = isLogicalProperty ? LAYER.SHORT_LOGICAL : LAYER.SHORT;
       const longLayer = isLogicalProperty ? LAYER.LONG_LOGICAL : LAYER.LONG;
+      const propertyValue = `var(${config.tokenProperty}, revert-layer)`;
       const propertyLayer = isShortProperty ? shortLayer : longLayer;
 
       styles.reset.add(`${config.tokenProperty}: initial;`);
@@ -128,11 +128,12 @@ function getPropertyConfigs(tokenProperties: Tokenami.TokenProperty[], config: T
 
   tokenProperties.forEach((tokenProperty) => {
     const parts = Tokenami.getTokenPropertyParts(tokenProperty, config);
-    const properties = parts?.alias && utils.getLonghandsForAlias(parts.alias, config);
-    if (!properties || !properties.length) return;
+    if (!parts) return;
+    const properties = Tokenami.getCSSPropertiesForAlias(parts.alias, config.aliases);
 
     properties.forEach((cssProperty) => {
       const specificity = utils.getSpecifictyOrderForCSSProperty(cssProperty);
+      const tokenProperty = Tokenami.tokenProperty(cssProperty);
 
       if (specificity > -1) {
         const responsiveOrder = parts.responsive ? 1 : 0;
@@ -175,28 +176,6 @@ function generateRootStyles(tokenValues: Tokenami.TokenValue[], config: Tokenami
     [Tokenami.gridProperty()]: config.grid,
     ...utils.getThemeValuesByTokenValues(tokenValues, config.theme),
   });
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getPropertyFallback
- * -----------------------------------------------------------------------------------------------*/
-
-function getPropertyFallback(
-  usedTokenProperties: Tokenami.TokenProperty[],
-  cssProperty: Tokenami.CSSProperty,
-  config: Tokenami.Config
-) {
-  const tokenProperty = Tokenami.tokenProperty(cssProperty);
-  const aliases = Object.entries(config.aliases || {}).flatMap(([alias, properties = []]) => {
-    if (!properties.includes(cssProperty)) return [];
-    const tokenProperty = Tokenami.tokenProperty(alias);
-    return usedTokenProperties.includes(tokenProperty) ? [tokenProperty] : [];
-  });
-  const properties = usedTokenProperties.includes(tokenProperty)
-    ? [...aliases, tokenProperty]
-    : aliases;
-
-  return properties.reduce((fallback, alias) => `var(${alias}, ${fallback})`, 'revert-layer');
 }
 
 /* -------------------------------------------------------------------------------------------------

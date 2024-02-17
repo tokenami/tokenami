@@ -103,20 +103,6 @@ function getThemeValuesByTokenValues(used: Tokenami.TokenValue[], theme: Tokenam
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getLonghandsForAlias
- * -------------------------------------------------------------------------------------------------
- * an alias can be used for multiple CSS properties e.g. `px` can apply to `padding-left`
- * and `padding-right`, so this gets an array of longhand properties for a given alias.
- * -----------------------------------------------------------------------------------------------*/
-
-function getLonghandsForAlias(alias: string, config: Tokenami.Config) {
-  const longhands: string[] = (config.aliases as any)?.[alias];
-  const result = longhands || [alias];
-  const valid = result.filter((property) => Tokenami.properties.includes(property as any));
-  return valid as Tokenami.CSSProperty[];
-}
-
-/* -------------------------------------------------------------------------------------------------
  * generateConfig
  * -----------------------------------------------------------------------------------------------*/
 
@@ -206,7 +192,6 @@ export {
   generateTypeDefs,
   generateCiTypeDefs,
   getThemeValuesByTokenValues,
-  getLonghandsForAlias,
   getResponsivePropertyVariants,
   getSpecifictyOrderForCSSProperty,
   unique,
