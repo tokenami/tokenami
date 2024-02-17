@@ -15,9 +15,6 @@
     "typecheck": "tsc --noEmit",
     "typecheck:ci": "pnpm typecheck"
   },
-  "dependencies": {
-    "valibot": "^0.25.0"
-  },
   "devDependencies": {
     "@tokenami/dev": "workspace:*",
     "csstype": "^3.1.2",
