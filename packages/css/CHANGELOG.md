@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.26-next.0
+
+### Patch Changes
+
+- fafdccb: Remove aliases from style output to ensure a consistent output across projects
+- Updated dependencies [fafdccb]
+  - @tokenami/config@0.0.26-next.0
+  - @tokenami/dev@0.0.26-next.0
+
 ## 0.0.25
 
 ### Patch Changes
