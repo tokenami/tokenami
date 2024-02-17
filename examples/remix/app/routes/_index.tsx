@@ -93,9 +93,17 @@ export default function Index() {
       >
         Button
       </button>
+      <Button>Button</Button>
+    </div>
+  );
+}
 
-      <button
-        style={css({
+function Button(props: React.ComponentProps<'button'>) {
+  return (
+    <button
+      {...props}
+      style={css(
+        {
           '--border-block-end': 'var(---, 1px solid var(--color_slate-700))',
           '--width': 'var(---,180px)',
           '--height': 15,
@@ -109,11 +117,12 @@ export default function Index() {
           '--hover_color': 'var(---,white)',
           '--transition': 'var(---,all 150ms)',
           '--hover_animation': 'var(--anim_wiggle)',
-        })}
-      >
-        Button
-      </button>
-    </div>
+        },
+        // @ts-expect-error
+        { '--test': 'var(---)' },
+        props.style
+      )}
+    />
   );
 }
 
