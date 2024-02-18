@@ -77,6 +77,26 @@ function init(modules: { typescript: typeof tslib }) {
     return { start: node.getStart(), length: node.getEnd() - node.getStart() };
   }
 
+  /* ---------------------------------------------------------------------------------------------
+   * shouldSuppressDiagnosticForNode
+   * -------------------------------------------------------------------------------------------*/
+
+  function shouldSuppressDiagnosticForNode(
+    node: tslib.Node,
+    sourceFile: tslib.SourceFile
+  ): boolean {
+    const lineStarts = sourceFile.getLineStarts();
+    const nodeStartPos = node.getStart(sourceFile);
+    const nodeStartLine = sourceFile.getLineAndCharacterOfPosition(nodeStartPos).line;
+    if (nodeStartLine > 0) {
+      const previousLineStartPos = lineStarts[nodeStartLine - 1] || 0;
+      const previousLineEndPos = lineStarts[nodeStartLine] || 0;
+      const previousLineText = sourceFile.text.substring(previousLineStartPos, previousLineEndPos);
+      return /\/\/ @ts-ignore/.test(previousLineText);
+    }
+    return false;
+  }
+
   /* -----------------------------------------------------------------------------------------------
    * create
    * ---------------------------------------------------------------------------------------------*/
@@ -112,7 +132,8 @@ function init(modules: { typescript: typeof tslib }) {
 
     /* ---------------------------------------------------------------------------------------------
      * getSemanticDiagnostics
-     * -------------------------------------------------------------------------------------------*/
+     * ------------------------------------------------------------------
+     * -------------------------*/
 
     proxy.getSemanticDiagnostics = (fileName) => {
       const original = info.languageService.getSemanticDiagnostics(fileName);
@@ -121,7 +142,9 @@ function init(modules: { typescript: typeof tslib }) {
 
       if (sourceFile) {
         ts.forEachChild(sourceFile, function visit(node) {
-          if (ts.isPropertyAssignment(node)) {
+          const isDiagnosticPrevented = shouldSuppressDiagnosticForNode(node, sourceFile);
+
+          if (!isDiagnosticPrevented && ts.isPropertyAssignment(node)) {
             const property = ts.isStringLiteral(node.name) ? node.name.text : null;
             const textValue = ts.isStringLiteral(node.initializer) ? node.initializer.text : null;
             const parsedProperty = TokenamiConfig.TokenProperty.safeParse(property);

@@ -2,7 +2,7 @@ import { createConfig, defaultConfig } from '@tokenami/css';
 
 export default createConfig({
   include: ['./app/**/*.{ts,tsx}'],
-  exclude: ['./app/routes/original.tsx'],
+  exclude: ['./app/routes/original.tsx', './app/test.tsx'],
   responsive: {
     md: '@media (min-width: 700px)',
     lg: '@media (min-width: 1024px)',
