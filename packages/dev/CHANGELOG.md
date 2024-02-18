@@ -1,5 +1,13 @@
 # @tokenami/dev
 
+## 0.0.28-next.0
+
+### Patch Changes
+
+- ad0a323: Remove `csstype` from `css` util
+- Updated dependencies [ad0a323]
+  - @tokenami/config@0.0.28-next.0
+
 ## 0.0.27
 
 ### Patch Changes
