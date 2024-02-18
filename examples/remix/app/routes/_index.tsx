@@ -1,6 +1,6 @@
 import type { LinksFunction } from '@remix-run/node';
 import styles from '~/../public/tokenami.css';
-import { css } from '~/css';
+import { type TokenamiStyle, css } from '~/css';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
@@ -98,7 +98,9 @@ export default function Index() {
   );
 }
 
-function Button(props: React.ComponentProps<'button'>) {
+type ButtonProps = TokenamiStyle<React.ComponentProps<'button'>>;
+
+function Button(props: ButtonProps) {
   return (
     <button
       {...props}
@@ -118,9 +120,9 @@ function Button(props: React.ComponentProps<'button'>) {
           '--transition': 'var(---,all 150ms)',
           '--hover_animation': 'var(--anim_wiggle)',
         },
+        props.style,
         // @ts-expect-error
-        { '--test': 'var(---)' },
-        props.style
+        { '--test': 'red' }
       )}
     />
   );
