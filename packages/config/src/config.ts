@@ -128,7 +128,7 @@ type ThemeKey =
 
 type ThemeValues = Record<string, string>;
 type Theme = Partial<Record<ThemeKey, ThemeValues>>;
-type Aliases = Record<string, readonly (Supports.CSSProperty | (string & {}))[]>;
+type Aliases = Record<string, readonly Supports.CSSProperty[]>;
 type PropertiesOptions = readonly ('grid' | ThemeKey)[];
 
 type DeepReadonly<T> = {
@@ -219,11 +219,11 @@ function getTokenValueParts(tokenValue: TokenValue) {
  * and `padding-right`, so this gets an array of CSS properties for a given alias.
  * -----------------------------------------------------------------------------------------------*/
 
-function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']) {
-  const longhands: string[] = (aliases as any)?.[alias];
-  const result = longhands || [alias];
-  const valid = result.filter((property) => Supports.properties.includes(property as any));
-  return valid as Supports.CSSProperty[];
+function getCSSPropertiesForAlias(
+  alias: string,
+  aliases: Config['aliases']
+): Supports.CSSProperty[] {
+  return (aliases as any)?.[alias] || [alias];
 }
 
 /* ---------------------------------------------------------------------------------------------- */
