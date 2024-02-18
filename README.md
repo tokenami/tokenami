@@ -352,6 +352,18 @@ type ButtonElementProps = React.ComponentPropsWithoutRef<'button'>;
 interface ButtonProps extends ButtonElementProps, Variants<typeof styles.button> {}
 ```
 
+Use `TokenamiStyle` to accept the `css` utility as a value for the `style` prop. This prevents errors when `props.style` is used for overrides.
+
+```tsx
+import { type TokenamiStyle, css } from '@tokenami/css';
+
+interface ButtonProps extends TokenamiStyle<React.ComponentProps<'button'>> {}
+
+function Button(props: ButtonProps) {
+  return <button {...props} style={css({}, props.style)} />;
+}
+```
+
 ## Advanced
 
 ### Selectors
