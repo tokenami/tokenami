@@ -172,7 +172,7 @@ function getTokenPropertyName(tokenProperty: TokenProperty) {
 
 function getTokenPropertySplit(tokenProperty: TokenProperty) {
   const name = getTokenPropertyName(tokenProperty);
-  const [alias, ...variants] = name.split('_').reverse() as [string, ...(string | undefined)[]];
+  const [alias, ...variants] = name.split('_').reverse() as [string, ...string[]];
   return { alias, variants: variants.reverse() };
 }
 
@@ -191,15 +191,14 @@ type PropertyParts = {
 function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): PropertyParts | null {
   const name = getTokenPropertyName(tokenProperty);
   const { alias, variants } = getTokenPropertySplit(tokenProperty);
-  const [v1, v2, ...invalidVariants] = variants;
-  const responsive = config.responsive?.[v1!] && v1;
-  const selectorVariant1 = config.selectors?.[v1!] && !v2 ? v1 : undefined;
-  const selectorVariant2 = responsive && config.selectors?.[v2!] && v2;
-  const selector = selectorVariant1 || selectorVariant2;
-  const hasInvalidVariant = v1 && !responsive && !selector;
-  const variant = [responsive, selector].filter(Boolean).join('_');
-  if (invalidVariants.length || hasInvalidVariant) return null;
-  return { name, alias, responsive, selector, variant };
+  const [firstVariant, secondVariant] = variants;
+  const firstSelector = config.selectors?.[firstVariant!] && firstVariant;
+  const secondSelector = config.selectors?.[secondVariant!] && secondVariant;
+  const responsive = config.responsive?.[firstVariant!] && firstVariant;
+  const selector = firstSelector || secondSelector;
+  const validVariant = [responsive, selector].filter(Boolean).join('_');
+  if (firstVariant && variantProperty(validVariant, alias) !== tokenProperty) return null;
+  return { name, alias, responsive, selector, variant: validVariant };
 }
 
 /* -------------------------------------------------------------------------------------------------
