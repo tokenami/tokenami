@@ -9,6 +9,7 @@
     "@tokenami/ts-plugin": "0.0.29"
   },
   "changesets": [
+    "rotten-beds-develop",
     "smart-deers-cross"
   ]
 }

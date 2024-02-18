@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.30-next.1
+
+### Patch Changes
+
+- 8727c2d: Fix TS errors for invalid responsive + selector properties
+
 ## 0.0.30-next.0
 
 ### Patch Changes
