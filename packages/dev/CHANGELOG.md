@@ -1,5 +1,13 @@
 # @tokenami/dev
 
+## 0.0.30-next.0
+
+### Patch Changes
+
+- c0f0e32: Add `TokenamiStyle` type to allow `css` utility in `style` prop
+- Updated dependencies [c0f0e32]
+  - @tokenami/config@0.0.30-next.0
+
 ## 0.0.29
 
 ### Patch Changes
