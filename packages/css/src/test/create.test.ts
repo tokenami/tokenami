@@ -21,16 +21,18 @@ describe('css returned from createCss', () => {
   describe('when invoked with alias override', () => {
     beforeEach<TestContext>((context) => {
       const css = createCss({
+        include: [],
+        theme: {},
         aliases: {
           p: ['padding'],
-          px: ['padding-left', 'padding-right', 'invalid'],
-          py: ['padding-top', 'padding-bottom', 'invalid'],
+          px: ['padding-left', 'padding-right'],
+          py: ['padding-top', 'padding-bottom'],
           pt: ['padding-top'],
           pr: ['padding-right'],
           pb: ['padding-bottom'],
           pl: ['padding-left'],
         },
-      } as any);
+      });
 
       context.output = css(
         {
@@ -71,16 +73,18 @@ describe('css returned from createCss', () => {
     describe('when invoked with reordered aliases', () => {
       beforeEach<TestContext>((context) => {
         const css = createCss({
+          include: [],
+          theme: {},
           aliases: {
             pt: ['padding-top'],
             pr: ['padding-right'],
             pb: ['padding-bottom'],
             pl: ['padding-left'],
-            p: ['invalid', 'padding'],
+            p: ['padding'],
             px: ['padding-left', 'padding-right'],
             py: ['padding-top', 'padding-bottom'],
           },
-        } as any);
+        });
 
         context.outputReorderedAliases = css(
           {
@@ -101,16 +105,18 @@ describe('css returned from createCss', () => {
   describe('when invoked with reordered alias longhands', () => {
     beforeEach<TestContext>((context) => {
       const css = createCss({
+        include: [],
+        theme: {},
         aliases: {
           p: ['padding'],
-          px: ['invalid', 'padding-left', 'padding-right'],
-          py: ['invalid', 'padding-top', 'padding-bottom'],
+          px: ['padding-left', 'padding-right'],
+          py: ['padding-top', 'padding-bottom'],
           pt: ['padding-top'],
           pr: ['padding-right'],
           pb: ['padding-bottom'],
           pl: ['padding-left'],
         },
-      } as any);
+      });
 
       // @ts-expect-error tests don't have `tokenami.d.ts` so aliases will error here.
       context.output = css({ '--pr': '10px', '--pl': '30px' }, { '--px': 20 });
