@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.29-next.0
+
+### Patch Changes
+
+- 6681912: Remove supported properties from css bundle to reduce its bundle size
+
 ## 0.0.28
 
 ### Patch Changes
