@@ -1,12 +1,7 @@
-import type * as CSSType from 'csstype';
 import type { TokenamiProperties, TokenamiFinalConfig } from '@tokenami/dev';
 import * as Tokenami from '@tokenami/config';
 
 const _ALIASES = Symbol();
-
-type Properties = { [K in keyof CSSType.Properties]: any } & {
-  [K in keyof CSSType.PropertiesHyphen]: any;
-};
 
 /* -------------------------------------------------------------------------------------------------
  * css
@@ -17,7 +12,7 @@ type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type ReponsiveKey = Extract<keyof TokenamiFinalConfig['responsive'], string>;
 type ResponsiveValue<T> = T extends string ? `${ReponsiveKey}_${T}` : never;
 
-type Override = TokenamiProperties | Properties | false | undefined;
+type Override = TokenamiProperties | false | undefined;
 
 type Variants<C> = undefined extends C ? {} : { [V in keyof C]?: VariantValue<keyof C[V]> };
 type ResponsiveVariants<C> = undefined extends C
