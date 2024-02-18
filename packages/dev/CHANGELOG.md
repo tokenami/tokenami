@@ -1,5 +1,15 @@
 # @tokenami/dev
 
+## 0.0.30
+
+### Patch Changes
+
+- 8727c2d: Fix TS errors for invalid responsive + selector properties
+- c0f0e32: Add `TokenamiStyle` type to allow `css` utility in `style` prop
+- Updated dependencies [8727c2d]
+- Updated dependencies [c0f0e32]
+  - @tokenami/config@0.0.30
+
 ## 0.0.30-next.1
 
 ### Patch Changes
