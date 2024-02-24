@@ -173,11 +173,9 @@ type Properties = Property['-webkit-line-clamp'] &
   Property['break-before'] &
   Property['break-inside'] &
   Property['caption-side'] &
-  Property['caret'] &
   Property['caret-color'] &
   Property['caret-shape'] &
   Property['clear'] &
-  Property['clip'] &
   Property['clip-path'] &
   Property['color'] &
   Property['color-scheme'] &
@@ -302,7 +300,6 @@ type Properties = Property['-webkit-line-clamp'] &
   Property['margin-inline'] &
   Property['margin-inline-end'] &
   Property['margin-inline-start'] &
-  Property['margin-trim'] &
   Property['mask'] &
   Property['mask-border'] &
   Property['mask-border-mode'] &
@@ -326,7 +323,6 @@ type Properties = Property['-webkit-line-clamp'] &
   Property['max-block-size'] &
   Property['max-height'] &
   Property['max-inline-size'] &
-  Property['max-lines'] &
   Property['max-width'] &
   Property['min-block-size'] &
   Property['min-height'] &
@@ -374,9 +370,6 @@ type Properties = Property['-webkit-line-clamp'] &
   Property['padding-inline-end'] &
   Property['padding-inline-start'] &
   Property['page'] &
-  Property['page-break-after'] &
-  Property['page-break-before'] &
-  Property['page-break-inside'] &
   Property['paint-order'] &
   Property['perspective'] &
   Property['perspective-origin'] &
@@ -395,8 +388,6 @@ type Properties = Property['-webkit-line-clamp'] &
   Property['quotes'] &
   Property['resize'] &
   Property['rotate'] &
-  Property['ruby-align'] &
-  Property['ruby-merge'] &
   Property['ruby-position'] &
   Property['scale'] &
   Property['scroll-behavior'] &
