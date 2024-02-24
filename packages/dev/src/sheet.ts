@@ -3,15 +3,7 @@ import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
 import * as utils from './utils';
 
-const LAYER = {
-  SHORT: 'short',
-  LONG: 'long',
-  SHORT_LOGICAL: 'short-logical',
-  LONG_LOGICAL: 'long-logical',
-};
-
-const LAYERS = Object.values(LAYER);
-const UNUSED_LAYERS_REGEX = /[\n]?@layer[a-z-,\s]+;[\n]?/g;
+const UNUSED_LAYERS_REGEX = /[\n]?@layer[\w\s-,]+;[\n]?/g;
 
 type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   order: number;
@@ -40,6 +32,7 @@ function generate(params: {
     reset: new Set<string>(),
     atomic: new Set<string>(),
     selectors: new Set<string>(),
+    toggles: {} as Record<string, Set<string>>,
   };
 
   propertyConfigs.forEach(([cssProperty, configs]) => {
@@ -59,13 +52,10 @@ function generate(params: {
       const selector = config.selector && params.config.selectors?.[config.selector];
       const selectors = Array.isArray(selector) ? selector : selector ? [selector] : ['&'];
       const nestedSelectors = [responsive, ...selectors].filter(Boolean) as string[];
-      const isShortProperty = Boolean((Tokenami.mapShorthandToLonghands as any)[cssProperty]);
-      const isLogicalProperty = Tokenami.logicalProperties.includes(cssProperty as any);
-      const shortLayer = isLogicalProperty ? LAYER.SHORT_LOGICAL : LAYER.SHORT;
-      const longLayer = isLogicalProperty ? LAYER.LONG_LOGICAL : LAYER.LONG;
-      const propertyLayer = isShortProperty ? shortLayer : longLayer;
+      const propertyLayer = getAtomicLayer(cssProperty);
+      const toggleKey = config.responsive || config.selector;
 
-      if (config.variant) {
+      if (config.variant && toggleKey) {
         const variantValue = uniqueVariants.reduce(
           (fallback, variant) => `var(${hashVariantProperty(variant, cssProperty)}, ${fallback})`,
           'revert-layer'
@@ -79,8 +69,9 @@ function generate(params: {
 
         const declaration = `[style] { ${cssProperty}: ${variantValue}; }`;
         styles.reset.add(`${toggleProperty}: initial;`);
-        styles.selectors.add(toggle);
         styles.selectors.add(`@layer tk-selector-${propertyLayer} { ${declaration} }`);
+        styles.toggles[toggleKey] ??= new Set<string>();
+        styles.toggles[toggleKey]!.add(toggle);
       } else {
         const declaration = `[style] { ${cssProperty}: var(${config.tokenProperty}, revert-layer); }`;
         styles.reset.add(`${config.tokenProperty}: initial;`);
@@ -94,11 +85,15 @@ function generate(params: {
     :root { ${generateRootStyles(tokenValues, params.config)} }
     [style] { ${Array.from(styles.reset).join(' ')} }
 
-    @layer ${LAYERS.map((layer) => `tk-${layer}`).join(', ')};
-    @layer ${LAYERS.map((layer) => `tk-selector-${layer}`).join(', ')};
+    @layer ${Tokenami.layers.map((_, layer) => `tk-${layer}`).join(', ')};
+    @layer ${Tokenami.layers.map((_, layer) => `tk-selector-${layer}`).join(', ')};
 
     ${Array.from(styles.atomic).join(' ')}
     ${Array.from(styles.selectors).join(' ')}
+
+    ${Object.values(styles.toggles)
+      .flatMap((set) => Array.from(set))
+      .join(' ')}
   `;
 
   const transformed = lightning.transform({
@@ -139,6 +134,14 @@ function getPropertyConfigs(tokenProperties: Tokenami.TokenProperty[], config: T
   });
 
   return propertyConfigs;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getAtomicLayer
+ * -----------------------------------------------------------------------------------------------*/
+
+function getAtomicLayer(cssProperty: string) {
+  return Tokenami.layers.findIndex((layer: string[]) => layer.includes(cssProperty));
 }
 
 /* -------------------------------------------------------------------------------------------------

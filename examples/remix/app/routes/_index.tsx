@@ -93,7 +93,7 @@ export default function Index() {
       >
         Button
       </button>
-      <Button>Button</Button>
+      <Button style={css({ '--border-color': 'var(---, red)' })}>Button</Button>
     </div>
   );
 }
@@ -106,7 +106,7 @@ function Button(props: ButtonProps) {
       {...props}
       style={css(
         {
-          '--border-block-end': 'var(---, 1px solid var(--color_slate-700))',
+          '--border-bottom': 'var(---, 2px solid var(--color_slate-700))',
           '--width': 'var(---,180px)',
           '--height': 15,
           '--border-radius': 'var(--radii_rounded)',
