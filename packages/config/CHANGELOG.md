@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.31-next.0
+
+### Patch Changes
+
+- bb0c2bb: Add layers for shorthands that are also longhands
+
 ## 0.0.30
 
 ### Patch Changes

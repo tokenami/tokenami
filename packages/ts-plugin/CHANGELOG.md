@@ -1,5 +1,14 @@
 # @tokenami/ts-plugin
 
+## 0.0.31-next.0
+
+### Patch Changes
+
+- bb0c2bb: Add layers for shorthands that are also longhands
+- Updated dependencies [bb0c2bb]
+  - @tokenami/config@0.0.31-next.0
+  - @tokenami/dev@0.0.31-next.0
+
 ## 0.0.30
 
 ### Patch Changes
