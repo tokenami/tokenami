@@ -3,7 +3,7 @@ import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
 import * as utils from './utils';
 
-const UNUSED_LAYERS_REGEX = /[\n]?@layer[\w\s-,]+;[\n]?/g;
+const UNUSED_LAYERS_REGEX = /\n\s*@layer[-\w\s,]+;/g;
 
 type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   order: number;
@@ -81,19 +81,21 @@ function generate(params: {
   });
 
   const sheet = `
-    ${generateKeyframeRules(tokenValues, params.config)}
-    :root { ${generateRootStyles(tokenValues, params.config)} }
-    [style] { ${Array.from(styles.reset).join(' ')} }
+    @layer tokenami {
+      ${generateKeyframeRules(tokenValues, params.config)}
+      :root { ${generateRootStyles(tokenValues, params.config)} }
+      [style] { ${Array.from(styles.reset).join(' ')} }
 
-    @layer ${Tokenami.layers.map((_, layer) => `tk-${layer}`).join(', ')};
-    @layer ${Tokenami.layers.map((_, layer) => `tk-selector-${layer}`).join(', ')};
+      @layer ${Tokenami.layers.map((_, layer) => `tk-${layer}`).join(', ')};
+      @layer ${Tokenami.layers.map((_, layer) => `tk-selector-${layer}`).join(', ')};
 
-    ${Array.from(styles.atomic).join(' ')}
-    ${Array.from(styles.selectors).join(' ')}
+      ${Array.from(styles.atomic).join(' ')}
+      ${Array.from(styles.selectors).join(' ')}
 
-    ${Object.values(styles.toggles)
-      .flatMap((set) => Array.from(set))
-      .join(' ')}
+      ${Object.values(styles.toggles)
+        .flatMap((set) => Array.from(set))
+        .join(' ')}
+    }
   `;
 
   const transformed = lightning.transform({
