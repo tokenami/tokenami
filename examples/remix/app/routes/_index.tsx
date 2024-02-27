@@ -72,6 +72,19 @@ export default function Index() {
         </div>
       </figure>
 
+      <div style={css({ '--mb': 5, '--p': 5, '--border': 'var(--border_thin)' })}>
+        boop
+        <div
+          style={css({
+            '--p': 'inherit',
+            '--background-color': 'var(--color_slate-700)',
+            '--color': 'var(--color_slate-100)',
+          })}
+        >
+          Testing inherit
+        </div>
+      </div>
+
       <button
         style={css({
           '--border-block-end': 'var(---, 1px solid var(--color_slate-700))',

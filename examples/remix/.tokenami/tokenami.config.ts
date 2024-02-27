@@ -18,6 +18,9 @@ export default createConfig({
       'slate-700': '#334155',
       'sky-500': '#0ea5e9',
     },
+    border: {
+      thin: '1px solid var(--color_slate-700)',
+    },
     font: {
       serif: 'serif',
       sans: 'sans-serif',
