@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.31-next.2
+
+### Patch Changes
+
+- 51cdcc1: Allow all CSS properties to be inheritable properties
+
 ## 0.0.31-next.1
 
 ### Patch Changes
