@@ -9,6 +9,7 @@
     "@tokenami/ts-plugin": "0.0.30"
   },
   "changesets": [
+    "clean-kings-repeat",
     "empty-waves-smile",
     "five-icons-hang",
     "poor-ducks-knock"

@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.31-next.3
+
+### Patch Changes
+
+- 34ced9d: Override longhands when shorthand is last in base styles
+
 ## 0.0.31-next.2
 
 ### Patch Changes
