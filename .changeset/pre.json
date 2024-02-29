@@ -9,6 +9,7 @@
     "@tokenami/ts-plugin": "0.0.30"
   },
   "changesets": [
-    "empty-waves-smile"
+    "empty-waves-smile",
+    "poor-ducks-knock"
   ]
 }

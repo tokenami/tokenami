@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.31-next.1
+
+### Patch Changes
+
+- 79f5490: Add tokenami layer around all tokenami styles
+- Updated dependencies [79f5490]
+  - @tokenami/dev@0.0.31-next.1
+  - @tokenami/config@0.0.31-next.1
+
 ## 0.0.31-next.0
 
 ### Patch Changes
