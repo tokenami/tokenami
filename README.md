@@ -273,7 +273,7 @@ The `css` utility accepts your base styles as the first parameter, and then any 
 
 ```tsx
 function Button({ size, style, ...props }) {
-  return <button {...props} style={css({ '---padding': 4 }, props.style)} />;
+  return <button {...props} style={css({ '--padding': 4 }, props.style)} />;
 }
 ```
 
@@ -298,7 +298,7 @@ Use the `css.compose` API to author variants.
 
 ```tsx
 const button = css.compose({
-  '---padding': 4,
+  '--padding': 4,
 
   variants: {
     size: {
@@ -329,7 +329,7 @@ To enable it, rename the `variants` property to `responsiveVariants`. This will 
 
 ```diff
 const button = css.compose({
-  '---padding': 4,
+  '--padding': 4,
 
 -  variants: {
 +  responsiveVariants: {
