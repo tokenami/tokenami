@@ -54,7 +54,7 @@ interface TestContext {
   output: ReturnType<typeof button>;
 }
 
-describe('css', () => {
+describe('css compose', () => {
   beforeEach<TestContext>((context) => {
     context.button = button;
   });

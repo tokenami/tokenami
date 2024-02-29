@@ -53,10 +53,8 @@ const css: CSS = (baseStyles, ...overrides) => {
 
   if (cached) return cached;
 
-  [baseStyles, ...overrides].forEach((originalOverrideStyle) => {
-    if (!originalOverrideStyle) return;
-    // we mutate this so make a copy
-    let overrideStyle = Object.assign({}, originalOverrideStyle);
+  [baseStyles, ...overrides].forEach((overrideStyle) => {
+    if (!overrideStyle) return;
 
     Object.entries(overrideStyle).forEach(([key, value]) => {
       if (!Tokenami.TokenProperty.safeParse(key).success) return;
@@ -66,22 +64,16 @@ const css: CSS = (baseStyles, ...overrides) => {
 
       cssProperties.forEach((cssProperty) => {
         const tokenPropertyLong = createTokenProperty(tokenProperty, cssProperty);
-
-        delete (overrideStyle as any)[tokenProperty];
         overrideLonghands(overriddenStyles, tokenPropertyLong);
 
         if (typeof value === 'number' && value > 0) {
           const gridVar = Tokenami.gridProperty();
-          (overrideStyle as any)[tokenPropertyLong] = `calc(var(${gridVar}) * ${value})`;
+          (overriddenStyles as any)[tokenPropertyLong] = `calc(var(${gridVar}) * ${value})`;
         } else {
-          (overrideStyle as any)[tokenPropertyLong] = value;
+          (overriddenStyles as any)[tokenPropertyLong] = value;
         }
       });
     });
-
-    // this must happen each iteration so that each override applies to the
-    // mutated css object from the previous override iteration
-    Object.assign(overriddenStyles, overrideStyle);
   });
 
   cache[cacheId] = overriddenStyles;
