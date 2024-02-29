@@ -1,5 +1,14 @@
 # @tokenami/config
 
+## 0.0.31
+
+### Patch Changes
+
+- 34ced9d: Override longhands when shorthand is last in base styles
+- bb0c2bb: Add layers for shorthands that are also longhands
+- 51cdcc1: Allow all CSS properties to be inheritable properties
+- 79f5490: Add tokenami layer around all tokenami styles
+
 ## 0.0.31-next.3
 
 ### Patch Changes

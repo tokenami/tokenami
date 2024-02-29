@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/dev",
-  "version": "0.0.31-next.3",
+  "version": "0.0.31",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
