@@ -18,6 +18,7 @@
     --radii_rounded: 10px;
     --font_sans: sans-serif;
     --color_slate-700: #334155;
+    --border_thin: 1px solid var(--color_slate-700);
     --anim_wiggle: wiggle 1s ease-in-out infinite;
     --radii_circle: 9999px;
     --size_auto: auto;

@@ -39,8 +39,8 @@ type ThemeKey<P> = P extends keyof PropertyConfig
 type CSSPropertyValue<P> = P extends keyof CSS.PropertiesHyphen ? CSS.PropertiesHyphen[P] : never;
 
 type ThemePropertyValue<ThemeKey> = ThemeKey extends 'grid'
-  ? TokenVar<ThemeKey> | Tokenami.ArbitraryValue | Tokenami.GridValue
-  : TokenVar<ThemeKey> | Tokenami.ArbitraryValue;
+  ? TokenVar<ThemeKey> | Tokenami.ArbitraryValue | Tokenami.GridValue | CSS.Globals
+  : TokenVar<ThemeKey> | Tokenami.ArbitraryValue | CSS.Globals;
 
 type PropertyValue<P> = ThemeKey<P> extends never
   ? CSSPropertyValue<P>
