@@ -81,6 +81,9 @@ importers:
       '@tokenami/css':
         specifier: workspace:*
         version: link:../../packages/css
+      '@tokenami/example-design-system':
+        specifier: workspace:*
+        version: link:../design-system
       isbot:
         specifier: ^3.6.8
         version: 3.8.0

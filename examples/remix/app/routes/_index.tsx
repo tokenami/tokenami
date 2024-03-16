@@ -1,6 +1,7 @@
 import type { LinksFunction } from '@remix-run/node';
+import * as DS from '@tokenami/example-design-system';
 import styles from '~/../public/tokenami.css';
-import { type TokenamiStyle, css } from '~/css';
+import { css } from '~/css';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
@@ -106,38 +107,8 @@ export default function Index() {
       >
         Button
       </button>
-      <Button style={css({ '--border-color': 'var(---, red)' })}>Button</Button>
+      <DS.Button style={css({ '--border-color': 'var(---, red)' })}>Button</DS.Button>
     </div>
-  );
-}
-
-type ButtonProps = TokenamiStyle<React.ComponentProps<'button'>>;
-
-function Button(props: ButtonProps) {
-  return (
-    <button
-      {...props}
-      style={css(
-        {
-          '--border-bottom': 'var(---, 2px solid var(--color_slate-700))',
-          '--width': 'var(---,180px)',
-          '--height': 15,
-          '--border-radius': 'var(--radii_rounded)',
-          '--border': 'var(---,none)',
-          '--font-family': 'var(--font_sans)',
-          '--font-size': 'var(---,20px)',
-          '--2xl_font-size': 'var(---, 25px)',
-          '--bg-color': 'var(--color_slate-100)',
-          '--hover_background-color': 'var(--color_slate-700)',
-          '--hover_color': 'var(---,white)',
-          '--transition': 'var(---,all 150ms)',
-          '--hover_animation': 'var(--anim_wiggle)',
-        },
-        props.style,
-        // @ts-expect-error
-        { '--test': 'red' }
-      )}
-    />
   );
 }
 

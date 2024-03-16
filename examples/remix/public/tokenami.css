@@ -11,15 +11,15 @@
 
   :root {
     --_grid: .25rem;
+    --color_slate-100: #f1f5f9;
+    --color_slate-700: #334155;
+    --radii_rounded: 10px;
+    --font_sans: sans-serif;
+    --anim_wiggle: wiggle 1s ease-in-out infinite;
     --size_fill: 100%;
     --color_sky-500: #0ea5e9;
     --size_screen-h: 100vh;
-    --color_slate-100: #f1f5f9;
-    --radii_rounded: 10px;
-    --font_sans: sans-serif;
-    --color_slate-700: #334155;
     --border_thin: 1px solid var(--color_slate-700);
-    --anim_wiggle: wiggle 1s ease-in-out infinite;
     --radii_circle: 9999px;
     --size_auto: auto;
     --radii_none: none;
@@ -95,6 +95,12 @@
     --border-bottom: initial;
     --flex-direction: initial;
     --font-weight: initial;
+    --_1pod6o8: var(--md) var(--md_font-size);
+    --md_font-size: initial;
+    --_1283h2s: var(--lg) var(--lg_font-size);
+    --lg_font-size: initial;
+    --_1tqbkib: var(--xl) var(--xl_font-size);
+    --xl_font-size: initial;
     --_1qfo97: var(--2xl) var(--2xl_font-size);
     --2xl_font-size: initial;
     --font-size: initial;
@@ -194,7 +200,7 @@
   @layer tk-selector-1 {
     [style] {
       background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_4dvc60, revert-layer)));
-      font-size: var(--_1qfo97, revert-layer);
+      font-size: var(--_1qfo97, var(--_1tqbkib, var(--_1283h2s, var(--_1pod6o8, revert-layer))));
     }
   }
 
