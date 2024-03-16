@@ -1,110 +1,196 @@
-import { type Config, type DeepReadonly, defaultConfig } from './config.default';
 import * as Supports from './supports';
 
-/* -------------------------------------------------------------------------------------------------
- * GridProperty
- * -----------------------------------------------------------------------------------------------*/
+type DeepReadonly<T> = T extends any[] ? T : { readonly [P in keyof T]: DeepReadonly<T[P]> };
 
-type GridProperty = '--_grid';
-const gridPropertyRegex = /--_grid/;
+type ThemeKey =
+  | 'alpha'
+  | 'border'
+  | 'color'
+  | 'ease'
+  | 'font-size'
+  | 'leading'
+  | 'line-style'
+  | 'radii'
+  | 'size'
+  | 'shadow'
+  | 'tracking'
+  | 'transition'
+  | 'weight'
+  | 'z'
+  | (string & {});
 
-const GridProperty = {
-  safeParse: (input: unknown) => validate<GridProperty>(gridPropertyRegex, input),
-};
+type ThemeValues = Record<string, string>;
+type Theme = Partial<Record<ThemeKey, ThemeValues>>;
+type Aliases = Record<string, readonly Supports.CSSProperty[]>;
+type PropertiesOptions = readonly ('grid' | ThemeKey)[];
 
-function gridProperty(): GridProperty {
-  return `--_grid`;
-}
+interface Config
+  extends DeepReadonly<{
+    include: string[];
+    exclude?: string[];
+    grid?: string;
+    responsive?: { [atRule: string]: string };
+    selectors?: { [name: string]: string | string[] };
+    keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
+    aliases?: Aliases;
+    theme: Theme;
+    properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
+  }> {}
 
-/* -------------------------------------------------------------------------------------------------
- * GridValue
- * -----------------------------------------------------------------------------------------------*/
+const defaultConfig = {
+  include: [],
+  grid: '0.25rem',
+  responsive: {},
+  theme: {},
+  aliases: {},
+  selectors: {
+    after: '&::after',
+    before: '&::before',
+    even: '&:nth-child(even)',
+    odd: '&:nth-child(odd)',
+    'first-child': '&:first-child',
+    'last-child': '&:last-child',
+    placeholder: '&::placeholder',
+    hover: '&:hover',
+    focus: '&:focus',
+    'focus-visible': '&:focus-visible',
+    'focus-within': '&:focus-within',
+    active: '&:active',
+    disabled: '&:disabled',
+  },
+  properties: {
+    'accent-color': ['color'],
+    animation: ['anim'],
+    'animation-timing-function': ['ease'],
+    background: ['color', 'surface'],
+    'background-color': ['color'],
+    'background-image': ['surface'],
+    'background-position': ['grid'],
+    'background-position-x': ['grid'],
+    'background-position-y': ['grid'],
+    'block-size': ['grid', 'size'],
+    border: ['border'],
+    'border-block': ['border'],
+    'border-block-color': ['color'],
+    'border-block-end': ['border'],
+    'border-block-end-color': ['color'],
+    'border-block-end-style': ['line-style'],
+    'border-block-start': ['border'],
+    'border-block-start-color': ['color'],
+    'border-block-start-style': ['line-style'],
+    'border-block-style': ['line-style'],
+    'border-bottom': ['border'],
+    'border-bottom-color': ['color'],
+    'border-bottom-left-radius': ['radii'],
+    'border-bottom-right-radius': ['radii'],
+    'border-bottom-style': ['line-style'],
+    'border-color': ['color'],
+    'border-end-end-radius': ['radii'],
+    'border-end-start-radius': ['radii'],
+    'border-inline': ['border'],
+    'border-inline-color': ['color'],
+    'border-inline-end': ['border'],
+    'border-inline-end-color': ['color'],
+    'border-inline-end-style': ['line-style'],
+    'border-inline-start': ['border'],
+    'border-inline-start-color': ['color'],
+    'border-inline-start-style': ['line-style'],
+    'border-inline-style': ['line-style'],
+    'border-left': ['border'],
+    'border-left-color': ['color'],
+    'border-left-style': ['line-style'],
+    'border-radius': ['radii'],
+    'border-right': ['border'],
+    'border-right-color': ['color'],
+    'border-right-style': ['line-style'],
+    'border-start-end-radius': ['radii'],
+    'border-start-start-radius': ['radii'],
+    'border-style': ['line-style'],
+    'border-top': ['border'],
+    'border-top-color': ['color'],
+    'border-top-left-radius': ['radii'],
+    'border-top-right-radius': ['radii'],
+    'border-top-style': ['line-style'],
+    bottom: ['grid'],
+    'box-shadow': ['shadow'],
+    'caret-color': ['color'],
+    color: ['color'],
+    'column-gap': ['grid'],
+    'column-rule-color': ['color'],
+    'column-rule-width': ['grid'],
+    'column-width': ['grid', 'size'],
+    'flex-basis': ['grid', 'size'],
+    'font-family': ['font'],
+    'font-size': ['font-size'],
+    'font-weight': ['weight'],
+    gap: ['grid'],
+    height: ['grid', 'size'],
+    'inline-size': ['grid', 'size'],
+    inset: ['grid'],
+    'inset-block': ['grid'],
+    'inset-block-end': ['grid'],
+    'inset-block-start': ['grid'],
+    'inset-inline': ['grid'],
+    'inset-inline-end': ['grid'],
+    'inset-inline-start': ['grid'],
+    left: ['grid'],
+    'letter-spacing': ['tracking'],
+    'line-height': ['leading'],
+    margin: ['grid'],
+    'margin-block': ['grid'],
+    'margin-block-end': ['grid'],
+    'margin-block-start': ['grid'],
+    'margin-bottom': ['grid'],
+    'margin-inline': ['grid'],
+    'margin-inline-end': ['grid'],
+    'margin-inline-start': ['grid'],
+    'margin-left': ['grid'],
+    'margin-right': ['grid'],
+    'margin-top': ['grid'],
+    'max-block-size': ['grid', 'size'],
+    'max-height': ['grid', 'size'],
+    'max-inline-size': ['grid', 'size'],
+    'max-width': ['grid', 'size'],
+    'min-block-size': ['grid', 'size'],
+    'min-height': ['grid', 'size'],
+    'min-inline-size': ['grid', 'size'],
+    'min-width': ['grid', 'size'],
+    opacity: ['alpha'],
+    'outline-color': ['color'],
+    padding: ['grid'],
+    'padding-block': ['grid'],
+    'padding-block-end': ['grid'],
+    'padding-block-start': ['grid'],
+    'padding-bottom': ['grid'],
+    'padding-inline': ['grid'],
+    'padding-inline-end': ['grid'],
+    'padding-inline-start': ['grid'],
+    'padding-left': ['grid'],
+    'padding-right': ['grid'],
+    'padding-top': ['grid'],
+    right: ['grid'],
+    'row-gap': ['grid'],
+    'scroll-margin': ['grid'],
+    'scroll-margin-bottom': ['grid'],
+    'scroll-margin-left': ['grid'],
+    'scroll-margin-right': ['grid'],
+    'scroll-margin-top': ['grid'],
+    'scroll-padding': ['grid'],
+    'scroll-padding-bottom': ['grid'],
+    'scroll-padding-left': ['grid'],
+    'scroll-padding-right': ['grid'],
+    'scroll-padding-top': ['grid'],
+    'text-decoration-color': ['color'],
+    'text-shadow': ['shadow'],
+    top: ['grid'],
+    transition: ['transition'],
+    'transition-timing-function': ['ease'],
+    width: ['grid', 'size'],
+    'z-index': ['z'],
+  },
+} satisfies Config;
 
-type GridValue = number;
-const gridValueRegex = /^\d+/;
-
-const GridValue = {
-  safeParse: (input: unknown) => validate<GridValue>(gridValueRegex, input),
-};
-
-/* -------------------------------------------------------------------------------------------------
- * TokenProperty
- * -----------------------------------------------------------------------------------------------*/
-
-type TokenProperty<P extends string = string> = `--${P}`;
-const tokenPropertyRegex = /(?<!var\()--(\w([\w-]+)?)/;
-
-const TokenProperty = {
-  safeParse: (input: unknown) => validate<TokenProperty>(tokenPropertyRegex, input),
-};
-
-function tokenProperty(name: string): TokenProperty {
-  return `--${name}`;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * VariantProperty
- * -----------------------------------------------------------------------------------------------*/
-
-type VariantProperty<P extends string = string, V extends string = string> = `--${V}_${P}`;
-const variantPropertyRegex = /(?<!var\()--((\w)([\w-]+)_([\w-]+))/;
-
-const VariantProperty = {
-  safeParse: (input: unknown) => validate<VariantProperty>(variantPropertyRegex, input),
-};
-
-function variantProperty(variant: string, name: string): TokenProperty {
-  return `--${variant}_${name}`;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * TokenValue
- * -----------------------------------------------------------------------------------------------*/
-
-type TokenValue<TK extends string = string, V extends string = string> = `var(--${TK}_${V})`;
-const tokenValueRegex = /var\((--([\w-]+)_([\w-]+))\)/;
-
-const TokenValue = {
-  safeParse: (input: unknown) => validate<TokenValue>(tokenValueRegex, input),
-};
-
-function tokenValue<TK extends string, N extends string>(themeKey: TK, name: N): TokenValue<TK, N> {
-  return `var(--${themeKey}_${name})`;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * ArbitraryValue
- * -----------------------------------------------------------------------------------------------*/
-
-type ArbitraryValue = `var(---,${string})`;
-const arbitraryValueRegex = /var\(---,(.+)\)/;
-
-const ArbitraryValue = {
-  safeParse: (input: unknown) => validate<ArbitraryValue>(arbitraryValueRegex, input),
-};
-
-function arbitraryValue(value: string): ArbitraryValue {
-  return `var(---,${value})`;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * Validate
- * -----------------------------------------------------------------------------------------------*/
-
-type Validated<T> = { success: true; output: T } | { success: false };
-
-function validate<T>(regex: RegExp, input: unknown): Validated<T> {
-  try {
-    const inputString = String(input);
-    if (regex.test(inputString)) {
-      return { success: true, output: inputString as T };
-    } else {
-      return { success: false };
-    }
-  } catch (e) {
-    return { success: false };
-  }
-}
+type DefaultConfig = typeof defaultConfig;
 
 /* -------------------------------------------------------------------------------------------------
  * createConfig
@@ -117,92 +203,7 @@ function createConfig<T extends Config>(obj: Exact<Config, T>) {
   return { ...defaultConfig, ...readonlyConfig };
 }
 
-/* -------------------------------------------------------------------------------------------------
- * getTokenPropertyName
- * -----------------------------------------------------------------------------------------------*/
-
-function getTokenPropertyName(tokenProperty: TokenProperty) {
-  return tokenProperty.replace(tokenPropertyRegex, '$1');
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getTokenPropertySplit
- * -----------------------------------------------------------------------------------------------*/
-
-function getTokenPropertySplit(tokenProperty: TokenProperty) {
-  const name = getTokenPropertyName(tokenProperty);
-  const [alias, ...variants] = name.split('_').reverse() as [string, ...string[]];
-  return { alias, variants: variants.reverse() };
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getTokenPropertyParts
- * -----------------------------------------------------------------------------------------------*/
-
-type PropertyParts = {
-  name: string;
-  alias: string;
-  responsive?: string;
-  selector?: string;
-  variant?: string;
-};
-
-function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): PropertyParts | null {
-  const name = getTokenPropertyName(tokenProperty);
-  const { alias, variants } = getTokenPropertySplit(tokenProperty);
-  const [firstVariant, secondVariant] = variants;
-  const firstSelector = config.selectors?.[firstVariant!] && firstVariant;
-  const secondSelector = config.selectors?.[secondVariant!] && secondVariant;
-  const responsive = config.responsive?.[firstVariant!] && firstVariant;
-  const selector = firstSelector || secondSelector;
-  const validVariant = [responsive, selector].filter(Boolean).join('_');
-  if (firstVariant && variantProperty(validVariant, alias) !== tokenProperty) return null;
-  return { name, alias, responsive, selector, variant: validVariant };
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getTokenValueParts
- * -----------------------------------------------------------------------------------------------*/
-
-function getTokenValueParts(tokenValue: TokenValue) {
-  type Parts = [string, string, string, string];
-  const [, property, themeKey, token] = tokenValue.split(tokenValueRegex) as Parts;
-  return { property, themeKey, token };
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getCSSPropertiesForAlias
- * -------------------------------------------------------------------------------------------------
- * an alias can be used for multiple CSS properties e.g. `px` can apply to `padding-left`
- * and `padding-right`, so this gets an array of CSS properties for a given alias.
- * -----------------------------------------------------------------------------------------------*/
-
-function getCSSPropertiesForAlias(
-  alias: string,
-  aliases: Config['aliases']
-): Supports.CSSProperty[] {
-  return (aliases as any)?.[alias] || [alias];
-}
-
 /* ---------------------------------------------------------------------------------------------- */
 
-export {
-  GridProperty,
-  TokenProperty,
-  VariantProperty,
-  TokenValue,
-  GridValue,
-  ArbitraryValue,
-  //
-  gridProperty,
-  tokenProperty,
-  variantProperty,
-  tokenValue,
-  arbitraryValue,
-  getTokenPropertyName,
-  getTokenPropertySplit,
-  getTokenPropertyParts,
-  getTokenValueParts,
-  getCSSPropertiesForAlias,
-  createConfig,
-};
+export type { DefaultConfig, Config, Theme, Aliases, DeepReadonly };
+export { defaultConfig, createConfig };
