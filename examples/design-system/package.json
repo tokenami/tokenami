@@ -1,0 +1,49 @@
+{
+  "name": "@tokenami/example-design-system",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup && pnpm build:tokenami",
+    "build:tokenami": "tokenami --output dist/tokenami.css --minify",
+    "dev": "pnpm dev:css & pnpm dev:storylite",
+    "dev:storylite": "vite --port=7007 --host=0.0.0.0 --open",
+    "dev:css": "tokenami --output ./src/tokenami.css --watch",
+    "typecheck": "tsc --noEmit",
+    "typecheck:ci": "pnpm typecheck"
+  },
+  "devDependencies": {
+    "@storylite/storylite": "^0.14.0",
+    "@storylite/vite-plugin": "^0.14.0",
+    "@tokenami/dev": "workspace:*",
+    "@tokenami/ts-plugin": "workspace:*",
+    "@vitejs/plugin-react-swc": "^3.6.0",
+    "tsup": "^7.0.0",
+    "typescript": "^5.1.3",
+    "vite": "^5.1.6"
+  },
+  "peerDependencies": {
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "react": "^16.8 || ^17.0 || ^18.0",
+    "react-dom": "^16.8 || ^17.0 || ^18.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    },
+    "@types/react-dom": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@tokenami/css": "workspace:*"
+  }
+}

@@ -1,0 +1,114 @@
+@layer tokenami {
+  @keyframes wiggle {
+    0%, 100% {
+      transform: rotate(-3deg);
+    }
+
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+
+  :root {
+    --_grid: .25rem;
+    --color_slate-100: #f1f5f9;
+    --color_slate-700: #334155;
+    --radii_rounded: 10px;
+    --font_sans: sans-serif;
+    --anim_wiggle: wiggle 1s ease-in-out infinite;
+  }
+
+  [style] {
+    --_1upk2ho: var(--hover) var(--hover_animation);
+    --hover_animation: initial;
+    --hover: initial;
+    --border: initial;
+    --border-radius: initial;
+    --_853it7: var(--hover) var(--hover_color);
+    --hover_color: initial;
+    --height: initial;
+    --transition: initial;
+    --width: initial;
+    --_4dvc60: var(--hover) var(--hover_background-color);
+    --hover_background-color: initial;
+    --background-color: initial;
+    --border-bottom: initial;
+    --_1pod6o8: var(--md) var(--md_font-size);
+    --md_font-size: initial;
+    --_1283h2s: var(--lg) var(--lg_font-size);
+    --lg_font-size: initial;
+    --_1tqbkib: var(--xl) var(--xl_font-size);
+    --xl_font-size: initial;
+    --_1qfo97: var(--2xl) var(--2xl_font-size);
+    --2xl_font-size: initial;
+    --font-size: initial;
+    --md: initial;
+    --lg: initial;
+    --xl: initial;
+    --2xl: initial;
+    --font-family: initial;
+  }
+
+  @layer tk-0 {
+    [style] {
+      border: var(--border, revert-layer);
+      border-radius: var(--border-radius, revert-layer);
+      height: var(--height, revert-layer);
+      transition: var(--transition, revert-layer);
+      width: var(--width, revert-layer);
+    }
+  }
+
+  @layer tk-1 {
+    [style] {
+      background-color: var(--background-color, revert-layer);
+      border-bottom: var(--border-bottom, revert-layer);
+      font-size: var(--font-size, revert-layer);
+      font-family: var(--font-family, revert-layer);
+    }
+  }
+
+  @layer tk-selector-0 {
+    [style] {
+      animation: var(--_1upk2ho, revert-layer);
+      color: var(--_853it7, revert-layer);
+    }
+  }
+
+  @layer tk-selector-1 {
+    [style] {
+      background-color: var(--_4dvc60, revert-layer);
+      font-size: var(--_1qfo97, var(--_1tqbkib, var(--_1283h2s, var(--_1pod6o8, revert-layer))));
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [style]:hover {
+      --hover: ;
+    }
+  }
+
+  @media (width >= 700px) {
+    [style] {
+      --md: ;
+    }
+  }
+
+  @media (width >= 1024px) {
+    [style] {
+      --lg: ;
+    }
+  }
+
+  @media (width >= 1280px) {
+    [style] {
+      --xl: ;
+    }
+  }
+
+  @media (width >= 1536px) {
+    [style] {
+      --2xl: ;
+    }
+  }
+}

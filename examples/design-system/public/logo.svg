@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" clip-rule="evenodd" viewBox="0 0 33 33">
+  <clipPath id="a">
+    <path d="M32.768 15.799a5.111 5.111 0 0 0-5.109-5.109H5.341a5.111 5.111 0 0 0-5.109 5.109v10.218a5.111 5.111 0 0 0 5.109 5.109h22.318a5.111 5.111 0 0 0 5.109-5.109V15.799Z"/>
+  </clipPath>
+  <g clip-path="url(#a)">
+    <use xlink:href="#b" width="33" height="21" x=".232" y="10.69"/>
+  </g>
+  <path fill="#4d4d4d" d="M28.462 17.125a3.62 3.62 0 0 0-3.617-3.617H8.155a3.62 3.62 0 0 0-3.617 3.617v7.232a3.618 3.618 0 0 0 3.617 3.616h16.69a3.618 3.618 0 0 0 3.617-3.616v-7.232Z"/>
+  <path fill="#fff" fill-opacity=".65" d="M30.3 17.211a.451.451 0 0 0-.451-.451H3.528a.451.451 0 0 0-.451.451v.902c0 .249.202.451.451.451h26.321a.451.451 0 0 0 .451-.451v-.902Z"/>
+  <path fill="#fff" fill-opacity=".65" d="M30.3 20.474a.451.451 0 0 0-.451-.451H3.528a.451.451 0 0 0-.451.451v.902c0 .249.202.451.451.451h26.321a.451.451 0 0 0 .451-.451v-.902Z"/>
+  <path fill="#fff" fill-opacity=".65" d="M30.3 23.66a.451.451 0 0 0-.451-.451H3.528a.451.451 0 0 0-.451.451v.902c0 .249.202.451.451.451h26.321a.451.451 0 0 0 .451-.451v-.902Z"/>
+  <g fill-rule="nonzero">
+    <path fill="url(#c)" d="M32.332 5.266 17.359 32.041a.814.814 0 0 1-1.417.006L.671 5.269a.814.814 0 0 1 .85-1.205l14.99 2.68a.802.802 0 0 0 .289-.001l14.676-2.675a.814.814 0 0 1 .856 1.198Z"/>
+    <path fill="url(#d)" d="M23.651.55 12.57 2.721a.41.41 0 0 0-.328.376l-.681 11.512-.001.024a.41.41 0 0 0 .498.396l3.086-.712a.407.407 0 0 1 .49.478l-.917 4.489a.406.406 0 0 0 .517.47l1.905-.579c.296-.089.58.17.517.472l-1.456 7.05c-.091.441.495.682.74.304l.163-.253 9.029-18.02a.406.406 0 0 0-.44-.581l-3.176.613a.408.408 0 0 1-.468-.513l2.072-7.185a.407.407 0 0 0-.469-.512Z"/>
+  </g>
+  <defs>
+    <linearGradient id="c" x1="0" x2="1" y1="0" y2="0" gradientTransform="rotate(47.2 -6.98 3.454) scale(27.41)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#41ff6f"/>
+      <stop offset="1" stop-color="#e234fe"/>
+    </linearGradient>
+    <linearGradient id="d" x1="0" x2="1" y1="0" y2="0" gradientTransform="rotate(87.5 8.333 9.93) scale(23.148)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffea83"/>
+      <stop offset=".08" stop-color="#fff935"/>
+      <stop offset="1" stop-color="#ffa800"/>
+    </linearGradient>
+    <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACEAAAAVCAYAAADID4fUAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA40lEQVRIic2WXRKDIAyEwdk6/T1Ub9pb1nGA9EVai4FExhZ5jGTzZQmM9v4gMo1X1xrAmJ1AgGxrBGOg2mW3GxtOCdT9bi61LoNmU7EKZ0N3EKITArVYUuw6r4AAkotsOLzEOAiPfPn8mSqPgslnB9MdQpXgQqzCrdgkXJ/rKomXIFYCpA7D9UEooLNe/ejN9kVljMegLiYWYgqk8URxgjh5xeYUgAHmAKRrH2diPHtVUtGFmYs1Whgu/jtiJTEqQ6X5BaC3E8PVT4HMTFi5uyXQ5xXW5OJ5c/zXP65d/NTsAuIFC7BOKwgclyoAAAAASUVORK5CYII=" id="b" width="33" height="21"/>
+  </defs>
+</svg>

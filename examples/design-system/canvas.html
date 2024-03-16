@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StoryLite - Design System (React) - IFRAME</title>
+    <script>
+      // Render blocking JS to fix theme flickering:
+      const slParams = window.localStorage.getItem('storylite.parameters');
+      if (slParams) {
+        document.documentElement.dataset.theme = JSON.parse(slParams)?.theme?.value ?? 'auto';
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/.storylite/canvas.tsx"></script>
+  </body>
+</html>
