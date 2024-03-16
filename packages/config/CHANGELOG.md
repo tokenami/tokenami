@@ -1,5 +1,12 @@
 # @tokenami/config
 
+## 0.0.33
+
+### Patch Changes
+
+- c44063a: Reduce css package bundle size
+- afafaf6: Merge configs in `createConfig`
+
 ## 0.0.33-next.0
 
 ### Patch Changes
