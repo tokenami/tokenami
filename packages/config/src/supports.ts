@@ -421,10 +421,12 @@ const layers = [
   ],
 ] as const satisfies readonly (keyof CSS.PropertiesHyphen)[][];
 
-const properties = layers.flat();
-
 /* ---------------------------------------------------------------------------------------------- */
 
-export type CSSProperty = (typeof properties)[number];
+type Flatten<T> = { [K in keyof T]: T[K] extends Array<infer E> ? E : T[K] };
+type CSSProperty = Flatten<typeof layers>[number];
 
+const properties: CSSProperty = layers.flat() as any;
+
+export type { CSSProperty };
 export { properties, layers };
