@@ -1,5 +1,14 @@
 # @tokenami/ts-plugin
 
+## 0.0.32-next.0
+
+### Patch Changes
+
+- 77b437e: Add design system support
+- Updated dependencies [77b437e]
+  - @tokenami/config@0.0.32-next.0
+  - @tokenami/dev@0.0.32-next.0
+
 ## 0.0.31
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.32-next.0
+
+### Patch Changes
+
+- 77b437e: Add design system support
+
 ## 0.0.31
 
 ### Patch Changes
