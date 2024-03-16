@@ -1,3 +1,4 @@
+import { type DefaultConfig, type Config, type DeepReadonly } from './config.default';
 import * as Supports from './supports';
 
 /* -------------------------------------------------------------------------------------------------
@@ -106,57 +107,14 @@ function validate<T>(regex: RegExp, input: unknown): Validated<T> {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * Config
- * -----------------------------------------------------------------------------------------------*/
-
-type ThemeKey =
-  | 'alpha'
-  | 'border'
-  | 'color'
-  | 'ease'
-  | 'font-size'
-  | 'leading'
-  | 'line-style'
-  | 'radii'
-  | 'size'
-  | 'shadow'
-  | 'tracking'
-  | 'transition'
-  | 'weight'
-  | 'z'
-  | (string & {});
-
-type ThemeValues = Record<string, string>;
-type Theme = Partial<Record<ThemeKey, ThemeValues>>;
-type Aliases = Record<string, readonly Supports.CSSProperty[]>;
-type PropertiesOptions = readonly ('grid' | ThemeKey)[];
-
-type DeepReadonly<T> = {
-  readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K];
-};
-
-type Exact<T, V extends T> = Exclude<keyof V, keyof T> extends never ? V : T;
-
-interface Config
-  extends DeepReadonly<{
-    include: string[];
-    exclude?: string[];
-    grid?: string;
-    responsive?: { [atRule: string]: string };
-    selectors?: { [name: string]: string | string[] };
-    keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
-    aliases?: Aliases;
-    theme: Theme;
-    properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
-  }> {}
-
-/* -------------------------------------------------------------------------------------------------
  * createConfig
  * -----------------------------------------------------------------------------------------------*/
 
-const createConfig = <T extends Config>(obj: Exact<Config, T>): DeepReadonly<T> => {
-  return obj as DeepReadonly<T>;
-};
+type Exact<T, V extends T> = Exclude<keyof V, keyof T> extends never ? V : T;
+
+function createConfig<T extends Config>(obj: Exact<Config, T>) {
+  return obj as Omit<DefaultConfig, keyof T> & DeepReadonly<T>;
+}
 
 /* -------------------------------------------------------------------------------------------------
  * getTokenPropertyName
@@ -227,7 +185,6 @@ function getCSSPropertiesForAlias(
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { Config, Theme, Aliases };
 export {
   GridProperty,
   TokenProperty,

@@ -5,7 +5,7 @@
   "scripts": {
     "prepare": "pnpm build",
     "dev": "pnpm --filter=./examples/remix dev",
-    "build": "pnpm -r --filter=./packages/** build",
+    "build": "pnpm -r --filter=./packages/** build && pnpm -r --filter=./examples/design-system build",
     "clean": "rm -rf **/node_modules && rm -rf **/dist",
     "typecheck": "pnpm -r --parallel typecheck",
     "typecheck:ci": "pnpm -r --parallel typecheck:ci",

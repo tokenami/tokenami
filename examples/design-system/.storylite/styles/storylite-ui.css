@@ -1,0 +1,72 @@
+/*
+* Custom StoryLite iframe styles
+*/
+
+.storylite-iframe {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  background: transparent;
+}
+
+.storylite-main {
+  font-size: 1rem;
+}
+
+.storylite-main :where(h1, h2, h3, h4, h5, h6) {
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+[data-sl-theme='dark']:where(.storylite-iframe--standalone) {
+  color: var(--storylite-font-color);
+  background-color: var(--storylite-bg-color);
+}
+
+.storylite-addon-toolbar a {
+  text-decoration: none;
+}
+
+/*
+* DARK-THEME
+*/
+[data-sl-theme='dark']:where(.storylite-iframe) {
+  /* General */
+  --storylite-font-color: #dfdfd7;
+  --storylite-bg-color: #252529;
+
+  --storylite-border-color: #29292c;
+
+  /* Muted */
+  --storylite-font-color-muted: #999999;
+  --storylite-border-color-muted: #484848;
+
+  /* Panels */
+  --storylite-font-color-panel: #dfdfd7;
+  --storylite-bg-color-panel: #161618;
+
+  /* Toolbars */
+  --storylite-font-color-toolbar: #999999;
+  --storylite-bg-color-toolbar: #1e1e20;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-sl-theme='auto']:where(.storylite-iframe) {
+    /* General */
+    --storylite-font-color: #dfdfd7;
+    --storylite-bg-color: #252529;
+
+    --storylite-border-color: #29292c;
+
+    /* Muted */
+    --storylite-font-color-muted: #999999;
+    --storylite-border-color-muted: #484848;
+
+    /* Panels */
+    --storylite-font-color-panel: #dfdfd7;
+    --storylite-bg-color-panel: #161618;
+
+    /* Toolbars */
+    --storylite-font-color-toolbar: #999999;
+    --storylite-bg-color-toolbar: #1e1e20;
+  }
+}

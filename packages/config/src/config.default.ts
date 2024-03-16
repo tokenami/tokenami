@@ -1,6 +1,43 @@
-import { createConfig } from './config';
+import * as Supports from './supports';
 
-const defaultConfig = createConfig({
+type DeepReadonly<T> = T extends any[] ? T : { readonly [P in keyof T]: DeepReadonly<T[P]> };
+
+type ThemeKey =
+  | 'alpha'
+  | 'border'
+  | 'color'
+  | 'ease'
+  | 'font-size'
+  | 'leading'
+  | 'line-style'
+  | 'radii'
+  | 'size'
+  | 'shadow'
+  | 'tracking'
+  | 'transition'
+  | 'weight'
+  | 'z'
+  | (string & {});
+
+type ThemeValues = Record<string, string>;
+type Theme = Partial<Record<ThemeKey, ThemeValues>>;
+type Aliases = Record<string, readonly Supports.CSSProperty[]>;
+type PropertiesOptions = readonly ('grid' | ThemeKey)[];
+
+interface Config
+  extends DeepReadonly<{
+    include: string[];
+    exclude?: string[];
+    grid?: string;
+    responsive?: { [atRule: string]: string };
+    selectors?: { [name: string]: string | string[] };
+    keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
+    aliases?: Aliases;
+    theme: Theme;
+    properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
+  }> {}
+
+const defaultConfig = {
   include: [],
   grid: '0.25rem',
   responsive: {},
@@ -151,7 +188,9 @@ const defaultConfig = createConfig({
     width: ['grid', 'size'],
     'z-index': ['z'],
   },
-});
+} satisfies Config;
 
-export type DefaultConfig = typeof defaultConfig;
-export default defaultConfig;
+type DefaultConfig = typeof defaultConfig;
+
+export type { DefaultConfig, Config, Theme, Aliases, DeepReadonly };
+export { defaultConfig };
