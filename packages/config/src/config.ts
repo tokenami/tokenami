@@ -1,4 +1,4 @@
-import { type DefaultConfig, type Config, type DeepReadonly } from './config.default';
+import { type Config, type DeepReadonly, defaultConfig } from './config.default';
 import * as Supports from './supports';
 
 /* -------------------------------------------------------------------------------------------------
@@ -113,7 +113,8 @@ function validate<T>(regex: RegExp, input: unknown): Validated<T> {
 type Exact<T, V extends T> = Exclude<keyof V, keyof T> extends never ? V : T;
 
 function createConfig<T extends Config>(obj: Exact<Config, T>) {
-  return obj as Omit<DefaultConfig, keyof T> & DeepReadonly<T>;
+  const readonlyConfig = obj as DeepReadonly<T>;
+  return { ...defaultConfig, ...readonlyConfig };
 }
 
 /* -------------------------------------------------------------------------------------------------
