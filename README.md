@@ -525,6 +525,22 @@ For CI, use `tsc` with your new configuration:
 tsc --noEmit --project tsconfig.ci.json
 ```
 
+### Design systems with Tokenami
+
+Integrating a design system built with Tokenami is straightforward. Simply include the `tokenami.config.js` file and corresponding stylesheet from the design system in your project as follows:
+
+```tsx
+import { tokenamiConfig as designSystemConfig } from '@acme/design-system';
+import { createConfig } from '@tokenami/css';
+
+export default createConfig({
+  ...designSystemConfig,
+  include: ['./app/**/*.{ts,tsx}', 'node_modules/@acme/design-system/tokenami.css'],
+});
+```
+
+With these steps, Tokenami will automatically generate styles and merge them correctly across component boundaries. See the example [design system project](https://github.com/tokenami/tokenami/blob/main/examples/design-system) and [Remix project](https://github.com/tokenami/tokenami/blob/main/examples/remix/.tokenami/tokenami.config.ts) for a demo.
+
 ## Support
 
 Before raising a bug, please double-check that it isn't [already in my todo list](https://github.com/tokenami/tokenami/issues). Some common pitfalls are listed below. If you need additional support or encounter any issues, please don't hesitate to join the [Tokenami discord server](https://discord.gg/CAU4HNR4XK).
