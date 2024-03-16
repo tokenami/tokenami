@@ -81,13 +81,14 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
 - [CSS compose](#user-content-css-compose)
   - [Variants](#user-variants)
   - [Responsive variants](#user-responsive-variants)
-  - [TypeScript](#user-content-typescript)
+- [TypeScript](#user-content-typescript)
 - [Advanced](#user-content-advanced)
   - [Selectors](#user-content-selectors)
   - [Aliases](#user-content-aliases)
   - [Mapping properties to theme](#user-content-mapping-properties-to-theme)
   - [Browserslist](#user-content-browserslist)
   - [Continuous Integration](#user-content-continuous-integration)
+  - [Design systems with Tokenami](#user-content-design-systems-with-tokenami)
 - [Support](#user-content-support)
   - [Supported frameworks](#user-content-supported-frameworks)
   - [Supported browsers](#user-content-supported-browsers)
@@ -341,7 +342,7 @@ const button = css.compose({
 });
 ```
 
-### TypeScript
+## TypeScript
 
 Use the `Variants` type to extend your component prop types:
 
@@ -349,7 +350,7 @@ Use the `Variants` type to extend your component prop types:
 import { type Variants } from '@tokenami/css';
 
 type ButtonElementProps = React.ComponentPropsWithoutRef<'button'>;
-interface ButtonProps extends ButtonElementProps, Variants<typeof styles.button> {}
+interface ButtonProps extends ButtonElementProps, Variants<typeof button> {}
 ```
 
 Use `TokenamiStyle` to accept the `css` utility as a value for the `style` prop. This prevents errors when `props.style` is used for overrides.
