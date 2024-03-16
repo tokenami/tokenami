@@ -53,10 +53,9 @@ const css: CSS = (baseStyles, ...overrides) => {
 
   if (cached) return cached;
 
-  [baseStyles, ...overrides].forEach((overrideStyle) => {
-    if (!overrideStyle) return;
-
-    Object.entries(overrideStyle).forEach(([key, value]) => {
+  [baseStyles, ...overrides].forEach((originalStyles) => {
+    if (!originalStyles) return;
+    Object.entries(originalStyles).forEach(([key, value]) => {
       if (!Tokenami.TokenProperty.safeParse(key).success) return;
       const tokenProperty = key as keyof TokenamiProperties;
       const parts = Tokenami.getTokenPropertySplit(tokenProperty);
@@ -64,14 +63,16 @@ const css: CSS = (baseStyles, ...overrides) => {
 
       cssProperties.forEach((cssProperty) => {
         const tokenPropertyLong = createTokenProperty(tokenProperty, cssProperty);
-        overrideLonghands(overriddenStyles, tokenPropertyLong);
 
         if (typeof value === 'number' && value > 0) {
           const gridVar = Tokenami.gridProperty();
-          (overriddenStyles as any)[tokenPropertyLong] = `calc(var(${gridVar}) * ${value})`;
-        } else {
-          (overriddenStyles as any)[tokenPropertyLong] = value;
+          value = `calc(var(${gridVar}) * ${value})`;
         }
+
+        overrideLonghands(overriddenStyles, tokenPropertyLong);
+        // this must happen each iteration so that each override applies to the
+        // mutated css object from the previous override iteration
+        Object.assign(overriddenStyles, { [tokenPropertyLong]: value });
       });
     });
   });
