@@ -1,5 +1,5 @@
 import { type Config } from './config';
-import * as Supports from './supports';
+import { type CSSProperty } from './supports';
 
 /* -------------------------------------------------------------------------------------------------
  * GridProperty
@@ -166,10 +166,7 @@ function getTokenValueParts(tokenValue: TokenValue) {
  * and `padding-right`, so this gets an array of CSS properties for a given alias.
  * -----------------------------------------------------------------------------------------------*/
 
-function getCSSPropertiesForAlias(
-  alias: string,
-  aliases: Config['aliases']
-): Supports.CSSProperty[] {
+function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']): CSSProperty[] {
   return (aliases as any)?.[alias] || [alias];
 }
 
