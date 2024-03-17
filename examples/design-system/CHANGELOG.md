@@ -1,5 +1,13 @@
 # @tokenami/example-design-system
 
+## 0.0.3
+
+### Patch Changes
+
+- afe4609: Restructure files for some house keeping
+- Updated dependencies [afe4609]
+  - @tokenami/css@0.0.34
+
 ## 0.0.3-next.0
 
 ### Patch Changes

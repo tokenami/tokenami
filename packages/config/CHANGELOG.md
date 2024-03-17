@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.34
+
+### Patch Changes
+
+- afe4609: Restructure files for some house keeping
+
 ## 0.0.34-next.0
 
 ### Patch Changes

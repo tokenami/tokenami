@@ -1,5 +1,14 @@
 # @tokenami/ts-plugin
 
+## 0.0.34
+
+### Patch Changes
+
+- afe4609: Restructure files for some house keeping
+- Updated dependencies [afe4609]
+  - @tokenami/config@0.0.34
+  - @tokenami/dev@0.0.34
+
 ## 0.0.34-next.0
 
 ### Patch Changes
