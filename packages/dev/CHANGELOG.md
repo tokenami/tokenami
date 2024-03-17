@@ -1,5 +1,13 @@
 # @tokenami/dev
 
+## 0.0.35-next.0
+
+### Patch Changes
+
+- bec6ed6: Update with explicit type import for some housekeeping
+- Updated dependencies [bec6ed6]
+  - @tokenami/config@0.0.35-next.0
+
 ## 0.0.34
 
 ### Patch Changes
