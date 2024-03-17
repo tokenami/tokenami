@@ -1,5 +1,13 @@
 # @tokenami/example-design-system
 
+## 0.0.4
+
+### Patch Changes
+
+- bec6ed6: Update with explicit type import for some housekeeping
+- Updated dependencies [bec6ed6]
+  - @tokenami/css@0.0.35
+
 ## 0.0.4-next.0
 
 ### Patch Changes
