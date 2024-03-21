@@ -11,6 +11,7 @@ type DefaultConfig = Tokenami.DefaultConfig & { CI: false };
 interface TokenamiFinalConfig extends Merge<DefaultConfig, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
+type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T> ? T : ThemeConfig;
 type PropertyConfig = TokenamiFinalConfig['properties'];
 type SelectorKey = ExtractKeys<TokenamiFinalConfig['selectors']>;
 type ResponsiveKey = ExtractKeys<TokenamiFinalConfig['responsive']>;
@@ -22,7 +23,7 @@ type ResponsiveSelectorKey = ResponsiveKey extends never
   ? never
   : `${ResponsiveKey}_${SelectorKey}`;
 
-type TokenName<ThemeKey> = ThemeKey extends keyof ThemeConfig ? keyof ThemeConfig[ThemeKey] : never;
+type TokenName<ThemeKey> = ThemeKey extends keyof Theme ? keyof Theme[ThemeKey] : never;
 
 type TokenVar<ThemeKey> = ThemeKey extends string
   ? TokenName<ThemeKey> extends `${infer Token}`

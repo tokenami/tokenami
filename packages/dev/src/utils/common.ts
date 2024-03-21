@@ -89,17 +89,33 @@ function getCiTypeDefsPath(configPath: string) {
  * getThemeValuesByTokenValues
  * -----------------------------------------------------------------------------------------------*/
 
-function getThemeValuesByTokenValues(used: Tokenami.TokenValue[], theme: Tokenami.Theme) {
-  const themeKeys = Object.keys(theme);
-  const entries = used.flatMap((tokenValue) => {
+function getThemeValuesByTokenValues(tokenValues: Tokenami.TokenValue[], theme: Tokenami.Theme) {
+  // make entries a deterministic order instead of usage order
+  const sorted = [...tokenValues].sort();
+  const entries = sorted.flatMap((tokenValue) => {
     const parts = Tokenami.getTokenValueParts(tokenValue);
     const value = theme[parts.themeKey]?.[parts.token];
     if (value == null) return [];
     return [[parts.property, value]] as const;
   });
-  // make rules a deterministic order (theme key order) instead of usage order
-  const sorted = entries.sort((a, b) => themeKeys.indexOf(a[0]) - themeKeys.indexOf(b[0]));
-  return Object.fromEntries(sorted);
+  return Object.fromEntries(entries);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getThemeValuesForTokenValue
+ * -----------------------------------------------------------------------------------------------*/
+
+function getThemeValuesForTokenValue(
+  tokenValue: Tokenami.TokenValue,
+  themeConfig: Tokenami.Config['theme']
+): string[] {
+  const { modes = {}, ...rootTheme } = themeConfig;
+  const parts = Tokenami.getTokenValueParts(tokenValue);
+  const modeThemes: Tokenami.Theme[] = Object.values(modes);
+  return modeThemes.concat(rootTheme).flatMap((theme) => {
+    const value = theme[parts.themeKey]?.[parts.token];
+    return value ? [value] : [];
+  });
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -155,7 +171,7 @@ function getSpecifictyOrderForCSSProperty(cssProperty: Tokenami.CSSProperty) {
 function getResponsivePropertyVariants(
   tokenProperty: Tokenami.TokenProperty,
   responsive: Tokenami.Config['responsive']
-) {
+): Tokenami.VariantProperty[] {
   return Object.keys(responsive || {}).map((query) => {
     const name = Tokenami.getTokenPropertyName(tokenProperty);
     return Tokenami.variantProperty(query, name);
@@ -192,6 +208,7 @@ export {
   generateTypeDefs,
   generateCiTypeDefs,
   getThemeValuesByTokenValues,
+  getThemeValuesForTokenValue,
   getResponsivePropertyVariants,
   getSpecifictyOrderForCSSProperty,
   unique,

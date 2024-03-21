@@ -172,5 +172,5 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { TokenamiCSS };
+export type { TokenamiCSS, CSS };
 export { createCss, css, convertToMediaStyles };

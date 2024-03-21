@@ -53,7 +53,7 @@ const VariantProperty = {
   safeParse: (input: unknown) => validate<VariantProperty>(variantPropertyRegex, input),
 };
 
-function variantProperty(variant: string, name: string): TokenProperty {
+function variantProperty(variant: string, name: string): VariantProperty {
   return `--${variant}_${name}`;
 }
 

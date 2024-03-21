@@ -1,5 +1,40 @@
 import { createConfig, defaultConfig } from '@tokenami/css';
 
+const palette = {
+  'slate-100': '#f1f5f9',
+  'slate-700': '#334155',
+  'sky-500': '#0ea5e9',
+};
+
+const theme = {
+  color: {
+    ...palette,
+    primary: palette['slate-100'],
+    secondary: palette['slate-700'],
+    tertiary: palette['sky-500'],
+  },
+  anim: {
+    wiggle: 'wiggle 1s ease-in-out infinite',
+  },
+  border: {
+    thin: '1px solid var(--color_slate-700)',
+  },
+  font: {
+    serif: 'serif',
+    sans: 'sans-serif',
+  },
+  radii: {
+    rounded: '10px',
+    circle: '9999px',
+    none: 'none',
+  },
+  size: {
+    auto: 'auto',
+    fill: '100%',
+    'screen-h': '100vh',
+  },
+};
+
 export default createConfig({
   include: ['./src/**/*.{ts,tsx}'],
   responsive: {
@@ -9,34 +44,17 @@ export default createConfig({
     '2xl': '@media (min-width: 1536px)',
   },
   theme: {
-    anim: {
-      wiggle: 'wiggle 1s ease-in-out infinite',
-    },
-    color: {
-      'slate-100': '#f1f5f9',
-      'slate-700': '#334155',
-      'sky-500': '#0ea5e9',
-    },
-    border: {
-      thin: '1px solid var(--color_slate-700)',
-    },
-    font: {
-      serif: 'serif',
-      sans: 'sans-serif',
-    },
-    radii: {
-      rounded: '10px',
-      circle: '9999px',
-      none: 'none',
-    },
-    size: {
-      auto: 'auto',
-      fill: '100%',
-      'screen-h': '100vh',
-    },
-    pet: {
-      cat: '"🐱"',
-      dog: '"🐶"',
+    modes: {
+      light: theme,
+      dark: {
+        ...theme,
+        color: {
+          ...theme.color,
+          primary: palette['sky-500'],
+          secondary: palette['slate-100'],
+          tertiary: palette['slate-700'],
+        },
+      },
     },
   },
   keyframes: {

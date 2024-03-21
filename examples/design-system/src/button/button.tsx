@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { type Variants, type TokenamiStyle, css } from '@tokenami/css';
+import { type Variants, type TokenamiStyle, css } from '~/css';
 
 /* -------------------------------------------------------------------------------------------------
  * Button
@@ -18,7 +18,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, forwarde
 });
 
 const button = css.compose({
-  '--bg-color': 'var(--color_slate-100)',
+  '--bg-color': 'var(--color_primary)',
+  '--color': 'var(--color_secondary)',
   '--border': 'var(---,none)',
   '--border-bottom': 'var(---, 2px solid var(--color_slate-700))',
   '--border-radius': 'var(--radii_rounded)',

@@ -277,7 +277,7 @@ function init(modules: { typescript: typeof tslib }) {
 
           if (property.success) {
             const parts = TokenamiConfig.getTokenValueParts(property.output);
-            const value = config.theme[parts.themeKey]?.[parts.token];
+            const [value] = Tokenami.getThemeValuesForTokenValue(property.output, config.theme);
 
             if (value !== undefined) {
               const name = `$${parts.token}`;
