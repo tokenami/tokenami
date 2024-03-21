@@ -274,6 +274,7 @@ function init(modules: { typescript: typeof tslib }) {
         original.entries = original.entries.map((entry) => {
           const entryName = entry.name;
           const property = TokenamiConfig.TokenValue.safeParse(entryName);
+          entry.sortText = entryName;
 
           if (property.success) {
             const parts = TokenamiConfig.getTokenValueParts(property.output);
@@ -283,7 +284,7 @@ function init(modules: { typescript: typeof tslib }) {
               const name = `$${parts.token}`;
               const kindModifiers = parts.themeKey;
               entry.name = name;
-              entry.sortText = entryName;
+              entry.sortText = '$' + entryName;
               entry.kindModifiers = kindModifiers;
               entry.insertText = entryName;
               entry.labelDetails = { detail: '', description: entryName };
@@ -296,9 +297,10 @@ function init(modules: { typescript: typeof tslib }) {
       } else if (isTokenPropertyEntries) {
         original.entries = original.entries.flatMap((entry) => {
           const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
+          entry.sortText = entry.name;
           // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
           if (!property.success) return [];
-          entry.sortText = property.output;
+          entry.sortText = '$' + property.output;
           entry.insertText = property.output;
           return [entry];
         });
