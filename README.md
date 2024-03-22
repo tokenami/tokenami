@@ -82,6 +82,8 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
   - [Variants](#user-variants)
   - [Responsive variants](#user-responsive-variants)
 - [TypeScript](#user-content-typescript)
+  - [Variants](#user-content-variants-1)
+  - [TokenamiStyle](#user-content-tokenami-style)
 - [Advanced](#user-content-advanced)
   - [Selectors](#user-content-selectors)
   - [Aliases](#user-content-aliases)
@@ -182,7 +184,9 @@ module.exports = createConfig({
 
 The keys in your `responsive` and `theme` objects can be anything you wish. These keys will be used to name your tokens (more on this later).
 
-Use the `modes` key to set up multiple themes if preferred:
+#### Multiple themes
+
+Use the `modes` key to set up multiple themes if preferred. The names of your modes can be anything you like:
 
 ```ts
 module.exports = createConfig({
@@ -205,14 +209,15 @@ module.exports = createConfig({
 });
 ```
 
-By default this will apply the CSS variables to `.theme-${mode}` classes that you must manually add to your page to apply the relevant theme. To customise this selector, there is a `tokenamiSelector` config option.
+By default this will apply the CSS variables to `.theme-${mode}` classes. Add the classes to an element on your page to apply the relevant theme.
+
+#### Custom theme selector
+
+To customise the theme selector, update the `themeSelector` config.
 
 ```ts
 module.exports = createConfig({
   themeSelector: (mode) => (mode === 'root' ? ':root' : `.theme-${mode}`),
-  theme: {
-    // ...
-  },
 });
 ```
 
@@ -378,6 +383,8 @@ const button = css.compose({
 
 ## TypeScript
 
+### Variants
+
 Use the `Variants` type to extend your component prop types:
 
 ```tsx
@@ -386,6 +393,8 @@ import { type Variants } from '@tokenami/css';
 type ButtonElementProps = React.ComponentPropsWithoutRef<'button'>;
 interface ButtonProps extends ButtonElementProps, Variants<typeof button> {}
 ```
+
+### TokenamiStyle
 
 Use `TokenamiStyle` to accept the `css` utility as a value for the `style` prop. This prevents errors when `props.style` is used for overrides.
 
@@ -403,7 +412,7 @@ function Button(props: ButtonProps) {
 
 ### Selectors
 
-Tokenami provides some [common default selectors](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.ts#L46) for you but you can define your own custom selectors in the `selectors` object of your config.
+Tokenami provides some [common default selectors](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.ts#L52) for you but you can define your own custom selectors in the `selectors` object of your config.
 
 Use the ampersand (`&`) to specify where the current element's selector should be injected:
 
@@ -452,7 +461,7 @@ This example will apply hover styles for users with a precise pointing device, s
 
 ### Aliases
 
-Aliases allow you to create shorthand names for properties or other aliases. When using custom aliases, the `css` utility must be configured to ensure aliased properties are merged correctly across component boundaries.
+Aliases allow you to create shorthand names for properties. When using custom aliases, the `css` utility must be configured to ensure aliased properties are merged correctly across component boundaries.
 
 #### Configure utility
 
@@ -470,7 +479,7 @@ Use the `css` utility exported from the file you created and it will handle alia
 
 #### Create aliases
 
-The configuration expects the name of your new alias followed by an array of properties they map to.
+The configuration expects the name of your new alias followed by an array of properties it maps to.
 
 ```ts
 module.exports = createConfig({
@@ -483,6 +492,7 @@ module.exports = createConfig({
     pr: ['padding-right'],
     pb: ['padding-bottom'],
     pl: ['padding-left'],
+    size: ['width', 'height'],
   },
 });
 ```
@@ -493,7 +503,7 @@ With the above config, `px` is shorthand for `padding-left` and `padding-right`.
 
 Tokenami provides sensible defaults to restrict which values can be passed to properties based on your theme. For instance, `--border-color` will only accept tokens from your `color` object in theme, `--padding` allows multiples of your grid, and `--height` expects tokens from a `size` key or multiples of your grid.
 
-You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.ts#L61) by overriding the `properties` object:
+You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.ts#L67) by overriding the `properties` object:
 
 ```ts
 const { createConfig, defaultConfig } = require('@tokenami/css');
@@ -564,7 +574,7 @@ tsc --noEmit --project tsconfig.ci.json
 Integrating a design system built with Tokenami is straightforward. Include the `tokenami.config.js` file and corresponding stylesheet from the design system in your project:
 
 ```tsx
-import { tokenamiConfig as designSystemConfig } from '@acme/design-system';
+import designSystemConfig from '@acme/design-system';
 import { createConfig } from '@tokenami/css';
 
 export default createConfig({
