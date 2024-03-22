@@ -400,19 +400,21 @@ function init(modules: { typescript: typeof tslib }) {
 /* ---------------------------------------------------------------------------------------------- */
 
 function createColorTokenDescription(modeValues: NonNullable<EntryConfigItem['modeValues']>) {
-  const entries = Object.entries(modeValues);
-  const [, firstValue] = entries[0] || [];
-  const rows = Object.entries(modeValues).map(([mode, value]) => {
-    return createRow([createSquare(value), mode, value]);
-  });
-  return `${firstValue}\n\n${rows.join(`\n\n`)}`;
+  return createDescription(modeValues, (mode, value) => [createSquare(value), mode, value]);
 }
 
 function createTokenDescription(modeValues: NonNullable<EntryConfigItem['modeValues']>) {
+  return createDescription(modeValues, (mode, value) => [mode, value]);
+}
+
+function createDescription(
+  modeValues: NonNullable<EntryConfigItem['modeValues']>,
+  builder: (mode: string, value: string) => string[]
+) {
   const entries = Object.entries(modeValues);
   const [, firstValue] = entries[0] || [];
-  const rows = Object.entries(modeValues).flatMap(([mode, value]) => {
-    return value !== firstValue ? [createRow([mode, value])] : [];
+  const rows = entries.flatMap(([mode, value]) => {
+    return value !== firstValue ? [createRow(builder(mode, value))] : [];
   });
   return `${firstValue}\n\n${rows.join(`\n\n`)}`;
 }
