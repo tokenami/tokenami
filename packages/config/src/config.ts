@@ -1,6 +1,8 @@
 import * as Supports from './supports';
 
-type DeepReadonly<T> = T extends any[] ? T : { readonly [P in keyof T]: DeepReadonly<T[P]> };
+type DeepReadonly<T> = T extends Function | any[]
+  ? T
+  : { readonly [P in keyof T]: DeepReadonly<T[P]> };
 
 type ThemeKey =
   | 'alpha'
@@ -20,27 +22,31 @@ type ThemeKey =
   | (string & {});
 
 type ThemeValues = Record<string, string>;
-type Theme = Partial<Record<ThemeKey, ThemeValues>>;
+type Theme = { [themeKey in ThemeKey]?: ThemeValues };
+type ThemeMode<T = Theme> = { [mode: string]: T };
+type ThemeModes<T = Theme> = { modes?: ThemeMode<T> };
+type ThemeConfig = Theme | ThemeModes;
 type Aliases = Record<string, readonly Supports.CSSProperty[]>;
 type PropertiesOptions = readonly ('grid' | ThemeKey)[];
 
-interface Config
-  extends DeepReadonly<{
-    include: string[];
-    exclude?: string[];
-    grid?: string;
-    responsive?: { [atRule: string]: string };
-    selectors?: { [name: string]: string | string[] };
-    keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
-    aliases?: Aliases;
-    theme: Theme;
-    properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
-  }> {}
+interface Config {
+  include: string[];
+  exclude?: string[];
+  grid?: string;
+  responsive?: { [atRule: string]: string };
+  selectors?: { [name: string]: string | string[] };
+  keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
+  aliases?: Aliases;
+  themeSelector?: (mode: string) => string;
+  theme: ThemeConfig;
+  properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
+}
 
 const defaultConfig = {
   include: [],
   grid: '0.25rem',
   responsive: {},
+  themeSelector: (mode) => (mode === 'root' ? ':root' : `.theme-${mode}`),
   theme: {},
   aliases: {},
   selectors: {
@@ -196,14 +202,23 @@ type DefaultConfig = typeof defaultConfig;
  * createConfig
  * -----------------------------------------------------------------------------------------------*/
 
-type Exact<T, V extends T> = Exclude<keyof V, keyof T> extends never ? V : T;
+type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void
+  ? I
+  : never;
 
-function createConfig<T extends Config>(obj: Exact<Config, T>) {
-  const readonlyConfig = obj as DeepReadonly<T>;
+type Exact<T, V extends T> = Exclude<keyof V, keyof T> extends never ? V : T;
+type MatchingThemeModes<M> = M extends ThemeMode
+  ? { theme: ThemeModes<UnionToIntersection<M[keyof M]>> }
+  : {};
+
+function createConfig<T extends Config>(
+  obj: Exact<Config, T> & MatchingThemeModes<T['theme']['modes']>
+): Omit<DefaultConfig, keyof DeepReadonly<T>> & DeepReadonly<T> {
+  const readonlyConfig = obj as any as DeepReadonly<T>;
   return { ...defaultConfig, ...readonlyConfig };
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { DefaultConfig, Config, Theme, Aliases, DeepReadonly };
+export type { DefaultConfig, Config, Theme, ThemeModes, Aliases, DeepReadonly };
 export { defaultConfig, createConfig };

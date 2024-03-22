@@ -8,7 +8,9 @@ const INVALID_VALUE_ERROR_CODE = 2322;
 type EntryConfigItem = {
   kind: tslib.ScriptElementKind;
   kindModifiers: string;
-  value: string | number;
+  value?: string | string[];
+  modeValues?: Record<string, string>;
+  themeKey?: string;
 };
 
 function init(modules: { typescript: typeof tslib }) {
@@ -51,10 +53,27 @@ function init(modules: { typescript: typeof tslib }) {
       const name = TokenamiConfig.variantProperty(selector, property);
       const kind = tslib.ScriptElementKind.memberVariableElement;
       const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
-      entryConfigMap.set(name, { kind, kindModifiers, value: String(value) });
+      updateEntryDetailsConfig({ name, kind, kindModifiers, value });
       return { name, kind, kindModifiers, sortText: name, insertText: name };
     };
   };
+
+  /* -----------------------------------------------------------------------------------------------
+   * updateEntryDetailsConfig
+   * ---------------------------------------------------------------------------------------------*/
+
+  function updateEntryDetailsConfig(params: EntryConfigItem & { name: string }) {
+    const { name, ...config } = params;
+    entryConfigMap.set(params.name, config);
+  }
+
+  /* -----------------------------------------------------------------------------------------------
+   * getEntryDetailsConfig
+   * ---------------------------------------------------------------------------------------------*/
+
+  function getEntryDetailsConfig(name: string) {
+    return entryConfigMap.get(name);
+  }
 
   /* -----------------------------------------------------------------------------------------------
    * findNodeAtPosition
@@ -274,20 +293,27 @@ function init(modules: { typescript: typeof tslib }) {
         original.entries = original.entries.map((entry) => {
           const entryName = entry.name;
           const property = TokenamiConfig.TokenValue.safeParse(entryName);
+          entry.sortText = entryName;
 
           if (property.success) {
             const parts = TokenamiConfig.getTokenValueParts(property.output);
-            const value = config.theme[parts.themeKey]?.[parts.token];
+            const modeValues = Tokenami.getThemeValuesByThemeMode(property.output, config.theme);
 
-            if (value !== undefined) {
+            if (Object.entries(modeValues).length) {
               const name = `$${parts.token}`;
               const kindModifiers = parts.themeKey;
               entry.name = name;
-              entry.sortText = entryName;
+              entry.sortText = '$' + entryName;
               entry.kindModifiers = kindModifiers;
               entry.insertText = entryName;
               entry.labelDetails = { detail: '', description: entryName };
-              entryConfigMap.set(name, { kind: entry.kind, kindModifiers, value });
+              updateEntryDetailsConfig({
+                name,
+                kind: entry.kind,
+                kindModifiers,
+                themeKey: parts.themeKey,
+                modeValues,
+              });
             }
           }
 
@@ -296,9 +322,10 @@ function init(modules: { typescript: typeof tslib }) {
       } else if (isTokenPropertyEntries) {
         original.entries = original.entries.flatMap((entry) => {
           const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
+          entry.sortText = entry.name;
           // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
           if (!property.success) return [];
-          entry.sortText = property.output;
+          entry.sortText = '$' + property.output;
           entry.insertText = property.output;
           return [entry];
         });
@@ -322,7 +349,7 @@ function init(modules: { typescript: typeof tslib }) {
       preferences,
       data
     ) => {
-      const entryConfig = entryConfigMap.get(entryName);
+      const entryConfig = getEntryDetailsConfig(entryName);
       const original = info.languageService.getCompletionEntryDetails(
         fileName,
         position,
@@ -335,12 +362,33 @@ function init(modules: { typescript: typeof tslib }) {
 
       if (!entryConfig) return original;
 
-      return {
+      const common = {
+        ...original,
         name: entryName,
         kind: entryConfig.kind,
         kindModifiers: entryConfig.kindModifiers,
-        displayParts: [{ text: String(entryConfig.value), kind: 'markdown' }],
+        displayParts: original?.displayParts || [],
       };
+
+      const originalDocumentation = original?.documentation || [];
+
+      if (entryConfig.modeValues) {
+        const isColor = entryConfig.themeKey === 'color';
+        const text = isColor
+          ? createColorTokenDescription(entryConfig.modeValues)
+          : createTokenDescription(entryConfig.modeValues);
+        const docs = { text, kind: 'markdown' };
+        const documentation = [docs, ...originalDocumentation];
+        return { ...common, documentation };
+      }
+
+      if (entryConfig.value) {
+        const docs = { kind: 'markdown', text: String(entryConfig.value) };
+        const documentation = [docs, ...originalDocumentation];
+        return { ...common, documentation };
+      }
+
+      return common;
     };
 
     return proxy;
@@ -350,5 +398,34 @@ function init(modules: { typescript: typeof tslib }) {
 }
 
 /* ---------------------------------------------------------------------------------------------- */
+
+function createColorTokenDescription(modeValues: NonNullable<EntryConfigItem['modeValues']>) {
+  return createDescription(modeValues, (mode, value) => [createSquare(value), mode, value]);
+}
+
+function createTokenDescription(modeValues: NonNullable<EntryConfigItem['modeValues']>) {
+  return createDescription(modeValues, (mode, value) => [mode, value]);
+}
+
+function createDescription(
+  modeValues: NonNullable<EntryConfigItem['modeValues']>,
+  builder: (mode: string, value: string) => string[]
+) {
+  const entries = Object.entries(modeValues);
+  const [, firstValue] = entries[0] || [];
+  const rows = entries.flatMap(([mode, value]) => {
+    return value !== firstValue ? [createRow(builder(mode, value))] : [];
+  });
+  return `${firstValue}\n\n${rows.join(`\n\n`)}`;
+}
+
+function createRow(row: string[]) {
+  return row.join(createSquare('transparent') + createSquare('transparent'));
+}
+
+const createSquare = (color: string) => {
+  const svg = `<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" x="0" y="0" fill="${color}" /></svg>`;
+  return `![Image](data:image/svg+xml;base64,${btoa(svg)})`;
+};
 
 export = init;

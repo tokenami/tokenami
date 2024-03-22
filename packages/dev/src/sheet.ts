@@ -83,9 +83,9 @@ function generate(params: {
   const sheet = `
     @layer tokenami {
       ${generateKeyframeRules(tokenValues, params.config)}
-      :root { ${generateRootStyles(tokenValues, params.config)} }
-      [style] { ${Array.from(styles.reset).join(' ')} }
+      ${generateThemeTokens(tokenValues, params.config)}
 
+      [style] { ${Array.from(styles.reset).join(' ')} }
       @layer ${Tokenami.layers.map((_, layer) => `tk-${layer}`).join(', ')};
       @layer ${Tokenami.layers.map((_, layer) => `tk-selector-${layer}`).join(', ')};
 
@@ -152,9 +152,7 @@ function getAtomicLayer(cssProperty: string) {
 
 function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
   const themeValues = tokenValues.flatMap((tokenValue) => {
-    const parts = Tokenami.getTokenValueParts(tokenValue);
-    const value = config.theme[parts.themeKey]?.[parts.token];
-    return value == null ? [] : [value];
+    return Object.values(utils.getThemeValuesByThemeMode(tokenValue, config.theme));
   });
   return Object.entries(config.keyframes || {}).flatMap(([name, styles]) => {
     const nameRegex = new RegExp(`\\b${name}\\b`);
@@ -165,14 +163,26 @@ function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Token
 }
 
 /* -------------------------------------------------------------------------------------------------
- * generateRootStyles
+ * generateThemeTokens
  * -----------------------------------------------------------------------------------------------*/
 
-function generateRootStyles(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
-  return stringify({
-    [Tokenami.gridProperty()]: config.grid,
-    ...utils.getThemeValuesByTokenValues(tokenValues, config.theme),
-  });
+function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
+  const { modes, ...rootTheme } = config.theme;
+  const gridValue = { [Tokenami.gridProperty()]: config.grid };
+  const rootSelector = ':root';
+
+  if (modes) {
+    const modeThemeEntries = Object.entries(modes).map(([mode, theme]) => {
+      const modeThemeSelector = config.themeSelector ? config.themeSelector(mode) : rootSelector;
+      const modeThemeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
+      return [modeThemeSelector, { ...gridValue, ...modeThemeValues }];
+    });
+
+    return stringify(Object.fromEntries(modeThemeEntries));
+  }
+
+  const rootThemeValues = utils.getThemeValuesByTokenValues(tokenValues, rootTheme);
+  return stringify({ [rootSelector]: { ...gridValue, ...rootThemeValues } });
 }
 
 /* -------------------------------------------------------------------------------------------------
