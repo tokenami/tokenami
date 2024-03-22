@@ -1,5 +1,13 @@
 # @tokenami/example-design-system
 
+## 0.0.5
+
+### Patch Changes
+
+- 5f9b38c: Add support for multiple theme modes
+- Updated dependencies [5f9b38c]
+  - @tokenami/css@0.0.36
+
 ## 0.0.5-next.0
 
 ### Patch Changes
