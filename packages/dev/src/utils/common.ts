@@ -102,20 +102,24 @@ function getThemeValuesByTokenValues(tokenValues: Tokenami.TokenValue[], theme: 
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getThemeValuesForTokenValue
+ * getThemeValuesByThemeMode
  * -----------------------------------------------------------------------------------------------*/
 
-function getThemeValuesForTokenValue(
+type Mode = string & {};
+type ThemeValue = string & {};
+
+function getThemeValuesByThemeMode(
   tokenValue: Tokenami.TokenValue,
   themeConfig: Tokenami.Config['theme']
-): string[] {
+): Record<Mode, ThemeValue> {
   const { modes = {}, ...rootTheme } = themeConfig;
   const parts = Tokenami.getTokenValueParts(tokenValue);
-  const modeThemes: Tokenami.Theme[] = Object.values(modes);
-  return modeThemes.concat(rootTheme).flatMap((theme) => {
+  const modeThemeEntries: [string, Tokenami.Theme][] = Object.entries(modes);
+  const modeValues = modeThemeEntries.concat([['root', rootTheme]]).flatMap(([mode, theme]) => {
     const value = theme[parts.themeKey]?.[parts.token];
-    return value ? [value] : [];
+    return value ? [[mode, value] as const] : [];
   });
+  return Object.fromEntries(modeValues);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -208,7 +212,7 @@ export {
   generateTypeDefs,
   generateCiTypeDefs,
   getThemeValuesByTokenValues,
-  getThemeValuesForTokenValue,
+  getThemeValuesByThemeMode,
   getResponsivePropertyVariants,
   getSpecifictyOrderForCSSProperty,
   unique,

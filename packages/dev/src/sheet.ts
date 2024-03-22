@@ -152,7 +152,7 @@ function getAtomicLayer(cssProperty: string) {
 
 function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
   const themeValues = tokenValues.flatMap((tokenValue) => {
-    return utils.getThemeValuesForTokenValue(tokenValue, config.theme);
+    return Object.values(utils.getThemeValuesByThemeMode(tokenValue, config.theme));
   });
   return Object.entries(config.keyframes || {}).flatMap(([name, styles]) => {
     const nameRegex = new RegExp(`\\b${name}\\b`);
@@ -175,10 +175,7 @@ function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenam
     const modeThemeEntries = Object.entries(modes).map(([mode, theme]) => {
       const modeThemeSelector = config.themeSelector ? config.themeSelector(mode) : rootSelector;
       const modeThemeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
-      return [
-        mode === 'root' ? rootSelector : modeThemeSelector,
-        { ...gridValue, ...modeThemeValues },
-      ];
+      return [modeThemeSelector, { ...gridValue, ...modeThemeValues }];
     });
 
     return stringify(Object.fromEntries(modeThemeEntries));

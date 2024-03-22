@@ -206,8 +206,8 @@ function matchTokens(content: string, theme: Tokenami.Config['theme']) {
   const values = variableMatches.flatMap((match) => {
     const valueProperty = Tokenami.TokenValue.safeParse(`var(${match})`);
     if (!valueProperty.success) return [];
-    const themeValues = utils.getThemeValuesForTokenValue(valueProperty.output, theme);
-    return themeValues.length ? [valueProperty.output] : [];
+    const themeValues = utils.getThemeValuesByThemeMode(valueProperty.output, theme);
+    return Object.entries(themeValues).length ? [valueProperty.output] : [];
   });
 
   const properties = variableMatches.flatMap((match) => {
