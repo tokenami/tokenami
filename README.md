@@ -156,7 +156,7 @@ function Page() {
 
 ### Theming
 
-Tokenami relies on your theme to provide design system constraints. Since there's no predefined theme, you need to add your own to the `.tokenami/tokenami.config`. For example:
+Tokenami relies on your theme to provide design system constraints. There isn't a predefined theme so you must add your own to the `.tokenami/tokenami.config`. For example:
 
 ```ts
 module.exports = createConfig({
@@ -181,6 +181,40 @@ module.exports = createConfig({
 ```
 
 The keys in your `responsive` and `theme` objects can be anything you wish. These keys will be used to name your tokens (more on this later).
+
+Use the `modes` key to set up multiple themes if preferred:
+
+```ts
+module.exports = createConfig({
+  theme: {
+    modes: {
+      light: {
+        color: {
+          primary: '#f1f5f9',
+          secondary: '#334155',
+        },
+      },
+      dark: {
+        color: {
+          primary: '#0ea5e9',
+          secondary: '#f1f5f9',
+        },
+      },
+    },
+  },
+});
+```
+
+By default this will apply the CSS variables to `.theme-${mode}` classes that you must manually add to your page to apply the relevant theme. To customise this selector, there is a `tokenamiSelector` config option.
+
+```ts
+module.exports = createConfig({
+  themeSelector: (mode) => (mode === 'root' ? ':root' : `.theme-${mode}`),
+  theme: {
+    // ...
+  },
+});
+```
 
 ### Styling
 
@@ -369,7 +403,7 @@ function Button(props: ButtonProps) {
 
 ### Selectors
 
-Tokenami provides some [common default selectors](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.default.ts#L9) for you but you can define your own custom selectors in the `selectors` object of your config.
+Tokenami provides some [common default selectors](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.ts#L46) for you but you can define your own custom selectors in the `selectors` object of your config.
 
 Use the ampersand (`&`) to specify where the current element's selector should be injected:
 
@@ -459,7 +493,7 @@ With the above config, `px` is shorthand for `padding-left` and `padding-right`.
 
 Tokenami provides sensible defaults to restrict which values can be passed to properties based on your theme. For instance, `--border-color` will only accept tokens from your `color` object in theme, `--padding` allows multiples of your grid, and `--height` expects tokens from a `size` key or multiples of your grid.
 
-You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.default.ts#L68) by overriding the `properties` object:
+You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.ts#L61) by overriding the `properties` object:
 
 ```ts
 const { createConfig, defaultConfig } = require('@tokenami/css');
@@ -527,7 +561,7 @@ tsc --noEmit --project tsconfig.ci.json
 
 ### Design systems with Tokenami
 
-Integrating a design system built with Tokenami is straightforward. Simply include the `tokenami.config.js` file and corresponding stylesheet from the design system in your project as follows:
+Integrating a design system built with Tokenami is straightforward. Include the `tokenami.config.js` file and corresponding stylesheet from the design system in your project:
 
 ```tsx
 import { tokenamiConfig as designSystemConfig } from '@acme/design-system';
@@ -539,7 +573,7 @@ export default createConfig({
 });
 ```
 
-With these steps, Tokenami will automatically generate styles and merge them correctly across component boundaries. See the example [design system project](https://github.com/tokenami/tokenami/blob/main/examples/design-system) and [Remix project](https://github.com/tokenami/tokenami/blob/main/examples/remix/.tokenami/tokenami.config.ts) for a demo.
+Tokenami will automatically generate styles and merge them correctly across component boundaries. See the example [design system project](https://github.com/tokenami/tokenami/blob/main/examples/design-system) and [Remix project](https://github.com/tokenami/tokenami/blob/main/examples/remix/.tokenami/tokenami.config.ts) for a demo.
 
 ## Support
 
