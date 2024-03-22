@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.36-next.0
+
+### Patch Changes
+
+- 5f9b38c: Add support for multiple theme modes
+- Updated dependencies [5f9b38c]
+  - @tokenami/config@0.0.36-next.0
+  - @tokenami/dev@0.0.36-next.0
+
 ## 0.0.35
 
 ### Patch Changes
