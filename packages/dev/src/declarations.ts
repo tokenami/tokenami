@@ -207,6 +207,7 @@ type Properties = Property['-webkit-line-clamp'] &
   Property['direction'] &
   Property['display'] &
   Property['empty-cells'] &
+  Property['fill'] &
   Property['filter'] &
   Property['flex'] &
   Property['flex-basis'] &
@@ -426,6 +427,7 @@ type Properties = Property['-webkit-line-clamp'] &
   Property['shape-image-threshold'] &
   Property['shape-margin'] &
   Property['shape-outside'] &
+  Property['stroke'] &
   Property['tab-size'] &
   Property['table-layout'] &
   Property['text-align'] &
