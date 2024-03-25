@@ -1,5 +1,11 @@
 # @tokenami/example-design-system
 
+## 0.0.6-next.0
+
+### Patch Changes
+
+- @tokenami/css@0.0.37-next.0
+
 ## 0.0.5
 
 ### Patch Changes

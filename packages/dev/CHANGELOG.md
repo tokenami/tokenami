@@ -1,5 +1,13 @@
 # @tokenami/dev
 
+## 0.0.37-next.0
+
+### Patch Changes
+
+- 3d2ba06: Add support for fill and stroke CSS properties
+- Updated dependencies [3d2ba06]
+  - @tokenami/config@0.0.37-next.0
+
 ## 0.0.36
 
 ### Patch Changes

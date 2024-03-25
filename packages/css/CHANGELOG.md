@@ -1,5 +1,13 @@
 # @tokenami/css
 
+## 0.0.37-next.0
+
+### Patch Changes
+
+- Updated dependencies [3d2ba06]
+  - @tokenami/config@0.0.37-next.0
+  - @tokenami/dev@0.0.37-next.0
+
 ## 0.0.36
 
 ### Patch Changes
