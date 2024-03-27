@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.37-next.1
+
+### Patch Changes
+
+- 53d15c3: Add simple LRU cache to css utility
+
 ## 0.0.37-next.0
 
 ### Patch Changes

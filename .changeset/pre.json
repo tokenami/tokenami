@@ -10,6 +10,7 @@
     "@tokenami/ts-plugin": "0.0.36"
   },
   "changesets": [
+    "shiny-kids-rest",
     "witty-jars-change"
   ]
 }
