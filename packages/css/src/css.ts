@@ -44,12 +44,33 @@ interface CSS {
   ) => TokenamiCSS;
 }
 
-const cache: Record<string, TokenamiCSS> = {};
+const cache = {
+  limit: 500,
+  cache: new Map(),
+  get(key: string) {
+    if (!this.cache.has(key)) return null;
+    const value = this.cache.get(key);
+    // re-insert as most recently used
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    return value;
+  },
+  set(key: string, value: TokenamiCSS) {
+    if (this.cache.has(key)) {
+      // ensure inserts are most recent
+      this.cache.delete(key);
+    } else if (this.cache.size === this.limit) {
+      const oldestKey = this.cache.keys().next().value;
+      this.cache.delete(oldestKey);
+    }
+    this.cache.set(key, value);
+  },
+};
 
 const css: CSS = (baseStyles, ...overrides) => {
   let overriddenStyles = {} as TokenamiCSS;
   const cacheId = JSON.stringify({ baseStyles, overrides });
-  const cached = cache[cacheId];
+  const cached = cache.get(cacheId);
 
   if (cached) return cached;
 
@@ -77,7 +98,7 @@ const css: CSS = (baseStyles, ...overrides) => {
     });
   });
 
-  cache[cacheId] = overriddenStyles;
+  cache.set(cacheId, overriddenStyles);
   return overriddenStyles;
 };
 
@@ -98,8 +119,7 @@ css.compose = (config) => {
       selectedVariants,
       overrides,
     });
-    const cached = cache[cacheId];
-
+    const cached = cache.get(cacheId);
     if (cached) return cached;
 
     const variantStyles: TokenamiProperties[] = selectedVariants
@@ -117,7 +137,7 @@ css.compose = (config) => {
       : [];
 
     const styles = css(baseStyles, ...variantStyles, ...overrides);
-    cache[cacheId] = styles;
+    cache.set(cacheId, styles);
     return styles;
   };
 };
