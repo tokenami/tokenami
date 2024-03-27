@@ -12,8 +12,7 @@
     // Remix takes care of building everything in `remix build`.
     "noEmit": true,
     "paths": {
-      "~/*": ["./app/*"],
-      "@tokenami/example-design-system": ["../design-system/src"]
+      "~/*": ["./app/*"]
     },
     "plugins": [{ "name": "@tokenami/ts-plugin" }]
   }
