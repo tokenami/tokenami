@@ -1,5 +1,13 @@
 # @tokenami/example-design-system
 
+## 0.0.6
+
+### Patch Changes
+
+- 53d15c3: Add simple LRU cache to css utility
+- Updated dependencies [53d15c3]
+  - @tokenami/css@0.0.37
+
 ## 0.0.6-next.1
 
 ### Patch Changes
