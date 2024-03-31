@@ -171,12 +171,15 @@ function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Token
   const themeValues = tokenValues.flatMap((tokenValue) => {
     return Object.values(utils.getThemeValuesByThemeMode(tokenValue, config.theme));
   });
-  return Object.entries(config.keyframes || {}).flatMap(([name, styles]) => {
+
+  const rules = Object.entries(config.keyframes || {}).flatMap(([name, styles]) => {
     const nameRegex = new RegExp(`\\b${name}\\b`);
     const isUsingKeyframeName = themeValues.some((value) => nameRegex.test(value));
     if (!isUsingKeyframeName) return [];
     return [[`@keyframes ${name} { ${stringify(styles)} }`]];
   });
+
+  return rules.join(' ');
 }
 
 /* -------------------------------------------------------------------------------------------------
