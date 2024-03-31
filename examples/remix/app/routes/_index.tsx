@@ -37,6 +37,10 @@ export default function Index() {
           '--md_text-align': 'left',
           '--font-family': 'var(--font_sans)',
           '--line-height': 'var(---,1.8)',
+          '--selection_background-color': 'var(--color_sky-500)',
+          '--selection_color': 'var(---, white)',
+          '--after_content': 'var(--pet_favourite)',
+          '--md_after_content': 'var(---, "🐠")',
         })}
       >
         <img
