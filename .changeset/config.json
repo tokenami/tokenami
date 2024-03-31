@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@tokenami/example-remix"]
+  "ignore": ["@tokenami/example-remix", "@tokenami/example-design-system"]
 }
