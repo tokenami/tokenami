@@ -1,5 +1,12 @@
 # @tokenami/config
 
+## 0.0.38
+
+### Patch Changes
+
+- ec2cbc5: Fix pseudo-element selectors
+- a6856e7: Prevent keyframes error when supplying multiple keyframes
+
 ## 0.0.38-next.1
 
 ### Patch Changes

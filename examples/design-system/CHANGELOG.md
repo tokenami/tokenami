@@ -1,5 +1,15 @@
 # @tokenami/example-design-system
 
+## 0.0.7
+
+### Patch Changes
+
+- ec2cbc5: Fix pseudo-element selectors
+- a6856e7: Prevent keyframes error when supplying multiple keyframes
+- Updated dependencies [ec2cbc5]
+- Updated dependencies [a6856e7]
+  - @tokenami/css@0.0.38
+
 ## 0.0.7-next.1
 
 ### Patch Changes
