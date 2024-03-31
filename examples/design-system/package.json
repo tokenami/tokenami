@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/example-design-system",
-  "version": "0.0.7",
+  "version": "0.0.0",
   "private": true,
   "sideEffects": false,
   "type": "module",
