@@ -10,6 +10,7 @@
     "@tokenami/ts-plugin": "0.0.37"
   },
   "changesets": [
-    "shiny-parents-count"
+    "shiny-parents-count",
+    "silent-houses-relax"
   ]
 }

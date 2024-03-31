@@ -1,5 +1,13 @@
 # @tokenami/example-design-system
 
+## 0.0.7-next.1
+
+### Patch Changes
+
+- a6856e7: Prevent keyframes error when supplying multiple keyframes
+- Updated dependencies [a6856e7]
+  - @tokenami/css@0.0.38-next.1
+
 ## 0.0.7-next.0
 
 ### Patch Changes
