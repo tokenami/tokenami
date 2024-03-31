@@ -4,6 +4,7 @@ import * as lightning from 'lightningcss';
 import * as utils from './utils';
 
 const UNUSED_LAYERS_REGEX = /\n\s*@layer[-\w\s,]+;/g;
+const DEFAULT_SELECTOR = '[style]';
 
 type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   order: number;
@@ -26,7 +27,15 @@ function generate(params: {
 
   const tokenProperties = params.tokens.properties;
   const tokenValues = params.tokens.values;
-  const propertyConfigs = getPropertyConfigs(tokenProperties, params.config);
+  const propertyConfigsByCSSProperty = getPropertyConfigs(tokenProperties, params.config);
+  const allPropertyConfigs = Array.from(propertyConfigsByCSSProperty.values()).flat();
+
+  const elemSelectors = utils.unique(
+    allPropertyConfigs.map((config) => {
+      const selectors = getSelectorsFromConfig(config.selector, params.config);
+      return selectors.find(isPseudoElementSelector) || DEFAULT_SELECTOR;
+    })
+  );
 
   const styles = {
     reset: new Set<string>(),
@@ -35,45 +44,46 @@ function generate(params: {
     toggles: {} as Record<string, Set<string>>,
   };
 
-  propertyConfigs.forEach(([cssProperty, configs]) => {
-    const sortedConfigs = configs.sort((a, b) => a.order - b.order);
-    const variants = sortedConfigs.flatMap((config) => (config.variant ? [config.variant] : []));
-    const uniqueVariants = utils.unique(variants);
+  propertyConfigsByCSSProperty.forEach((configs, cssProperty) => {
+    const variants = configs.flatMap((config) => (config.variant ? [config.variant] : []));
+    const variantValue = utils.unique(variants).reduce((fallback, variant) => {
+      const hashedProperty = hashVariantProperty(variant, cssProperty);
+      return `var(${hashedProperty}, ${fallback})`;
+    }, 'revert-layer');
 
-    uniqueVariants.forEach((toggle) => {
-      const variantProperty = Tokenami.variantProperty(toggle, cssProperty);
-      const value = `var(${variantProperty})`;
-      styles.reset.add(`${hashVariantProperty(toggle, cssProperty)}: var(--${toggle}) ${value};`);
-      styles.reset.add(`${variantProperty}: initial;`);
-    });
-
-    sortedConfigs.forEach((config) => {
-      const responsive = config.responsive && params.config.responsive?.[config.responsive];
-      const selector = config.selector && params.config.selectors?.[config.selector];
-      const selectors = Array.isArray(selector) ? selector : selector ? [selector] : ['&'];
-      const nestedSelectors = [responsive, ...selectors].filter(Boolean) as string[];
+    configs.forEach((config) => {
       const propertyLayer = getAtomicLayer(cssProperty);
       const toggleKey = config.responsive || config.selector;
 
       if (config.variant && toggleKey) {
-        const variantValue = uniqueVariants.reduce(
-          (fallback, variant) => `var(${hashVariantProperty(variant, cssProperty)}, ${fallback})`,
-          'revert-layer'
-        );
-
+        const responsive = getResponsiveSelectorFromConfig(config.responsive, params.config);
+        const selectors = getSelectorsFromConfig(config.selector, params.config);
+        const responsiveSelectors = [responsive, ...selectors].filter(Boolean) as string[];
+        const selectorLayer = `@layer tk-selector-${propertyLayer}`;
+        const variantProperty = Tokenami.variantProperty(config.variant, cssProperty);
+        const hashedProperty = hashVariantProperty(config.variant, cssProperty);
         const toggleProperty = Tokenami.tokenProperty(config.variant);
-        const toggle = nestedSelectors.reduceRight(
-          (declaration, template) => `${template.replace('&', '[style]')} { ${declaration} }`,
+        const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) var(${variantProperty});`;
+        const declaration = `${cssProperty}: ${variantValue};`;
+        // setting properties to `initial` for `::selection` doesn't work so we inherit for now
+        // to ensure selection styles aren't inadvertently removed.
+        const isSelectionVariant = selectors.includes(`${DEFAULT_SELECTOR}::selection`);
+        const variantPropertyReset = isSelectionVariant ? 'inherit' : 'initial';
+
+        const toggle = responsiveSelectors.reduceRight(
+          (declaration, selector) => `${selector} { ${declaration} }`,
           `${toggleProperty}: ;`
         );
 
-        const declaration = `[style] { ${cssProperty}: ${variantValue}; }`;
         styles.reset.add(`${toggleProperty}: initial;`);
-        styles.selectors.add(`@layer tk-selector-${propertyLayer} { ${declaration} }`);
+        styles.reset.add(`${variantProperty}: ${variantPropertyReset};`);
+        styles.selectors.add(`${selectorLayer} { ${elemSelectors} { ${declaration} } }`);
+        styles.selectors.add(`${selectorLayer} { ${elemSelectors} { ${toggleDeclaration} } }`);
         styles.toggles[toggleKey] ??= new Set<string>();
         styles.toggles[toggleKey]!.add(toggle);
       } else {
-        const declaration = `[style] { ${cssProperty}: var(${config.tokenProperty}, revert-layer); }`;
+        const propertyValue = `var(${config.tokenProperty}, revert-layer)`;
+        const declaration = `${DEFAULT_SELECTOR} { ${cssProperty}: ${propertyValue}; }`;
         styles.reset.add(`${config.tokenProperty}: initial;`);
         styles.atomic.add(`@layer tk-${propertyLayer} { ${declaration} }`);
       }
@@ -85,7 +95,7 @@ function generate(params: {
       ${generateKeyframeRules(tokenValues, params.config)}
       ${generateThemeTokens(tokenValues, params.config)}
 
-      [style] { ${Array.from(styles.reset).join(' ')} }
+      ${DEFAULT_SELECTOR} { ${Array.from(styles.reset).join(' ')} }
       @layer ${Tokenami.layers.map((_, layer) => `tk-${layer}`).join(', ')};
       @layer ${Tokenami.layers.map((_, layer) => `tk-selector-${layer}`).join(', ')};
 
@@ -135,7 +145,14 @@ function getPropertyConfigs(tokenProperties: Tokenami.TokenProperty[], config: T
     });
   });
 
-  return propertyConfigs;
+  const entries = propertyConfigs.flatMap((entry) => {
+    if (!entry) return [];
+    const [cssProperty, configs] = entry;
+    const sortedConfigs = configs.sort((a, b) => a.order - b.order);
+    return [[cssProperty, sortedConfigs] as const];
+  });
+
+  return new Map(entries);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -205,6 +222,38 @@ function hash(str: string) {
 
 function hashVariantProperty(variant: string, property: string) {
   return `--_${hash(variant + property)}`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * isPseudoElementSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function isPseudoElementSelector(selector = '') {
+  return selector.startsWith(DEFAULT_SELECTOR + '::');
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getResponsiveSelectorFromConfig
+ * -----------------------------------------------------------------------------------------------*/
+
+function getResponsiveSelectorFromConfig(
+  responsiveSelector: PropertyConfig['responsive'],
+  tokenamiConfig: Tokenami.Config
+) {
+  return responsiveSelector && tokenamiConfig.responsive?.[responsiveSelector];
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getSelectorsFromConfig
+ * -----------------------------------------------------------------------------------------------*/
+
+function getSelectorsFromConfig(
+  propertySelector: PropertyConfig['selector'],
+  tokenamiConfig: Tokenami.Config
+) {
+  const selector = propertySelector && tokenamiConfig.selectors?.[propertySelector];
+  const selectors = Array.isArray(selector) ? selector : selector ? [selector] : ['&'];
+  return selectors.map((selector) => selector.replace('&', DEFAULT_SELECTOR));
 }
 
 /* ---------------------------------------------------------------------------------------------- */

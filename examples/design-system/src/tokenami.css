@@ -30,34 +30,27 @@
   }
 
   [style] {
-    --_1upk2ho: var(--hover) var(--hover_animation);
-    --hover_animation: initial;
     --hover: initial;
+    --hover_animation: initial;
     --border: initial;
     --border-radius: initial;
-    --_853it7: var(--hover) var(--hover_color);
-    --hover_color: initial;
     --color: initial;
+    --hover_color: initial;
     --height: initial;
     --transition: initial;
     --width: initial;
-    --_4dvc60: var(--hover) var(--hover_background-color);
-    --hover_background-color: initial;
     --background-color: initial;
+    --hover_background-color: initial;
     --border-bottom: initial;
-    --_1pod6o8: var(--md) var(--md_font-size);
-    --md_font-size: initial;
-    --_1283h2s: var(--lg) var(--lg_font-size);
-    --lg_font-size: initial;
-    --_1tqbkib: var(--xl) var(--xl_font-size);
-    --xl_font-size: initial;
-    --_1qfo97: var(--2xl) var(--2xl_font-size);
-    --2xl_font-size: initial;
     --font-size: initial;
     --md: initial;
+    --md_font-size: initial;
     --lg: initial;
+    --lg_font-size: initial;
     --xl: initial;
+    --xl_font-size: initial;
     --2xl: initial;
+    --2xl_font-size: initial;
     --font-family: initial;
   }
 
@@ -84,14 +77,21 @@
   @layer tk-selector-0 {
     [style] {
       animation: var(--_1upk2ho, revert-layer);
+      --_1upk2ho: var(--hover) var(--hover_animation);
       color: var(--_853it7, revert-layer);
+      --_853it7: var(--hover) var(--hover_color);
     }
   }
 
   @layer tk-selector-1 {
     [style] {
       background-color: var(--_4dvc60, revert-layer);
+      --_4dvc60: var(--hover) var(--hover_background-color);
       font-size: var(--_1qfo97, var(--_1tqbkib, var(--_1283h2s, var(--_1pod6o8, revert-layer))));
+      --_1pod6o8: var(--md) var(--md_font-size);
+      --_1283h2s: var(--lg) var(--lg_font-size);
+      --_1tqbkib: var(--xl) var(--xl_font-size);
+      --_1qfo97: var(--2xl) var(--2xl_font-size);
     }
   }
 
