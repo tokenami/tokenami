@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.38-next.0
+
+### Patch Changes
+
+- ec2cbc5: Fix pseudo-element selectors
+
 ## 0.0.37
 
 ### Patch Changes

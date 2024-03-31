@@ -1,5 +1,13 @@
 # @tokenami/example-design-system
 
+## 0.0.7-next.0
+
+### Patch Changes
+
+- ec2cbc5: Fix pseudo-element selectors
+- Updated dependencies [ec2cbc5]
+  - @tokenami/css@0.0.38-next.0
+
 ## 0.0.6
 
 ### Patch Changes

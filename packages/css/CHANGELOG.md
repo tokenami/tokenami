@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.38-next.0
+
+### Patch Changes
+
+- ec2cbc5: Fix pseudo-element selectors
+- Updated dependencies [ec2cbc5]
+  - @tokenami/dev@0.0.38-next.0
+  - @tokenami/config@0.0.38-next.0
+
 ## 0.0.37
 
 ### Patch Changes
