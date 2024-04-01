@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.39
+
+### Patch Changes
+
+- 78ec95a: Fix ::selection styles with substring selector
+- Updated dependencies [78ec95a]
+  - @tokenami/dev@0.0.39
+  - @tokenami/config@0.0.39
+
 ## 0.0.39-next.0
 
 ### Patch Changes
