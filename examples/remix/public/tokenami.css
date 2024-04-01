@@ -63,8 +63,8 @@
     --2xl_border-radius: initial;
     --color: initial;
     --hover_color: initial;
-    --selection: initial;
-    --selection_color: inherit;
+    --select: initial;
+    --select_color: initial;
     --after: initial;
     --after_content: initial;
     --md_after: initial;
@@ -92,7 +92,7 @@
     --2xl_width: initial;
     --background-color: initial;
     --hover_background-color: initial;
-    --selection_background-color: inherit;
+    --select_background-color: initial;
     --focus-hover: initial;
     --focus-hover_background-color: initial;
     --md_focus-hover: initial;
@@ -190,7 +190,7 @@
   }
 
   @layer tk-selector-0 {
-    [style], [style]::selection, [style]:after {
+    [style], [style*="select_"]::selection, [style]:after {
       animation: var(--_1upk2ho, revert-layer);
       --_1upk2ho: var(--hover) var(--hover_animation);
       border-radius: var(--_1a98csj, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, revert-layer))));
@@ -198,9 +198,9 @@
       --_1aut28: var(--lg) var(--lg_border-radius);
       --_1hh3291: var(--xl) var(--xl_border-radius);
       --_1a98csj: var(--2xl) var(--2xl_border-radius);
-      color: var(--_1v8oal9, var(--_853it7, revert-layer));
+      color: var(--_6grdv7, var(--_853it7, revert-layer));
       --_853it7: var(--hover) var(--hover_color);
-      --_1v8oal9: var(--selection) var(--selection_color);
+      --_6grdv7: var(--select) var(--select_color);
       content: var(--_bpstpr, var(--_bkpo73, revert-layer));
       --_bkpo73: var(--after) var(--after_content);
       --_bpstpr: var(--md_after) var(--md_after_content);
@@ -224,10 +224,10 @@
   }
 
   @layer tk-selector-1 {
-    [style], [style]::selection, [style]:after {
-      background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_1ir0lsg, var(--_4dvc60, revert-layer))));
+    [style], [style*="select_"]::selection, [style]:after {
+      background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_3prh80, var(--_4dvc60, revert-layer))));
       --_4dvc60: var(--hover) var(--hover_background-color);
-      --_1ir0lsg: var(--selection) var(--selection_background-color);
+      --_3prh80: var(--select) var(--select_background-color);
       --_g2kfvl: var(--focus-hover) var(--focus-hover_background-color);
       --_1atsbkt: var(--md_focus-hover) var(--md_focus-hover_background-color);
       font-size: var(--_1qfo97, var(--_1tqbkib, var(--_1283h2s, var(--_1pod6o8, revert-layer))));
@@ -276,8 +276,8 @@
     }
   }
 
-  [style]::selection {
-    --selection: ;
+  [style*="select_"]::selection {
+    --select: ;
   }
 
   [style]:after {
