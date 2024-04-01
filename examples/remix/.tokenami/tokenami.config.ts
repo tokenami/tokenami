@@ -14,7 +14,7 @@ export default createConfig({
   },
   selectors: {
     ...designSystemConfig.selectors,
-    selection: '&::selection',
+    select: '&::selection',
   },
   theme: {
     modes: {

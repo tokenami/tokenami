@@ -65,10 +65,6 @@ function generate(params: {
         const toggleProperty = Tokenami.tokenProperty(config.variant);
         const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) var(${variantProperty});`;
         const declaration = `${cssProperty}: ${variantValue};`;
-        // setting properties to `initial` for `::selection` doesn't work so we inherit for now
-        // to ensure selection styles aren't inadvertently removed.
-        const isSelectionVariant = selectors.includes(`${DEFAULT_SELECTOR}::selection`);
-        const variantPropertyReset = isSelectionVariant ? 'inherit' : 'initial';
 
         const toggle = responsiveSelectors.reduceRight(
           (declaration, selector) => `${selector} { ${declaration} }`,
@@ -76,7 +72,7 @@ function generate(params: {
         );
 
         styles.reset.add(`${toggleProperty}: initial;`);
-        styles.reset.add(`${variantProperty}: ${variantPropertyReset};`);
+        styles.reset.add(`${variantProperty}: initial;`);
         styles.selectors.add(`${selectorLayer} { ${elemSelectors} { ${declaration} } }`);
         styles.selectors.add(`${selectorLayer} { ${elemSelectors} { ${toggleDeclaration} } }`);
         styles.toggles[toggleKey] ??= new Set<string>();
@@ -232,7 +228,7 @@ function hashVariantProperty(variant: string, property: string) {
  * -----------------------------------------------------------------------------------------------*/
 
 function isPseudoElementSelector(selector = '') {
-  return selector.startsWith(DEFAULT_SELECTOR + '::');
+  return selector.includes('::');
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -256,7 +252,15 @@ function getSelectorsFromConfig(
 ) {
   const selector = propertySelector && tokenamiConfig.selectors?.[propertySelector];
   const selectors = Array.isArray(selector) ? selector : selector ? [selector] : ['&'];
-  return selectors.map((selector) => selector.replace('&', DEFAULT_SELECTOR));
+  const isSelectionVariant = selectors.includes('&::selection');
+  return selectors.map((selector) => {
+    // revert-layer for ::selection doesn't work: https://codepen.io/jjenzz/pen/LYvOydB
+    // we use a substring selector for now to ensure selection styles aren't inadvertently
+    // removed. we can use container style queries to improve this when support improves
+    // https://codepen.io/jjenzz/pen/BaEmRpg
+    const tkSelector = isSelectionVariant ? `[style*="${propertySelector}_"]` : DEFAULT_SELECTOR;
+    return selector.replace('&', tkSelector);
+  });
 }
 
 /* ---------------------------------------------------------------------------------------------- */
