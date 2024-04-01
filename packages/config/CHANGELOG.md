@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.39-next.0
+
+### Patch Changes
+
+- 78ec95a: Fix ::selection styles with substring selector
+
 ## 0.0.38
 
 ### Patch Changes

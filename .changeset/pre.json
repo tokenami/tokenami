@@ -9,5 +9,7 @@
     "@tokenami/dev": "0.0.38",
     "@tokenami/ts-plugin": "0.0.38"
   },
-  "changesets": []
+  "changesets": [
+    "nasty-foxes-peel"
+  ]
 }
