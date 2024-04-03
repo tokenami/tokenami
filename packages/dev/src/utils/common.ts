@@ -161,14 +161,6 @@ function generateCiTypeDefs(configPath: string) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getSpecifictyOrderForCSSProperty
- * -----------------------------------------------------------------------------------------------*/
-
-function getSpecifictyOrderForCSSProperty(cssProperty: Tokenami.CSSProperty) {
-  return Tokenami.properties.indexOf(cssProperty);
-}
-
-/* -------------------------------------------------------------------------------------------------
  * getResponsivePropertyVariants
  * -----------------------------------------------------------------------------------------------*/
 
@@ -214,6 +206,5 @@ export {
   getThemeValuesByTokenValues,
   getThemeValuesByThemeMode,
   getResponsivePropertyVariants,
-  getSpecifictyOrderForCSSProperty,
   unique,
 };

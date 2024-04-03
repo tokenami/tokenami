@@ -1,4 +1,4 @@
-import { type CSSProperty } from './supports';
+import { type CSSProperty } from './config';
 
 const mapShorthandToLonghands = {
   all: [],

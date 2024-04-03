@@ -1,9 +1,9 @@
-import type * as CSS from 'csstype';
+import type { CSSProperty } from '@tokenami/config';
 
 // in specificity order and reset-layer order
 const layers = [
+  ['all'],
   [
-    'all',
     '-webkit-line-clamp',
     'accent-color',
     'align-tracks',
@@ -421,14 +421,9 @@ const layers = [
     'border-inline-end-style',
     'border-inline-end-width',
   ],
-] as const satisfies readonly (keyof CSS.PropertiesHyphen)[][];
+] as const satisfies readonly CSSProperty[][];
 
 /* ---------------------------------------------------------------------------------------------- */
 
-type Flatten<T> = { [K in keyof T]: T[K] extends Array<infer E> ? E : T[K] };
-type CSSProperty = Flatten<typeof layers>[number];
-
-const properties: CSSProperty = layers.flat() as any;
-
 export type { CSSProperty };
-export { properties, layers };
+export { layers };

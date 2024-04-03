@@ -48,10 +48,20 @@
   }
 
   [style] {
-    --all: initial;
+    --background-color: initial;
     --hover: initial;
-    --hover_animation: initial;
+    --hover_background-color: initial;
+    --select: initial;
+    --select_background-color: initial;
+    --focus-hover: initial;
+    --focus-hover_background-color: initial;
+    --md_focus-hover: initial;
+    --md_focus-hover_background-color: initial;
+    --color: initial;
+    --hover_color: initial;
+    --select_color: initial;
     --border: initial;
+    --border-bottom: initial;
     --border-radius: initial;
     --md: initial;
     --md_border-radius: initial;
@@ -61,169 +71,164 @@
     --xl_border-radius: initial;
     --2xl: initial;
     --2xl_border-radius: initial;
-    --color: initial;
-    --hover_color: initial;
-    --select: initial;
-    --select_color: initial;
-    --after: initial;
-    --after_content: initial;
-    --md_after: initial;
-    --md_after_content: initial;
-    --display: initial;
-    --md_display: initial;
-    --height: initial;
-    --md_height: initial;
-    --lg_height: initial;
-    --xl_height: initial;
-    --2xl_height: initial;
-    --margin: initial;
-    --min-height: initial;
-    --object-fit: initial;
-    --overflow: initial;
-    --padding: initial;
-    --md_padding: initial;
-    --text-align: initial;
-    --md_text-align: initial;
-    --transition: initial;
+    --font-family: initial;
     --width: initial;
     --md_width: initial;
     --lg_width: initial;
     --xl_width: initial;
     --2xl_width: initial;
-    --background-color: initial;
-    --hover_background-color: initial;
-    --select_background-color: initial;
-    --focus-hover: initial;
-    --focus-hover_background-color: initial;
-    --md_focus-hover: initial;
-    --md_focus-hover_background-color: initial;
-    --background-image: initial;
-    --background-position-x: initial;
-    --background-position-y: initial;
-    --background-size: initial;
-    --border-bottom: initial;
-    --flex-direction: initial;
-    --font-weight: initial;
+    --height: initial;
+    --md_height: initial;
+    --lg_height: initial;
+    --xl_height: initial;
+    --2xl_height: initial;
+    --transition: initial;
+    --hover_animation: initial;
     --font-size: initial;
     --md_font-size: initial;
     --lg_font-size: initial;
     --xl_font-size: initial;
     --2xl_font-size: initial;
-    --font-family: initial;
+    --min-height: initial;
+    --margin: initial;
+    --padding: initial;
+    --md_padding: initial;
+    --background-size: initial;
+    --background-image: initial;
+    --background-position-x: initial;
+    --background-position-y: initial;
+    --display: initial;
+    --md_display: initial;
+    --flex-direction: initial;
+    --align-items: initial;
+    --justify-content: initial;
+    --text-align: initial;
+    --md_text-align: initial;
+    --overflow: initial;
+    --padding-left: initial;
+    --padding-right: initial;
+    --padding-top: initial;
+    --padding-bottom: initial;
     --line-height: initial;
-    --margin-right: initial;
+    --after: initial;
+    --after_content: initial;
+    --md_after: initial;
+    --md_after_content: initial;
+    --font-weight: initial;
     --margin-bottom: initial;
     --margin-left: initial;
-    --padding-top: initial;
-    --padding-right: initial;
-    --padding-bottom: initial;
-    --padding-left: initial;
-    --justify-content: initial;
-    --align-items: initial;
-    --border-color: initial;
-    --border-right-width: initial;
-    --border-left-width: initial;
+    --margin-right: initial;
     --border-block-end: initial;
+    --border-color: initial;
+    --object-fit: initial;
+    --all: initial;
+    --border-left-width: initial;
+    --border-right-width: initial;
   }
 
   @layer tk-0 {
     [style] {
       all: var(--all, revert-layer);
-      border: var(--border, revert-layer);
-      border-radius: var(--border-radius, revert-layer);
-      color: var(--color, revert-layer);
-      display: var(--display, revert-layer);
-      height: var(--height, revert-layer);
-      margin: var(--margin, revert-layer);
-      min-height: var(--min-height, revert-layer);
-      object-fit: var(--object-fit, revert-layer);
-      overflow: var(--overflow, revert-layer);
-      padding: var(--padding, revert-layer);
-      text-align: var(--text-align, revert-layer);
-      transition: var(--transition, revert-layer);
-      width: var(--width, revert-layer);
     }
   }
 
   @layer tk-1 {
     [style] {
-      background-color: var(--background-color, revert-layer);
-      background-image: var(--background-image, revert-layer);
-      background-position-x: var(--background-position-x, revert-layer);
-      background-position-y: var(--background-position-y, revert-layer);
-      background-size: var(--background-size, revert-layer);
-      border-bottom: var(--border-bottom, revert-layer);
-      flex-direction: var(--flex-direction, revert-layer);
-      font-weight: var(--font-weight, revert-layer);
-      font-size: var(--font-size, revert-layer);
-      font-family: var(--font-family, revert-layer);
-      line-height: var(--line-height, revert-layer);
-      margin-right: var(--margin-right, revert-layer);
-      margin-bottom: var(--margin-bottom, revert-layer);
-      margin-left: var(--margin-left, revert-layer);
-      padding-top: var(--padding-top, revert-layer);
-      padding-right: var(--padding-right, revert-layer);
-      padding-bottom: var(--padding-bottom, revert-layer);
-      padding-left: var(--padding-left, revert-layer);
-      justify-content: var(--justify-content, revert-layer);
-      align-items: var(--align-items, revert-layer);
+      color: var(--color, revert-layer);
+      border: var(--border, revert-layer);
+      border-radius: var(--border-radius, revert-layer);
+      width: var(--width, revert-layer);
+      height: var(--height, revert-layer);
+      transition: var(--transition, revert-layer);
+      min-height: var(--min-height, revert-layer);
+      margin: var(--margin, revert-layer);
+      padding: var(--padding, revert-layer);
+      display: var(--display, revert-layer);
+      text-align: var(--text-align, revert-layer);
+      overflow: var(--overflow, revert-layer);
+      object-fit: var(--object-fit, revert-layer);
     }
   }
 
   @layer tk-2 {
     [style] {
-      border-color: var(--border-color, revert-layer);
+      background-color: var(--background-color, revert-layer);
+      border-bottom: var(--border-bottom, revert-layer);
+      font-family: var(--font-family, revert-layer);
+      font-size: var(--font-size, revert-layer);
+      background-size: var(--background-size, revert-layer);
+      background-image: var(--background-image, revert-layer);
+      background-position-x: var(--background-position-x, revert-layer);
+      background-position-y: var(--background-position-y, revert-layer);
+      flex-direction: var(--flex-direction, revert-layer);
+      align-items: var(--align-items, revert-layer);
+      justify-content: var(--justify-content, revert-layer);
+      padding-left: var(--padding-left, revert-layer);
+      padding-right: var(--padding-right, revert-layer);
+      padding-top: var(--padding-top, revert-layer);
+      padding-bottom: var(--padding-bottom, revert-layer);
+      line-height: var(--line-height, revert-layer);
+      font-weight: var(--font-weight, revert-layer);
+      margin-bottom: var(--margin-bottom, revert-layer);
+      margin-left: var(--margin-left, revert-layer);
+      margin-right: var(--margin-right, revert-layer);
     }
   }
 
   @layer tk-3 {
     [style] {
-      border-right-width: var(--border-right-width, revert-layer);
-      border-left-width: var(--border-left-width, revert-layer);
+      border-color: var(--border-color, revert-layer);
     }
   }
 
-  @layer tk-5 {
+  @layer tk-4 {
+    [style] {
+      border-left-width: var(--border-left-width, revert-layer);
+      border-right-width: var(--border-right-width, revert-layer);
+    }
+  }
+
+  @layer tk-6 {
     [style] {
       border-block-end: var(--border-block-end, revert-layer);
     }
   }
 
-  @layer tk-selector-0 {
+  @layer tk-selector-1 {
     [style], [style*="select_"]::selection, [style]:after {
-      animation: var(--_1upk2ho, revert-layer);
-      --_1upk2ho: var(--hover) var(--hover_animation);
+      color: var(--_6grdv7, var(--_853it7, revert-layer));
+      --_853it7: var(--hover) var(--hover_color);
+      --_6grdv7: var(--select) var(--select_color);
       border-radius: var(--_1a98csj, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, revert-layer))));
       --_176qpn4: var(--md) var(--md_border-radius);
       --_1aut28: var(--lg) var(--lg_border-radius);
       --_1hh3291: var(--xl) var(--xl_border-radius);
       --_1a98csj: var(--2xl) var(--2xl_border-radius);
-      color: var(--_6grdv7, var(--_853it7, revert-layer));
-      --_853it7: var(--hover) var(--hover_color);
-      --_6grdv7: var(--select) var(--select_color);
-      content: var(--_bpstpr, var(--_bkpo73, revert-layer));
-      --_bkpo73: var(--after) var(--after_content);
-      --_bpstpr: var(--md_after) var(--md_after_content);
-      display: var(--_cbroqb, revert-layer);
-      --_cbroqb: var(--md) var(--md_display);
-      height: var(--_18bne5j, var(--_131ipn5, var(--_midacu, var(--_1hvgbk2, revert-layer))));
-      --_1hvgbk2: var(--md) var(--md_height);
-      --_midacu: var(--lg) var(--lg_height);
-      --_131ipn5: var(--xl) var(--xl_height);
-      --_18bne5j: var(--2xl) var(--2xl_height);
-      padding: var(--_1tfdub6, revert-layer);
-      --_1tfdub6: var(--md) var(--md_padding);
-      text-align: var(--_1hooa64, revert-layer);
-      --_1hooa64: var(--md) var(--md_text-align);
       width: var(--_lgvp90, var(--_1qgla5e, var(--_3q4l9b, var(--_rmk1kf, revert-layer))));
       --_rmk1kf: var(--md) var(--md_width);
       --_3q4l9b: var(--lg) var(--lg_width);
       --_1qgla5e: var(--xl) var(--xl_width);
       --_lgvp90: var(--2xl) var(--2xl_width);
+      height: var(--_18bne5j, var(--_131ipn5, var(--_midacu, var(--_1hvgbk2, revert-layer))));
+      --_1hvgbk2: var(--md) var(--md_height);
+      --_midacu: var(--lg) var(--lg_height);
+      --_131ipn5: var(--xl) var(--xl_height);
+      --_18bne5j: var(--2xl) var(--2xl_height);
+      animation: var(--_1upk2ho, revert-layer);
+      --_1upk2ho: var(--hover) var(--hover_animation);
+      padding: var(--_1tfdub6, revert-layer);
+      --_1tfdub6: var(--md) var(--md_padding);
+      display: var(--_cbroqb, revert-layer);
+      --_cbroqb: var(--md) var(--md_display);
+      text-align: var(--_1hooa64, revert-layer);
+      --_1hooa64: var(--md) var(--md_text-align);
+      content: var(--_bpstpr, var(--_bkpo73, revert-layer));
+      --_bkpo73: var(--after) var(--after_content);
+      --_bpstpr: var(--md_after) var(--md_after_content);
     }
   }
 
-  @layer tk-selector-1 {
+  @layer tk-selector-2 {
     [style], [style*="select_"]::selection, [style]:after {
       background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_3prh80, var(--_4dvc60, revert-layer))));
       --_4dvc60: var(--hover) var(--hover_background-color);
@@ -244,17 +249,25 @@
     }
   }
 
+  [style*="select_"]::selection {
+    --select: ;
+  }
+
+  [style]:focus:hover {
+    --focus-hover: ;
+  }
+
   @media (width >= 700px) {
+    [style]:focus:hover {
+      --md_focus-hover: ;
+    }
+
     [style] {
       --md: ;
     }
 
     [style]:after {
       --md_after: ;
-    }
-
-    [style]:focus:hover {
-      --md_focus-hover: ;
     }
   }
 
@@ -276,15 +289,7 @@
     }
   }
 
-  [style*="select_"]::selection {
-    --select: ;
-  }
-
   [style]:after {
     --after: ;
-  }
-
-  [style]:focus:hover {
-    --focus-hover: ;
   }
 }

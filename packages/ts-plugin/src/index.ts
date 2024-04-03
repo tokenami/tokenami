@@ -4,6 +4,7 @@ import * as Tokenami from '@tokenami/dev';
 
 const INVALID_SELECTOR_ERROR_CODE = 50000;
 const INVALID_VALUE_ERROR_CODE = 2322;
+const properties = Tokenami.layers.flat();
 
 type EntryConfigItem = {
   kind: tslib.ScriptElementKind;
@@ -28,7 +29,7 @@ function init(modules: { typescript: typeof tslib }) {
     const selectorsEntries = Object.entries(config.selectors || {});
     const aliasProperties = Object.keys(config.aliases || {});
 
-    return [...TokenamiConfig.properties, ...aliasProperties].flatMap((property) => {
+    return [...properties, ...aliasProperties].flatMap((property) => {
       const createCompletionEntry = createVariantPropertyEntry(property);
       const entries = responsiveEntries.flatMap((entry) => {
         const responsiveEntry = createCompletionEntry(entry);

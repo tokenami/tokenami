@@ -2,6 +2,7 @@ import * as Tokenami from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
 import * as utils from './utils';
+import * as Supports from './supports';
 
 const UNUSED_LAYERS_REGEX = /\n\s*@layer[-\w\s,]+;/g;
 const DEFAULT_SELECTOR = '[style]';
@@ -9,7 +10,6 @@ const DEFAULT_SELECTOR = '[style]';
 type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   order: number;
   tokenProperty: Tokenami.TokenProperty;
-  cssProperty: Tokenami.CSSProperty;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -54,6 +54,7 @@ function generate(params: {
     configs.forEach((config) => {
       const propertyLayer = getAtomicLayer(cssProperty);
       const toggleKey = config.responsive || config.selector;
+      if (propertyLayer === -1) return;
 
       if (config.variant && toggleKey) {
         const responsive = getResponsiveSelectorFromConfig(config.responsive, params.config);
@@ -92,8 +93,8 @@ function generate(params: {
       ${generateThemeTokens(tokenValues, params.config)}
 
       ${DEFAULT_SELECTOR} { ${Array.from(styles.reset).join(' ')} }
-      @layer ${Tokenami.layers.map((_, layer) => `tk-${layer}`).join(', ')};
-      @layer ${Tokenami.layers.map((_, layer) => `tk-selector-${layer}`).join(', ')};
+      @layer ${Supports.layers.map((_, layer) => `tk-${layer}`).join(', ')};
+      @layer ${Supports.layers.map((_, layer) => `tk-selector-${layer}`).join(', ')};
 
       ${Array.from(styles.atomic).join(' ')}
       ${Array.from(styles.selectors).join(' ')}
@@ -118,37 +119,29 @@ function generate(params: {
  * getPropertyConfigs
  * -----------------------------------------------------------------------------------------------*/
 
-function getPropertyConfigs(tokenProperties: Tokenami.TokenProperty[], config: Tokenami.Config) {
-  let propertyConfigs: [Tokenami.CSSProperty, PropertyConfig[]][] = [];
+function getPropertyConfigs(
+  tokenProperties: Tokenami.TokenProperty[],
+  config: Tokenami.Config
+): Map<string, PropertyConfig[]> {
+  let propertyConfigs: Map<string, PropertyConfig[]> = new Map();
 
   tokenProperties.forEach((tokenProperty) => {
     const parts = Tokenami.getTokenPropertyParts(tokenProperty, config);
     if (!parts) return;
     const properties = Tokenami.getCSSPropertiesForAlias(parts.alias, config.aliases);
+    const responsiveOrder = parts.responsive ? 1 : 0;
+    const selectorOrder = parts.selector ? 2 : 0;
+    const order = responsiveOrder + selectorOrder;
 
     properties.forEach((cssProperty) => {
-      const specificity = utils.getSpecifictyOrderForCSSProperty(cssProperty);
       const tokenProperty = Tokenami.tokenProperty(cssProperty);
-
-      if (specificity > -1) {
-        const responsiveOrder = parts.responsive ? 1 : 0;
-        const selectorOrder = parts.selector ? 2 : 0;
-        const order = responsiveOrder + selectorOrder;
-
-        propertyConfigs[specificity] ??= [cssProperty, []];
-        propertyConfigs[specificity]![1].push({ ...parts, tokenProperty, cssProperty, order });
-      }
+      const currentConfigs = propertyConfigs.get(cssProperty as any) || [];
+      const nextConfig = { ...parts, tokenProperty, order };
+      propertyConfigs.set(cssProperty, [...currentConfigs, nextConfig]);
     });
   });
 
-  const entries = propertyConfigs.flatMap((entry) => {
-    if (!entry) return [];
-    const [cssProperty, configs] = entry;
-    const sortedConfigs = configs.sort((a, b) => a.order - b.order);
-    return [[cssProperty, sortedConfigs] as const];
-  });
-
-  return new Map(entries);
+  return propertyConfigs;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -156,7 +149,7 @@ function getPropertyConfigs(tokenProperties: Tokenami.TokenProperty[], config: T
  * -----------------------------------------------------------------------------------------------*/
 
 function getAtomicLayer(cssProperty: string) {
-  return Tokenami.layers.findIndex((layer: string[]) => layer.includes(cssProperty));
+  return Supports.layers.findIndex((layer: string[]) => layer.includes(cssProperty));
 }
 
 /* -------------------------------------------------------------------------------------------------

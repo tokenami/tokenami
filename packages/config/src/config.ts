@@ -1,5 +1,6 @@
-import * as Supports from './supports';
+import type * as CSS from 'csstype';
 
+type CSSProperty = keyof CSS.PropertiesHyphen;
 type DeepReadonly<T> = T extends Function | any[]
   ? T
   : { readonly [P in keyof T]: DeepReadonly<T[P]> };
@@ -26,7 +27,7 @@ type Theme = { [themeKey in ThemeKey]?: ThemeValues };
 type ThemeMode<T = Theme> = { [mode: string]: T };
 type ThemeModes<T = Theme> = { modes?: ThemeMode<T> };
 type ThemeConfig = Theme | ThemeModes;
-type Aliases = Record<string, readonly Supports.CSSProperty[]>;
+type Aliases = Record<string, readonly CSSProperty[]>;
 type PropertiesOptions = readonly ('grid' | ThemeKey)[];
 
 interface Config {
@@ -39,7 +40,7 @@ interface Config {
   aliases?: Aliases;
   themeSelector?: (mode: string) => string;
   theme: ThemeConfig;
-  properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
+  properties?: Partial<Record<CSSProperty, PropertiesOptions>>;
 }
 
 const defaultConfig = {
@@ -222,5 +223,5 @@ function createConfig<T extends Config>(
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { DefaultConfig, Config, Theme, ThemeModes, Aliases, DeepReadonly };
+export type { DefaultConfig, Config, Theme, ThemeModes, Aliases, DeepReadonly, CSSProperty };
 export { defaultConfig, createConfig };
