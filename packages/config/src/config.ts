@@ -1,6 +1,12 @@
 import type * as CSS from 'csstype';
 
-type CSSProperty = keyof CSS.PropertiesHyphen;
+// CSS.PropertiesHyphen without vendor and obsolete properties
+interface CSSProperties<TLength = (string & {}) | 0, TTime = string & {}>
+  extends CSS.StandardPropertiesHyphen<TLength, TTime>,
+    CSS.SvgPropertiesHyphen<TLength, TTime> {}
+
+type CSSProperty = keyof CSSProperties;
+
 type DeepReadonly<T> = T extends Function | any[]
   ? T
   : { readonly [P in keyof T]: DeepReadonly<T[P]> };
@@ -223,5 +229,7 @@ function createConfig<T extends Config>(
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { DefaultConfig, Config, Theme, ThemeModes, Aliases, DeepReadonly, CSSProperty };
+export type { DefaultConfig, Config, DeepReadonly };
+export type { Theme, ThemeModes, Aliases };
+export type { CSSProperties, CSSProperty };
 export { defaultConfig, createConfig };

@@ -2,10 +2,16 @@ import * as Tokenami from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
 import * as utils from './utils';
-import * as Supports from './supports';
+import { supportedProperties, supportedLogicalProperties } from './supports';
 
 const UNUSED_LAYERS_REGEX = /\n\s*@layer[-\w\s,]+;/g;
 const DEFAULT_SELECTOR = '[style]';
+const LAYERS = {
+  BASE: 'tk',
+  LOGICAL: 'tkl',
+  SELECTORS: 'tks',
+  SELECTORS_LOGICAL: 'tksl',
+};
 
 type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   order: number;
@@ -45,26 +51,30 @@ function generate(params: {
   };
 
   propertyConfigsByCSSProperty.forEach((configs, cssProperty) => {
-    const variants = configs.flatMap((config) => (config.variant ? [config.variant] : []));
+    const isLogical = supportedLogicalProperties.includes(cssProperty as any);
+    const sortedConfigs = [...configs].sort((a, b) => a.order - b.order);
+    // sort configs to ensure property value orders fallbacks correctly
+    const variants = sortedConfigs.flatMap((config) => (config.variant ? [config.variant] : []));
     const variantValue = utils.unique(variants).reduce((fallback, variant) => {
       const hashedProperty = hashVariantProperty(variant, cssProperty);
       return `var(${hashedProperty}, ${fallback})`;
     }, 'revert-layer');
 
     configs.forEach((config) => {
-      const propertyLayer = getAtomicLayer(cssProperty);
+      const layerCount = getAtomicLayer(cssProperty);
       const toggleKey = config.responsive || config.selector;
-      if (propertyLayer === -1) return;
+
+      if (layerCount === -1) return;
 
       if (config.variant && toggleKey) {
         const responsive = getResponsiveSelectorFromConfig(config.responsive, params.config);
         const selectors = getSelectorsFromConfig(config.selector, params.config);
         const responsiveSelectors = [responsive, ...selectors].filter(Boolean) as string[];
-        const selectorLayer = `@layer tk-selector-${propertyLayer}`;
         const variantProperty = Tokenami.variantProperty(config.variant, cssProperty);
         const hashedProperty = hashVariantProperty(config.variant, cssProperty);
         const toggleProperty = Tokenami.tokenProperty(config.variant);
         const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) var(${variantProperty});`;
+        const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerCount}`;
         const declaration = `${cssProperty}: ${variantValue};`;
 
         const toggle = responsiveSelectors.reduceRight(
@@ -74,15 +84,16 @@ function generate(params: {
 
         styles.reset.add(`${toggleProperty}: initial;`);
         styles.reset.add(`${variantProperty}: initial;`);
-        styles.selectors.add(`${selectorLayer} { ${elemSelectors} { ${declaration} } }`);
-        styles.selectors.add(`${selectorLayer} { ${elemSelectors} { ${toggleDeclaration} } }`);
+        styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${declaration} } }`);
+        styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${toggleDeclaration} } }`);
         styles.toggles[toggleKey] ??= new Set<string>();
         styles.toggles[toggleKey]!.add(toggle);
       } else {
         const propertyValue = `var(${config.tokenProperty}, revert-layer)`;
         const declaration = `${DEFAULT_SELECTOR} { ${cssProperty}: ${propertyValue}; }`;
+        const layer = `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerCount}`;
         styles.reset.add(`${config.tokenProperty}: initial;`);
-        styles.atomic.add(`@layer tk-${propertyLayer} { ${declaration} }`);
+        styles.atomic.add(`@layer ${layer} { ${declaration} }`);
       }
     });
   });
@@ -93,8 +104,11 @@ function generate(params: {
       ${generateThemeTokens(tokenValues, params.config)}
 
       ${DEFAULT_SELECTOR} { ${Array.from(styles.reset).join(' ')} }
-      @layer ${Supports.layers.map((_, layer) => `tk-${layer}`).join(', ')};
-      @layer ${Supports.layers.map((_, layer) => `tk-selector-${layer}`).join(', ')};
+
+      ${generatePlaceholderLayers(LAYERS.BASE)}
+      ${generatePlaceholderLayers(LAYERS.LOGICAL)}
+      ${generatePlaceholderLayers(LAYERS.SELECTORS)}
+      ${generatePlaceholderLayers(LAYERS.SELECTORS_LOGICAL)}
 
       ${Array.from(styles.atomic).join(' ')}
       ${Array.from(styles.selectors).join(' ')}
@@ -113,6 +127,17 @@ function generate(params: {
   });
 
   return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * generatePlaceholderLayers
+ * -----------------------------------------------------------------------------------------------*/
+
+function generatePlaceholderLayers(prefix: string) {
+  // this 20 is arbitrary for now, will make this more correct later.
+  return `@layer ${Array.from({ length: 20 })
+    .map((_, layer) => `${prefix}${layer}`)
+    .join(', ')};`;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -148,8 +173,18 @@ function getPropertyConfigs(
  * getAtomicLayer
  * -----------------------------------------------------------------------------------------------*/
 
-function getAtomicLayer(cssProperty: string) {
-  return Supports.layers.findIndex((layer: string[]) => layer.includes(cssProperty));
+const SHORTHAND_TO_LONGHAND_ENTRIES = Object.entries(Tokenami.mapShorthandToLonghands);
+
+function getAtomicLayer(cssProperty: string): number {
+  const isSupported = (supportedProperties as string[]).includes(cssProperty);
+  const initialDepth = isSupported ? 1 : -1;
+
+  if (cssProperty === 'all') return 0;
+
+  return SHORTHAND_TO_LONGHAND_ENTRIES.reduce((depth, [shorthand, longhands]) => {
+    const isLonghand = (longhands as string[]).includes(cssProperty);
+    return isLonghand ? depth + getAtomicLayer(shorthand) : depth;
+  }, initialDepth);
 }
 
 /* -------------------------------------------------------------------------------------------------

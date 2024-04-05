@@ -126,13 +126,13 @@
     --border-right-width: initial;
   }
 
-  @layer tk-0 {
+  @layer tk0 {
     [style] {
       all: var(--all, revert-layer);
     }
   }
 
-  @layer tk-1 {
+  @layer tk1 {
     [style] {
       color: var(--color, revert-layer);
       border: var(--border, revert-layer);
@@ -150,7 +150,7 @@
     }
   }
 
-  @layer tk-2 {
+  @layer tk2 {
     [style] {
       background-color: var(--background-color, revert-layer);
       border-bottom: var(--border-bottom, revert-layer);
@@ -158,8 +158,6 @@
       font-size: var(--font-size, revert-layer);
       background-size: var(--background-size, revert-layer);
       background-image: var(--background-image, revert-layer);
-      background-position-x: var(--background-position-x, revert-layer);
-      background-position-y: var(--background-position-y, revert-layer);
       flex-direction: var(--flex-direction, revert-layer);
       align-items: var(--align-items, revert-layer);
       justify-content: var(--justify-content, revert-layer);
@@ -172,29 +170,31 @@
       margin-bottom: var(--margin-bottom, revert-layer);
       margin-left: var(--margin-left, revert-layer);
       margin-right: var(--margin-right, revert-layer);
-    }
-  }
-
-  @layer tk-3 {
-    [style] {
       border-color: var(--border-color, revert-layer);
     }
   }
 
-  @layer tk-4 {
+  @layer tk3 {
+    [style] {
+      background-position-x: var(--background-position-x, revert-layer);
+      background-position-y: var(--background-position-y, revert-layer);
+    }
+  }
+
+  @layer tk5 {
     [style] {
       border-left-width: var(--border-left-width, revert-layer);
       border-right-width: var(--border-right-width, revert-layer);
     }
   }
 
-  @layer tk-6 {
+  @layer tkl3 {
     [style] {
       border-block-end: var(--border-block-end, revert-layer);
     }
   }
 
-  @layer tk-selector-1 {
+  @layer tks1 {
     [style], [style*="select_"]::selection, [style]:after {
       color: var(--_6grdv7, var(--_853it7, revert-layer));
       --_853it7: var(--hover) var(--hover_color);
@@ -228,7 +228,7 @@
     }
   }
 
-  @layer tk-selector-2 {
+  @layer tks2 {
     [style], [style*="select_"]::selection, [style]:after {
       background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_3prh80, var(--_4dvc60, revert-layer))));
       --_4dvc60: var(--hover) var(--hover_background-color);
