@@ -1,6 +1,10 @@
 import type { CSSProperty } from '@tokenami/config';
 
-type AllProperties = { [key in CSSProperty]: number };
+type AllProperties = Record<CSSProperty, number>;
+
+/**
+ * we use objects to ensure thry contain all properties that exist in the csstype interface
+ */
 
 const supportedLogical = {
   'block-overflow': 1,
@@ -72,7 +76,6 @@ const supportedLogical = {
   'scroll-padding-inline-start': 1,
 } as const satisfies Partial<AllProperties>;
 
-// this is an object to ensure it contains all properties that exist in the csstype interface
 const supported: AllProperties = {
   all: 1,
   animation: 1,

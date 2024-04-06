@@ -52,8 +52,8 @@ function generate(params: {
 
   propertyConfigsByCSSProperty.forEach((configs, cssProperty) => {
     const isLogical = supportedLogicalProperties.includes(cssProperty as any);
-    const sortedConfigs = [...configs].sort((a, b) => a.order - b.order);
     // sort configs to ensure property value orders fallbacks correctly
+    const sortedConfigs = [...configs].sort((a, b) => a.order - b.order);
     const variants = sortedConfigs.flatMap((config) => (config.variant ? [config.variant] : []));
     const variantValue = utils.unique(variants).reduce((fallback, variant) => {
       const hashedProperty = hashVariantProperty(variant, cssProperty);
