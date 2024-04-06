@@ -152,6 +152,7 @@ const layers = [
     'text-transform',
     'text-underline-offset',
     'text-underline-position',
+    'text-wrap',
     'touch-action',
     'transform',
     'transform-box',

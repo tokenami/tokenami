@@ -453,6 +453,7 @@ type Properties = Property['-webkit-line-clamp'] &
   Property['text-transform'] &
   Property['text-underline-offset'] &
   Property['text-underline-position'] &
+  Property['text-wrap'] &
   Property['touch-action'] &
   Property['transform'] &
   Property['transform-box'] &
