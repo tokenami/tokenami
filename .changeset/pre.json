@@ -10,6 +10,7 @@
     "@tokenami/ts-plugin": "0.0.39"
   },
   "changesets": [
+    "dull-sloths-warn",
     "odd-tigers-sleep"
   ]
 }
