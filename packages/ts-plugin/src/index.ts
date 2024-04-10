@@ -28,7 +28,7 @@ function init(modules: { typescript: typeof tslib }) {
     const selectorsEntries = Object.entries(config.selectors || {});
     const aliasProperties = Object.keys(config.aliases || {});
 
-    return [...TokenamiConfig.properties, ...aliasProperties].flatMap((property) => {
+    return [...Tokenami.supportedProperties, ...aliasProperties].flatMap((property) => {
       const createCompletionEntry = createVariantPropertyEntry(property);
       const entries = responsiveEntries.flatMap((entry) => {
         const responsiveEntry = createCompletionEntry(entry);

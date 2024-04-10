@@ -1,4 +1,11 @@
-import * as Supports from './supports';
+import type * as CSS from 'csstype';
+
+// CSS.PropertiesHyphen without vendor and obsolete properties
+interface CSSProperties<TLength = (string & {}) | 0, TTime = string & {}>
+  extends CSS.StandardPropertiesHyphen<TLength, TTime>,
+    CSS.SvgPropertiesHyphen<TLength, TTime> {}
+
+type CSSProperty = keyof CSSProperties;
 
 type DeepReadonly<T> = T extends Function | any[]
   ? T
@@ -26,7 +33,7 @@ type Theme = { [themeKey in ThemeKey]?: ThemeValues };
 type ThemeMode<T = Theme> = { [mode: string]: T };
 type ThemeModes<T = Theme> = { modes?: ThemeMode<T> };
 type ThemeConfig = Theme | ThemeModes;
-type Aliases = Record<string, readonly Supports.CSSProperty[]>;
+type Aliases = Record<string, readonly CSSProperty[]>;
 type PropertiesOptions = readonly ('grid' | ThemeKey)[];
 
 interface Config {
@@ -39,7 +46,7 @@ interface Config {
   aliases?: Aliases;
   themeSelector?: (mode: string) => string;
   theme: ThemeConfig;
-  properties?: Partial<Record<Supports.CSSProperty, PropertiesOptions>>;
+  properties?: Partial<Record<CSSProperty, PropertiesOptions>>;
 }
 
 const defaultConfig = {
@@ -222,5 +229,7 @@ function createConfig<T extends Config>(
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { DefaultConfig, Config, Theme, ThemeModes, Aliases, DeepReadonly };
+export type { DefaultConfig, Config, DeepReadonly };
+export type { Theme, ThemeModes, Aliases };
+export type { CSSProperties, CSSProperty };
 export { defaultConfig, createConfig };

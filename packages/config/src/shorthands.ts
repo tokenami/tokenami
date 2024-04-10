@@ -1,4 +1,4 @@
-import { type CSSProperty } from './supports';
+import { type CSSProperty } from './config';
 
 const mapShorthandToLonghands = {
   all: [],
@@ -22,6 +22,7 @@ const mapShorthandToLonghands = {
     'background-repeat',
     'background-size',
   ],
+  'background-position': ['background-position-x', 'background-position-y'],
   border: [
     'border-top',
     'border-right',
@@ -31,6 +32,8 @@ const mapShorthandToLonghands = {
     'border-style',
     'border-width',
     'border-image',
+    'border-block',
+    'border-inline',
   ],
   'border-top': ['border-top-width', 'border-top-style', 'border-top-color'],
   'border-right': ['border-right-width', 'border-right-style', 'border-right-color'],
