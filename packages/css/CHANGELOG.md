@@ -1,5 +1,15 @@
 # @tokenami/css
 
+## 0.0.40
+
+### Patch Changes
+
+- 1348840: Move supported properties out of config package for improved bundle sizes and performance
+- 7a3ca40: Fix Variants type
+- Updated dependencies [1348840]
+  - @tokenami/config@0.0.40
+  - @tokenami/dev@0.0.40
+
 ## 0.0.40-next.1
 
 ### Patch Changes

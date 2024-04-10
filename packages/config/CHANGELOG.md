@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.40
+
+### Patch Changes
+
+- 1348840: Move supported properties out of config package for improved bundle sizes and performance
+
 ## 0.0.40-next.0
 
 ### Patch Changes
