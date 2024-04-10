@@ -1,5 +1,11 @@
 # @tokenami/css
 
+## 0.0.40-next.0
+
+### Patch Changes
+
+- 7a3ca40: Fix Variants type
+
 ## 0.0.39
 
 ### Patch Changes
