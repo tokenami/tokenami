@@ -88,8 +88,9 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
   - [Selectors](#user-content-selectors)
   - [Aliases](#user-content-aliases)
   - [Mapping properties to theme](#user-content-mapping-properties-to-theme)
-  - [Design systems with Tokenami](#user-content-design-systems-with-tokenami)
   - [Browserslist](#user-content-browserslist)
+  - [Continuous Integration](#user-content-continuous-integration)
+  - [Design systems with Tokenami](#user-content-design-systems-with-tokenami)
 - [Support](#user-content-support)
   - [Supported frameworks](#user-content-supported-frameworks)
   - [Supported browsers](#user-content-supported-browsers)
@@ -122,7 +123,7 @@ Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.jso
 
 ```json
 {
-  "include": [".tokenami/tokenami.env.d.ts"],
+  "include": [".tokenami/tokenami.env.d.ts", "**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     "plugins": [{ "name": "@tokenami/ts-plugin" }]
   }
@@ -538,6 +539,36 @@ With this configuration, using `'--content': 'var(--container_half)'` would erro
 />
 ```
 
+### Browserslist
+
+Tokenami only supports [browserslist](https://browsersl.ist/) in your `package.json`. You can use it to add autoprefixing to your CSS properties in the generated CSS file. However, it currently doesn't support vendor-prefixed **values**, which is being tracked in [this issue](https://github.com/tokenami/tokenami/issues/103).
+
+> [!Note]
+> Tokenami does not support browsers below the listed [supported browser versions](#user-content-supported-browsers).
+
+### Continuous Integration
+
+To improve performance during development, Tokenami widens its types and uses the TypeScript plugin for completions. Using `tsc` in the command line defaults to these widened types so it will not highlight errors for your properties or tokens. To get accurate types for CI, do the following:
+
+#### Create a CI project config
+
+Create a file named `tsconfig.ci.json` or `jsconfig.ci.json`. It should extend your original config and include the CI-specific Tokenami types:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "include": [".tokenami/tokenami.env.ci.d.ts", "**/*.ts", "**/*.tsx"]
+}
+```
+
+#### Reference CI project config
+
+For CI, use `tsc` with your new configuration:
+
+```sh
+tsc --noEmit --project tsconfig.ci.json
+```
+
 ### Design systems with Tokenami
 
 Integrating a design system built with Tokenami is straightforward. Include the `tokenami.config.js` file and corresponding stylesheet from the design system in your project:
@@ -553,13 +584,6 @@ export default createConfig({
 ```
 
 Tokenami will automatically generate styles and merge them correctly across component boundaries. See the example [design system project](https://github.com/tokenami/tokenami/blob/main/examples/design-system) and [Remix project](https://github.com/tokenami/tokenami/blob/main/examples/remix/.tokenami/tokenami.config.ts) for a demo.
-
-### Browserslist
-
-Tokenami only supports [browserslist](https://browsersl.ist/) in your `package.json`. You can use it to add autoprefixing to your CSS properties in the generated CSS file. However, it currently doesn't support vendor-prefixed **values**, which is being tracked in [this issue](https://github.com/tokenami/tokenami/issues/103).
-
-> [!Note]
-> Tokenami does not support browsers below the listed [supported browser versions](#user-content-supported-browsers).
 
 ## Support
 

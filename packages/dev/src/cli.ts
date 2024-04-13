@@ -58,11 +58,13 @@ const run = () => {
       const configPath = utils.getConfigPath(cwd, flags?.config, type);
       const outDir = pathe.dirname(configPath);
       const initialConfig = utils.generateConfig(include, configPath);
+      const ciTypeDefs = utils.generateCiTypeDefs(configPath);
       const typeDefs = utils.generateTypeDefs(configPath);
 
       fs.mkdirSync(outDir, { recursive: true });
       fs.writeFileSync(configPath, initialConfig, { flag: 'w' });
       fs.writeFileSync(utils.getTypeDefsPath(configPath), typeDefs, { flag: 'w' });
+      fs.writeFileSync(utils.getCiTypeDefsPath(configPath), ciTypeDefs, { flag: 'w' });
       log.debug(`Project successfully configured in './tokenami'`);
     });
 

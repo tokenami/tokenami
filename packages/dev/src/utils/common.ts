@@ -153,6 +153,14 @@ function generateTypeDefs(configPath: string, stubPath = '../stubs/tokenami.env.
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * generateCiTypeDefs
+ * -----------------------------------------------------------------------------------------------*/
+
+function generateCiTypeDefs(configPath: string) {
+  return generateTypeDefs(configPath, '../stubs/tokenami.env.ci.d.ts');
+}
+
+/* -------------------------------------------------------------------------------------------------
  * getResponsivePropertyVariants
  * -----------------------------------------------------------------------------------------------*/
 
@@ -194,6 +202,7 @@ export {
   getCiTypeDefsPath,
   generateConfig,
   generateTypeDefs,
+  generateCiTypeDefs,
   getThemeValuesByTokenValues,
   getThemeValuesByThemeMode,
   getResponsivePropertyVariants,
