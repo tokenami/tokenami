@@ -16,7 +16,8 @@
     "dev": "concurrently \"pnpm:dev:*\"",
     "dev:storylite": "vite --port=7007 --host=0.0.0.0 --open",
     "dev:css": "tokenami --output ./src/tokenami.css --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "typecheck:ci": "pnpm typecheck"
   },
   "dependencies": {
     "@tokenami/css": "workspace:*"

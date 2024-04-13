@@ -12,7 +12,8 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format=esm,cjs --dts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "typecheck:ci": "pnpm typecheck"
   },
   "devDependencies": {
     "@tokenami/dev": "workspace:*",

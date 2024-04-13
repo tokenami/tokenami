@@ -12,6 +12,7 @@
     "dev:css": "pnpm build:css --watch",
     "start": "remix-serve build",
     "typecheck": "tsc --noEmit",
+    "typecheck:ci": "tsc --noEmit --project tsconfig.ci.json",
     "lint": "eslint ."
   },
   "dependencies": {
