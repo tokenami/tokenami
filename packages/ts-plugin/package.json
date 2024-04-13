@@ -10,8 +10,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "pnpm build --watch",
-    "typecheck": "tsc --noEmit",
-    "typecheck:ci": "pnpm typecheck"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@tokenami/config": "workspace:*"

@@ -18,8 +18,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "pnpm build --watch src",
-    "typecheck": "tsc --noEmit",
-    "typecheck:ci": "pnpm typecheck"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
