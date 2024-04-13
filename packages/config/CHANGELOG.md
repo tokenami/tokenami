@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.41
+
+### Patch Changes
+
+- 859fac5: Remove custom CI config requirement
+
 ## 0.0.41-next.0
 
 ### Patch Changes
