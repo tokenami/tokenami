@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.42
+
+### Patch Changes
+
+- 5b43376: Revert removal of CI workaround. Still required for perf improvements.
+
 ## 0.0.42-next.0
 
 ### Patch Changes

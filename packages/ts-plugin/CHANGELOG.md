@@ -1,5 +1,14 @@
 # @tokenami/ts-plugin
 
+## 0.0.42
+
+### Patch Changes
+
+- 5b43376: Revert removal of CI workaround. Still required for perf improvements.
+- Updated dependencies [5b43376]
+  - @tokenami/config@0.0.42
+  - @tokenami/dev@0.0.42
+
 ## 0.0.42-next.0
 
 ### Patch Changes
