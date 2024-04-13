@@ -374,10 +374,12 @@ function init(modules: { typescript: typeof tslib }) {
 
       if (entryConfig.modeValues) {
         const isColor = entryConfig.themeKey === 'color';
-        const text = isColor
+        const entries = Object.entries(entryConfig.modeValues);
+        const [, firstValue] = entries[0] || [];
+        const description = isColor
           ? createColorTokenDescription(entryConfig.modeValues)
           : createTokenDescription(entryConfig.modeValues);
-        const docs = { text, kind: 'markdown' };
+        const docs = { text: `${firstValue}\n\n${description}`, kind: 'markdown' };
         const documentation = [docs, ...originalDocumentation];
         return { ...common, documentation };
       }
@@ -389,6 +391,31 @@ function init(modules: { typescript: typeof tslib }) {
       }
 
       return common;
+    };
+
+    proxy.getQuickInfoAtPosition = (fileName, position) => {
+      const original = info.languageService.getQuickInfoAtPosition(fileName, position);
+      const sourceFile = info.languageService.getProgram()?.getSourceFile(fileName);
+
+      if (!original || !sourceFile) return original;
+      const node = findNodeAtPosition(sourceFile, position);
+      if (!node || !node.parent || !ts.isPropertyAssignment(node.parent)) return original;
+
+      const property = node.parent;
+      const propertyName = property.name.getText(sourceFile);
+      const propertyValue = property.initializer.getText();
+      const tokenProperty = TokenamiConfig.TokenProperty.safeParse(propertyName);
+      const tokenValue = TokenamiConfig.TokenValue.safeParse(propertyValue);
+
+      if (!tokenProperty.success || !tokenValue.success) return original;
+      const parts = TokenamiConfig.getTokenValueParts(tokenValue.output);
+      const modeValues = Tokenami.getThemeValuesByThemeMode(tokenValue.output, config.theme);
+      const isColor = parts.themeKey === 'color';
+      const text = isColor
+        ? createColorTokenDescription(modeValues)
+        : createTokenDescription(modeValues);
+
+      return { ...original, documentation: [{ text, kind: 'markdown' }] };
     };
 
     return proxy;
@@ -412,11 +439,8 @@ function createDescription(
   builder: (mode: string, value: string) => string[]
 ) {
   const entries = Object.entries(modeValues);
-  const [, firstValue] = entries[0] || [];
-  const rows = entries.flatMap(([mode, value]) => {
-    return value !== firstValue ? [createRow(builder(mode, value))] : [];
-  });
-  return `${firstValue}\n\n${rows.join(`\n\n`)}`;
+  const rows = entries.map(([mode, value]) => createRow(builder(mode, value)));
+  return rows.join(`\n\n`);
 }
 
 function createRow(row: string[]) {
