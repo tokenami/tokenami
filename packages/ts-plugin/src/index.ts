@@ -289,7 +289,7 @@ function init(modules: { typescript: typeof tslib }) {
             entry.sortText = entry.name;
             // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
             if (!property.success) return [];
-            entry.sortText = '$' + property.output;
+            entry.sortText = getPropertySortText(property.output);
             entry.insertText = property.output;
             return [entry];
           });
@@ -390,5 +390,12 @@ const createSquare = (color: string) => {
   const svg = `<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" x="0" y="0" fill="${color}" /></svg>`;
   return `![Image](data:image/svg+xml;base64,${btoa(svg)})`;
 };
+
+function getPropertySortText(property: string) {
+  const sortKey = '$$$$';
+  const variantCount = (property.match('_') || []).length;
+  // we use $ to control order of properties. variants come last, base properties come first.
+  return sortKey.slice(0, sortKey.length - variantCount) + property;
+}
 
 export = init;
