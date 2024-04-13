@@ -1,11 +1,13 @@
 import type * as CSS from 'csstype';
 import type * as Tokenami from '@tokenami/config';
 
-type Merge<A, B> = B extends never ? A : Omit<A, keyof B> & B;
-
 // consumer will override this interface
 interface TokenamiConfig {}
-interface TokenamiFinalConfig extends Merge<Tokenami.DefaultConfig, TokenamiConfig> {}
+
+type Merge<A, B> = B extends never ? A : Omit<A, keyof B> & B;
+
+type DefaultConfig = Tokenami.DefaultConfig & { CI: false };
+interface TokenamiFinalConfig extends Merge<DefaultConfig, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
 type AliasConfig = TokenamiFinalConfig['aliases'];
@@ -34,7 +36,9 @@ type PropertyThemeValue<ThemeKey> = ThemeKey extends 'grid' | keyof TokensByThem
 
 type VariantProperty<P extends string> =
   | Tokenami.TokenProperty<P>
-  | Tokenami.VariantProperty<P, ResponsiveKey | SelectorKey | ResponsiveSelectorKey>;
+  | (TokenamiFinalConfig['CI'] extends true
+      ? Tokenami.VariantProperty<P, ResponsiveKey | SelectorKey | ResponsiveSelectorKey>
+      : Tokenami.VariantProperty<P, string>);
 
 type AliasedProperty<P> = {
   [A in keyof AliasConfig]: P extends AliasConfig[A][number] ? VariantProperty<A> : never;

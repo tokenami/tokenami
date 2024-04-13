@@ -8,6 +8,7 @@
     "build": "pnpm -r --filter=./packages/** build && pnpm -r --filter=./examples/design-system build",
     "clean": "rm -rf **/node_modules && rm -rf **/dist",
     "typecheck": "pnpm -r --parallel typecheck",
+    "typecheck:ci": "pnpm -r --parallel typecheck:ci",
     "test": "pnpm -r --parallel test",
     "change": "changeset",
     "next:version": "changeset pre enter next || : && changeset version",
