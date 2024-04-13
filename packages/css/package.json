@@ -15,7 +15,6 @@
     "build": "tsup",
     "dev": "pnpm build --watch src",
     "typecheck": "tsc --noEmit",
-    "typecheck:ci": "pnpm typecheck",
     "test": "vitest --run",
     "test:watch": "vitest"
   },

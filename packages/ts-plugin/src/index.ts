@@ -17,47 +17,6 @@ function init(modules: { typescript: typeof tslib }) {
   const ts = modules.typescript;
   let entryConfigMap = new Map<string, EntryConfigItem>();
 
-  /* ---------------------------------------------------------------------------------------------
-   * getSelectorCompletions
-   * ---------------------------------------------------------------------------------------------
-   * we pre-compute selector entries to improve performance
-   * -------------------------------------------------------------------------------------------*/
-
-  function getSelectorCompletions(config: TokenamiConfig.Config): tslib.CompletionEntry[] {
-    const responsiveEntries = Object.entries(config.responsive || {});
-    const selectorsEntries = Object.entries(config.selectors || {});
-    const aliasProperties = Object.keys(config.aliases || {});
-
-    return [...Tokenami.supportedProperties, ...aliasProperties].flatMap((property) => {
-      const createCompletionEntry = createVariantPropertyEntry(property);
-      const entries = responsiveEntries.flatMap((entry) => {
-        const responsiveEntry = createCompletionEntry(entry);
-        const [responsiveSelector, responsiveValue] = entry;
-        const combinedEntries = selectorsEntries.map(([selector, value]) => {
-          const combinedSelector = `${responsiveSelector}_${selector}`;
-          const combinedValue = [responsiveValue].concat(value);
-          return createCompletionEntry([combinedSelector, combinedValue]);
-        });
-        return [responsiveEntry, ...combinedEntries];
-      });
-      return [...entries, ...selectorsEntries.map(createVariantPropertyEntry(property))];
-    });
-  }
-
-  /* ---------------------------------------------------------------------------------------------
-   * createVariantPropertyEntry
-   * -------------------------------------------------------------------------------------------*/
-
-  const createVariantPropertyEntry = (property: string) => {
-    return ([selector, value]: [string, string | string[]]) => {
-      const name = TokenamiConfig.variantProperty(selector, property);
-      const kind = tslib.ScriptElementKind.memberVariableElement;
-      const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
-      updateEntryDetailsConfig({ name, kind, kindModifiers, value });
-      return { name, kind, kindModifiers, sortText: name, insertText: name };
-    };
-  };
-
   /* -----------------------------------------------------------------------------------------------
    * updateEntryDetailsConfig
    * ---------------------------------------------------------------------------------------------*/
@@ -139,12 +98,12 @@ function init(modules: { typescript: typeof tslib }) {
     }
 
     let config = Tokenami.getConfigAtPath(configPath);
-    let selectorCompletions = getSelectorCompletions(config);
+    let cachedCompletions: tslib.CompletionEntry[] | null;
 
     ts.sys.watchFile?.(configPath, (_, eventKind: tslib.FileWatcherEventKind) => {
       if (eventKind === modules.typescript.FileWatcherEventKind.Changed) {
         config = Tokenami.getReloadedConfigAtPath(configPath);
-        selectorCompletions = getSelectorCompletions(config);
+        cachedCompletions = null;
         info.project.refreshDiagnostics();
       }
     });
@@ -320,17 +279,21 @@ function init(modules: { typescript: typeof tslib }) {
           return entry;
         });
       } else if (isTokenPropertyEntries) {
-        original.entries = original.entries.flatMap((entry) => {
-          const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
-          entry.sortText = entry.name;
-          // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
-          if (!property.success) return [];
-          entry.sortText = '$' + property.output;
-          entry.insertText = property.output;
-          return [entry];
-        });
-
-        original.entries = original.entries.concat(selectorCompletions);
+        if (cachedCompletions) {
+          info.project.projectService.logger.info(`TOKENAMI: using cached completions`);
+          original.entries = cachedCompletions;
+        } else {
+          info.project.projectService.logger.info(`TOKENAMI: caching completions`);
+          original.entries = cachedCompletions = original.entries.flatMap((entry) => {
+            const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
+            entry.sortText = entry.name;
+            // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
+            if (!property.success) return [];
+            entry.sortText = getPropertySortText(property.output);
+            entry.insertText = property.output;
+            return [entry];
+          });
+        }
       }
 
       return original;
@@ -427,5 +390,12 @@ const createSquare = (color: string) => {
   const svg = `<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" x="0" y="0" fill="${color}" /></svg>`;
   return `![Image](data:image/svg+xml;base64,${btoa(svg)})`;
 };
+
+function getPropertySortText(property: string) {
+  const sortKey = '$$$$';
+  const variantCount = (property.match('_') || []).length;
+  // we use $ to control order of properties. variants come last, base properties come first.
+  return sortKey.slice(0, sortKey.length - variantCount) + property;
+}
 
 export = init;
