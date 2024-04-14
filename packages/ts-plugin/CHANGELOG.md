@@ -1,5 +1,14 @@
 # @tokenami/ts-plugin
 
+## 0.0.43
+
+### Patch Changes
+
+- 12fd8bc: Display chosen theme mode values on property hover
+- Updated dependencies [12fd8bc]
+  - @tokenami/config@0.0.43
+  - @tokenami/dev@0.0.43
+
 ## 0.0.43-next.0
 
 ### Patch Changes

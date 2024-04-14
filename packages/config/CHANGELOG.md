@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.43
+
+### Patch Changes
+
+- 12fd8bc: Display chosen theme mode values on property hover
+
 ## 0.0.43-next.0
 
 ### Patch Changes
