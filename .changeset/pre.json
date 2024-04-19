@@ -1,0 +1,15 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@tokenami/example-design-system": "0.0.0",
+    "@tokenami/example-remix": "0.0.0",
+    "@tokenami/config": "0.0.43",
+    "@tokenami/css": "0.0.43",
+    "@tokenami/dev": "0.0.43",
+    "@tokenami/ts-plugin": "0.0.43"
+  },
+  "changesets": [
+    "beige-starfishes-shave"
+  ]
+}
