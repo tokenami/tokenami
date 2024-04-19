@@ -1,5 +1,14 @@
 # @tokenami/css
 
+## 0.0.44
+
+### Patch Changes
+
+- 91faaa2: Improve intellisense for unquoted properties
+- Updated dependencies [91faaa2]
+  - @tokenami/config@0.0.44
+  - @tokenami/dev@0.0.44
+
 ## 0.0.44-next.0
 
 ### Patch Changes

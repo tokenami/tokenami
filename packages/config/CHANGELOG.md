@@ -1,5 +1,11 @@
 # @tokenami/config
 
+## 0.0.44
+
+### Patch Changes
+
+- 91faaa2: Improve intellisense for unquoted properties
+
 ## 0.0.44-next.0
 
 ### Patch Changes
