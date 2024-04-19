@@ -13,6 +13,11 @@ type EntryConfigItem = {
   themeKey?: string;
 };
 
+type CompletionEntriesCache = {
+  propertyEntries: tslib.CompletionEntry[] | null;
+  valueEntries: tslib.CompletionEntry[] | null;
+};
+
 function init(modules: { typescript: typeof tslib }) {
   const ts = modules.typescript;
   let entryConfigMap = new Map<string, EntryConfigItem>();
@@ -54,7 +59,7 @@ function init(modules: { typescript: typeof tslib }) {
       const kind = tslib.ScriptElementKind.memberVariableElement;
       const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
       updateEntryDetailsConfig({ name, kind, kindModifiers, value });
-      return { name, kind, kindModifiers, sortText: name, insertText: name };
+      return { name: `\"${name}\"`, kind, kindModifiers, sortText: name, insertText: name };
     };
   };
 
@@ -129,23 +134,29 @@ function init(modules: { typescript: typeof tslib }) {
       proxy[k] = (...args: Array<{}>) => x.apply(info.languageService, args);
     }
 
+    const logger = info.project.projectService.logger;
     const cwd = info.project.getCurrentDirectory();
     const configPath = Tokenami.getConfigPath(cwd, info.config.configPath);
     const configExists = ts.sys.fileExists(configPath);
 
     if (!configExists) {
-      info.project.projectService.logger.info(`TOKENAMI: Cannot find config`);
+      logger.info(`Tokenami:: Cannot find config at ${configPath}`);
       return proxy;
     }
 
+    const cache: CompletionEntriesCache = { propertyEntries: null, valueEntries: null };
     let config = Tokenami.getConfigAtPath(configPath);
     let selectorCompletions = getSelectorCompletions(config);
 
+    logger.info(`Tokenami:: Watching config at ${configPath}`);
     ts.sys.watchFile?.(configPath, (_, eventKind: tslib.FileWatcherEventKind) => {
       if (eventKind === modules.typescript.FileWatcherEventKind.Changed) {
+        logger.info(`Tokenami:: Config changed at ${configPath}`);
         config = Tokenami.getReloadedConfigAtPath(configPath);
         selectorCompletions = getSelectorCompletions(config);
         info.project.refreshDiagnostics();
+        cache.propertyEntries = null;
+        cache.valueEntries = null;
       }
     });
 
@@ -277,10 +288,7 @@ function init(modules: { typescript: typeof tslib }) {
       const original = info.languageService.getCompletionsAtPosition(fileName, position, options);
       const program = info.languageService.getProgram();
       const sourceFile = program?.getSourceFile(fileName);
-
       if (!original || !sourceFile) return original;
-      const node = findNodeAtPosition(sourceFile, position);
-      if (!node || !ts.isStringLiteral(node)) return original;
 
       const isTokenValueEntries = original.entries.some(
         (entry) => TokenamiConfig.TokenValue.safeParse(entry.name).success
@@ -290,7 +298,7 @@ function init(modules: { typescript: typeof tslib }) {
       );
 
       if (isTokenValueEntries) {
-        original.entries = original.entries.map((entry) => {
+        original.entries = cache.valueEntries ??= original.entries.map((entry) => {
           const entryName = entry.name;
           const property = TokenamiConfig.TokenValue.safeParse(entryName);
           entry.sortText = entryName;
@@ -320,17 +328,21 @@ function init(modules: { typescript: typeof tslib }) {
           return entry;
         });
       } else if (isTokenPropertyEntries) {
-        original.entries = original.entries.flatMap((entry) => {
-          const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
-          entry.sortText = entry.name;
-          // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
-          if (!property.success) return [];
-          entry.sortText = '$' + property.output;
-          entry.insertText = property.output;
-          return [entry];
-        });
-
-        original.entries = original.entries.concat(selectorCompletions);
+        if (cache.propertyEntries) {
+          original.entries = cache.propertyEntries;
+        } else {
+          original.entries = original.entries.flatMap((entry) => {
+            const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
+            entry.sortText = entry.name;
+            // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
+            if (!property.success) return [];
+            entry.sortText = '$' + property.output;
+            entry.insertText = property.output;
+            return [entry];
+          });
+          original.entries = original.entries.concat(selectorCompletions);
+          cache.propertyEntries = original.entries;
+        }
       }
 
       return original;
