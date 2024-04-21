@@ -4,3 +4,4 @@ public/styles
 **/dist
 **/bin
 .env
+.nx/cache
