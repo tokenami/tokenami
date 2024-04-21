@@ -1,29 +1,59 @@
-name: Build
+name: build
 
 on:
-  pull_request:
+  push:
     branches:
       - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:
-    name: Build
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-repo
+      - run: pnpm build
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-repo
+      - run: pnpm typecheck:ci
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-repo
+      - run: pnpm test
+
+  merge-release:
+    runs-on: ubuntu-latest
+    needs: build
+    environment: canary
+    permissions:
+      contents: write
+      pull-requests: write
+      statuses: write
+      checks: write
+      issues: write
+      packages: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REGISTRY_URL: 'https://npm.pkg.github.com'
+
+    if: ${{ !contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci') }}
 
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-
-      - name: 🏗 Setup repository
-        uses: ./.github/actions/setup-repo
-
-      - name: 🏗️ Build
-        run: pnpm build
-
-      - name: 🔍 Typecheck
-        run: pnpm typecheck:ci
-
-      - name: 🔍 Test
-        run: pnpm test
+          token: ${{ secrets.AUTO_PAT }}
+      - run: git fetch --unshallow --tags
+      - uses: ./.github/actions/setup-repo
+      - run: pnpm release

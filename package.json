@@ -2,6 +2,10 @@
   "name": "tokenami",
   "private": true,
   "license": "MIT",
+  "author": {
+    "name": "jjenzz",
+    "email": "175330+jjenzz@users.noreply.github.com"
+  },
   "scripts": {
     "prepare": "pnpm build",
     "dev": "pnpm --filter=./examples/remix dev",
@@ -10,15 +14,13 @@
     "typecheck": "pnpm -r --parallel typecheck",
     "typecheck:ci": "pnpm -r --parallel typecheck:ci",
     "test": "pnpm -r --parallel test",
-    "change": "changeset",
-    "next:version": "changeset pre enter next || : && changeset version",
-    "next:release": "changeset publish",
-    "latest:version": "changeset pre exit || : && changeset version",
-    "latest:release": "changeset publish"
+    "release": "auto shipit"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
+    "@auto-it/magic-zero": "^11.1.6",
     "@types/node": "^20.3.1",
+    "auto": "^11.1.6",
+    "lerna": "^8.1.2",
     "prettier": "^2.8.8",
     "typescript": "^5.1.3"
   },
@@ -29,5 +31,81 @@
   "prettier": {
     "singleQuote": true,
     "printWidth": 100
+  },
+  "auto": {
+    "noDefaultLabels": true,
+    "plugins": [
+      "released",
+      [
+        "magic-zero",
+        {
+          "label": "alpha"
+        }
+      ],
+      [
+        "npm",
+        {
+          "subPackageChangelogs": false,
+          "monorepoChangelog": false,
+          "commitNextVersion": true
+        }
+      ]
+    ],
+    "labels": [
+      {
+        "name": "alpha",
+        "description": "Graduate to the next left 0 digit",
+        "releaseType": "major",
+        "color": "#5D7DF9"
+      },
+      {
+        "name": "major",
+        "changelogTitle": "💥 Breaking Change",
+        "description": "Increment the major version when merged",
+        "releaseType": "major",
+        "color": "#C5000B"
+      },
+      {
+        "name": "minor",
+        "changelogTitle": "🚀 Enhancement",
+        "description": "Increment the minor version when merged",
+        "releaseType": "minor",
+        "color": "#F1A60E"
+      },
+      {
+        "name": "patch",
+        "changelogTitle": "🐛 Bug Fix",
+        "description": "Increment the patch version when merged",
+        "releaseType": "patch",
+        "color": "#870048"
+      },
+      {
+        "name": "skip-release",
+        "description": "Preserve the current version when merged",
+        "releaseType": "skip",
+        "color": "#bf5416"
+      },
+      {
+        "name": "chore",
+        "changelogTitle": "🏠 Housekeeping",
+        "description": "Internal maintenance, no versioning required",
+        "releaseType": "none",
+        "color": "#696969"
+      },
+      {
+        "name": "docs",
+        "changelogTitle": "📝 Documentation",
+        "description": "Docs changes, no versioning required",
+        "releaseType": "none",
+        "color": "#cfd3d7"
+      },
+      {
+        "name": "performance",
+        "changelogTitle": "🏎 Performance",
+        "description": "Improve performance of an existing feature",
+        "releaseType": "patch",
+        "color": "#f4b2d8"
+      }
+    ]
   }
 }

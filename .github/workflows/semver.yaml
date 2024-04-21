@@ -1,0 +1,19 @@
+name: label
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: mheap/github-action-required-labels@v5
+        with:
+          mode: minimum
+          count: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+          labels: 'patch, minor, major, docs, chore, performance, skip-release'
