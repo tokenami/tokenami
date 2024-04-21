@@ -1,39 +1,41 @@
-name: Release
+name: auto
 
-on: workflow_dispatch
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-  REGISTRY_URL: 'https://registry.npmjs.org'
+  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  REGISTRY_URL: 'https://npm.pkg.github.com'
+
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+  checks: write
+  issues: write
 
 jobs:
-  release:
-    name: Release
+  merge-release:
     permissions: write-all
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci') }}
 
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
           token: ${{ secrets.PAT }}
+
+      - name: 🏗 Prepare repository
+        run: git fetch --unshallow --tags
 
       - name: 🏗 Setup repository
         uses: ./.github/actions/setup-repo
 
       - name: 🚀 Create and publish versions
-        run: pnpm latest:version && pnpm latest:release
-
-      - name: 💫 Commit versions
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: Latest release
-          branch: main
-          add_options: '-u'
-          push_options: '--follow-tags'
+        run: pnpm next
