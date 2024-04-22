@@ -1,29 +1,39 @@
-name: Build
+name: build
 
 on:
   pull_request:
-    branches:
-      - main
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:
-    name: Build
     runs-on: ubuntu-latest
-
     steps:
-      - name: 🏗 Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-repo
+      - run: pnpm build
+      - run: pnpm typecheck:ci
+      - run: pnpm test
+
+  canary:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.ref != 'ref/head/main' }}
+    environment: canary
+    permissions:
+      contents: write
+      pull-requests: write
+      statuses: write
+      checks: write
+      issues: write
+      packages: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REGISTRY_URL: 'https://npm.pkg.github.com'
+    steps:
+      - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-
-      - name: 🏗 Setup repository
-        uses: ./.github/actions/setup-repo
-
-      - name: 🏗️ Build
-        run: pnpm build
-
-      - name: 🔍 Typecheck
-        run: pnpm typecheck:ci
-
-      - name: 🔍 Test
-        run: pnpm test
+          token: ${{ secrets.AUTO_PAT }}
+      - run: git fetch --unshallow --tags
+      - uses: ./.github/actions/setup-repo
+      - run: pnpm release

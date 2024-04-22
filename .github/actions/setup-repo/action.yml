@@ -19,7 +19,7 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version-file: '.nvmrc'
-        registry-url: ${{ env.REGISTRY_URL || 'https://npm.pkg.github.com' }}
+        registry-url: ${{ env.REGISTRY_URL || 'https://registry.npmjs.org' }}
         cache: pnpm
 
     - name: 📦 Get pnpm store directory
