@@ -14,10 +14,13 @@
     "typecheck": "pnpm -r --parallel typecheck",
     "typecheck:ci": "pnpm -r --parallel typecheck:ci",
     "test": "pnpm -r --parallel test",
+    "size:why": "size-limit --why",
     "release": "auto shipit"
   },
   "devDependencies": {
     "@auto-it/magic-zero": "^11.1.6",
+    "@size-limit/esbuild": "^11.1.2",
+    "@size-limit/esbuild-why": "^11.1.2",
     "@size-limit/preset-small-lib": "^11.1.2",
     "@types/node": "^20.3.1",
     "auto": "^11.1.6",
