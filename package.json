@@ -40,7 +40,8 @@
   "size-limit": [
     {
       "path": "packages/css/dist/index.js",
-      "limit": "3.5 kB"
+      "limit": "3.5 kB",
+      "gzip": true
     }
   ],
   "auto": {
