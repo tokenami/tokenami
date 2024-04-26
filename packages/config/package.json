@@ -16,7 +16,6 @@
     "typecheck:ci": "pnpm typecheck"
   },
   "devDependencies": {
-    "@tokenami/dev": "workspace:*",
     "csstype": "^3.1.2",
     "tsup": "^7.0.0",
     "typescript": "^5.1.3"

@@ -18,20 +18,28 @@
   },
   "devDependencies": {
     "@auto-it/magic-zero": "^11.1.6",
+    "@size-limit/preset-small-lib": "^11.1.2",
     "@types/node": "^20.3.1",
     "auto": "^11.1.6",
     "lerna": "^8.1.2",
     "prettier": "^2.8.8",
+    "size-limit": "^11.1.2",
     "typescript": "^5.1.3"
   },
   "engines": {
     "pnpm": ">= 8",
-    "node": ">= 16"
+    "node": ">= 18"
   },
   "prettier": {
     "singleQuote": true,
     "printWidth": 100
   },
+  "size-limit": [
+    {
+      "path": "packages/css/dist/index.js",
+      "limit": "3.5 kB"
+    }
+  ],
   "auto": {
     "noDefaultLabels": true,
     "plugins": [
