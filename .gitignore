@@ -5,3 +5,4 @@ public/styles
 **/bin
 .env
 .nx/cache
+esbuild-why.html
