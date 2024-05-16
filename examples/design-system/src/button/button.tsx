@@ -6,7 +6,7 @@ import { type Variants, type TokenamiStyle, css } from '~/css';
  * -----------------------------------------------------------------------------------------------*/
 
 type ButtonElementProps = React.ComponentPropsWithoutRef<'button'>;
-interface ButtonProps extends TokenamiStyle<ButtonElementProps>, Variants<typeof button> {}
+interface ButtonProps extends TokenamiStyle<ButtonElementProps>, Variants<typeof button> { }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, forwardedRef) => {
   const { size = 'small', children, ...buttonProps } = props;
@@ -23,6 +23,8 @@ const button = css.compose({
   '--border': 'var(---,none)',
   '--border-bottom': 'var(---, 2px solid var(--color_slate-700))',
   '--border-radius': 'var(--radii_rounded)',
+  '--padding-left': 'var(--grid_small)',
+  //                 ^? Type '"var(--grid_small)"' is not assignable to type 'number | Globals | `var(---,${string})` | undefined'.ts(2322)
   '--font-family': 'var(--font_sans)',
   '--width': 'var(---,180px)',
   '--height': 15,

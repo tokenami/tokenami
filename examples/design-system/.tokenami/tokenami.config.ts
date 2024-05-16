@@ -19,6 +19,9 @@ const theme = {
   border: {
     thin: '1px solid var(--color_slate-700)',
   },
+  grid: {
+    small: '8px',
+  },
   font: {
     serif: 'serif',
     sans: 'sans-serif',
