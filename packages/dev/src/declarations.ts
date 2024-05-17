@@ -24,14 +24,14 @@ type TokensByThemeKey = {
     : never;
 };
 
-type GridOrThemeValue<ThemeKey> = ThemeKey extends 'grid'
-  ? Tokenami.GridValue
-  : ThemeKey extends keyof TokensByThemeKey
+type ThemeValue<ThemeKey> = ThemeKey extends keyof TokensByThemeKey
   ? TokensByThemeKey[ThemeKey]
   : never;
 
-type PropertyThemeValue<ThemeKey> = ThemeKey extends 'grid' | keyof TokensByThemeKey
-  ? Tokenami.ArbitraryValue | CSS.Globals | GridOrThemeValue<ThemeKey>
+type PropertyThemeValue<ThemeKey> = ThemeKey extends 'grid'
+  ? Tokenami.ArbitraryValue | CSS.Globals | ThemeValue<ThemeKey> | Tokenami.GridValue
+  : ThemeKey extends keyof TokensByThemeKey
+  ? Tokenami.ArbitraryValue | CSS.Globals | ThemeValue<ThemeKey>
   : never;
 
 type VariantProperty<P extends string> =
