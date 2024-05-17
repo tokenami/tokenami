@@ -55,11 +55,12 @@ function init(modules: { typescript: typeof tslib }) {
 
   const createVariantPropertyEntry = (property: string) => {
     return ([selector, value]: [string, string | string[]]) => {
-      const name = TokenamiConfig.variantProperty(selector, property);
+      const tokenProperty = TokenamiConfig.variantProperty(selector, property);
+      const name = `\"${tokenProperty}\"`;
       const kind = tslib.ScriptElementKind.memberVariableElement;
       const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
       updateEntryDetailsConfig({ name, kind, kindModifiers, value });
-      return { name: `\"${name}\"`, kind, kindModifiers, sortText: name, insertText: name };
+      return { name: name, kind, kindModifiers, sortText: name, insertText: name };
     };
   };
 
