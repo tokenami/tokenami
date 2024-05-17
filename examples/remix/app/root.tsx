@@ -1,4 +1,5 @@
 import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
+import * as DS from '@tokenami/example-design-system';
 import { css } from '~/css';
 
 export default function App() {
@@ -10,15 +11,14 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body
-        className={'theme-light'}
-        style={css({ '--min-height': 'var(--size_fill)', '--m': 0, '--p': 0 })}
-      >
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
-      </body>
+      <DS.Reset asChild>
+        <body className={'theme-light'} style={css({ '--min-height': 'var(--size_fill)' })}>
+          <Outlet />
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </body>
+      </DS.Reset>
     </html>
   );
 }

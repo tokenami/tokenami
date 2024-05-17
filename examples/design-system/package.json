@@ -20,6 +20,7 @@
     "typecheck:ci": "pnpm typecheck"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.0.2",
     "@tokenami/css": "workspace:*"
   },
   "devDependencies": {

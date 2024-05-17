@@ -67,6 +67,7 @@ export default createConfig({
     ...defaultConfig.selectors,
     'focus-hover': '&:focus:hover',
     hover: ['@media (hover: hover) and (pointer: fine)', '&:hover'],
+    child: '& *, & *::before, & *::after',
   },
   aliases: {
     'bg-color': ['background-color'],

@@ -5,15 +5,19 @@ import { type Variants, type TokenamiStyle, css } from '~/css';
  * Button
  * -----------------------------------------------------------------------------------------------*/
 
+type ButtonElement = React.ElementRef<'button'>;
 type ButtonElementProps = React.ComponentPropsWithoutRef<'button'>;
 interface ButtonProps extends TokenamiStyle<ButtonElementProps>, Variants<typeof button> {}
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, forwardedRef) => {
-  const { size = 'small', children, ...buttonProps } = props;
+const Button = React.forwardRef<ButtonElement, ButtonProps>((props, forwardedRef) => {
+  const { size = 'small', ...buttonProps } = props;
   return (
-    <button type="button" {...buttonProps} ref={forwardedRef} style={button({ size }, props.style)}>
-      {children}
-    </button>
+    <button
+      type="button"
+      {...buttonProps}
+      ref={forwardedRef}
+      style={button({ size }, props.style)}
+    />
   );
 });
 

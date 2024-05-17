@@ -14,6 +14,7 @@ export const DefaultStory: typeof story = {
 };
 
 export const LargeStory: typeof story = {
+  name: 'Large',
   args: {
     size: 'large',
     children: 'Boop',

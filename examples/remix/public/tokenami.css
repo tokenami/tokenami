@@ -89,10 +89,14 @@
     --lg_font-size: initial;
     --xl_font-size: initial;
     --2xl_font-size: initial;
-    --min-height: initial;
+    --child: initial;
+    --child_box-sizing: initial;
+    --child_margin: initial;
     --margin: initial;
-    --padding: initial;
+    --child_padding: initial;
     --md_padding: initial;
+    --padding: initial;
+    --min-height: initial;
     --background-size: initial;
     --background-image: initial;
     --background-position-x: initial;
@@ -140,9 +144,9 @@
       width: var(--width, revert-layer);
       height: var(--height, revert-layer);
       transition: var(--transition, revert-layer);
-      min-height: var(--min-height, revert-layer);
       margin: var(--margin, revert-layer);
       padding: var(--padding, revert-layer);
+      min-height: var(--min-height, revert-layer);
       display: var(--display, revert-layer);
       text-align: var(--text-align, revert-layer);
       overflow: var(--overflow, revert-layer);
@@ -195,7 +199,7 @@
   }
 
   @layer tks1 {
-    [style], [style*="select_"]::selection, [style]:after {
+    [style], [style*="select_"]::selection, [style] *, [style] :before, [style] :after, [style]:after {
       color: var(--_6grdv7, var(--_853it7, revert-layer));
       --_853it7: var(--hover) var(--hover_color);
       --_6grdv7: var(--select) var(--select_color);
@@ -216,7 +220,12 @@
       --_18bne5j: var(--2xl) var(--2xl_height);
       animation: var(--_1upk2ho, revert-layer);
       --_1upk2ho: var(--hover) var(--hover_animation);
-      padding: var(--_1tfdub6, revert-layer);
+      box-sizing: var(--_1a0c96s, revert-layer);
+      --_1a0c96s: var(--child) var(--child_box-sizing);
+      margin: var(--_gipihm, revert-layer);
+      --_gipihm: var(--child) var(--child_margin);
+      padding: var(--_1j80s4b, var(--_1tfdub6, revert-layer));
+      --_1j80s4b: var(--child) var(--child_padding);
       --_1tfdub6: var(--md) var(--md_padding);
       display: var(--_cbroqb, revert-layer);
       --_cbroqb: var(--md) var(--md_display);
@@ -229,7 +238,7 @@
   }
 
   @layer tks2 {
-    [style], [style*="select_"]::selection, [style]:after {
+    [style], [style*="select_"]::selection, [style] *, [style] :before, [style] :after, [style]:after {
       background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_3prh80, var(--_4dvc60, revert-layer))));
       --_4dvc60: var(--hover) var(--hover_background-color);
       --_3prh80: var(--select) var(--select_background-color);
@@ -287,6 +296,10 @@
     [style] {
       --2xl: ;
     }
+  }
+
+  [style] *, [style] :before, [style] :after {
+    --child: ;
   }
 
   [style]:after {
