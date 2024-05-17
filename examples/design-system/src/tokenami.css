@@ -30,18 +30,19 @@
   }
 
   [style] {
+    --background-color: initial;
     --hover: initial;
-    --hover_animation: initial;
-    --border: initial;
-    --border-radius: initial;
+    --hover_background-color: initial;
     --color: initial;
     --hover_color: initial;
+    --border: initial;
+    --border-bottom: initial;
+    --border-radius: initial;
+    --font-family: initial;
+    --width: initial;
     --height: initial;
     --transition: initial;
-    --width: initial;
-    --background-color: initial;
-    --hover_background-color: initial;
-    --border-bottom: initial;
+    --hover_animation: initial;
     --font-size: initial;
     --md: initial;
     --md_font-size: initial;
@@ -51,39 +52,38 @@
     --xl_font-size: initial;
     --2xl: initial;
     --2xl_font-size: initial;
-    --font-family: initial;
   }
 
-  @layer tk-0 {
+  @layer tk1 {
     [style] {
+      color: var(--color, revert-layer);
       border: var(--border, revert-layer);
       border-radius: var(--border-radius, revert-layer);
-      color: var(--color, revert-layer);
+      width: var(--width, revert-layer);
       height: var(--height, revert-layer);
       transition: var(--transition, revert-layer);
-      width: var(--width, revert-layer);
     }
   }
 
-  @layer tk-1 {
+  @layer tk2 {
     [style] {
       background-color: var(--background-color, revert-layer);
       border-bottom: var(--border-bottom, revert-layer);
-      font-size: var(--font-size, revert-layer);
       font-family: var(--font-family, revert-layer);
+      font-size: var(--font-size, revert-layer);
     }
   }
 
-  @layer tk-selector-0 {
+  @layer tks1 {
     [style] {
-      animation: var(--_1upk2ho, revert-layer);
-      --_1upk2ho: var(--hover) var(--hover_animation);
       color: var(--_853it7, revert-layer);
       --_853it7: var(--hover) var(--hover_color);
+      animation: var(--_1upk2ho, revert-layer);
+      --_1upk2ho: var(--hover) var(--hover_animation);
     }
   }
 
-  @layer tk-selector-1 {
+  @layer tks2 {
     [style] {
       background-color: var(--_4dvc60, revert-layer);
       --_4dvc60: var(--hover) var(--hover_background-color);

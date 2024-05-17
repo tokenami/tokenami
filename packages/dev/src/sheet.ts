@@ -287,7 +287,7 @@ function getSelectorsFromConfig(
     // removed. we can use container style queries to improve this when support improves
     // https://codepen.io/jjenzz/pen/BaEmRpg
     const tkSelector = isSelectionVariant ? `[style*="${propertySelector}_"]` : DEFAULT_SELECTOR;
-    return selector.replace('&', tkSelector);
+    return selector.replace(/&/g, tkSelector);
   });
 }
 
