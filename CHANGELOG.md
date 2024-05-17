@@ -1,3 +1,15 @@
+# v0.0.47 (Fri May 17 2024)
+
+#### 🐛 Bug Fix
+
+- allow grid properties to also accept grid values from theme [#267](https://github.com/tokenami/tokenami/pull/267) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.46 (Fri May 10 2024)
 
 #### 🐛 Bug Fix
