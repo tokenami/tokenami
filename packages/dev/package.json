@@ -30,8 +30,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch src",
-    "typecheck": "tsc --noEmit",
-    "typecheck:ci": "tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",

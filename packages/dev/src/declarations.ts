@@ -45,9 +45,7 @@ type AliasedProperty<P> = {
 
 type VariantProperty<P extends string> =
   | Tokenami.TokenProperty<P>
-  | (TokenamiFinalConfig['CI'] extends true
-      ? Tokenami.VariantProperty<P, VariantKey>
-      : Tokenami.VariantProperty<P, string>);
+  | Tokenami.VariantProperty<P, VariantKey>;
 
 type TokenValue<P> = P extends keyof PropertyConfig
   ? PropertyThemeValue<PropertyConfig[P][number]>

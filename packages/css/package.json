@@ -27,7 +27,6 @@
     "build": "tsup",
     "dev": "tsup --watch src",
     "typecheck": "tsc --noEmit",
-    "typecheck:ci": "tsc --noEmit",
     "test": "vitest --run",
     "test:watch": "vitest"
   },

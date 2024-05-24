@@ -11,22 +11,22 @@ export const expectInvalidValuesToError = css({
 });
 
 export const expectInvalidSelectorToError = css({
-  // @ts-ignore
+  // @ts-expect-error
   '--selector_color': 'var(--color_sky-500)',
 });
 
 export const expectInvalidResponsiveSelectorsToError = css({
-  // @ts-ignore
+  // @ts-expect-error
   '--responsive_selector_color': 'var(--color_sky-500)',
 });
 
 export const expectInvalidResponsiveWithValidSelectorToError = css({
-  // @ts-ignore
+  // @ts-expect-error
   '--responsive_hover_color': 'var(--color_sky-500)',
 });
 
 export const expectValidResponsiveWithInvalidSelectorToError = css({
-  // @ts-ignore
+  // @ts-expect-error
   '--md_selector_color': 'var(--color_sky-500)',
 });
 

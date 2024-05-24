@@ -91,7 +91,6 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
   - [Aliases](#user-content-aliases)
   - [Mapping properties to theme](#user-content-mapping-properties-to-theme)
   - [Browserslist](#user-content-browserslist)
-  - [Continuous Integration](#user-content-continuous-integration)
   - [Design systems with Tokenami](#user-content-design-systems-with-tokenami)
 - [Support](#user-content-support)
   - [Supported frameworks](#user-content-supported-frameworks)
@@ -584,25 +583,6 @@ You can use [browserslist](https://browsersl.ist/) to add autoprefixing to your 
 
 > [!Note]
 > Tokenami does not support browsers below the listed [supported browser versions](#user-content-supported-browsers).
-
-### Continuous Integration
-
-To improve performance during development, Tokenami widens its types and uses the TypeScript plugin for completions. Using `tsc` in the command line defaults to these widened types so it will not highlight errors for your properties or tokens. To get accurate types for CI, do the following:
-
-- Create a file named `tsconfig.ci.json` or `jsconfig.ci.json`. It should extend your original config and include the CI-specific Tokenami types
-
-  ```json
-  {
-    "extends": "./tsconfig.json",
-    "include": [".tokenami/tokenami.env.ci.d.ts"]
-  }
-  ```
-
-- Use `tsc` with your new configuration
-
-  ```sh
-  tsc --noEmit --project tsconfig.ci.json
-  ```
 
 ### Design systems with Tokenami
 
