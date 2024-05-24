@@ -17,63 +17,6 @@ function init(modules: { typescript: typeof tslib }) {
   const ts = modules.typescript;
   let entryConfigMap = new Map<string, EntryConfigItem>();
 
-  /* ---------------------------------------------------------------------------------------------
-   * getSelectorCompletions
-   * ---------------------------------------------------------------------------------------------
-   * we pre-compute selector entries to improve performance
-   * -------------------------------------------------------------------------------------------*/
-
-  function getSelectorCompletions(
-    config: TokenamiConfig.Config,
-    quote?: string
-  ): tslib.CompletionEntry[] {
-    const configResponsiveEntries = Object.entries(config.responsive || {});
-    const configSelectorEntries = Object.entries(config.selectors || {});
-    const allSelectorEntries = configSelectorEntries.concat([['{}', '']]);
-    const configAliasProperties = Object.keys(config.aliases || {});
-
-    return [...Tokenami.supportedProperties, ...configAliasProperties].flatMap((property) => {
-      const createCompletionEntry = createVariantPropertyEntry(property, quote);
-      const responsiveEntries = configResponsiveEntries.flatMap(
-        ([responsiveSelector, responsiveValue]) => {
-          const responsiveEntry = createCompletionEntry([responsiveSelector, responsiveValue]);
-          const combinedEntries = allSelectorEntries.map(([selector, value]) => {
-            const combinedSelector = `${responsiveSelector}_${selector}`;
-            const combinedValue = [responsiveValue].concat(value);
-            return createCompletionEntry([combinedSelector, combinedValue]);
-          });
-          return [responsiveEntry, ...combinedEntries];
-        }
-      );
-      const selectorEntries = allSelectorEntries.map(createCompletionEntry);
-      return [...responsiveEntries, ...selectorEntries];
-    });
-  }
-
-  /* ---------------------------------------------------------------------------------------------
-   * createVariantPropertyEntry
-   * -------------------------------------------------------------------------------------------*/
-
-  const createVariantPropertyEntry = (property: string, quote = '') => {
-    return ([selector, value]: [string, string | string[]]): tslib.CompletionEntry => {
-      const tokenProperty = TokenamiConfig.variantProperty(selector, property);
-      const name = removeSpecialCharEscaping(`${quote}${tokenProperty}${quote}`);
-      const kind = tslib.ScriptElementKind.memberVariableElement;
-      const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
-      const isArbitrary = name.includes('{}');
-      updateEntryDetailsConfig({ name, kind, kindModifiers, value });
-
-      if (isArbitrary) {
-        // we prepend 1 to sort arbitrary values after non-arbitrary ones
-        const sortText = `1${name}`;
-        const insertText = name.replace('{}', '{${1}}');
-        return { name, kind, kindModifiers, sortText, insertText, isSnippet: true };
-      }
-
-      return { name, kind, kindModifiers, sortText: `0${name}`, insertText: name };
-    };
-  };
-
   /* -----------------------------------------------------------------------------------------------
    * updateEntryDetailsConfig
    * ---------------------------------------------------------------------------------------------*/
@@ -110,26 +53,6 @@ function init(modules: { typescript: typeof tslib }) {
 
   function createTextSpanFromNode(node: tslib.Node): tslib.TextSpan {
     return { start: node.getStart(), length: node.getEnd() - node.getStart() };
-  }
-
-  /* ---------------------------------------------------------------------------------------------
-   * shouldSuppressDiagnosticForNode
-   * -------------------------------------------------------------------------------------------*/
-
-  function shouldSuppressDiagnosticForNode(
-    node: tslib.Node,
-    sourceFile: tslib.SourceFile
-  ): boolean {
-    const lineStarts = sourceFile.getLineStarts();
-    const nodeStartPos = node.getStart(sourceFile);
-    const nodeStartLine = sourceFile.getLineAndCharacterOfPosition(nodeStartPos).line;
-    if (nodeStartLine > 0) {
-      const previousLineStartPos = lineStarts[nodeStartLine - 1] || 0;
-      const previousLineEndPos = lineStarts[nodeStartLine] || 0;
-      const previousLineText = sourceFile.text.substring(previousLineStartPos, previousLineEndPos);
-      return /\/\/ @ts-ignore/.test(previousLineText);
-    }
-    return false;
   }
 
   /* ---------------------------------------------------------------------------------------------
@@ -202,11 +125,6 @@ function init(modules: { typescript: typeof tslib }) {
     }
 
     let config = Tokenami.getConfigAtPath(configPath);
-    let selectorCompletions = {
-      unquoted: getSelectorCompletions(config),
-      quoted: getSelectorCompletions(config, '"'),
-    };
-
     logger.info(`Tokenami:: Watching config at ${configPath}`);
     ts.sys.watchFile?.(configPath, (_, eventKind: tslib.FileWatcherEventKind) => {
       if (eventKind === modules.typescript.FileWatcherEventKind.Changed) {
@@ -214,10 +132,6 @@ function init(modules: { typescript: typeof tslib }) {
         try {
           config = Tokenami.getReloadedConfigAtPath(configPath);
           info.project.refreshDiagnostics();
-          selectorCompletions = {
-            unquoted: getSelectorCompletions(config),
-            quoted: getSelectorCompletions(config, '"'),
-          };
         } catch (e) {
           logger.info(`Tokenami:: Skipped change to ${configPath} with ${e}`);
         }
@@ -248,31 +162,22 @@ function init(modules: { typescript: typeof tslib }) {
       };
 
       const processNode = (node: tslib.Node): void => {
-        const isDiagnosticPrevented = shouldSuppressDiagnosticForNode(node, sourceFile!);
-        if (isDiagnosticPrevented || !ts.isPropertyAssignment(node)) return;
+        if (!ts.isPropertyAssignment(node)) return;
         const nodeProperty = ts.isStringLiteral(node.name) ? node.name.text : null;
         const property = TokenamiConfig.TokenProperty.safeParse(nodeProperty);
         if (!property.success) return;
 
         const { variants } = TokenamiConfig.getTokenPropertySplit(property.output);
-        const parts = TokenamiConfig.getTokenPropertyParts(property.output, config);
+        const invalidPropertyIndex = findDiagnosticIndex(INVALID_PROPERTY_ERROR_CODE, node);
         const invalidValueIndex = findDiagnosticIndex(INVALID_VALUE_ERROR_CODE, node);
-        const isArbitrarySelector = variants.some(TokenamiConfig.getArbitrarySelector);
 
-        if (variants.length && !parts && !isArbitrarySelector) {
+        if (invalidPropertyIndex > -1 && variants.length) {
           const selector = variants.join('_');
           const isEmptyArbitrarySelector = variants.includes('{}');
           const message = `Tokenami properties may only specify known selectors, and '${selector}' does not exist.${
             isEmptyArbitrarySelector ? ` Add an arbitrary selector or remove '${selector}'.` : ''
           }`;
-          diagnostics.push({
-            file: sourceFile,
-            start: node.getStart(),
-            length: node.name.getWidth(),
-            messageText: message,
-            category: ts.DiagnosticCategory.Error,
-            code: INVALID_PROPERTY_ERROR_CODE,
-          });
+          updateDiagnosticMessage(invalidPropertyIndex, message);
         }
 
         if (invalidValueIndex > -1 && ts.isStringLiteral(node.initializer)) {
@@ -373,14 +278,10 @@ function init(modules: { typescript: typeof tslib }) {
           return transformTokenValueEntry(entry, config);
         });
       } else if (isTokenPropertyEntries) {
-        const isQuoted = Boolean(original.entries[0]?.name.match(/^"/));
-        original.entries = [
-          ...original.entries.flatMap((entry) => {
-            const transformedEntry = transformTokenPropertyEntry(entry);
-            return transformedEntry ? [transformedEntry] : [];
-          }),
-          ...(isQuoted ? selectorCompletions.quoted : selectorCompletions.unquoted),
-        ];
+        original.entries = original.entries.flatMap((entry) => {
+          const transformedEntry = transformTokenPropertyEntry(entry);
+          return transformedEntry ? [transformedEntry] : [];
+        });
       }
 
       return original;
