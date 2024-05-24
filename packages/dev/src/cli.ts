@@ -13,7 +13,7 @@ import * as utils from './utils';
 import * as acorn from 'acorn';
 import * as acornWalk from 'acorn-walk';
 import pkgJson from './../package.json';
-import { require } from './utils/require';
+import { safeRequire } from './utils/require';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -77,7 +77,7 @@ const run = () => {
     .action(async (_, flags) => {
       const startTime = startTimer();
       const configPath = utils.getConfigPath(cwd, flags.config);
-      const projectPkgJson = require(pathe.join(cwd, 'package.json'));
+      const projectPkgJson = safeRequire(pathe.join(cwd, 'package.json'));
       const targets = browserslistToTargets(getBrowsersList(projectPkgJson.browserslist));
       const minify = flags.minify;
       let config: Writeable<Tokenami.Config> = utils.getConfigAtPath(configPath);

@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "dev": "pnpm build --watch",
+    "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
     "typecheck:ci": "pnpm typecheck"
   },

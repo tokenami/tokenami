@@ -4,7 +4,7 @@
 
 ## Change Type
 
-Please indicate the type of change this is:
+<!-- Please indicate the type of change this is -->
 
 - [ ] `documentation`
 - [ ] `patch`

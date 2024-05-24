@@ -3,7 +3,7 @@ import jitiFactory from 'jiti';
 import { transform } from 'sucrase';
 import * as pathe from 'pathe';
 import * as fs from 'fs';
-import { require } from './require';
+import { safeRequire } from './require';
 
 const DEFAULT_PATHS = {
   js: './.tokenami/tokenami.config.js',
@@ -30,7 +30,7 @@ function getConfigPath(cwd: string, path?: string, type?: ProjectType) {
 function getConfigAtPath(path: string): Tokenami.Config {
   const config = (function () {
     try {
-      return require(path);
+      return safeRequire(path);
     } catch {
       return lazyJiti()(path);
     }
@@ -46,8 +46,8 @@ function getConfigAtPath(path: string): Tokenami.Config {
 function getReloadedConfigAtPath(path: string): Tokenami.Config {
   const config = (function () {
     try {
-      delete require.cache[require.resolve(path)];
-      return require(path);
+      delete safeRequire.cache[safeRequire.resolve(path)];
+      return safeRequire(path);
     } catch {
       return lazyJiti({ cache: false })(path);
     }
