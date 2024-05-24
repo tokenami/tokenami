@@ -123,7 +123,7 @@ Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.jso
 
 ```json
 {
-  "include": [".tokenami/tokenami.env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [".tokenami/tokenami.env.d.ts"],
   "compilerOptions": {
     "plugins": [{ "name": "@tokenami/ts-plugin" }]
   }
@@ -226,7 +226,7 @@ module.exports = createConfig({
 With your theme set up, there are only a few rules to remember:
 
 1. A Tokenami **property** is any CSS property prefixed with double dash, e.g. `--font-size`. Use `---` (triple dash) to add custom CSS variables to an element.
-1. A Tokenami **token** is any theme key followed by a value identifier, separated by an underscore. For example, a `color` object in theme with a `red-100` entry maps to `var(--color_red-100)`.
+1. A Tokenami **token** is any theme key followed by a value identifier, and separated by an underscore. For example, a `color` object in theme with a `red-100` entry maps to `var(--color_red-100)`.
 1. Properties can include selectors like media queries, pseudo-classes, and pseudo-elements separated with an underscore. For instance, `--hover_background-color`, `--md_hover_background-color`.
 
 #### Grid values
@@ -317,7 +317,7 @@ function Button({ size, style, ...props }) {
 }
 ```
 
-In the above example, we're passing `props.style` as an override to ensure composed styles will merge correctly across component boundaries.
+In the above example we're passing `props.style` as an override to ensure composed styles will merge correctly across component boundaries.
 
 ### Overrides
 
@@ -550,24 +550,20 @@ Tokenami only supports [browserslist](https://browsersl.ist/) in your `package.j
 
 To improve performance during development, Tokenami widens its types and uses the TypeScript plugin for completions. Using `tsc` in the command line defaults to these widened types so it will not highlight errors for your properties or tokens. To get accurate types for CI, do the following:
 
-#### Create a CI project config
+- Create a file named `tsconfig.ci.json` or `jsconfig.ci.json`. It should extend your original config and include the CI-specific Tokenami types
 
-Create a file named `tsconfig.ci.json` or `jsconfig.ci.json`. It should extend your original config and include the CI-specific Tokenami types:
+  ```json
+  {
+    "extends": "./tsconfig.json",
+    "include": [".tokenami/tokenami.env.ci.d.ts"]
+  }
+  ```
 
-```json
-{
-  "extends": "./tsconfig.json",
-  "include": [".tokenami/tokenami.env.ci.d.ts", "**/*.ts", "**/*.tsx"]
-}
-```
+- Use `tsc` with your new configuration
 
-#### Reference CI project config
-
-For CI, use `tsc` with your new configuration:
-
-```sh
-tsc --noEmit --project tsconfig.ci.json
-```
+  ```sh
+  tsc --noEmit --project tsconfig.ci.json
+  ```
 
 ### Design systems with Tokenami
 
@@ -591,7 +587,7 @@ Before raising a bug, please double-check that it isn't [already in my todo list
 
 ### Supported frameworks
 
-Tokenami is in early stages of development and currently only supports applications built using React or SolidJS.
+Tokenami is in early stages of development and currently only supports applications built using React (NextJS, Remix, etc.) or SolidJS.
 
 ### Supported browsers
 
@@ -600,18 +596,6 @@ Tokenami relies on [cascade layers](https://developer.mozilla.org/en-US/docs/Lea
 | <img src="https://github.com/tokenami/tokenami/assets/175330/8588dacd-a77f-44ee-9111-cea6601ebc35" alt="Edge" width="24px" height="24px" /><br/>Edge | <img src="https://github.com/tokenami/tokenami/assets/175330/b2b38574-5290-44ba-bb28-87e139f8efb8" alt="Firefox" width="24px" height="24px" /><br/>Firefox | <img src="https://github.com/tokenami/tokenami/assets/175330/ae970301-390d-426e-9ea7-974267917df6" alt="Chrome" width="24px" height="24px" /><br/>Chrome | <img src="https://github.com/tokenami/tokenami/assets/175330/16c7374c-a466-4fbe-9459-44c3b30bb688" alt="Safari" width="24px" height="24px" /><br/>Safari | <img src="https://github.com/tokenami/tokenami/assets/175330/16c7374c-a466-4fbe-9459-44c3b30bb688" alt="iOS Safari" width="24px" height="24px" /><br/>iOS Safari | <img src="https://github.com/tokenami/tokenami/assets/175330/e9eaad5e-ef39-4423-ad4b-2e61c0bcc873" alt="Opera" width="24px" height="24px" /><br/>Opera |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 99+                                                                                                                                                  | 97+                                                                                                                                                        | 99+                                                                                                                                                      | 15.4+                                                                                                                                                    | 15.4+                                                                                                                                                            | 86+                                                                                                                                                    |
-
-### HMR not working as expected in Remix
-
-When adding the stylesheet to the `links` export, make sure to import it instead of referencing a path in the `href` property:
-
-```tsx
-import styles from '~/tokenami.css';
-
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
-```
-
-If your stylesheet is outside the remix `app` directory, update `remix.config.js` to include it in [`watchPaths`](https://remix.run/docs/en/main/file-conventions/remix-config#watchpaths) and update the import path appropriately.
 
 ## Contributors
 

@@ -37,7 +37,7 @@ jobs:
   canary:
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ github.ref != 'ref/head/main' }}
+    if: ${{ github.ref != 'ref/head/main' && !contains(github.event.pull_request.labels.*.name, 'skip-release') }}
     environment: canary
     permissions:
       contents: write

@@ -5,11 +5,10 @@
   "sideEffects": false,
   "scripts": {
     "prepare": "tokenami",
-    "build": "pnpm build:css --minify && remix build",
-    "build:css": "tokenami",
-    "dev": "concurrently \"pnpm:dev:*\"",
+    "build": "tokenami --minify && remix build",
+    "dev": "pnpm run \"/dev:/\"",
     "dev:app": "remix dev",
-    "dev:css": "pnpm build:css --watch",
+    "dev:css": "tokenami --watch",
     "start": "remix-serve build",
     "typecheck": "tsc --noEmit",
     "typecheck:ci": "tsc --noEmit --project tsconfig.ci.json",
@@ -33,7 +32,6 @@
     "@tokenami/ts-plugin": "file:../../packages/ts-plugin",
     "@types/react": "^18.0.35",
     "@types/react-dom": "^18.0.11",
-    "concurrently": "^8.2.0",
     "eslint": "^8.43.0",
     "typescript": "^5.1.3"
   },
