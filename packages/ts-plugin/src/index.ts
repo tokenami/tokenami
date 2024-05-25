@@ -13,11 +13,6 @@ type EntryConfigItem = {
   themeKey?: string;
 };
 
-type CompletionEntriesCache = {
-  propertyEntries: tslib.CompletionEntry[] | null;
-  valueEntries: tslib.CompletionEntry[] | null;
-};
-
 function init(modules: { typescript: typeof tslib }) {
   const ts = modules.typescript;
   let entryConfigMap = new Map<string, EntryConfigItem>();
@@ -129,8 +124,8 @@ function init(modules: { typescript: typeof tslib }) {
   function transformTokenPropertyEntry(entry: tslib.CompletionEntry): tslib.CompletionEntry | null {
     const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
     if (!property.success) return null;
-    const sortText = '$' + property.output;
-    return { ...entry, sortText, insertText: property.output };
+    const sortText = '$' + entry.name;
+    return { ...entry, sortText, insertText: entry.name };
   }
 
   /* ---------------------------------------------------------------------------------------------
@@ -182,7 +177,6 @@ function init(modules: { typescript: typeof tslib }) {
       return proxy;
     }
 
-    const cache: CompletionEntriesCache = { propertyEntries: null, valueEntries: null };
     let config = Tokenami.getConfigAtPath(configPath);
     let selectorCompletions = getSelectorCompletions(config);
 
@@ -193,8 +187,6 @@ function init(modules: { typescript: typeof tslib }) {
         config = Tokenami.getReloadedConfigAtPath(configPath);
         selectorCompletions = getSelectorCompletions(config);
         info.project.refreshDiagnostics();
-        cache.propertyEntries = null;
-        cache.valueEntries = null;
       }
     });
 
@@ -339,16 +331,17 @@ function init(modules: { typescript: typeof tslib }) {
       );
 
       if (isTokenValueEntries) {
-        original.entries = cache.valueEntries ??= original.entries.map((entry) => {
+        original.entries = original.entries.map((entry) => {
           return transformTokenValueEntry(entry, config);
         });
       } else if (isTokenPropertyEntries) {
-        original.entries = cache.propertyEntries ??= original.entries
-          .flatMap((entry) => {
+        original.entries = [
+          ...original.entries.flatMap((entry) => {
             const transformedEntry = transformTokenPropertyEntry(entry);
             return transformedEntry ? [transformedEntry] : [];
-          })
-          .concat(selectorCompletions);
+          }),
+          ...selectorCompletions,
+        ];
       }
 
       return original;
