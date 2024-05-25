@@ -1,3 +1,15 @@
+# v0.0.49 (Sat May 25 2024)
+
+#### 🐛 Bug Fix
+
+- loosen `@tokenami/dev` peerDependencies [#274](https://github.com/tokenami/tokenami/pull/274) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.48 (Sat May 25 2024)
 
 #### 🚀 Enhancement
