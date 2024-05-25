@@ -41,7 +41,7 @@
     "vitest": "^0.34.6"
   },
   "peerDependencies": {
-    "@tokenami/dev": "workspace:*",
+    "@tokenami/dev": ">= 0",
     "typescript": ">= 5"
   }
 }
