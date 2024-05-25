@@ -1,58 +1,21 @@
 import type * as CSS from 'csstype';
 import type * as Tokenami from '@tokenami/config';
 
+type Merge<A, B> = B extends never ? A : Omit<A, keyof B> & B;
+type DefaultConfig = Tokenami.DefaultConfig & { CI: false };
+
 // consumer will override this interface
 interface TokenamiConfig {}
-
-type Merge<A, B> = B extends never ? A : Omit<A, keyof B> & B;
-
-type DefaultConfig = Tokenami.DefaultConfig & { CI: false };
 interface TokenamiFinalConfig extends Merge<DefaultConfig, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
 type AliasConfig = TokenamiFinalConfig['aliases'];
 type PropertyConfig = TokenamiFinalConfig['properties'];
-
-type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T> ? T : ThemeConfig;
 type SelectorKey = keyof TokenamiFinalConfig['selectors'];
 type ResponsiveKey = keyof TokenamiFinalConfig['responsive'];
 type ResponsiveSelectorKey = `${ResponsiveKey}_${SelectorKey}`;
 
-type TokensByThemeKey = {
-  [K in keyof Theme]: keyof Theme[K] extends `${infer Token}`
-    ? Tokenami.TokenValue<K, Token>
-    : never;
-};
-
-type ThemeValue<ThemeKey> = ThemeKey extends keyof TokensByThemeKey
-  ? TokensByThemeKey[ThemeKey]
-  : never;
-
-type PropertyThemeValue<ThemeKey> = ThemeKey extends 'grid'
-  ? Tokenami.ArbitraryValue | CSS.Globals | ThemeValue<ThemeKey> | Tokenami.GridValue
-  : ThemeKey extends keyof TokensByThemeKey
-  ? Tokenami.ArbitraryValue | CSS.Globals | ThemeValue<ThemeKey>
-  : never;
-
-type VariantProperty<P extends string> =
-  | Tokenami.TokenProperty<P>
-  | (TokenamiFinalConfig['CI'] extends true
-      ? Tokenami.VariantProperty<P, ResponsiveKey | SelectorKey | ResponsiveSelectorKey>
-      : Tokenami.VariantProperty<P, string>);
-
-type AliasedProperty<P> = {
-  [A in keyof AliasConfig]: P extends AliasConfig[A][number] ? VariantProperty<A> : never;
-}[keyof AliasConfig];
-
-type TokenProperty<P> = P extends string
-  ? AliasedProperty<P> extends never
-    ? VariantProperty<P>
-    : AliasedProperty<P> | VariantProperty<P>
-  : never;
-
-type TokenValue<P> = P extends keyof PropertyConfig
-  ? PropertyThemeValue<PropertyConfig[P][number]>
-  : never;
+type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T> ? T : ThemeConfig;
 
 type TokenProperties<P> = {
   [K in TokenProperty<P>]?: TokenValue<P> extends never
@@ -62,7 +25,54 @@ type TokenProperties<P> = {
     : TokenValue<P>;
 };
 
-interface Properties {
+type TokenProperty<P> = P extends string
+  ? AliasedProperty<P> extends never
+    ? VariantProperty<P>
+    : AliasedProperty<P> | VariantProperty<P>
+  : never;
+
+type AliasedProperty<P> = {
+  [A in keyof AliasConfig]: P extends AliasConfig[A][number] ? VariantProperty<A> : never;
+}[keyof AliasConfig];
+
+type VariantProperty<P extends string> =
+  | Tokenami.TokenProperty<P>
+  | (TokenamiFinalConfig['CI'] extends true
+      ? Tokenami.VariantProperty<P, ResponsiveKey | SelectorKey | ResponsiveSelectorKey>
+      : Tokenami.VariantProperty<P, string>);
+
+type TokenValue<P> = P extends keyof PropertyConfig
+  ? PropertyThemeValue<PropertyConfig[P][number]>
+  : never;
+
+type PropertyThemeValue<ThemeKey extends string> =
+  | Tokenami.ArbitraryValue
+  | CSS.Globals
+  | TokensByThemeKey[ThemeKey]
+  | (ThemeKey extends 'grid' ? Tokenami.GridValue : never);
+
+type TokensByThemeKey = { [key: string]: never } & {
+  [K in keyof Theme]: keyof Theme[K] extends `${infer Token}`
+    ? Tokenami.TokenValue<K, Token>
+    : never;
+};
+
+/**
+ * -------------------------------------------------------------------------
+ * we purposefully list these manually for performance.
+ * using inference here would cripple intellisense performance.
+ * -------------------------------------------------------------------------
+ * generated from the following snippet in console. KISS for now.
+
+  // copy(`
+  // export interface Properties {${properties.map(prop => `
+  //   '${prop}': TokenProperties<'${prop}'>;`).join(' ')}
+  // }
+  // `)
+ * -------------------------------------------------------------------------
+ */
+
+export interface Properties {
   all: TokenProperties<'all'>;
   animation: TokenProperties<'animation'>;
   'animation-range': TokenProperties<'animation-range'>;
@@ -538,6 +548,21 @@ interface Properties {
   'scroll-padding-inline-end': TokenProperties<'scroll-padding-inline-end'>;
   'scroll-padding-inline-start': TokenProperties<'scroll-padding-inline-start'>;
 }
+
+/**
+ * -------------------------------------------------------------------------
+ * we purposefully use an interface and list these manually for performance.
+ * using intersection types or inference wld cripple intellisense perf.
+ * -------------------------------------------------------------------------
+ * generated from the following snippet in console. KISS for now.
+
+  // copy(`
+  // interface TokenamiProperties extends ${properties.map(prop => `TokenProperties<'${prop}'>`).join(', ')} {
+  //   [customProperty: \`---\${string}\`]: string | number | undefined;
+  // }
+  // `)
+ * -------------------------------------------------------------------------
+ */
 
 interface TokenamiProperties
   extends TokenProperties<'all'>,
