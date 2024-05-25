@@ -488,8 +488,8 @@ const supported: AllProperties = {
 };
 
 type LogicalProperties = keyof typeof supportedLogical;
-const supportedProperties = Object.keys(supported) as CSSProperty[];
-const supportedLogicalProperties = Object.keys(supportedLogical) as LogicalProperties[];
+const supportedProperties = new Set(Object.keys(supported)) as Set<CSSProperty>;
+const supportedLogicalProperties = new Set(Object.keys(supportedLogical)) as Set<LogicalProperties>;
 
 export type { CSSProperty };
 export { supportedProperties, supportedLogicalProperties };

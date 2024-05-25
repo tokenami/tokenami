@@ -51,7 +51,7 @@ function generate(params: {
   };
 
   propertyConfigsByCSSProperty.forEach((configs, cssProperty) => {
-    const isLogical = supportedLogicalProperties.includes(cssProperty as any);
+    const isLogical = supportedLogicalProperties.has(cssProperty as any);
     // sort configs to ensure property value orders fallbacks correctly
     const sortedConfigs = [...configs].sort((a, b) => a.order - b.order);
     const variants = sortedConfigs.flatMap((config) => (config.variant ? [config.variant] : []));
@@ -176,7 +176,7 @@ function getPropertyConfigs(
 const SHORTHAND_TO_LONGHAND_ENTRIES = Object.entries(Tokenami.mapShorthandToLonghands);
 
 function getAtomicLayer(cssProperty: string): number {
-  const isSupported = (supportedProperties as string[]).includes(cssProperty);
+  const isSupported = supportedProperties.has(cssProperty as any);
   const initialDepth = isSupported ? 1 : -1;
 
   if (cssProperty === 'all') return 0;

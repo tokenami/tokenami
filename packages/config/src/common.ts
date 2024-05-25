@@ -30,8 +30,9 @@ const GridValue = {
  * TokenProperty
  * -----------------------------------------------------------------------------------------------*/
 
+const charClass = `A-Za-z0-9!#$%&()*+,./:;<=>?@[\\]^_{|}~`;
 type TokenProperty<P extends string = string> = `--${P}`;
-const tokenPropertyRegex = /(?<!var\()--(\w([\w-]+)?)/;
+const tokenPropertyRegex = new RegExp(`(?<!var\\()--[${charClass}]([${charClass}-]+)?`);
 
 const TokenProperty = {
   safeParse: (input: unknown) => validate<TokenProperty>(tokenPropertyRegex, input),
@@ -83,7 +84,7 @@ const ArbitraryValue = {
 };
 
 function arbitraryValue(value: string): ArbitraryValue {
-  return `var(---,${value})`;
+  return `var(---, ${value})`;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -94,9 +95,9 @@ type Validated<T> = { success: true; output: T } | { success: false };
 
 function validate<T>(regex: RegExp, input: unknown): Validated<T> {
   try {
-    const inputString = String(input);
-    if (regex.test(inputString)) {
-      return { success: true, output: inputString as T };
+    const [match] = String(input).match(regex) || [];
+    if (match) {
+      return { success: true, output: match as T };
     } else {
       return { success: false };
     }
@@ -109,16 +110,17 @@ function validate<T>(regex: RegExp, input: unknown): Validated<T> {
  * getTokenPropertyName
  * -----------------------------------------------------------------------------------------------*/
 
-function getTokenPropertyName(tokenProperty: TokenProperty) {
-  return tokenProperty.replace(tokenPropertyRegex, '$1');
+function getTokenPropertyName(property: TokenProperty) {
+  const propertyPrefix = tokenProperty('');
+  return property.replace(propertyPrefix, '');
 }
 
 /* -------------------------------------------------------------------------------------------------
  * getTokenPropertySplit
  * -----------------------------------------------------------------------------------------------*/
 
-function getTokenPropertySplit(tokenProperty: TokenProperty) {
-  const name = getTokenPropertyName(tokenProperty);
+function getTokenPropertySplit(property: TokenProperty) {
+  const name = getTokenPropertyName(property);
   const [alias, ...variants] = name.split('_').reverse() as [string, ...string[]];
   return { alias, variants: variants.reverse() };
 }
@@ -128,7 +130,6 @@ function getTokenPropertySplit(tokenProperty: TokenProperty) {
  * -----------------------------------------------------------------------------------------------*/
 
 type PropertyParts = {
-  name: string;
   alias: string;
   responsive?: string;
   selector?: string;
@@ -136,7 +137,6 @@ type PropertyParts = {
 };
 
 function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): PropertyParts | null {
-  const name = getTokenPropertyName(tokenProperty);
   const { alias, variants } = getTokenPropertySplit(tokenProperty);
   const [firstVariant, secondVariant] = variants;
   const firstSelector = config.selectors?.[firstVariant!] && firstVariant;
@@ -145,7 +145,7 @@ function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): Pr
   const selector = firstSelector || secondSelector;
   const validVariant = [responsive, selector].filter(Boolean).join('_');
   if (firstVariant && variantProperty(validVariant, alias) !== tokenProperty) return null;
-  return { name, alias, responsive, selector, variant: validVariant };
+  return { alias, responsive, selector, variant: validVariant };
 }
 
 /* -------------------------------------------------------------------------------------------------

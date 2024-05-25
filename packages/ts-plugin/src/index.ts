@@ -2,7 +2,7 @@ import tslib from 'typescript/lib/tsserverlibrary';
 import * as TokenamiConfig from '@tokenami/config';
 import * as Tokenami from '@tokenami/dev';
 
-const INVALID_SELECTOR_ERROR_CODE = 50000;
+const INVALID_PROPERTY_ERROR_CODE = 2353;
 const INVALID_VALUE_ERROR_CODE = 2322;
 
 type EntryConfigItem = {
@@ -122,6 +122,43 @@ function init(modules: { typescript: typeof tslib }) {
     return false;
   }
 
+  /* ---------------------------------------------------------------------------------------------
+   * transformTokenPropertyEntry
+   * -------------------------------------------------------------------------------------------*/
+
+  function transformTokenPropertyEntry(entry: tslib.CompletionEntry): tslib.CompletionEntry | null {
+    const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
+    if (!property.success) return null;
+    const sortText = '$' + property.output;
+    return { ...entry, sortText, insertText: property.output };
+  }
+
+  /* ---------------------------------------------------------------------------------------------
+   * transformTokenValueEntry
+   * -------------------------------------------------------------------------------------------*/
+
+  function transformTokenValueEntry(
+    entry: tslib.CompletionEntry,
+    config: TokenamiConfig.Config
+  ): tslib.CompletionEntry {
+    const entryName = entry.name;
+    const property = TokenamiConfig.TokenValue.safeParse(entryName);
+    if (!property.success) return entry;
+
+    const parts = TokenamiConfig.getTokenValueParts(property.output);
+    const modeValues = Tokenami.getThemeValuesByThemeMode(property.output, config.theme);
+    if (!Object.entries(modeValues).length) return entry;
+
+    const name = `$${parts.token}`;
+    const kindModifiers = parts.themeKey;
+    const sortText = '$' + entryName;
+    const labelDetails = { detail: '', description: entryName };
+    const insertText = entryName;
+    const nextEntry = { ...entry, name, sortText, kindModifiers, insertText, labelDetails };
+    updateEntryDetailsConfig({ ...nextEntry, themeKey: parts.themeKey, modeValues });
+    return nextEntry;
+  }
+
   /* -----------------------------------------------------------------------------------------------
    * create
    * ---------------------------------------------------------------------------------------------*/
@@ -167,61 +204,68 @@ function init(modules: { typescript: typeof tslib }) {
      * -------------------------*/
 
     proxy.getSemanticDiagnostics = (fileName) => {
-      const original = info.languageService.getSemanticDiagnostics(fileName);
+      const diagnostics = info.languageService.getSemanticDiagnostics(fileName);
       const program = info.languageService.getProgram();
       const sourceFile = program?.getSourceFile(fileName);
 
+      const findDiagnosticIndex = (code: number, node: tslib.Node): number => {
+        return diagnostics.findIndex((diagnostic) => {
+          const isCodeMatch = diagnostic.code === code;
+          const isCurrentNode = diagnostic.start === node.getStart();
+          return isCodeMatch && isCurrentNode;
+        });
+      };
+
+      const updateDiagnosticMessage = (index: number, messageText: string): void => {
+        if (index === -1) return;
+        diagnostics[index] = { ...diagnostics[index], messageText } as tslib.Diagnostic;
+      };
+
+      const processNode = (node: tslib.Node): void => {
+        const isDiagnosticPrevented = shouldSuppressDiagnosticForNode(node, sourceFile!);
+        if (isDiagnosticPrevented || !ts.isPropertyAssignment(node)) return;
+        const nodeProperty = ts.isStringLiteral(node.name) ? node.name.text : null;
+        const property = TokenamiConfig.TokenProperty.safeParse(nodeProperty);
+        if (!property.success) return;
+
+        const { variants } = TokenamiConfig.getTokenPropertySplit(property.output);
+        const parts = TokenamiConfig.getTokenPropertyParts(property.output, config);
+        const invalidValueIndex = findDiagnosticIndex(INVALID_VALUE_ERROR_CODE, node);
+
+        if (!parts && variants.length) {
+          const selector = variants.join('_');
+          const message = `Tokenami properties may only specify known selectors, and '${selector}' does not exist.`;
+          diagnostics.push({
+            file: sourceFile,
+            start: node.getStart(),
+            length: node.name.getWidth(),
+            messageText: message,
+            category: ts.DiagnosticCategory.Error,
+            code: INVALID_PROPERTY_ERROR_CODE,
+          });
+        }
+
+        if (invalidValueIndex > -1 && ts.isStringLiteral(node.initializer)) {
+          const value = node.initializer.text;
+          const arbitraryValue = TokenamiConfig.arbitraryValue(value);
+          const message = `Value '${value}' is not assignable to Tokenami property '${property.output}'. Use value from theme or mark arbitrary with '${arbitraryValue}'.`;
+          updateDiagnosticMessage(invalidValueIndex, message);
+        }
+
+        if (invalidValueIndex > -1 && ts.isNumericLiteral(node.initializer)) {
+          const message = `Tokenami grid values are not assignable to '${property.output}'.`;
+          updateDiagnosticMessage(invalidValueIndex, message);
+        }
+      };
+
       if (sourceFile) {
-        ts.forEachChild(sourceFile, function visit(node) {
-          const isDiagnosticPrevented = shouldSuppressDiagnosticForNode(node, sourceFile);
-
-          if (!isDiagnosticPrevented && ts.isPropertyAssignment(node)) {
-            const property = ts.isStringLiteral(node.name) ? node.name.text : null;
-            const textValue = ts.isStringLiteral(node.initializer) ? node.initializer.text : null;
-            const parsedProperty = TokenamiConfig.TokenProperty.safeParse(property);
-
-            if (parsedProperty.success) {
-              const parts = TokenamiConfig.getTokenPropertyParts(parsedProperty.output, config);
-
-              if (!parts) {
-                original.push({
-                  file: sourceFile,
-                  start: node.getStart(),
-                  length: node.getWidth(),
-                  messageText: `Invalid property '${property}'. Selector not found in theme.`,
-                  category: ts.DiagnosticCategory.Error,
-                  code: INVALID_SELECTOR_ERROR_CODE,
-                });
-              }
-
-              const invalidValueIndex = original.findIndex((diagnostic) => {
-                const isCodeMatch = diagnostic.code === INVALID_VALUE_ERROR_CODE;
-                const isCurrentNode = diagnostic.start === node.getStart();
-                return isCodeMatch && isCurrentNode;
-              });
-
-              if (invalidValueIndex > -1) {
-                let messageText = `Grid values are not assignable to '${property}'.`;
-
-                if (textValue) {
-                  const arbitraryValue = TokenamiConfig.arbitraryValue(textValue);
-                  messageText = `Value '${textValue}' is not assignable to '${property}'. Use theme value or mark arbitrary with '${arbitraryValue}'`;
-                }
-
-                // @ts-ignore
-                original[invalidValueIndex] = {
-                  ...original[invalidValueIndex],
-                  messageText,
-                };
-              }
-            }
-          }
-
-          ts.forEachChild(node, visit);
+        ts.forEachChild(sourceFile, function nextNode(node: tslib.Node): void {
+          processNode(node);
+          ts.forEachChild(node, nextNode);
         });
       }
 
-      return original;
+      return diagnostics;
     };
 
     /* ---------------------------------------------------------------------------------------------
@@ -245,40 +289,36 @@ function init(modules: { typescript: typeof tslib }) {
         preferences
       );
 
-      if (errorCodes.includes(INVALID_VALUE_ERROR_CODE)) {
-        const program = info.languageService.getProgram();
-        const sourceFile = program?.getSourceFile(fileName);
+      if (!errorCodes.includes(INVALID_VALUE_ERROR_CODE)) return original;
 
-        if (sourceFile) {
-          const node = findNodeAtPosition(sourceFile, start);
+      const program = info.languageService.getProgram();
+      const sourceFile = program?.getSourceFile(fileName);
+      if (!sourceFile) return original;
 
-          if (node?.parent && tslib.isPropertyAssignment(node.parent)) {
-            const assignment = node.parent;
-            const valueSpan = createTextSpanFromNode(assignment.initializer);
-            const value = ts.isStringLiteral(assignment.initializer) && assignment.initializer.text;
+      const node = findNodeAtPosition(sourceFile, start);
+      if (!node?.parent || !tslib.isPropertyAssignment(node.parent)) return original;
 
-            if (value) {
-              const quoteMark = assignment.initializer.getText().slice(-1);
-              const arbitraryValue = TokenamiConfig.arbitraryValue(value);
-              const arbitraryText = `${quoteMark}${arbitraryValue}${quoteMark}`;
-              return [
-                {
-                  description: `Use ${arbitraryText} to mark as arbitrary`,
-                  fixName: 'replaceWithArbitrary',
-                  changes: [
-                    {
-                      fileName,
-                      textChanges: [{ span: valueSpan, newText: arbitraryText }],
-                    },
-                  ],
-                },
-              ];
-            }
-          }
-        }
-      }
+      const assignment = node.parent;
+      const valueSpan = createTextSpanFromNode(assignment.initializer);
+      const value = ts.isStringLiteral(assignment.initializer) && assignment.initializer.text;
+      if (!value) return original;
 
-      return original;
+      const quoteMark = assignment.initializer.getText().slice(-1);
+      const arbitraryValue = TokenamiConfig.arbitraryValue(value);
+      const arbitraryText = `${quoteMark}${arbitraryValue}${quoteMark}`;
+
+      return [
+        {
+          description: `Use ${arbitraryText} to mark as arbitrary`,
+          fixName: 'replaceWithArbitrary',
+          changes: [
+            {
+              fileName,
+              textChanges: [{ span: valueSpan, newText: arbitraryText }],
+            },
+          ],
+        },
+      ];
     };
 
     /* ---------------------------------------------------------------------------------------------
@@ -291,59 +331,24 @@ function init(modules: { typescript: typeof tslib }) {
       const sourceFile = program?.getSourceFile(fileName);
       if (!original || !sourceFile) return original;
 
-      const isTokenValueEntries = original.entries.some(
-        (entry) => TokenamiConfig.TokenValue.safeParse(entry.name).success
-      );
       const isTokenPropertyEntries = original.entries.some(
         (entry) => TokenamiConfig.TokenProperty.safeParse(entry.name).success
+      );
+      const isTokenValueEntries = original.entries.some(
+        (entry) => TokenamiConfig.TokenValue.safeParse(entry.name).success
       );
 
       if (isTokenValueEntries) {
         original.entries = cache.valueEntries ??= original.entries.map((entry) => {
-          const entryName = entry.name;
-          const property = TokenamiConfig.TokenValue.safeParse(entryName);
-          entry.sortText = entryName;
-
-          if (property.success) {
-            const parts = TokenamiConfig.getTokenValueParts(property.output);
-            const modeValues = Tokenami.getThemeValuesByThemeMode(property.output, config.theme);
-
-            if (Object.entries(modeValues).length) {
-              const name = `$${parts.token}`;
-              const kindModifiers = parts.themeKey;
-              entry.name = name;
-              entry.sortText = '$' + entryName;
-              entry.kindModifiers = kindModifiers;
-              entry.insertText = entryName;
-              entry.labelDetails = { detail: '', description: entryName };
-              updateEntryDetailsConfig({
-                name,
-                kind: entry.kind,
-                kindModifiers,
-                themeKey: parts.themeKey,
-                modeValues,
-              });
-            }
-          }
-
-          return entry;
+          return transformTokenValueEntry(entry, config);
         });
       } else if (isTokenPropertyEntries) {
-        if (cache.propertyEntries) {
-          original.entries = cache.propertyEntries;
-        } else {
-          original.entries = original.entries.flatMap((entry) => {
-            const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
-            entry.sortText = entry.name;
-            // filter any suggestions that aren't tokenami properties (e.g. backgroundColor)
-            if (!property.success) return [];
-            entry.sortText = '$' + property.output;
-            entry.insertText = property.output;
-            return [entry];
-          });
-          original.entries = original.entries.concat(selectorCompletions);
-          cache.propertyEntries = original.entries;
-        }
+        original.entries = cache.propertyEntries ??= original.entries
+          .flatMap((entry) => {
+            const transformedEntry = transformTokenPropertyEntry(entry);
+            return transformedEntry ? [transformedEntry] : [];
+          })
+          .concat(selectorCompletions);
       }
 
       return original;
@@ -406,6 +411,10 @@ function init(modules: { typescript: typeof tslib }) {
       return common;
     };
 
+    /* ---------------------------------------------------------------------------------------------
+     * getQuickInfoAtPosition
+     * -------------------------------------------------------------------------------------------*/
+
     proxy.getQuickInfoAtPosition = (fileName, position) => {
       const original = info.languageService.getQuickInfoAtPosition(fileName, position);
       const sourceFile = info.languageService.getProgram()?.getSourceFile(fileName);
@@ -421,6 +430,10 @@ function init(modules: { typescript: typeof tslib }) {
       const tokenValue = TokenamiConfig.TokenValue.safeParse(propertyValue);
 
       if (!tokenProperty.success || !tokenValue.success) return original;
+      const { variants } = TokenamiConfig.getTokenPropertySplit(tokenProperty.output);
+      const propertyParts = TokenamiConfig.getTokenPropertyParts(tokenProperty.output, config);
+      if (!propertyParts && variants.length) return;
+
       const parts = TokenamiConfig.getTokenValueParts(tokenValue.output);
       const modeValues = Tokenami.getThemeValuesByThemeMode(tokenValue.output, config.theme);
       const isColor = parts.themeKey === 'color';
