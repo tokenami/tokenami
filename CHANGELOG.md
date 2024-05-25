@@ -1,3 +1,24 @@
+# v0.0.48 (Sat May 25 2024)
+
+#### 🚀 Enhancement
+
+- provide ts errors for invalid selectors with special chars [#273](https://github.com/tokenami/tokenami/pull/273) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- include missing quotes in property insert text [#270](https://github.com/tokenami/tokenami/pull/270) ([@jjenzz](https://github.com/jjenzz))
+- add support for multiple ampersands in selectors [#269](https://github.com/tokenami/tokenami/pull/269) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- insignificant repo tlc that was bugging me [#271](https://github.com/tokenami/tokenami/pull/271) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.47 (Fri May 17 2024)
 
 #### 🐛 Bug Fix
