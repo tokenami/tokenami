@@ -190,12 +190,16 @@ function init(modules: { typescript: typeof tslib }) {
     ts.sys.watchFile?.(configPath, (_, eventKind: tslib.FileWatcherEventKind) => {
       if (eventKind === modules.typescript.FileWatcherEventKind.Changed) {
         logger.info(`Tokenami:: Config changed at ${configPath}`);
-        config = Tokenami.getReloadedConfigAtPath(configPath);
-        info.project.refreshDiagnostics();
-        selectorCompletions = {
-          unquoted: getSelectorCompletions(config),
-          quoted: getSelectorCompletions(config, '"'),
-        };
+        try {
+          config = Tokenami.getReloadedConfigAtPath(configPath);
+          info.project.refreshDiagnostics();
+          selectorCompletions = {
+            unquoted: getSelectorCompletions(config),
+            quoted: getSelectorCompletions(config, '"'),
+          };
+        } catch (e) {
+          logger.info(`Tokenami:: Skipped change to ${configPath} with ${e}`);
+        }
       }
     });
 
