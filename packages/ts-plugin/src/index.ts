@@ -23,13 +23,16 @@ function init(modules: { typescript: typeof tslib }) {
    * we pre-compute selector entries to improve performance
    * -------------------------------------------------------------------------------------------*/
 
-  function getSelectorCompletions(config: TokenamiConfig.Config): tslib.CompletionEntry[] {
+  function getSelectorCompletions(
+    config: TokenamiConfig.Config,
+    quote?: string
+  ): tslib.CompletionEntry[] {
     const responsiveEntries = Object.entries(config.responsive || {});
     const selectorsEntries = Object.entries(config.selectors || {});
     const aliasProperties = Object.keys(config.aliases || {});
 
     return [...Tokenami.supportedProperties, ...aliasProperties].flatMap((property) => {
-      const createCompletionEntry = createVariantPropertyEntry(property);
+      const createCompletionEntry = createVariantPropertyEntry(property, quote);
       const entries = responsiveEntries.flatMap((entry) => {
         const responsiveEntry = createCompletionEntry(entry);
         const [responsiveSelector, responsiveValue] = entry;
@@ -40,7 +43,7 @@ function init(modules: { typescript: typeof tslib }) {
         });
         return [responsiveEntry, ...combinedEntries];
       });
-      return [...entries, ...selectorsEntries.map(createVariantPropertyEntry(property))];
+      return [...entries, ...selectorsEntries.map(createVariantPropertyEntry(property, quote))];
     });
   }
 
@@ -48,10 +51,10 @@ function init(modules: { typescript: typeof tslib }) {
    * createVariantPropertyEntry
    * -------------------------------------------------------------------------------------------*/
 
-  const createVariantPropertyEntry = (property: string) => {
+  const createVariantPropertyEntry = (property: string, quote = '') => {
     return ([selector, value]: [string, string | string[]]) => {
       const tokenProperty = TokenamiConfig.variantProperty(selector, property);
-      const name = `\"${tokenProperty}\"`;
+      const name = `${quote}${tokenProperty}${quote}`;
       const kind = tslib.ScriptElementKind.memberVariableElement;
       const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
       updateEntryDetailsConfig({ name, kind, kindModifiers, value });
@@ -178,15 +181,21 @@ function init(modules: { typescript: typeof tslib }) {
     }
 
     let config = Tokenami.getConfigAtPath(configPath);
-    let selectorCompletions = getSelectorCompletions(config);
+    let selectorCompletions = {
+      unquoted: getSelectorCompletions(config),
+      quoted: getSelectorCompletions(config, '"'),
+    };
 
     logger.info(`Tokenami:: Watching config at ${configPath}`);
     ts.sys.watchFile?.(configPath, (_, eventKind: tslib.FileWatcherEventKind) => {
       if (eventKind === modules.typescript.FileWatcherEventKind.Changed) {
         logger.info(`Tokenami:: Config changed at ${configPath}`);
         config = Tokenami.getReloadedConfigAtPath(configPath);
-        selectorCompletions = getSelectorCompletions(config);
         info.project.refreshDiagnostics();
+        selectorCompletions = {
+          unquoted: getSelectorCompletions(config),
+          quoted: getSelectorCompletions(config, '"'),
+        };
       }
     });
 
@@ -335,12 +344,13 @@ function init(modules: { typescript: typeof tslib }) {
           return transformTokenValueEntry(entry, config);
         });
       } else if (isTokenPropertyEntries) {
+        const isQuoted = Boolean(original.entries[0]?.name.match(/^"/));
         original.entries = [
           ...original.entries.flatMap((entry) => {
             const transformedEntry = transformTokenPropertyEntry(entry);
             return transformedEntry ? [transformedEntry] : [];
           }),
-          ...selectorCompletions,
+          ...(isQuoted ? selectorCompletions.quoted : selectorCompletions.unquoted),
         ];
       }
 
