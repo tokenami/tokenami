@@ -78,12 +78,16 @@ const css: CSS = (baseStyles, ...overrides) => {
     if (!originalStyles) return;
     Object.entries(originalStyles).forEach(([key, value]) => {
       if (!Tokenami.TokenProperty.safeParse(key).success) return;
+      // we purposefully don't use property.output here bcos custom css vars
+      // are prefixed w/ triple dash and we want those to remain as is.
+      // safeParse acts like zod, its output matches a Tokenami TokenProperty
+      // shape exactly (two hyphens).
       const tokenProperty = key as keyof TokenamiProperties;
       const parts = Tokenami.getTokenPropertySplit(tokenProperty);
       const cssProperties = Tokenami.getCSSPropertiesForAlias(parts.alias, css[_ALIASES]);
 
       cssProperties.forEach((cssProperty) => {
-        const tokenPropertyLong = createTokenProperty(tokenProperty, cssProperty);
+        const tokenPropertyLong = createEscapedLonghandProperty(tokenProperty, cssProperty);
 
         if (typeof value === 'number' && value > 0) {
           const gridVar = Tokenami.gridProperty();
@@ -160,20 +164,21 @@ function overrideLonghands(style: Record<string, any>, tokenProperty: Tokenami.T
   const parts = Tokenami.getTokenPropertySplit(tokenProperty);
   const longhands: string[] = Tokenami.mapShorthandToLonghands.get(parts.alias as any) || [];
   longhands.forEach((longhand) => {
-    const tokenPropertyLong = createTokenProperty(tokenProperty, longhand);
+    const tokenPropertyLong = createEscapedLonghandProperty(tokenProperty, longhand);
     if (style[tokenPropertyLong]) delete style[tokenPropertyLong];
     overrideLonghands(style, tokenPropertyLong);
   });
 }
 
 /* -------------------------------------------------------------------------------------------------
- * createTokenProperty
+ * createEscapedLonghandProperty
  * -----------------------------------------------------------------------------------------------*/
 
-function createTokenProperty(tokenProperty: Tokenami.TokenProperty, cssProperty: string) {
+function createEscapedLonghandProperty(tokenProperty: Tokenami.TokenProperty, cssProperty: string) {
   const parts = Tokenami.getTokenPropertySplit(tokenProperty);
   const aliasRegex = new RegExp(`${parts.alias}$`);
-  return tokenProperty.replace(aliasRegex, cssProperty) as Tokenami.TokenProperty;
+  const escaped = Tokenami.escapeSpecialChars(tokenProperty.replace(aliasRegex, cssProperty));
+  return escaped as Tokenami.TokenProperty;
 }
 
 /* -------------------------------------------------------------------------------------------------

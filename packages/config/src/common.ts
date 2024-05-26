@@ -226,4 +226,5 @@ export {
   getTokenValueParts,
   getArbitrarySelector,
   getCSSPropertiesForAlias,
+  escapeSpecialChars,
 };
