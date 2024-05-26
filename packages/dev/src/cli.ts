@@ -184,12 +184,12 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
  * matchTokens
  * -----------------------------------------------------------------------------------------------*/
 
-// we match all css variable looking things (including special chars within square brackets only
+// we match all css variable looking things (including special chars within square brackets
 // for arbitrary selectors) and determine whether they're a tokenami value/property
 // based on tokenami config. we purposefully don't match `var(...)` for values because we want
 // consumers to be able to pass a generated stylesheet to `includes` to support external design
-// system packages.
-const CSS_VARIABLE_REGEX = /--(([\w-]+|\[[^\]]*\])+)/g;
+// system packages (thanks chat gpt)
+const CSS_VARIABLE_REGEX = /--(?:[\w-]+|\[[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*\])+/g;
 
 function matchTokens(content: string, theme: Tokenami.Config['theme']) {
   const matches = Array.from(content.match(CSS_VARIABLE_REGEX) || []);

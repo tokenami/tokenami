@@ -1,8 +1,5 @@
 import { type Config } from './config';
 
-const SPECIAL_CHAR = '!#$%&()*+,./:;<=>?@[\\]^{|}~';
-const REGULAR_CHAR = 'A-Za-z0-9_';
-
 /* -------------------------------------------------------------------------------------------------
  * GridProperty
  * -----------------------------------------------------------------------------------------------*/
@@ -34,9 +31,9 @@ const GridValue = {
  * -----------------------------------------------------------------------------------------------*/
 
 type TokenProperty<P extends string = string> = `--${P}`;
-const tokenPropertyRegex = new RegExp(
-  `(?<!var\\()--[${REGULAR_CHAR}${SPECIAL_CHAR}]([${REGULAR_CHAR}${SPECIAL_CHAR}-]+)?`
-);
+// thanks chat gpt. will match css variable names that start with `--` and handle nested square
+// brackets, while excluding those prefixed with `var(`
+const tokenPropertyRegex = /(?<!var\()--(?:[\w-]+|\[[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*\])+/g;
 
 const TokenProperty = {
   safeParse: (input: unknown) => validate<TokenProperty>(tokenPropertyRegex, input),
@@ -199,7 +196,7 @@ function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']): st
  * escapeSpecialChars
  * -----------------------------------------------------------------------------------------------*/
 
-const escapeSpecialCharsRegex = new RegExp(`[${SPECIAL_CHAR}]`, 'g');
+const escapeSpecialCharsRegex = /[!#$%&()*+,./:;<=>?@[\]^{|}~"']/g;
 
 function escapeSpecialChars<T extends string>(str: T) {
   // escape and replace colons with hypens for improved dev tooling exp

@@ -261,7 +261,10 @@ function init(modules: { typescript: typeof tslib }) {
 
         if (variants.length && !parts && !isArbitrarySelector) {
           const selector = variants.join('_');
-          const message = `Tokenami properties may only specify known selectors, and '${selector}' does not exist.`;
+          const isEmptyArbitrarySelector = variants.includes('[]');
+          const message = `Tokenami properties may only specify known selectors, and '${selector}' does not exist.${
+            isEmptyArbitrarySelector ? ` Add an arbitrary selector or remove '${selector}'.` : ''
+          }`;
           diagnostics.push({
             file: sourceFile,
             start: node.getStart(),
