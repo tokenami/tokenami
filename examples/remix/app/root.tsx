@@ -10,10 +10,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body
-        className={'theme-light'}
-        style={css({ '--min-height': 'var(--size_fill)', '--m': 0, '--p': 0 })}
-      >
+      <body className={'theme-light'} style={css({ '--min-height': 'var(--size_fill)' })}>
         <Outlet />
         <ScrollRestoration />
         <Scripts />

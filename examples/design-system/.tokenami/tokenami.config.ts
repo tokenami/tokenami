@@ -37,6 +37,17 @@ const theme = {
 
 export default createConfig({
   include: ['./src/**/*.{ts,tsx}'],
+  globalStyles: {
+    '*, *::before, *::after': {
+      boxSizing: 'border-box',
+    },
+    body: {
+      fontFamily: 'system-ui, sans-serif',
+      lineHeight: 1.5,
+      margin: 0,
+      padding: 0,
+    },
+  },
   responsive: {
     md: '@media (min-width: 700px)',
     lg: '@media (min-width: 1024px)',
