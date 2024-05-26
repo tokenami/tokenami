@@ -99,9 +99,13 @@ const run = () => {
         tokenWatcher.on('all', (_, file) => regenerateStylesheet(file, config));
 
         configWatcher.on('all', async (_, file) => {
-          config = utils.getReloadedConfigAtPath(configPath);
-          config.include = flags.files || config.include;
-          regenerateStylesheet(file, config);
+          try {
+            config = utils.getReloadedConfigAtPath(configPath);
+            config.include = flags.files || config.include;
+            regenerateStylesheet(file, config);
+          } catch (e) {
+            log.debug(`Skipped change to ${file} with ${e}`);
+          }
         });
 
         process.once('SIGINT', async () => {
