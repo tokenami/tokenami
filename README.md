@@ -244,6 +244,22 @@ module.exports = createConfig({
 });
 ```
 
+#### Arbitrary selectors
+
+Use arbitrary selectors to prototype quickly:
+
+```tsx
+<div
+  style={css({
+    '--[&:hover]_color': 'var(--color_primary)',
+    '--[&:has(:focus)]_border-color': 'var(--color_highlight)',
+    '--[&:[data-state=open]]_border-color': 'var(--color_primary)',
+  })}
+/>
+```
+
+They can be used to style the **current element, and its descendants** only.
+
 #### Arbitrary values
 
 You can avoid TypeScript errors for one-off inline values by using a triple dash fallback. For instance, `--padding: var(---, 20px)` prevents errors and sets padding to `20px`.
