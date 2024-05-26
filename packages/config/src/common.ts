@@ -1,5 +1,8 @@
 import { type Config } from './config';
 
+const SPECIAL_CHAR = '!#$%&()*+,./:;<=>?@[\\]^{|}~';
+const REGULAR_CHAR = 'A-Za-z0-9_';
+
 /* -------------------------------------------------------------------------------------------------
  * GridProperty
  * -----------------------------------------------------------------------------------------------*/
@@ -30,16 +33,17 @@ const GridValue = {
  * TokenProperty
  * -----------------------------------------------------------------------------------------------*/
 
-const charClass = `A-Za-z0-9!#$%&()*+,./:;<=>?@[\\]^_{|}~`;
 type TokenProperty<P extends string = string> = `--${P}`;
-const tokenPropertyRegex = new RegExp(`(?<!var\\()--[${charClass}]([${charClass}-]+)?`);
+const tokenPropertyRegex = new RegExp(
+  `(?<!var\\()--[${REGULAR_CHAR}${SPECIAL_CHAR}]([${REGULAR_CHAR}${SPECIAL_CHAR}-]+)?`
+);
 
 const TokenProperty = {
   safeParse: (input: unknown) => validate<TokenProperty>(tokenPropertyRegex, input),
 };
 
 function tokenProperty(name: string): TokenProperty {
-  return `--${name}`;
+  return escapeSpecialChars(`--${name}`);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -54,7 +58,7 @@ const VariantProperty = {
 };
 
 function variantProperty(variant: string, name: string): VariantProperty {
-  return `--${variant}_${name}`;
+  return escapeSpecialChars(`--${variant}_${name}`);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -119,9 +123,12 @@ function getTokenPropertyName(property: TokenProperty) {
  * getTokenPropertySplit
  * -----------------------------------------------------------------------------------------------*/
 
+// split on underscores that aren't inside square brackets (arbitrary selectors)
+const propertySplitRegex = /_(?![^\[]*\])/;
+
 function getTokenPropertySplit(property: TokenProperty) {
   const name = getTokenPropertyName(property);
-  const [alias, ...variants] = name.split('_').reverse() as [string, ...string[]];
+  const [alias, ...variants] = name.split(propertySplitRegex).reverse() as [string, ...string[]];
   return { alias, variants: variants.reverse() };
 }
 
@@ -139,13 +146,32 @@ type PropertyParts = {
 function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): PropertyParts | null {
   const { alias, variants } = getTokenPropertySplit(tokenProperty);
   const [firstVariant, secondVariant] = variants;
-  const firstSelector = config.selectors?.[firstVariant!] && firstVariant;
-  const secondSelector = config.selectors?.[secondVariant!] && secondVariant;
+  const firstSelector = getValidSelector(firstVariant, config);
+  const secondSelector = getValidSelector(secondVariant, config);
   const responsive = config.responsive?.[firstVariant!] && firstVariant;
   const selector = firstSelector || secondSelector;
   const validVariant = [responsive, selector].filter(Boolean).join('_');
-  if (firstVariant && variantProperty(validVariant, alias) !== tokenProperty) return null;
+  const variantProp = variantProperty(validVariant, alias);
+  if (firstVariant && variantProp !== escapeSpecialChars(tokenProperty)) return null;
   return { alias, responsive, selector, variant: validVariant };
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getValidSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function getValidSelector(selector: string | undefined, config: Config) {
+  if (!selector) return;
+  return (getArbitrarySelector(selector) || config.selectors?.[selector!]) && selector;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getArbitrarySelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function getArbitrarySelector(selector: string | undefined) {
+  const [, arbitrarySelector] = selector?.match(/^\[(.+)\]$/) || [];
+  return arbitrarySelector;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -169,6 +195,16 @@ function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']): st
   return (aliases as any)?.[alias] || [alias];
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * escapeSpecialChars
+ * -----------------------------------------------------------------------------------------------*/
+
+const escapeSpecialCharsRegex = new RegExp(`[${SPECIAL_CHAR}]`, 'g');
+
+function escapeSpecialChars<T extends string>(str: T) {
+  return str.replace(escapeSpecialCharsRegex, (match) => `\\${match}`) as T;
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
 export {
@@ -188,5 +224,6 @@ export {
   getTokenPropertySplit,
   getTokenPropertyParts,
   getTokenValueParts,
+  getArbitrarySelector,
   getCSSPropertiesForAlias,
 };

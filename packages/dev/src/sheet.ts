@@ -71,9 +71,10 @@ function generate(params: {
         const selectors = getSelectorsFromConfig(config.selector, params.config);
         const shouldInherit = selectors.some(isCombinatorSelector);
         const responsiveSelectors = [responsive, ...selectors].filter(Boolean) as string[];
-        const variantProperty = Tokenami.variantProperty(config.variant, cssProperty);
         const hashedProperty = hashVariantProperty(config.variant, cssProperty);
+        const variantProperty = Tokenami.variantProperty(config.variant, cssProperty);
         const toggleProperty = Tokenami.tokenProperty(config.variant);
+
         const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) var(${variantProperty});`;
         const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerCount}`;
         const declaration = `${cssProperty}: ${variantValue};`;
@@ -293,8 +294,10 @@ function getSelectorsFromConfig(
   propertySelector: PropertyConfig['selector'],
   tokenamiConfig: Tokenami.Config
 ) {
-  const selector = propertySelector && tokenamiConfig.selectors?.[propertySelector];
-  const selectors = Array.isArray(selector) ? selector : selector ? [selector] : ['&'];
+  const arbitrarySelector = Tokenami.getArbitrarySelector(propertySelector);
+  const configSelector = propertySelector && tokenamiConfig.selectors?.[propertySelector];
+  const selector = arbitrarySelector?.replace(/_/g, ' ') || configSelector;
+  const selectors = selector ? (Array.isArray(selector) ? selector : [selector]) : ['&'];
   const isSelectionVariant = selectors.includes('&::selection');
   return selectors.map((selector) => {
     // revert-layer for ::selection doesn't work: https://codepen.io/jjenzz/pen/LYvOydB
