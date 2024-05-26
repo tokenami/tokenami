@@ -75,6 +75,8 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
   - [Theming](#user-content-theming)
   - [Styling](#user-content-styling)
   - [Responsive styles](#user-content-responsive-styles)
+  - [Global styles](#user-content-global-styles)
+  - [Animation](#user-content-animation)
 - [CSS utility](#user-content-css-utility)
   - [Usage](#user-content-usage)
   - [Overrides](#user-content-overrides)
@@ -275,6 +277,27 @@ Responsive rules can also be combined with [selectors](#user-content-selectors):
 ```
 
 For documentation on responsive variants, refer to the [CSS compose](#user-content-css-compose) section.
+
+### Global styles
+
+Tokenami supports global styles in your `tokenami.config`. It can be useful for including them as part of a design system.
+
+```ts
+module.exports = createConfig({
+  // ...
+  globalStyles: {
+    '*, *::before, *::after': {
+      boxSizing: 'border-box',
+    },
+    body: {
+      fontFamily: 'system-ui, sans-serif',
+      lineHeight: 1.5,
+      margin: 0,
+      padding: 0,
+    },
+  },
+});
+```
 
 ### Animation
 
