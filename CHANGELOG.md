@@ -1,3 +1,16 @@
+# v0.0.50 (Sun May 26 2024)
+
+#### 🚀 Enhancement
+
+- prevent watch mode from exiting on config syntax errors [#275](https://github.com/tokenami/tokenami/pull/275) ([@jjenzz](https://github.com/jjenzz))
+- support all browserslist config formats [#276](https://github.com/tokenami/tokenami/pull/276) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.49 (Sat May 25 2024)
 
 #### 🐛 Bug Fix
