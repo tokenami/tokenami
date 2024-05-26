@@ -1,3 +1,15 @@
+# v0.0.51 (Sun May 26 2024)
+
+#### 🚀 Enhancement
+
+- global styles support in `tokenami.config` [#277](https://github.com/tokenami/tokenami/pull/277) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.50 (Sun May 26 2024)
 
 #### 🚀 Enhancement
