@@ -40,9 +40,10 @@ interface Config {
   include: string[];
   exclude?: string[];
   grid?: string;
+  globalStyles?: Record<string, CSS.Properties>;
   responsive?: { [atRule: string]: string };
   selectors?: { [name: string]: string | string[] };
-  keyframes?: { [name: string]: { [step: string]: { [cssProperty: string]: string } } };
+  keyframes?: { [name: string]: { [step: string]: CSS.Properties } };
   aliases?: Aliases;
   themeSelector?: (mode: string) => string;
   theme: ThemeConfig;

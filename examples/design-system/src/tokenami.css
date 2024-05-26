@@ -1,3 +1,14 @@
+*, :before, :after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+}
+
 @layer tokenami {
   @keyframes wiggle {
     0%, 100% {
@@ -101,25 +112,25 @@
     }
   }
 
-  @media (width >= 700px) {
+  @media (min-width: 700px) {
     [style] {
       --md: ;
     }
   }
 
-  @media (width >= 1024px) {
+  @media (min-width: 1024px) {
     [style] {
       --lg: ;
     }
   }
 
-  @media (width >= 1280px) {
+  @media (min-width: 1280px) {
     [style] {
       --xl: ;
     }
   }
 
-  @media (width >= 1536px) {
+  @media (min-width: 1536px) {
     [style] {
       --2xl: ;
     }

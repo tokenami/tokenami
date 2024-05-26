@@ -99,6 +99,8 @@ function generate(params: {
   });
 
   const sheet = `
+    ${params.config.globalStyles ? stringify(params.config.globalStyles) : ''}
+
     @layer tokenami {
       ${generateKeyframeRules(tokenValues, params.config)}
       ${generateThemeTokens(tokenValues, params.config)}

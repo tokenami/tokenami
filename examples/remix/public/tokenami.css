@@ -1,3 +1,14 @@
+*, :before, :after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+}
+
 @layer tokenami {
   @keyframes wiggle {
     0%, 100% {
@@ -90,9 +101,6 @@
     --xl_font-size: initial;
     --2xl_font-size: initial;
     --min-height: initial;
-    --margin: initial;
-    --padding: initial;
-    --md_padding: initial;
     --background-size: initial;
     --background-image: initial;
     --background-position-x: initial;
@@ -105,10 +113,13 @@
     --text-align: initial;
     --md_text-align: initial;
     --overflow: initial;
+    --margin: initial;
     --padding-left: initial;
     --padding-right: initial;
     --padding-top: initial;
     --padding-bottom: initial;
+    --md_padding: initial;
+    --padding: initial;
     --line-height: initial;
     --after: initial;
     --after_content: initial;
@@ -141,11 +152,11 @@
       height: var(--height, revert-layer);
       transition: var(--transition, revert-layer);
       min-height: var(--min-height, revert-layer);
-      margin: var(--margin, revert-layer);
-      padding: var(--padding, revert-layer);
       display: var(--display, revert-layer);
       text-align: var(--text-align, revert-layer);
       overflow: var(--overflow, revert-layer);
+      margin: var(--margin, revert-layer);
+      padding: var(--padding, revert-layer);
       object-fit: var(--object-fit, revert-layer);
     }
   }
@@ -216,12 +227,12 @@
       --_18bne5j: var(--2xl) var(--2xl_height);
       animation: var(--_1upk2ho, revert-layer);
       --_1upk2ho: var(--hover) var(--hover_animation);
-      padding: var(--_1tfdub6, revert-layer);
-      --_1tfdub6: var(--md) var(--md_padding);
       display: var(--_cbroqb, revert-layer);
       --_cbroqb: var(--md) var(--md_display);
       text-align: var(--_1hooa64, revert-layer);
       --_1hooa64: var(--md) var(--md_text-align);
+      padding: var(--_1tfdub6, revert-layer);
+      --_1tfdub6: var(--md) var(--md_padding);
       content: var(--_bpstpr, var(--_bkpo73, revert-layer));
       --_bkpo73: var(--after) var(--after_content);
       --_bpstpr: var(--md_after) var(--md_after_content);
