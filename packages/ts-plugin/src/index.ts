@@ -27,23 +27,26 @@ function init(modules: { typescript: typeof tslib }) {
     config: TokenamiConfig.Config,
     quote?: string
   ): tslib.CompletionEntry[] {
-    const responsiveEntries = Object.entries(config.responsive || {});
-    const selectorsEntries = Object.entries(config.selectors || {});
-    const aliasProperties = Object.keys(config.aliases || {});
+    const configResponsiveEntries = Object.entries(config.responsive || {});
+    const configSelectorEntries = Object.entries(config.selectors || {});
+    const allSelectorEntries = configSelectorEntries.concat([['[]', '']]);
+    const configAliasProperties = Object.keys(config.aliases || {});
 
-    return [...Tokenami.supportedProperties, ...aliasProperties].flatMap((property) => {
+    return [...Tokenami.supportedProperties, ...configAliasProperties].flatMap((property) => {
       const createCompletionEntry = createVariantPropertyEntry(property, quote);
-      const entries = responsiveEntries.flatMap((entry) => {
-        const responsiveEntry = createCompletionEntry(entry);
-        const [responsiveSelector, responsiveValue] = entry;
-        const combinedEntries = selectorsEntries.map(([selector, value]) => {
-          const combinedSelector = `${responsiveSelector}_${selector}`;
-          const combinedValue = [responsiveValue].concat(value);
-          return createCompletionEntry([combinedSelector, combinedValue]);
-        });
-        return [responsiveEntry, ...combinedEntries];
-      });
-      return [...entries, ...selectorsEntries.map(createVariantPropertyEntry(property, quote))];
+      const responsiveEntries = configResponsiveEntries.flatMap(
+        ([responsiveSelector, responsiveValue]) => {
+          const responsiveEntry = createCompletionEntry([responsiveSelector, responsiveValue]);
+          const combinedEntries = allSelectorEntries.map(([selector, value]) => {
+            const combinedSelector = `${responsiveSelector}_${selector}`;
+            const combinedValue = [responsiveValue].concat(value);
+            return createCompletionEntry([combinedSelector, combinedValue]);
+          });
+          return [responsiveEntry, ...combinedEntries];
+        }
+      );
+      const selectorEntries = allSelectorEntries.map(createCompletionEntry);
+      return [...responsiveEntries, ...selectorEntries];
     });
   }
 
@@ -52,13 +55,22 @@ function init(modules: { typescript: typeof tslib }) {
    * -------------------------------------------------------------------------------------------*/
 
   const createVariantPropertyEntry = (property: string, quote = '') => {
-    return ([selector, value]: [string, string | string[]]) => {
+    return ([selector, value]: [string, string | string[]]): tslib.CompletionEntry => {
       const tokenProperty = TokenamiConfig.variantProperty(selector, property);
-      const name = `${quote}${tokenProperty}${quote}`;
+      const name = removeSpecialCharEscaping(`${quote}${tokenProperty}${quote}`);
       const kind = tslib.ScriptElementKind.memberVariableElement;
       const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
+      const isArbitrary = name.includes('[]');
       updateEntryDetailsConfig({ name, kind, kindModifiers, value });
-      return { name: name, kind, kindModifiers, sortText: name, insertText: name };
+
+      if (isArbitrary) {
+        // we prepend 1 to sort arbitrary values after non-arbitrary ones
+        const sortText = `1${name}`;
+        const insertText = name.replace('[]', '[${1}]');
+        return { name, kind, kindModifiers, sortText, insertText, isSnippet: true };
+      }
+
+      return { name, kind, kindModifiers, sortText: `0${name}`, insertText: name };
     };
   };
 
@@ -128,7 +140,8 @@ function init(modules: { typescript: typeof tslib }) {
     const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
     if (!property.success) return null;
     const sortText = '$' + entry.name;
-    return { ...entry, sortText, insertText: entry.name };
+    const name = removeSpecialCharEscaping(entry.name);
+    return { ...entry, name, sortText, insertText: name };
   }
 
   /* ---------------------------------------------------------------------------------------------
@@ -147,7 +160,7 @@ function init(modules: { typescript: typeof tslib }) {
     const modeValues = Tokenami.getThemeValuesByThemeMode(property.output, config.theme);
     if (!Object.entries(modeValues).length) return entry;
 
-    const name = `$${parts.token}`;
+    const name = removeSpecialCharEscaping(`$${parts.token}`);
     const kindModifiers = parts.themeKey;
     const sortText = '$' + entryName;
     const labelDetails = { detail: '', description: entryName };
@@ -155,6 +168,14 @@ function init(modules: { typescript: typeof tslib }) {
     const nextEntry = { ...entry, name, sortText, kindModifiers, insertText, labelDetails };
     updateEntryDetailsConfig({ ...nextEntry, themeKey: parts.themeKey, modeValues });
     return nextEntry;
+  }
+
+  /* ---------------------------------------------------------------------------------------------
+   * removeSpecialCharEscaping
+   * -------------------------------------------------------------------------------------------*/
+
+  function removeSpecialCharEscaping(name: string) {
+    return name.replace(/\\/g, '');
   }
 
   /* -----------------------------------------------------------------------------------------------
@@ -236,8 +257,9 @@ function init(modules: { typescript: typeof tslib }) {
         const { variants } = TokenamiConfig.getTokenPropertySplit(property.output);
         const parts = TokenamiConfig.getTokenPropertyParts(property.output, config);
         const invalidValueIndex = findDiagnosticIndex(INVALID_VALUE_ERROR_CODE, node);
+        const isArbitrarySelector = variants.some(TokenamiConfig.getArbitrarySelector);
 
-        if (!parts && variants.length) {
+        if (variants.length && !parts && !isArbitrarySelector) {
           const selector = variants.join('_');
           const message = `Tokenami properties may only specify known selectors, and '${selector}' does not exist.`;
           diagnostics.push({

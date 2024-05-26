@@ -14,6 +14,14 @@ type PropertyConfig = TokenamiFinalConfig['properties'];
 type SelectorKey = keyof TokenamiFinalConfig['selectors'];
 type ResponsiveKey = keyof TokenamiFinalConfig['responsive'];
 type ResponsiveSelectorKey = `${ResponsiveKey}_${SelectorKey}`;
+type ResponsiveArbitrarySelectorKey = `${ResponsiveKey}_[${string}]`;
+type ArbitrarySelectorKey = `[${string}]`;
+type VariantKey =
+  | ResponsiveKey
+  | SelectorKey
+  | ResponsiveSelectorKey
+  | ArbitrarySelectorKey
+  | ResponsiveArbitrarySelectorKey;
 
 type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T> ? T : ThemeConfig;
 
@@ -38,7 +46,7 @@ type AliasedProperty<P> = {
 type VariantProperty<P extends string> =
   | Tokenami.TokenProperty<P>
   | (TokenamiFinalConfig['CI'] extends true
-      ? Tokenami.VariantProperty<P, ResponsiveKey | SelectorKey | ResponsiveSelectorKey>
+      ? Tokenami.VariantProperty<P, VariantKey>
       : Tokenami.VariantProperty<P, string>);
 
 type TokenValue<P> = P extends keyof PropertyConfig
