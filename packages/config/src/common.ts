@@ -202,7 +202,11 @@ function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']): st
 const escapeSpecialCharsRegex = new RegExp(`[${SPECIAL_CHAR}]`, 'g');
 
 function escapeSpecialChars<T extends string>(str: T) {
-  return str.replace(escapeSpecialCharsRegex, (match) => `\\${match}`) as T;
+  // escape and replace colons with hypens for improved dev tooling exp
+  // - there is a bug here https://issues.chromium.org/u/1/issues/342857961 but;
+  // - var name colons in `style` attribute can be confusing because colons usually
+  //   delimit property/value pairs there
+  return str.replace(escapeSpecialCharsRegex, (match) => `\\${match}`).replace(/:/g, '-') as T;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
