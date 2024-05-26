@@ -31,9 +31,9 @@ const GridValue = {
  * -----------------------------------------------------------------------------------------------*/
 
 type TokenProperty<P extends string = string> = `--${P}`;
-// thanks chat gpt. will match css variable names that start with `--` and handle nested square
-// brackets, while excluding those prefixed with `var(`
-const tokenPropertyRegex = /(?<!var\()--(?:[\w-]+|\[[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*\])+/g;
+// thanks chat gpt. will match css variable names that start with `--` and optionally
+// include curly brackets (for arbitrary values), while excluding those prefixed with `var(`
+const tokenPropertyRegex = /(?<!var\()--(?:[\w-]+|\{[^\{\}]*\})+/g;
 
 const TokenProperty = {
   safeParse: (input: unknown) => validate<TokenProperty>(tokenPropertyRegex, input),
@@ -120,8 +120,8 @@ function getTokenPropertyName(property: TokenProperty) {
  * getTokenPropertySplit
  * -----------------------------------------------------------------------------------------------*/
 
-// split on underscores that aren't inside square brackets (arbitrary selectors)
-const propertySplitRegex = /_(?![^\[]*\])/;
+// split on underscores that aren't inside curly brackets (arbitrary selectors)
+const propertySplitRegex = /_(?![^{}]*\])/;
 
 function getTokenPropertySplit(property: TokenProperty) {
   const name = getTokenPropertyName(property);
@@ -167,7 +167,7 @@ function getValidSelector(selector: string | undefined, config: Config) {
  * -----------------------------------------------------------------------------------------------*/
 
 function getArbitrarySelector(selector: string | undefined) {
-  const [, arbitrarySelector] = selector?.match(/^\[(.+)\]$/) || [];
+  const [, arbitrarySelector] = selector?.match(/^{(.+)}$/) || [];
   return arbitrarySelector;
 }
 
@@ -194,16 +194,17 @@ function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']): st
 
 /* -------------------------------------------------------------------------------------------------
  * escapeSpecialChars
+ * -------------------------------------------------------------------------------------------------
+ * escape and replace colons with hypens for improved dev tooling exp
+ * - there is a bug here https://issues.chromium.org/u/1/issues/342857961 but;
+ * - var name colons in `style` attribute can be confusing because colons usually
+ *   delimit property/value pairs there
  * -----------------------------------------------------------------------------------------------*/
 
 const escapeSpecialCharsRegex = /[!#$%&()*+,./:;<=>?@[\]^{|}~"']/g;
 
 function escapeSpecialChars<T extends string>(str: T) {
-  // escape and replace colons with hypens for improved dev tooling exp
-  // - there is a bug here https://issues.chromium.org/u/1/issues/342857961 but;
-  // - var name colons in `style` attribute can be confusing because colons usually
-  //   delimit property/value pairs there
-  return str.replace(escapeSpecialCharsRegex, (match) => `\\${match}`).replace(/:/g, '-') as T;
+  return str.replace(/:/g, '-').replace(escapeSpecialCharsRegex, (match) => `\\${match}`) as T;
 }
 
 /* ---------------------------------------------------------------------------------------------- */

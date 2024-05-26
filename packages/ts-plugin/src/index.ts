@@ -29,7 +29,7 @@ function init(modules: { typescript: typeof tslib }) {
   ): tslib.CompletionEntry[] {
     const configResponsiveEntries = Object.entries(config.responsive || {});
     const configSelectorEntries = Object.entries(config.selectors || {});
-    const allSelectorEntries = configSelectorEntries.concat([['[]', '']]);
+    const allSelectorEntries = configSelectorEntries.concat([['{}', '']]);
     const configAliasProperties = Object.keys(config.aliases || {});
 
     return [...Tokenami.supportedProperties, ...configAliasProperties].flatMap((property) => {
@@ -60,13 +60,13 @@ function init(modules: { typescript: typeof tslib }) {
       const name = removeSpecialCharEscaping(`${quote}${tokenProperty}${quote}`);
       const kind = tslib.ScriptElementKind.memberVariableElement;
       const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
-      const isArbitrary = name.includes('[]');
+      const isArbitrary = name.includes('{}');
       updateEntryDetailsConfig({ name, kind, kindModifiers, value });
 
       if (isArbitrary) {
         // we prepend 1 to sort arbitrary values after non-arbitrary ones
         const sortText = `1${name}`;
-        const insertText = name.replace('[]', '[${1}]');
+        const insertText = name.replace('{}', '{${1}}');
         return { name, kind, kindModifiers, sortText, insertText, isSnippet: true };
       }
 
@@ -261,7 +261,7 @@ function init(modules: { typescript: typeof tslib }) {
 
         if (variants.length && !parts && !isArbitrarySelector) {
           const selector = variants.join('_');
-          const isEmptyArbitrarySelector = variants.includes('[]');
+          const isEmptyArbitrarySelector = variants.includes('{}');
           const message = `Tokenami properties may only specify known selectors, and '${selector}' does not exist.${
             isEmptyArbitrarySelector ? ` Add an arbitrary selector or remove '${selector}'.` : ''
           }`;

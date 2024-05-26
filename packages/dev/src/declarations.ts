@@ -14,8 +14,8 @@ type PropertyConfig = TokenamiFinalConfig['properties'];
 type SelectorKey = keyof TokenamiFinalConfig['selectors'];
 type ResponsiveKey = keyof TokenamiFinalConfig['responsive'];
 type ResponsiveSelectorKey = `${ResponsiveKey}_${SelectorKey}`;
-type ResponsiveArbitrarySelectorKey = `${ResponsiveKey}_[${string}]`;
-type ArbitrarySelectorKey = `[${string}]`;
+type ResponsiveArbitrarySelectorKey = `${ResponsiveKey}_{${string}}`;
+type ArbitrarySelectorKey = `{${string}}`;
 type VariantKey =
   | ResponsiveKey
   | SelectorKey

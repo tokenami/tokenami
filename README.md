@@ -251,9 +251,9 @@ Use arbitrary selectors to prototype quickly:
 ```tsx
 <div
   style={css({
-    '--[&:hover]_color': 'var(--color_primary)',
-    '--[&:has(:focus)]_border-color': 'var(--color_highlight)',
-    '--[&:[data-state=open]]_border-color': 'var(--color_primary)',
+    '--{&:hover}_color': 'var(--color_primary)',
+    '--{&:has(:focus)}_border-color': 'var(--color_highlight)',
+    '--{&:[data-state=open]}_border-color': 'var(--color_primary)',
   })}
 />
 ```
