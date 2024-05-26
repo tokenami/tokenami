@@ -541,7 +541,7 @@ With this configuration, using `'--content': 'var(--container_half)'` would erro
 
 ### Browserslist
 
-Tokenami only supports [browserslist](https://browsersl.ist/) in your `package.json`. You can use it to add autoprefixing to your CSS properties in the generated CSS file. However, it currently doesn't support vendor-prefixed **values**, which is being tracked in [this issue](https://github.com/tokenami/tokenami/issues/103).
+You can use [browserslist](https://browsersl.ist/) to add autoprefixing to your CSS properties in the generated CSS file. However, Tokenami currently doesn't support vendor-prefixed **values**, which is being tracked in [this issue](https://github.com/tokenami/tokenami/issues/103).
 
 > [!Note]
 > Tokenami does not support browsers below the listed [supported browser versions](#user-content-supported-browsers).

@@ -13,7 +13,6 @@ import * as utils from './utils';
 import * as acorn from 'acorn';
 import * as acornWalk from 'acorn-walk';
 import pkgJson from './../package.json';
-import { safeRequire } from './utils/require';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -76,12 +75,12 @@ const run = () => {
     .option('--minify', 'Minify CSS output')
     .action(async (_, flags) => {
       const startTime = startTimer();
-      const configPath = utils.getConfigPath(cwd, flags.config);
-      const projectPkgJson = safeRequire(pathe.join(cwd, 'package.json'));
-      const targets = browserslistToTargets(getBrowsersList(projectPkgJson.browserslist));
       const minify = flags.minify;
-      let config: Writeable<Tokenami.Config> = utils.getConfigAtPath(configPath);
+      const configPath = utils.getConfigPath(cwd, flags.config);
+      const browsers = browserslist(null, { env: process.env.NODE_ENV || 'development' });
+      const targets = browserslistToTargets(browsers);
 
+      let config: Writeable<Tokenami.Config> = utils.getConfigAtPath(configPath);
       config.include = flags.files || config.include;
       if (!config.include.length) log.error('Provide a glob pattern to include files');
 
@@ -120,17 +119,6 @@ const run = () => {
   cli.version(pkgJson.version);
   cli.parse();
 };
-
-/* -------------------------------------------------------------------------------------------------
- * getBrowsersList
- * -----------------------------------------------------------------------------------------------*/
-
-function getBrowsersList(config: any) {
-  const environment = process.env.NODE_ENV || 'development';
-  const isValid = Array.isArray(config) || typeof config === 'string';
-  const narrowedConfig = isValid ? config : typeof config === 'object' ? config[environment] : [];
-  return browserslist(narrowedConfig);
-}
 
 /* -------------------------------------------------------------------------------------------------
  * generateStyles
