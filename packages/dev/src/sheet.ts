@@ -3,6 +3,7 @@ import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
 import * as utils from './utils';
 import { supportedProperties, supportedLogicalProperties } from './supports';
+import * as log from './log';
 
 const UNUSED_LAYERS_REGEX = /\n\s*@layer[-\w\s,]+;/g;
 const DEFAULT_SELECTOR = '[style]';
@@ -123,14 +124,19 @@ function generate(params: {
     }
   `;
 
-  const transformed = lightning.transform({
-    code: Buffer.from(sheet),
-    filename: params.output,
-    minify: params.minify,
-    targets: params.targets,
-  });
+  try {
+    const transformed = lightning.transform({
+      code: Buffer.from(sheet),
+      filename: params.output,
+      minify: params.minify,
+      targets: params.targets,
+    });
 
-  return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
+    return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
+  } catch (e) {
+    log.debug(`Skipped generate style with ${e}`);
+    return '';
+  }
 }
 
 /* -------------------------------------------------------------------------------------------------
