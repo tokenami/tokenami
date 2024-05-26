@@ -31,6 +31,7 @@ const button = css.compose({
   '--hover_background-color': 'var(--color_slate-700)',
   '--hover_color': 'var(---,white)',
   '--hover_animation': 'var(--anim_wiggle)',
+  '--{&:focus:hover}_background-color': 'var(---, red)',
 
   responsiveVariants: {
     size: {

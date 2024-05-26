@@ -44,6 +44,8 @@ body {
     --background-color: initial;
     --hover: initial;
     --hover_background-color: initial;
+    --\{\&\;focus\;hover\}: initial;
+    --\{\&\;focus\;hover\}_background-color: initial;
     --color: initial;
     --hover_color: initial;
     --border: initial;
@@ -96,8 +98,9 @@ body {
 
   @layer tks2 {
     [style] {
-      background-color: var(--_4dvc60, revert-layer);
+      background-color: var(--_1r7lnia, var(--_4dvc60, revert-layer));
       --_4dvc60: var(--hover) var(--hover_background-color);
+      --_1r7lnia: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
       font-size: var(--_1qfo97, var(--_1tqbkib, var(--_1283h2s, var(--_1pod6o8, revert-layer))));
       --_1pod6o8: var(--md) var(--md_font-size);
       --_1283h2s: var(--lg) var(--lg_font-size);
@@ -110,6 +113,10 @@ body {
     [style]:hover {
       --hover: ;
     }
+  }
+
+  [style]:focus:hover {
+    --\{\&\;focus\;hover\}: ;
   }
 
   @media (min-width: 700px) {

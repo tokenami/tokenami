@@ -40,7 +40,11 @@ const TokenProperty = {
 };
 
 function tokenProperty(name: string): TokenProperty {
-  return escapeSpecialChars(`--${name}`);
+  return `--${name}`;
+}
+
+function parsedTokenProperty(name: string): TokenProperty {
+  return parseProperty(tokenProperty(name));
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -55,7 +59,11 @@ const VariantProperty = {
 };
 
 function variantProperty(variant: string, name: string): VariantProperty {
-  return escapeSpecialChars(`--${variant}_${name}`);
+  return `--${variant}_${name}`;
+}
+
+function parsedVariantProperty(variant: string, name: string): VariantProperty {
+  return parseProperty(variantProperty(variant, name));
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -149,7 +157,7 @@ function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): Pr
   const selector = firstSelector || secondSelector;
   const validVariant = [responsive, selector].filter(Boolean).join('_');
   const variantProp = variantProperty(validVariant, alias);
-  if (firstVariant && variantProp !== escapeSpecialChars(tokenProperty)) return null;
+  if (firstVariant && variantProp !== tokenProperty) return null;
   return { alias, responsive, selector, variant: validVariant };
 }
 
@@ -168,7 +176,7 @@ function getValidSelector(selector: string | undefined, config: Config) {
 
 function getArbitrarySelector(selector: string | undefined) {
   const [, arbitrarySelector] = selector?.match(/^{(.+)}$/) || [];
-  return arbitrarySelector;
+  return arbitrarySelector ? decodeColon(arbitrarySelector) : undefined;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -193,19 +201,26 @@ function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']): st
 }
 
 /* -------------------------------------------------------------------------------------------------
- * escapeSpecialChars
+ * parseProperty
  * -------------------------------------------------------------------------------------------------
- * escape and replace colons with hypens for improved dev tooling exp
- * - there is a bug here https://issues.chromium.org/u/1/issues/342857961 but;
- * - var name colons in `style` attribute can be confusing because colons usually
- *   delimit property/value pairs there
+ * escape special chars and replace colons with semi colons:
+ * - https://issues.chromium.org/u/1/issues/342857961
+ * - colons also break in solidjs
  * -----------------------------------------------------------------------------------------------*/
 
-const escapeSpecialCharsRegex = /[!#$%&()*+,./:;<=>?@[\]^{|}~"']/g;
+const escapeSpecialCharsRegex = /[&#.:;>~*[\]=,"'()+{}]/g;
 
-function escapeSpecialChars<T extends string>(str: T) {
-  return str.replace(/:/g, '-').replace(escapeSpecialCharsRegex, (match) => `\\${match}`) as T;
+function parseProperty<T extends string>(str: T, options?: { escapeSpecialChars?: boolean }) {
+  const { escapeSpecialChars = true } = options || {};
+  const noColon = encodeColon(str);
+  if (!escapeSpecialChars) return noColon as T;
+  return noColon.replace(escapeSpecialCharsRegex, (match) => `\\${match}`) as T;
 }
+
+/* ---------------------------------------------------------------------------------------------- */
+
+const encodeColon = (str: string) => str.replace(/:/g, ';');
+const decodeColon = (str: string) => str.replace(/;/g, ':');
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -222,11 +237,13 @@ export {
   variantProperty,
   tokenValue,
   arbitraryValue,
+  parsedTokenProperty,
+  parsedVariantProperty,
+  parseProperty,
   getTokenPropertyName,
   getTokenPropertySplit,
   getTokenPropertyParts,
   getTokenValueParts,
   getArbitrarySelector,
   getCSSPropertiesForAlias,
-  escapeSpecialChars,
 };

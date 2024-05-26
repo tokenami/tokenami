@@ -73,8 +73,8 @@ function generate(params: {
         const shouldInherit = selectors.some(isCombinatorSelector);
         const responsiveSelectors = [responsive, ...selectors].filter(Boolean) as string[];
         const hashedProperty = hashVariantProperty(config.variant, cssProperty);
-        const variantProperty = Tokenami.variantProperty(config.variant, cssProperty);
-        const toggleProperty = Tokenami.tokenProperty(config.variant);
+        const variantProperty = Tokenami.parsedVariantProperty(config.variant, cssProperty);
+        const toggleProperty = Tokenami.parsedTokenProperty(config.variant);
 
         const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) var(${variantProperty});`;
         const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerCount}`;
@@ -135,7 +135,7 @@ function generate(params: {
     return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
   } catch (e) {
     log.debug(`Skipped generate style with ${e}`);
-    return '';
+    return `${e}`;
   }
 }
 
@@ -169,7 +169,7 @@ function getPropertyConfigs(
     const order = responsiveOrder + selectorOrder;
 
     properties.forEach((cssProperty) => {
-      const tokenProperty = Tokenami.tokenProperty(cssProperty);
+      const tokenProperty = Tokenami.parsedTokenProperty(cssProperty);
       const currentConfigs = propertyConfigs.get(cssProperty as any) || [];
       const nextConfig = { ...parts, tokenProperty, order };
       propertyConfigs.set(cssProperty, [...currentConfigs, nextConfig]);
