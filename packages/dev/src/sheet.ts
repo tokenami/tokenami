@@ -176,7 +176,7 @@ function getPropertyConfigs(
  * getAtomicLayer
  * -----------------------------------------------------------------------------------------------*/
 
-const SHORTHAND_TO_LONGHAND_ENTRIES = Object.entries(Tokenami.mapShorthandToLonghands);
+const SHORTHAND_TO_LONGHAND_ENTRIES = [...Tokenami.mapShorthandToLonghands.entries()];
 
 function getAtomicLayer(cssProperty: string): number {
   const isSupported = supportedProperties.has(cssProperty as any);

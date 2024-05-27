@@ -3,6 +3,7 @@
   "include": ["src", "stubs"],
   "compilerOptions": {
     "outDir": "dist",
+    "target": "ES2022",
     "paths": {
       "@tokenami/css": ["../css/src/index.ts"]
     }

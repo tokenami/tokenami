@@ -13,11 +13,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
-    },
-    "./common": {
-      "import": "./dist/common.js",
-      "require": "./dist/common.cjs",
-      "types": "./dist/common.d.ts"
     }
   },
   "files": [
