@@ -2,14 +2,9 @@
   "extends": "../../tsconfig.json",
   "include": ["src"],
   "compilerOptions": {
-    "baseUrl": ".",
+    "outDir": "dist",
     "target": "es2017",
     "module": "commonjs",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "esModuleInterop": true,
-    "paths": {
-      "~/*": ["src/*"]
-    }
+    "declarationMap": false
   }
 }

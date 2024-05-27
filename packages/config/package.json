@@ -10,23 +10,24 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./common": {
+      "import": "./dist/common.js",
+      "require": "./dist/common.cjs",
+      "types": "./dist/common.d.ts"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "!**/*.ts.map"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format=esm,cjs --dts",
+    "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "typecheck:ci": "pnpm typecheck"
+    "typecheck:ci": "tsc --noEmit"
   },
   "devDependencies": {
     "csstype": "^3.1.2",
