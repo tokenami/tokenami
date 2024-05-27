@@ -1,3 +1,19 @@
+# v0.0.52 (Mon May 27 2024)
+
+#### 🚀 Enhancement
+
+- descendant selector support [#284](https://github.com/tokenami/tokenami/pull/284) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- add global styles to docs [#278](https://github.com/tokenami/tokenami/pull/278) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.51 (Sun May 26 2024)
 
 #### 🚀 Enhancement
