@@ -39,7 +39,7 @@ function generate(params: {
   const elemSelectors = utils.unique(
     allPropertyConfigs.map((config) => {
       const selectors = getSelectorsFromConfig(config.selector, params.config);
-      return selectors.find(isPseudoElementSelector) || DEFAULT_SELECTOR;
+      return selectors.find(isElementSelector) || DEFAULT_SELECTOR;
     })
   );
 
@@ -69,6 +69,7 @@ function generate(params: {
       if (config.variant && toggleKey) {
         const responsive = getResponsiveSelectorFromConfig(config.responsive, params.config);
         const selectors = getSelectorsFromConfig(config.selector, params.config);
+        const shouldInherit = selectors.some(isCombinatorSelector);
         const responsiveSelectors = [responsive, ...selectors].filter(Boolean) as string[];
         const variantProperty = Tokenami.variantProperty(config.variant, cssProperty);
         const hashedProperty = hashVariantProperty(config.variant, cssProperty);
@@ -83,7 +84,7 @@ function generate(params: {
         );
 
         styles.reset.add(`${toggleProperty}: initial;`);
-        styles.reset.add(`${variantProperty}: initial;`);
+        if (!shouldInherit) styles.reset.add(`${variantProperty}: initial;`);
         styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${declaration} } }`);
         styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${toggleDeclaration} } }`);
         styles.toggles[toggleKey] ??= new Set<string>();
@@ -254,11 +255,23 @@ function hashVariantProperty(variant: string, property: string) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * isPseudoElementSelector
+ * isElementSelector
  * -----------------------------------------------------------------------------------------------*/
 
-function isPseudoElementSelector(selector = '') {
-  return selector.includes('::');
+const PSEUDO_REGEX = /::/;
+
+function isElementSelector(selector = '') {
+  return isCombinatorSelector(selector) || PSEUDO_REGEX.test(selector);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * isCombinatorSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+const COMBINATOR_REGEX = /(.+)\s\[style|style\]\s(.+)/;
+
+function isCombinatorSelector(selector = '') {
+  return COMBINATOR_REGEX.test(selector);
 }
 
 /* -------------------------------------------------------------------------------------------------

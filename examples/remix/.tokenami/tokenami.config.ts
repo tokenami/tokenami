@@ -15,6 +15,7 @@ export default createConfig({
   selectors: {
     ...designSystemConfig.selectors,
     select: '&::selection',
+    'child-para': '& > p',
   },
   theme: {
     modes: {

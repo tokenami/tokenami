@@ -21,6 +21,10 @@ export default function Index() {
         '--flex-direction': 'column',
         '--align-items': 'center',
         '--justify-content': 'center',
+        '--child-para_background-color': 'var(--color_secondary)',
+        '--child-para_color': 'var(--color_primary)',
+        '--child-para_border-radius': 'var(--radii_rounded)',
+        '--child-para_px': 2,
       })}
     >
       <figure

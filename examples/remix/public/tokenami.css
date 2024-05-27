@@ -62,6 +62,7 @@ body {
     --background-color: initial;
     --hover: initial;
     --hover_background-color: initial;
+    --child-para: initial;
     --select: initial;
     --select_background-color: initial;
     --focus-hover: initial;
@@ -110,12 +111,12 @@ body {
     --flex-direction: initial;
     --align-items: initial;
     --justify-content: initial;
+    --padding-left: initial;
+    --padding-right: initial;
     --text-align: initial;
     --md_text-align: initial;
     --overflow: initial;
     --margin: initial;
-    --padding-left: initial;
-    --padding-right: initial;
     --padding-top: initial;
     --padding-bottom: initial;
     --md_padding: initial;
@@ -206,11 +207,13 @@ body {
   }
 
   @layer tks1 {
-    [style], [style*="select_"]::selection, [style]:after {
-      color: var(--_6grdv7, var(--_853it7, revert-layer));
+    [style], [style] > p, [style*="select_"]::selection, [style]:after {
+      color: var(--_6grdv7, var(--_hdgn0i, var(--_853it7, revert-layer)));
       --_853it7: var(--hover) var(--hover_color);
+      --_hdgn0i: var(--child-para) var(--child-para_color);
       --_6grdv7: var(--select) var(--select_color);
-      border-radius: var(--_1a98csj, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, revert-layer))));
+      border-radius: var(--_18mum7u, var(--_1a98csj, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, revert-layer)))));
+      --_18mum7u: var(--child-para) var(--child-para_border-radius);
       --_176qpn4: var(--md) var(--md_border-radius);
       --_1aut28: var(--lg) var(--lg_border-radius);
       --_1hh3291: var(--xl) var(--xl_border-radius);
@@ -240,9 +243,10 @@ body {
   }
 
   @layer tks2 {
-    [style], [style*="select_"]::selection, [style]:after {
-      background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_3prh80, var(--_4dvc60, revert-layer))));
+    [style], [style] > p, [style*="select_"]::selection, [style]:after {
+      background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_3prh80, var(--_1chvnfl, var(--_4dvc60, revert-layer)))));
       --_4dvc60: var(--hover) var(--hover_background-color);
+      --_1chvnfl: var(--child-para) var(--child-para_background-color);
       --_3prh80: var(--select) var(--select_background-color);
       --_g2kfvl: var(--focus-hover) var(--focus-hover_background-color);
       --_1atsbkt: var(--md_focus-hover) var(--md_focus-hover_background-color);
@@ -251,6 +255,10 @@ body {
       --_1283h2s: var(--lg) var(--lg_font-size);
       --_1tqbkib: var(--xl) var(--xl_font-size);
       --_1qfo97: var(--2xl) var(--2xl_font-size);
+      padding-left: var(--_13ih5qc, revert-layer);
+      --_13ih5qc: var(--child-para) var(--child-para_padding-left);
+      padding-right: var(--_1h6o3of, revert-layer);
+      --_1h6o3of: var(--child-para) var(--child-para_padding-right);
     }
   }
 
@@ -258,6 +266,10 @@ body {
     [style]:hover {
       --hover: ;
     }
+  }
+
+  [style] > p {
+    --child-para: ;
   }
 
   [style*="select_"]::selection {

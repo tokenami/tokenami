@@ -51,7 +51,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 - Seamless composition across component boundaries using the `css` utility
 - Runtime style support e.g. `style={css({ '--color': props.color })}`
 - Aliasable properties e.g. `style={css({ '--p': 4 })}` for padding
-- Custom selector support enabling sibling or descendant selectors
+- Custom selector support enabling descendant selectors
 - Improved debugging experience in dev tools
 - Statically generated styles
 - No bundler integration
