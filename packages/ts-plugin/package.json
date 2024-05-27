@@ -11,7 +11,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
-    "typecheck:ci": "pnpm typecheck"
+    "typecheck:ci": "tsc --noEmit"
   },
   "dependencies": {
     "@tokenami/config": "workspace:*"

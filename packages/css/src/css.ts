@@ -158,7 +158,7 @@ function createCss(config: Tokenami.Config) {
 
 function overrideLonghands(style: Record<string, any>, tokenProperty: Tokenami.TokenProperty) {
   const parts = Tokenami.getTokenPropertySplit(tokenProperty);
-  const longhands: string[] = (Tokenami.mapShorthandToLonghands as any)[parts.alias] || [];
+  const longhands: string[] = Tokenami.mapShorthandToLonghands.get(parts.alias as any) || [];
   longhands.forEach((longhand) => {
     const tokenPropertyLong = createTokenProperty(tokenProperty, longhand);
     if (style[tokenPropertyLong]) delete style[tokenPropertyLong];

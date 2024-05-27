@@ -2,13 +2,9 @@
   "extends": "../../tsconfig.json",
   "include": ["src", "stubs"],
   "compilerOptions": {
-    "baseUrl": ".",
-    "isolatedModules": false,
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "Bundler",
+    "outDir": "dist",
+    "target": "ES2022",
     "paths": {
-      "@tokenami/config": ["../config/src"],
       "@tokenami/css": ["../css/src/index.ts"]
     }
   }

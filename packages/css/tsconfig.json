@@ -2,11 +2,6 @@
   "extends": "../../tsconfig.json",
   "include": ["src"],
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["src/*"],
-      "@tokenami/config": ["../config/src"],
-      "@tokenami/dev": ["../dev/src"]
-    }
+    "outDir": "dist"
   }
 }

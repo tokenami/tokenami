@@ -9,14 +9,9 @@
   "repository": "https://github.com/tokenami/tokenami",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
     }
   },
   "bin": {
@@ -25,13 +20,14 @@
   "files": [
     "dist",
     "stubs",
-    "bin.js"
+    "bin.js",
+    "!**/*.ts.map"
   ],
   "scripts": {
     "build": "tsup",
-    "dev": "pnpm build --watch src",
+    "dev": "tsup --watch src",
     "typecheck": "tsc --noEmit",
-    "typecheck:ci": "pnpm typecheck"
+    "typecheck:ci": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
