@@ -1,0 +1,25 @@
+{
+  "pipeline": {
+    "topo": {
+      "dependsOn": ["^topo"]
+    },
+    "build": {
+      "dependsOn": ["^build"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {},
+    "test:watch": {
+      "cache": false
+    },
+    "typecheck": {
+      "dependsOn": ["topo"],
+      "outputs": ["node_modules/.cache/tsbuildinfo.json"]
+    },
+    "typecheck:ci": {
+      "dependsOn": ["topo"]
+    }
+  }
+}

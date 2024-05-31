@@ -3,10 +3,11 @@
   "include": [".tokenami/tokenami.env.d.ts", "*.ts", "*.tsx", "src/**/*", ".storylite/**/*"],
   "compilerOptions": {
     "baseUrl": ".",
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+    "plugins": [{ "name": "@tokenami/ts-plugin" }],
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "types": ["node", "react", "react-dom", "@storylite/vite-plugin/virtual"],
-    "plugins": [{ "name": "@tokenami/ts-plugin" }],
     "paths": {
       "~/*": ["src/*"]
     }

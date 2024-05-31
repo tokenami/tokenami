@@ -7,13 +7,15 @@
     "email": "175330+jjenzz@users.noreply.github.com"
   },
   "scripts": {
-    "prepare": "pnpm build",
-    "dev": "pnpm --filter=./examples/remix dev",
-    "build": "pnpm -r --filter=./packages/** build && pnpm -r --filter=./examples/design-system build",
-    "clean": "rm -rf **/node_modules && rm -rf **/dist",
-    "typecheck": "pnpm -r --parallel typecheck",
-    "typecheck:ci": "pnpm -r --parallel typecheck:ci",
-    "test": "pnpm -r --parallel test",
+    "prepare": "turbo run build",
+    "dev": "turbo run dev --filter=@tokenami/example-remix",
+    "dev:ds": "turbo run dev --filter=@tokenami/example-design-system",
+    "build": "turbo run build",
+    "clean": "pnpm exec rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules .turbo dist",
+    "typecheck": "turbo run typecheck",
+    "typecheck:ci": "turbo run typecheck:ci",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
     "size:why": "size-limit --why",
     "release": "auto shipit"
   },
@@ -27,6 +29,7 @@
     "lerna": "^8.1.2",
     "prettier": "^2.8.8",
     "size-limit": "^11.1.2",
+    "turbo": "latest",
     "typescript": "^5.1.3"
   },
   "engines": {

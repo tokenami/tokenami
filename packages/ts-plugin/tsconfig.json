@@ -3,6 +3,7 @@
   "include": ["src"],
   "compilerOptions": {
     "baseUrl": ".",
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "outDir": "dist",
     "target": "es2017",
     "module": "commonjs",
