@@ -11,9 +11,7 @@
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "sourceMap": false,
-    "composite": false,
     "declaration": true,
-    "declarationMap": true,
     "esModuleInterop": true
   }
 }

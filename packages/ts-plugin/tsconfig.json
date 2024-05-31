@@ -2,9 +2,13 @@
   "extends": "../../tsconfig.json",
   "include": ["src"],
   "compilerOptions": {
+    "baseUrl": ".",
     "outDir": "dist",
     "target": "es2017",
     "module": "commonjs",
-    "declarationMap": false
+    "paths": {
+      "@tokenami/config": ["../config/src"],
+      "@tokenami/dev": ["../dev/src"]
+    }
   }
 }
