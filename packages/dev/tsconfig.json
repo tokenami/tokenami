@@ -3,6 +3,7 @@
   "include": ["src", "stubs"],
   "compilerOptions": {
     "baseUrl": ".",
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "outDir": "dist",
     "target": "ES2022",
     "paths": {

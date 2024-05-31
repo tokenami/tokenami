@@ -12,6 +12,7 @@
     "skipLibCheck": true,
     "sourceMap": false,
     "declaration": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "incremental": true
   }
 }

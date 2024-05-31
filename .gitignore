@@ -6,3 +6,4 @@ public/styles
 .env
 .nx/cache
 esbuild-why.html
+.turbo

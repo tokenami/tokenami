@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsup && tokenami --output dist/tokenami.css --minify",
     "dev": "pnpm run \"/dev:/\"",
-    "dev:storylite": "vite --port=7007 --host=0.0.0.0 --open",
+    "dev:storylite": "vite --port=7007 --host=0.0.0.0",
     "dev:css": "tokenami --output ./src/tokenami.css --watch",
     "typecheck": "tsc --noEmit",
     "typecheck:ci": "pnpm typecheck"
