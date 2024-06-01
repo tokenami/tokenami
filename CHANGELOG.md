@@ -1,3 +1,24 @@
+# v0.0.53 (Sat Jun 01 2024)
+
+#### 🚀 Enhancement
+
+- arbitrary selector support [#283](https://github.com/tokenami/tokenami/pull/283) ([@jjenzz](https://github.com/jjenzz))
+- css package size and monorepo improvements [#285](https://github.com/tokenami/tokenami/pull/285) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- add missing `d.cts` type exports [#286](https://github.com/tokenami/tokenami/pull/286) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- improve dev mode orchestration/perf with turborepo [#287](https://github.com/tokenami/tokenami/pull/287) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.52 (Mon May 27 2024)
 
 #### 🚀 Enhancement
