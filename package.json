@@ -10,7 +10,7 @@
     "prepare": "turbo run build",
     "dev": "turbo run dev --filter=@tokenami/example-remix",
     "dev:ds": "turbo run dev --filter=@tokenami/example-design-system",
-    "build": "turbo run build",
+    "build": "turbo run build --filter='./packages/*'",
     "clean": "pnpm exec rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules .turbo dist",
     "typecheck": "turbo run typecheck",
     "typecheck:ci": "turbo run typecheck:ci",
