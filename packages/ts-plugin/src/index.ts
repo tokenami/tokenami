@@ -57,7 +57,7 @@ function init(modules: { typescript: typeof tslib }) {
   const createVariantPropertyEntry = (property: string, quote = '') => {
     return ([selector, value]: [string, string | string[]]): tslib.CompletionEntry => {
       const tokenProperty = TokenamiConfig.variantProperty(selector, property);
-      const name = removeSpecialCharEscaping(`${quote}${tokenProperty}${quote}`);
+      const name = `${quote}${tokenProperty}${quote}`;
       const kind = tslib.ScriptElementKind.memberVariableElement;
       const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
       const isArbitrary = name.includes('{}');
@@ -140,7 +140,7 @@ function init(modules: { typescript: typeof tslib }) {
     const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
     if (!property.success) return null;
     const sortText = '$' + entry.name;
-    const name = removeSpecialCharEscaping(entry.name);
+    const name = entry.name;
     return { ...entry, name, sortText, insertText: name };
   }
 
@@ -160,7 +160,7 @@ function init(modules: { typescript: typeof tslib }) {
     const modeValues = Tokenami.getThemeValuesByThemeMode(property.output, config.theme);
     if (!Object.entries(modeValues).length) return entry;
 
-    const name = removeSpecialCharEscaping(`$${parts.token}`);
+    const name = `$${parts.token}`;
     const kindModifiers = parts.themeKey;
     const sortText = '$' + entryName;
     const labelDetails = { detail: '', description: entryName };
@@ -168,14 +168,6 @@ function init(modules: { typescript: typeof tslib }) {
     const nextEntry = { ...entry, name, sortText, kindModifiers, insertText, labelDetails };
     updateEntryDetailsConfig({ ...nextEntry, themeKey: parts.themeKey, modeValues });
     return nextEntry;
-  }
-
-  /* ---------------------------------------------------------------------------------------------
-   * removeSpecialCharEscaping
-   * -------------------------------------------------------------------------------------------*/
-
-  function removeSpecialCharEscaping(name: string) {
-    return name.replace(/\\/g, '');
   }
 
   /* -----------------------------------------------------------------------------------------------
