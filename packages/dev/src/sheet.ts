@@ -3,6 +3,7 @@ import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
 import * as utils from './utils';
 import { supportedProperties, supportedLogicalProperties } from './supports';
+import * as log from './log';
 
 const UNUSED_LAYERS_REGEX = /\n\s*@layer[-\w\s,]+;/g;
 const DEFAULT_SELECTOR = '[style]';
@@ -71,9 +72,10 @@ function generate(params: {
         const selectors = getSelectorsFromConfig(config.selector, params.config);
         const shouldInherit = selectors.some(isCombinatorSelector);
         const responsiveSelectors = [responsive, ...selectors].filter(Boolean) as string[];
-        const variantProperty = Tokenami.variantProperty(config.variant, cssProperty);
         const hashedProperty = hashVariantProperty(config.variant, cssProperty);
-        const toggleProperty = Tokenami.tokenProperty(config.variant);
+        const variantProperty = Tokenami.parsedVariantProperty(config.variant, cssProperty);
+        const toggleProperty = Tokenami.parsedTokenProperty(config.variant);
+
         const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) var(${variantProperty});`;
         const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerCount}`;
         const declaration = `${cssProperty}: ${variantValue};`;
@@ -122,14 +124,19 @@ function generate(params: {
     }
   `;
 
-  const transformed = lightning.transform({
-    code: Buffer.from(sheet),
-    filename: params.output,
-    minify: params.minify,
-    targets: params.targets,
-  });
+  try {
+    const transformed = lightning.transform({
+      code: Buffer.from(sheet),
+      filename: params.output,
+      minify: params.minify,
+      targets: params.targets,
+    });
 
-  return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
+    return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
+  } catch (e) {
+    log.debug(`Skipped generate style with ${e}`);
+    return `${e}`;
+  }
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -162,7 +169,7 @@ function getPropertyConfigs(
     const order = responsiveOrder + selectorOrder;
 
     properties.forEach((cssProperty) => {
-      const tokenProperty = Tokenami.tokenProperty(cssProperty);
+      const tokenProperty = Tokenami.parsedTokenProperty(cssProperty);
       const currentConfigs = propertyConfigs.get(cssProperty as any) || [];
       const nextConfig = { ...parts, tokenProperty, order };
       propertyConfigs.set(cssProperty, [...currentConfigs, nextConfig]);
@@ -293,8 +300,10 @@ function getSelectorsFromConfig(
   propertySelector: PropertyConfig['selector'],
   tokenamiConfig: Tokenami.Config
 ) {
-  const selector = propertySelector && tokenamiConfig.selectors?.[propertySelector];
-  const selectors = Array.isArray(selector) ? selector : selector ? [selector] : ['&'];
+  const arbitrarySelector = Tokenami.getArbitrarySelector(propertySelector);
+  const configSelector = propertySelector && tokenamiConfig.selectors?.[propertySelector];
+  const selector = arbitrarySelector?.replace(/_/g, ' ') || configSelector;
+  const selectors = selector ? (Array.isArray(selector) ? selector : [selector]) : ['&'];
   const isSelectionVariant = selectors.includes('&::selection');
   return selectors.map((selector) => {
     // revert-layer for ::selection doesn't work: https://codepen.io/jjenzz/pen/LYvOydB

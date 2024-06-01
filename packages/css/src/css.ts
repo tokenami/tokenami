@@ -1,16 +1,11 @@
 import type { TokenamiProperties, TokenamiFinalConfig } from '@tokenami/dev';
 import * as Tokenami from '@tokenami/config';
 
-const _ALIASES = Symbol();
+const _TOKENAMI_CSS = Symbol.for('@tokenami/css');
 
 // return type purposfully isn't `TokenamiProperties` bcos frameworks limit the `style`
 // types to `CSS.PropertiesHyphen` or `CSS.Properties` which doesn't include `--custom-properties`
 type TokenamiCSS = { [_: symbol]: 'TokenamiCSS' };
-
-/* -------------------------------------------------------------------------------------------------
- * css
- * -----------------------------------------------------------------------------------------------*/
-
 type VariantsConfig = Record<string, Record<string, TokenamiProperties>>;
 type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type ReponsiveKey = Extract<keyof TokenamiFinalConfig['responsive'], string>;
@@ -27,8 +22,6 @@ type ComposeCSS<V, R> = TokenamiProperties & {
 };
 
 interface CSS {
-  [_ALIASES]?: Tokenami.Aliases;
-
   // return type is purposfully `{}` to support `style` attribute type for different frameworks.
   // returning `TokenamiProperties` is not enough here bcos that type can create circular refs
   // in frameworks like SolidJS that use `CSS.PropertiesHyphen` as style attr type. i'm unsure
@@ -67,88 +60,101 @@ const cache = {
   },
 };
 
-const css: CSS = (baseStyles, ...overrides) => {
-  let overriddenStyles = {} as TokenamiCSS;
-  const cacheId = JSON.stringify({ baseStyles, overrides });
-  const cached = cache.get(cacheId);
-
-  if (cached) return cached;
-
-  [baseStyles, ...overrides].forEach((originalStyles) => {
-    if (!originalStyles) return;
-    Object.entries(originalStyles).forEach(([key, value]) => {
-      if (!Tokenami.TokenProperty.safeParse(key).success) return;
-      const tokenProperty = key as keyof TokenamiProperties;
-      const parts = Tokenami.getTokenPropertySplit(tokenProperty);
-      const cssProperties = Tokenami.getCSSPropertiesForAlias(parts.alias, css[_ALIASES]);
-
-      cssProperties.forEach((cssProperty) => {
-        const tokenPropertyLong = createTokenProperty(tokenProperty, cssProperty);
-
-        if (typeof value === 'number' && value > 0) {
-          const gridVar = Tokenami.gridProperty();
-          value = `calc(var(${gridVar}) * ${value})`;
-        }
-
-        overrideLonghands(overriddenStyles, tokenPropertyLong);
-        // this must happen each iteration so that each override applies to the
-        // mutated css object from the previous override iteration
-        Object.assign(overriddenStyles, { [tokenPropertyLong]: value });
-      });
-    });
-  });
-
-  cache.set(cacheId, overriddenStyles);
-  return overriddenStyles;
-};
-
-css[_ALIASES] = {};
-
-/* -------------------------------------------------------------------------------------------------
- * compose
- * -----------------------------------------------------------------------------------------------*/
-
-css.compose = (config) => {
-  const { variants, responsiveVariants, ...baseStyles } = config;
-
-  return function generate(selectedVariants, ...overrides) {
-    const cacheId = JSON.stringify({
-      baseStyles,
-      variants,
-      responsiveVariants,
-      selectedVariants,
-      overrides,
-    });
-    const cached = cache.get(cacheId);
-    if (cached) return cached;
-
-    const variantStyles: TokenamiProperties[] = selectedVariants
-      ? Object.entries(selectedVariants).flatMap(([key, variant]) => {
-          if (!variant) return [];
-          const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
-          if (bp) {
-            const styles = responsiveVariants?.[type]?.[variant as any];
-            return styles ? [convertToMediaStyles(bp, styles)] : [];
-          } else {
-            const styles = (variants || responsiveVariants)?.[type]?.[variant as any];
-            return styles ? [styles] : [];
-          }
-        })
-      : [];
-
-    const styles = css(baseStyles, ...variantStyles, ...overrides);
-    cache.set(cacheId, styles);
-    return styles;
-  };
-};
-
 /* -------------------------------------------------------------------------------------------------
  * createCss
  * -----------------------------------------------------------------------------------------------*/
 
-function createCss(config: Tokenami.Config) {
-  if (!config.aliases) return css;
-  css[_ALIASES] = config.aliases;
+type CreateCssOptions = {
+  /**
+   * When using arbitrary values, Tokenami will escape special characters. Some frameworks
+   * automatically escape so this would result in double-escaping. In that case, switch this
+   * off to hand-off to your framework.
+   *
+   * @default true
+   */
+  escapeSpecialChars?: boolean;
+};
+
+function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
+  (globalThis as any)[_TOKENAMI_CSS] = options || {};
+  const globalOptions: CreateCssOptions = (globalThis as any)[_TOKENAMI_CSS];
+
+  const css: CSS = (baseStyles, ...overrides) => {
+    let overriddenStyles = {} as TokenamiCSS;
+    const cacheId = JSON.stringify({ baseStyles, overrides });
+    const cached = cache.get(cacheId);
+
+    if (cached) return cached;
+
+    [baseStyles, ...overrides].forEach((originalStyles) => {
+      if (!originalStyles) return;
+      Object.entries(originalStyles).forEach(([key, value]) => {
+        const tokenProperty = Tokenami.TokenProperty.safeParse(key);
+        if (!tokenProperty.success) {
+          Object.assign(overriddenStyles, { [key]: value });
+          return;
+        }
+
+        const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
+        const cssProperties = Tokenami.getCSSPropertiesForAlias(parts.alias, config.aliases);
+
+        cssProperties.forEach((cssProperty) => {
+          const long = createLonghandProperty(tokenProperty.output, cssProperty);
+          const tokenPropertyLong = Tokenami.parseProperty(long, {
+            escapeSpecialChars: globalOptions?.escapeSpecialChars,
+          });
+
+          if (typeof value === 'number' && value > 0) {
+            const gridVar = Tokenami.gridProperty();
+            value = `calc(var(${gridVar}) * ${value})`;
+          }
+
+          overrideLonghands(overriddenStyles, tokenPropertyLong);
+          // this must happen each iteration so that each override applies to the
+          // mutated css object from the previous override iteration
+          Object.assign(overriddenStyles, { [tokenPropertyLong]: value });
+        });
+      });
+    });
+
+    cache.set(cacheId, overriddenStyles);
+    return overriddenStyles;
+  };
+
+  css.compose = (config) => {
+    const { variants, responsiveVariants, ...baseStyles } = config;
+
+    return function generate(selectedVariants, ...overrides) {
+      const cacheId = JSON.stringify({
+        baseStyles,
+        variants,
+        responsiveVariants,
+        selectedVariants,
+        overrides,
+      });
+      const cached = cache.get(cacheId);
+      if (cached) return cached;
+
+      const variantStyles: TokenamiProperties[] = selectedVariants
+        ? Object.entries(selectedVariants).flatMap(([key, variant]) => {
+            if (!variant) return [];
+            const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
+            if (bp) {
+              const styles = responsiveVariants?.[type]?.[variant as any];
+              return styles ? [convertToMediaStyles(bp, styles)] : [];
+            } else {
+              const styles = (variants || responsiveVariants)?.[type]?.[variant as any];
+              return styles ? [styles] : [];
+            }
+          })
+        : [];
+
+      const styles = css(baseStyles, ...variantStyles, ...overrides);
+      cache.set(cacheId, styles);
+      return styles;
+    };
+  };
+
   return css;
 }
 
@@ -160,17 +166,17 @@ function overrideLonghands(style: Record<string, any>, tokenProperty: Tokenami.T
   const parts = Tokenami.getTokenPropertySplit(tokenProperty);
   const longhands: string[] = Tokenami.mapShorthandToLonghands.get(parts.alias as any) || [];
   longhands.forEach((longhand) => {
-    const tokenPropertyLong = createTokenProperty(tokenProperty, longhand);
+    const tokenPropertyLong = createLonghandProperty(tokenProperty, longhand);
     if (style[tokenPropertyLong]) delete style[tokenPropertyLong];
     overrideLonghands(style, tokenPropertyLong);
   });
 }
 
 /* -------------------------------------------------------------------------------------------------
- * createTokenProperty
+ * createLonghandProperty
  * -----------------------------------------------------------------------------------------------*/
 
-function createTokenProperty(tokenProperty: Tokenami.TokenProperty, cssProperty: string) {
+function createLonghandProperty(tokenProperty: Tokenami.TokenProperty, cssProperty: string) {
   const parts = Tokenami.getTokenPropertySplit(tokenProperty);
   const aliasRegex = new RegExp(`${parts.alias}$`);
   return tokenProperty.replace(aliasRegex, cssProperty) as Tokenami.TokenProperty;
@@ -183,7 +189,7 @@ function createTokenProperty(tokenProperty: Tokenami.TokenProperty, cssProperty:
 function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiProperties {
   const updatedEntries = Object.entries(styles).map(([property, value]) => {
     const tokenPrefix = Tokenami.tokenProperty('');
-    const bpPrefix = Tokenami.variantProperty(bp, '');
+    const bpPrefix = Tokenami.parsedVariantProperty(bp, '');
     const bpProperty = property.replace(tokenPrefix, bpPrefix);
     return [bpProperty, value];
   });
@@ -191,6 +197,8 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
 }
 
 /* ---------------------------------------------------------------------------------------------- */
+
+const css = createCss(Tokenami.defaultConfig, { escapeSpecialChars: true });
 
 export type { TokenamiCSS, CSS };
 export { createCss, css, convertToMediaStyles };

@@ -62,13 +62,11 @@ body {
     --background-color: initial;
     --hover: initial;
     --hover_background-color: initial;
+    --\{\&\;focus\;hover\}: initial;
+    --\{\&\;focus\;hover\}_background-color: initial;
     --child-para: initial;
     --select: initial;
     --select_background-color: initial;
-    --focus-hover: initial;
-    --focus-hover_background-color: initial;
-    --md_focus-hover: initial;
-    --md_focus-hover_background-color: initial;
     --color: initial;
     --hover_color: initial;
     --select_color: initial;
@@ -244,12 +242,12 @@ body {
 
   @layer tks2 {
     [style], [style] > p, [style*="select_"]::selection, [style]:after {
-      background-color: var(--_1atsbkt, var(--_g2kfvl, var(--_3prh80, var(--_1chvnfl, var(--_4dvc60, revert-layer)))));
+      background-color: var(--_1r7lnia, var(--_3prh80, var(--_1chvnfl, var(--_1fio48, var(--_4dvc60, revert-layer)))));
       --_4dvc60: var(--hover) var(--hover_background-color);
+      --_1fio48: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
       --_1chvnfl: var(--child-para) var(--child-para_background-color);
       --_3prh80: var(--select) var(--select_background-color);
-      --_g2kfvl: var(--focus-hover) var(--focus-hover_background-color);
-      --_1atsbkt: var(--md_focus-hover) var(--md_focus-hover_background-color);
+      --_1r7lnia: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
       font-size: var(--_1qfo97, var(--_1tqbkib, var(--_1283h2s, var(--_1pod6o8, revert-layer))));
       --_1pod6o8: var(--md) var(--md_font-size);
       --_1283h2s: var(--lg) var(--lg_font-size);
@@ -277,14 +275,10 @@ body {
   }
 
   [style]:focus:hover {
-    --focus-hover: ;
+    --\{\&\;focus\;hover\}: ;
   }
 
   @media (width >= 700px) {
-    [style]:focus:hover {
-      --md_focus-hover: ;
-    }
-
     [style] {
       --md: ;
     }

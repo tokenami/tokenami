@@ -30,9 +30,10 @@ const GridValue = {
  * TokenProperty
  * -----------------------------------------------------------------------------------------------*/
 
-const charClass = `A-Za-z0-9!#$%&()*+,./:;<=>?@[\\]^_{|}~`;
 type TokenProperty<P extends string = string> = `--${P}`;
-const tokenPropertyRegex = new RegExp(`(?<!var\\()--[${charClass}]([${charClass}-]+)?`);
+// thanks chat gpt. will match css variable names that start with `--` and optionally
+// include curly brackets (for arbitrary values), while excluding those prefixed with `var(`
+const tokenPropertyRegex = /(?<!var\()--(?:[\w-]+|\{[^\{\}]*\})+/g;
 
 const TokenProperty = {
   safeParse: (input: unknown) => validate<TokenProperty>(tokenPropertyRegex, input),
@@ -40,6 +41,10 @@ const TokenProperty = {
 
 function tokenProperty(name: string): TokenProperty {
   return `--${name}`;
+}
+
+function parsedTokenProperty(name: string): TokenProperty {
+  return parseProperty(tokenProperty(name));
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -55,6 +60,10 @@ const VariantProperty = {
 
 function variantProperty(variant: string, name: string): VariantProperty {
   return `--${variant}_${name}`;
+}
+
+function parsedVariantProperty(variant: string, name: string): VariantProperty {
+  return parseProperty(variantProperty(variant, name));
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -119,9 +128,12 @@ function getTokenPropertyName(property: TokenProperty) {
  * getTokenPropertySplit
  * -----------------------------------------------------------------------------------------------*/
 
+// split on underscores that aren't inside curly brackets (arbitrary selectors)
+const propertySplitRegex = /_(?![^{}]*\])/;
+
 function getTokenPropertySplit(property: TokenProperty) {
   const name = getTokenPropertyName(property);
-  const [alias, ...variants] = name.split('_').reverse() as [string, ...string[]];
+  const [alias, ...variants] = name.split(propertySplitRegex).reverse() as [string, ...string[]];
   return { alias, variants: variants.reverse() };
 }
 
@@ -139,13 +151,32 @@ type PropertyParts = {
 function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): PropertyParts | null {
   const { alias, variants } = getTokenPropertySplit(tokenProperty);
   const [firstVariant, secondVariant] = variants;
-  const firstSelector = config.selectors?.[firstVariant!] && firstVariant;
-  const secondSelector = config.selectors?.[secondVariant!] && secondVariant;
+  const firstSelector = getValidSelector(firstVariant, config);
+  const secondSelector = getValidSelector(secondVariant, config);
   const responsive = config.responsive?.[firstVariant!] && firstVariant;
   const selector = firstSelector || secondSelector;
   const validVariant = [responsive, selector].filter(Boolean).join('_');
-  if (firstVariant && variantProperty(validVariant, alias) !== tokenProperty) return null;
+  const variantProp = variantProperty(validVariant, alias);
+  if (firstVariant && variantProp !== tokenProperty) return null;
   return { alias, responsive, selector, variant: validVariant };
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getValidSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function getValidSelector(selector: string | undefined, config: Config) {
+  if (!selector) return;
+  return (getArbitrarySelector(selector) || config.selectors?.[selector!]) && selector;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getArbitrarySelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function getArbitrarySelector(selector: string | undefined) {
+  const [, arbitrarySelector] = selector?.match(/^{(.+)}$/) || [];
+  return arbitrarySelector ? decodeColon(arbitrarySelector) : undefined;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -169,6 +200,28 @@ function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']): st
   return (aliases as any)?.[alias] || [alias];
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * parseProperty
+ * -------------------------------------------------------------------------------------------------
+ * escape special chars and replace colons with semi colons:
+ * - https://issues.chromium.org/u/1/issues/342857961
+ * - colons also break in solidjs
+ * -----------------------------------------------------------------------------------------------*/
+
+const escapeSpecialCharsRegex = /[&#.:;>~*[\]=,"'()+{}]/g;
+
+function parseProperty<T extends string>(str: T, options?: { escapeSpecialChars?: boolean }) {
+  const { escapeSpecialChars = true } = options || {};
+  const noColon = encodeColon(str);
+  if (!escapeSpecialChars) return noColon as T;
+  return noColon.replace(escapeSpecialCharsRegex, (match) => `\\${match}`) as T;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+
+const encodeColon = (str: string) => str.replace(/:/g, ';');
+const decodeColon = (str: string) => str.replace(/;/g, ':');
+
 /* ---------------------------------------------------------------------------------------------- */
 
 export {
@@ -184,9 +237,13 @@ export {
   variantProperty,
   tokenValue,
   arbitraryValue,
+  parsedTokenProperty,
+  parsedVariantProperty,
+  parseProperty,
   getTokenPropertyName,
   getTokenPropertySplit,
   getTokenPropertyParts,
   getTokenValueParts,
+  getArbitrarySelector,
   getCSSPropertiesForAlias,
 };
