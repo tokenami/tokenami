@@ -1,6 +1,7 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import { hasStyles, hasSomeStyles } from './utils';
-import { createCss } from '../css';
+import { createCss } from '../';
+import { config } from './setup';
 
 /* -------------------------------------------------------------------------------------------------
  * setup
@@ -20,19 +21,7 @@ interface TestContext {
 describe('css returned from createCss', () => {
   describe('when invoked with alias override', () => {
     beforeEach<TestContext>((context) => {
-      const css = createCss({
-        include: [],
-        theme: {},
-        aliases: {
-          p: ['padding'],
-          px: ['padding-left', 'padding-right'],
-          py: ['padding-top', 'padding-bottom'],
-          pt: ['padding-top'],
-          pr: ['padding-right'],
-          pb: ['padding-bottom'],
-          pl: ['padding-left'],
-        },
-      });
+      const css = createCss(config);
 
       context.output = css(
         {
@@ -73,8 +62,7 @@ describe('css returned from createCss', () => {
     describe('when invoked with reordered aliases', () => {
       beforeEach<TestContext>((context) => {
         const css = createCss({
-          include: [],
-          theme: {},
+          ...config,
           aliases: {
             pt: ['padding-top'],
             pr: ['padding-right'],
@@ -104,22 +92,8 @@ describe('css returned from createCss', () => {
 
   describe('when invoked with reordered alias longhands', () => {
     beforeEach<TestContext>((context) => {
-      const css = createCss({
-        include: [],
-        theme: {},
-        aliases: {
-          p: ['padding'],
-          px: ['padding-left', 'padding-right'],
-          py: ['padding-top', 'padding-bottom'],
-          pt: ['padding-top'],
-          pr: ['padding-right'],
-          pb: ['padding-bottom'],
-          pl: ['padding-left'],
-        },
-      });
-
-      // @ts-expect-error tests don't have `tokenami.d.ts` so aliases will error here.
-      context.output = css({ '--pr': '10px', '--pl': '30px' }, { '--px': 20 });
+      const css = createCss(config);
+      context.output = css({ '--pr': 10, '--pl': 30 }, { '--px': 20 });
     });
 
     it<TestContext>('should override correctly', (context) => {

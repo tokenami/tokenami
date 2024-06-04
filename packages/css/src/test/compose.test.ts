@@ -89,8 +89,6 @@ describe('css compose', () => {
 
   describe('when invoked with a responsive variant', () => {
     beforeEach<TestContext>((context) => {
-      // @ts-expect-error because we haven't declared a theme with `md` breakpoint but
-      // that's fine for now because we're testing functionality not types here
       context.output = context.button({ md_type: 'secondary' });
     });
 
