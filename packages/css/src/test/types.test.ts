@@ -1,4 +1,4 @@
-import { css, createConfig, defaultConfig } from '../';
+import { css, createConfig, defaultConfig, createCss } from '../';
 
 /* -------------------------------------------------------------------------------------------------
  * test setup
@@ -119,4 +119,36 @@ export const expectValidSelectorToPass = css({
 
 export const expectValidResponsiveSelectorToPass = css({
   '--md_hover_color': 'var(--color_sky-500)',
+});
+
+/* -------------------------------------------------------------------------------------------------
+ * test cases with aliases
+ * -----------------------------------------------------------------------------------------------*/
+
+const myCss = createCss(config);
+
+export const expectInvalidAliasesToError = myCss({
+  // @ts-expect-error
+  '--s': 2,
+});
+
+export const expectInvalidAliasValuesToError = myCss({
+  // @ts-expect-error
+  '--p': '2',
+});
+
+export const expectValidAliasesToPass = myCss({
+  '--p': 2,
+});
+
+export const expectValidAliasesWithResponsiveToPass = myCss({
+  '--md_p': 2,
+});
+
+export const expectValidAliasesWithSelectorToPass = myCss({
+  '--hover_p': 2,
+});
+
+export const expectValidAliasesWithResponsiveAndSelectorToPass = myCss({
+  '--md_hover_p': 2,
 });
