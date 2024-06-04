@@ -1,4 +1,4 @@
-import { css, createConfig, defaultConfig, createCss } from '../';
+import { css, createConfig, createCss } from '../';
 
 /* -------------------------------------------------------------------------------------------------
  * test setup
@@ -18,45 +18,9 @@ const config = createConfig({
       'slate-700': '#334155',
       'sky-500': '#0ea5e9',
     },
-    anim: {
-      wiggle: 'wiggle 1s ease-in-out infinite',
-    },
-    border: {
-      thin: '1px solid var(--color_slate-700)',
-    },
-    font: {
-      serif: 'serif',
-      sans: 'sans-serif',
-    },
-    radii: {
-      rounded: '10px',
-      circle: '9999px',
-      none: 'none',
-    },
-    size: {
-      auto: 'auto',
-      fill: '100%',
-      'screen-h': '100vh',
-    },
-  },
-  keyframes: {
-    wiggle: {
-      '0%, 100%': { transform: 'rotate(-3deg)' },
-      '50%': { transform: 'rotate(3deg)' },
-    },
-  },
-  selectors: {
-    ...defaultConfig.selectors,
-    hover: ['@media (hover: hover) and (pointer: fine)', '&:hover'],
   },
   aliases: {
     p: ['padding'],
-    px: ['padding-left', 'padding-right'],
-    py: ['padding-top', 'padding-bottom'],
-    pt: ['padding-top'],
-    pr: ['padding-right'],
-    pb: ['padding-bottom'],
-    pl: ['padding-left'],
   },
 });
 
