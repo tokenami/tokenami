@@ -30,12 +30,6 @@ const config = createConfig({
   },
 });
 
-type Config = typeof config;
-
-declare module '@tokenami/dev' {
-  interface TokenamiConfig extends Config {}
-}
-
 /* ---------------------------------------------------------------------------------------------- */
 
 export { config };

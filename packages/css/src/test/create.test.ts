@@ -93,6 +93,7 @@ describe('css returned from createCss', () => {
   describe('when invoked with reordered alias longhands', () => {
     beforeEach<TestContext>((context) => {
       const css = createCss(config);
+      // @ts-expect-error tests don't have `tokenami.d.ts` so aliases will error here.
       context.output = css({ '--pr': 10, '--pl': 30 }, { '--px': 20 });
     });
 

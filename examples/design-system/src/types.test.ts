@@ -1,5 +1,4 @@
-import { css, createCss } from '../';
-import { config } from './setup';
+import { css } from '~/css';
 
 /* -------------------------------------------------------------------------------------------------
  * test cases
@@ -60,30 +59,28 @@ export const expectValidResponsiveSelectorToPass = css({
  * test cases with aliases
  * -----------------------------------------------------------------------------------------------*/
 
-const myCss = createCss(config);
-
-export const expectInvalidAliasesToError = myCss({
+export const expectInvalidAliasesToError = css({
   // @ts-expect-error
   '--s': 2,
 });
 
-export const expectInvalidAliasValuesToError = myCss({
+export const expectInvalidAliasValuesToError = css({
   // @ts-expect-error
   '--p': '2',
 });
 
-export const expectValidAliasesToPass = myCss({
+export const expectValidAliasesToPass = css({
   '--p': 2,
 });
 
-export const expectValidAliasesWithResponsiveToPass = myCss({
+export const expectValidAliasesWithResponsiveToPass = css({
   '--md_p': 2,
 });
 
-export const expectValidAliasesWithSelectorToPass = myCss({
+export const expectValidAliasesWithSelectorToPass = css({
   '--hover_p': 2,
 });
 
-export const expectValidAliasesWithResponsiveAndSelectorToPass = myCss({
+export const expectValidAliasesWithResponsiveAndSelectorToPass = css({
   '--md_hover_p': 2,
 });
