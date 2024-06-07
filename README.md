@@ -8,7 +8,12 @@
   <p align="center">
     Type-safe static styles with theming, responsive variant support, and no bundler integration.
   </p>
+
+  <img src="https://github.com/tokenami/tokenami/assets/175330/8cdfcdf8-05da-4096-8e0b-5645e1b329e5" alt="React support" width="40" />
+  <img src="https://github.com/tokenami/tokenami/assets/175330/141f3cda-905c-4789-be1e-15bbe6f7f77e" alt="Vue support" width="40" />
+  <img src="https://github.com/tokenami/tokenami/assets/175330/0669ee2e-d02e-4c6e-b75b-8760e9b4cfb4" alt="SolidJS support" width="40" />
 </div>
+
 
 <details>
 <summary align="center"><h2 id="user-content-why-another-css-library">Why another CSS library?</h2></summary>
@@ -626,7 +631,7 @@ Before raising a bug, please double-check that it isn't [already in my todo list
 
 ### Supported frameworks
 
-Tokenami is in early stages of development and currently only supports applications built using React (NextJS, Remix, etc.) or SolidJS.
+Tokenami is in early stages of development and currently only supports applications built using React (NextJS, Remix, etc.), Vue, or SolidJS.
 
 ### Supported browsers
 
