@@ -1,0 +1,28 @@
+{
+  "name": "@tokenami/example-nextjs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm run \"/dev:/\"",
+    "dev:app": "next dev",
+    "dev:css": "tokenami --output ./src/app/tokenami.css --watch",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@tokenami/css": "workspace:^",
+    "@tokenami/example-design-system": "workspace:^",
+    "next": "14.2.3",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@tokenami/dev": "workspace:^",
+    "@tokenami/ts-plugin": "workspace:^",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "typescript": "^5"
+  }
+}
