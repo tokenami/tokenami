@@ -13,7 +13,6 @@
     "build": "turbo run build --filter='./packages/*'",
     "clean": "pnpm exec rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules .turbo dist",
     "typecheck": "turbo run typecheck",
-    "typecheck:ci": "turbo run typecheck:ci",
     "test": "turbo run test",
     "test:watch": "turbo run test:watch",
     "size:why": "size-limit --why",
