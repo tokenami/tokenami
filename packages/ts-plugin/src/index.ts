@@ -1,4 +1,5 @@
 import tslib from 'typescript/lib/tsserverlibrary';
+import * as culori from 'culori';
 import * as TokenamiConfig from '@tokenami/config';
 import * as Tokenami from '@tokenami/dev';
 
@@ -415,15 +416,19 @@ function init(modules: { typescript: typeof tslib }) {
       const originalDocumentation = original?.documentation || [];
 
       if (entryConfig.modeValues) {
-        const isColor = entryConfig.themeKey === 'color';
         const entries = Object.entries(entryConfig.modeValues);
         const [, firstValue] = entries[0] || [];
-        const description = isColor
-          ? createColorTokenDescription(entryConfig.modeValues)
-          : createTokenDescription(entryConfig.modeValues);
-        const docs = { text: `${firstValue}\n\n${description}`, kind: 'markdown' };
-        const documentation = [docs, ...originalDocumentation];
-        return { ...common, documentation };
+
+        if (entryConfig.themeKey === 'color') {
+          const description = createColorTokenDescription(entryConfig.modeValues);
+          const hex = firstValue ? convertToHex(firstValue) : firstValue;
+          const docs = { text: `${hex}\n\n${description}`, kind: 'markdown' };
+          return { ...common, documentation: [docs, ...originalDocumentation] };
+        } else {
+          const description = createTokenDescription(entryConfig.modeValues);
+          const docs = { text: `${firstValue}\n\n${description}`, kind: 'markdown' };
+          return { ...common, documentation: [docs, ...originalDocumentation] };
+        }
       }
 
       if (entryConfig.value) {
@@ -475,6 +480,15 @@ function init(modules: { typescript: typeof tslib }) {
 }
 
 /* ---------------------------------------------------------------------------------------------- */
+
+function convertToHex(input: string) {
+  try {
+    const parsed = culori.parse(input);
+    return culori.formatHex8(parsed);
+  } catch (e) {
+    return input;
+  }
+}
 
 function createColorTokenDescription(modeValues: NonNullable<EntryConfigItem['modeValues']>) {
   return createDescription(modeValues, (mode, value) => [createSquare(value), mode, value]);
