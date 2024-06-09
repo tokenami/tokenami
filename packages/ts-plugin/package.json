@@ -14,10 +14,12 @@
     "typecheck:ci": "tsc --noEmit"
   },
   "dependencies": {
-    "@tokenami/config": "workspace:*"
+    "@tokenami/config": "workspace:*",
+    "culori": "^4.0.1"
   },
   "devDependencies": {
     "@tokenami/dev": "workspace:*",
+    "@types/culori": "^2.1.0",
     "tsup": "^7.0.0",
     "typescript": "^5.1.3"
   },
