@@ -1,10 +1,11 @@
 {
-  "pipeline": {
+  "tasks": {
     "topo": {
       "dependsOn": ["^topo"]
     },
     "build": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "build/**"]
     },
     "dev": {
       "cache": false,

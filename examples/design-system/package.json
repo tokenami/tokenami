@@ -13,8 +13,11 @@
   "scripts": {
     "build": "tsup && tokenami --output dist/tokenami.css --minify",
     "dev": "pnpm run \"/dev:/\"",
-    "dev:storylite": "vite --port=7007 --host=0.0.0.0",
-    "dev:css": "tokenami --output ./src/tokenami.css --watch",
+    "dev:lib": "tsup --watch",
+    "dev:css": "tokenami --output dist/tokenami.css --minify --watch",
+    "storylite": "pnpm run \"/storylite:/\"",
+    "storylite:app": "vite --port=7007 --host=0.0.0.0",
+    "storylite:css": "tokenami --output ./src/tokenami.css --watch",
     "typecheck": "tsc --noEmit",
     "typecheck:ci": "pnpm typecheck"
   },

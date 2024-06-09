@@ -7,10 +7,10 @@
     "email": "175330+jjenzz@users.noreply.github.com"
   },
   "scripts": {
-    "prepare": "turbo run build",
-    "dev": "turbo run dev --filter=@tokenami/example-remix",
-    "dev:ds": "turbo run dev --filter=@tokenami/example-design-system",
-    "build": "turbo run build --filter='./packages/*'",
+    "prepare": "pnpm build",
+    "dev:ds": "turbo run storylite --filter=@tokenami/example-design-system",
+    "dev:remix": "turbo watch dev --filter=@tokenami/example-remix...",
+    "build": "turbo run build --filter=@tokenami/example-design-system...",
     "clean": "pnpm exec rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules .turbo dist",
     "typecheck": "turbo run typecheck",
     "typecheck:ci": "turbo run typecheck:ci",
@@ -32,6 +32,7 @@
     "turbo": "latest",
     "typescript": "^5.1.3"
   },
+  "packageManager": "pnpm@9.2.0",
   "engines": {
     "pnpm": ">= 8",
     "node": ">= 18"
