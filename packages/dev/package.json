@@ -29,7 +29,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch src",
+    "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "typecheck:ci": "tsc --noEmit"
   },
