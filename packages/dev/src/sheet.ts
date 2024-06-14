@@ -225,18 +225,34 @@ function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenam
   const gridValue = { [Tokenami.gridProperty()]: config.grid };
   const rootSelector = ':root';
 
-  if (modes) {
-    const modeThemeEntries = Object.entries(modes).map(([mode, theme]) => {
-      const modeThemeSelector = config.themeSelector ? config.themeSelector(mode) : rootSelector;
-      const modeThemeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
-      return [modeThemeSelector, { ...gridValue, ...modeThemeValues }];
-    });
-
-    return stringify(Object.fromEntries(modeThemeEntries));
+  if (!modes) {
+    const rootThemeValues = utils.getThemeValuesByTokenValues(tokenValues, rootTheme);
+    const inlineThemeValues = getTokensValuesWithCSSVariables(rootThemeValues);
+    const rootWithGridValues = { ...gridValue, ...rootThemeValues };
+    return stringify({ [rootSelector]: rootWithGridValues, [DEFAULT_SELECTOR]: inlineThemeValues });
   }
 
-  const rootThemeValues = utils.getThemeValuesByTokenValues(tokenValues, rootTheme);
-  return stringify({ [rootSelector]: { ...gridValue, ...rootThemeValues } });
+  const modeThemeEntries = Object.entries(modes).flatMap(([mode, theme]) => {
+    const modeThemeSelector = config.themeSelector ? config.themeSelector(mode) : rootSelector;
+    const modeThemeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
+    const inlineThemeValues = getTokensValuesWithCSSVariables(modeThemeValues);
+    const modeWithGridValues = { ...gridValue, ...modeThemeValues };
+    return [
+      [modeThemeSelector, modeWithGridValues],
+      [DEFAULT_SELECTOR, inlineThemeValues],
+    ];
+  });
+
+  return stringify(Object.fromEntries(modeThemeEntries));
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getTokensValuesWithCSSVariables
+ * -----------------------------------------------------------------------------------------------*/
+
+function getTokensValuesWithCSSVariables(themeValues: { [key: string]: string }) {
+  const entries = Object.entries(themeValues).filter(([, value]) => /var\(.+\)/g.test(value));
+  return Object.fromEntries(entries);
 }
 
 /* -------------------------------------------------------------------------------------------------
