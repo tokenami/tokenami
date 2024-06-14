@@ -52,7 +52,7 @@
     "fast-glob": "^3.2.12",
     "inquirer": "^9.2.12",
     "jiti": "^1.21.0",
-    "lightningcss": "^1.23.0",
+    "lightningcss": "1.23.0",
     "pathe": "^1.1.1",
     "sucrase": "^3.34.0"
   },
