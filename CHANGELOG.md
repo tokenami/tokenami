@@ -1,3 +1,15 @@
+# v0.0.55 (Fri Jun 14 2024)
+
+#### 🐛 Bug Fix
+
+- downgrade lightningcss to fix style generation [#299](https://github.com/tokenami/tokenami/pull/299) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.54 (Fri Jun 14 2024)
 
 ### Release Notes
