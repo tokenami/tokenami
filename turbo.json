@@ -21,6 +21,10 @@
     },
     "typecheck:ci": {
       "dependsOn": ["topo"]
+    },
+    "storylite": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

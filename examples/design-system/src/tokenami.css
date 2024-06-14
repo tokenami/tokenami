@@ -3,6 +3,9 @@
 }
 
 body {
+  color: var(--color_body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
   font-family: system-ui, sans-serif;
@@ -10,102 +13,113 @@ body {
 }
 
 @layer tokenami {
-  @keyframes wiggle {
-    0%, 100% {
-      transform: rotate(-3deg);
-    }
-
-    50% {
-      transform: rotate(3deg);
-    }
-  }
-
   .theme-light {
     --_grid: .25rem;
-    --anim_wiggle: wiggle 1s ease-in-out infinite;
-    --color_primary: #f1f5f9;
-    --color_secondary: #334155;
-    --color_slate-700: #334155;
-    --font_sans: sans-serif;
-    --radii_rounded: 10px;
+    --border_none: 0;
+    --color_on-surface: #05000f;
+    --color_primary-bright: #afe4ee;
+    --color_secondary: #c2a8ff;
+    --color_secondary-bright: #cdb8ff;
+    --radii_sm: .375rem;
+    --shadow_border: 0 0 0 3px var(--color_shadow-alpha);
+    --size_fill: 100%;
+    --surface_radial-gradient-t: radial-gradient(circle at top, var(---surface-from), var(---surface-to) 80%);
+    --surface_radial-gradient-tl: radial-gradient(circle at top left, var(---surface-from) 0%, var(---surface-to) 50%, var(---surface-from) 100%);
   }
 
   .theme-dark {
     --_grid: .25rem;
-    --anim_wiggle: wiggle 1s ease-in-out infinite;
-    --color_primary: #0ea5e9;
-    --color_secondary: #f1f5f9;
-    --color_slate-700: #334155;
-    --font_sans: sans-serif;
-    --radii_rounded: 10px;
+    --border_none: 0;
+    --color_on-surface: #fff;
+    --color_primary-bright: #2e727f;
+    --color_secondary: #271551;
+    --color_secondary-bright: #6c4fb0;
+    --radii_sm: .375rem;
+    --shadow_border: 0 0 0 3px var(--color_shadow-alpha);
+    --size_fill: 100%;
+    --surface_radial-gradient-t: radial-gradient(circle at top, var(---surface-from), var(---surface-to) 80%);
+    --surface_radial-gradient-tl: radial-gradient(circle at top left, var(---surface-from) 0%, var(---surface-to) 50%, var(---surface-from) 100%);
   }
 
   [style] {
-    --background-color: initial;
+    --background-image: initial;
+    --border-radius: initial;
+    --background-size: initial;
+    --border: initial;
+    --color: initial;
+    --transition: initial;
+    --box-shadow: initial;
+    --padding-top: initial;
+    --padding-bottom: initial;
+    --padding-left: initial;
+    --padding-right: initial;
     --hover: initial;
-    --hover_background-color: initial;
+    --hover_background-position: initial;
     --\{\&\;focus\;hover\}: initial;
     --\{\&\;focus\;hover\}_background-color: initial;
-    --color: initial;
-    --hover_color: initial;
-    --border: initial;
-    --border-bottom: initial;
-    --border-radius: initial;
-    --font-family: initial;
-    --width: initial;
-    --height: initial;
-    --transition: initial;
-    --hover_animation: initial;
+    --background-color: initial;
     --font-size: initial;
+    --xs: initial;
+    --xs_font-size: initial;
+    --sm: initial;
+    --sm_font-size: initial;
     --md: initial;
     --md_font-size: initial;
     --lg: initial;
     --lg_font-size: initial;
     --xl: initial;
     --xl_font-size: initial;
-    --2xl: initial;
-    --2xl_font-size: initial;
+    --light: initial;
+    --dark: initial;
+    --width: initial;
+    --height: initial;
   }
 
   @layer tk1 {
     [style] {
-      color: var(--color, revert-layer);
-      border: var(--border, revert-layer);
       border-radius: var(--border-radius, revert-layer);
+      border: var(--border, revert-layer);
+      color: var(--color, revert-layer);
+      transition: var(--transition, revert-layer);
+      box-shadow: var(--box-shadow, revert-layer);
       width: var(--width, revert-layer);
       height: var(--height, revert-layer);
-      transition: var(--transition, revert-layer);
     }
   }
 
   @layer tk2 {
     [style] {
+      background-image: var(--background-image, revert-layer);
+      background-size: var(--background-size, revert-layer);
+      padding-top: var(--padding-top, revert-layer);
+      padding-bottom: var(--padding-bottom, revert-layer);
+      padding-left: var(--padding-left, revert-layer);
+      padding-right: var(--padding-right, revert-layer);
       background-color: var(--background-color, revert-layer);
-      border-bottom: var(--border-bottom, revert-layer);
-      font-family: var(--font-family, revert-layer);
       font-size: var(--font-size, revert-layer);
     }
   }
 
   @layer tks1 {
-    [style] {
-      color: var(--_853it7, revert-layer);
-      --_853it7: var(--hover) var(--hover_color);
-      animation: var(--_1upk2ho, revert-layer);
-      --_1upk2ho: var(--hover) var(--hover_animation);
+    [style], .theme-light [style], .theme-dark [style] {
+      mix-blend-mode: var(--_1kk97aq, var(--_1n7ak26, revert-layer));
+      --_1n7ak26: var(--light) var(--light_mix-blend-mode);
+      --_1kk97aq: var(--dark) var(--dark_mix-blend-mode);
     }
   }
 
   @layer tks2 {
-    [style] {
-      background-color: var(--_1r7lnia, var(--_4dvc60, revert-layer));
-      --_4dvc60: var(--hover) var(--hover_background-color);
+    [style], .theme-light [style], .theme-dark [style] {
+      background-position: var(--_1agkruk, revert-layer);
+      --_1agkruk: var(--hover) var(--hover_background-position);
+      background-color: var(--_1r7lnia, revert-layer);
       --_1r7lnia: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
-      font-size: var(--_1qfo97, var(--_1tqbkib, var(--_1283h2s, var(--_1pod6o8, revert-layer))));
+      font-size: var(--_1tqbkib, var(--_1283h2s, var(--_1pod6o8, var(--_1s8geir, var(--_kqfqh4, revert-layer)))));
+      --_kqfqh4: var(--xs) var(--xs_font-size);
+      --_1s8geir: var(--sm) var(--sm_font-size);
       --_1pod6o8: var(--md) var(--md_font-size);
       --_1283h2s: var(--lg) var(--lg_font-size);
       --_1tqbkib: var(--xl) var(--xl_font-size);
-      --_1qfo97: var(--2xl) var(--2xl_font-size);
     }
   }
 
@@ -119,27 +133,41 @@ body {
     --\{\&\;focus\;hover\}: ;
   }
 
-  @media (min-width: 700px) {
+  @media (min-width: 320px) {
+    [style] {
+      --xs: ;
+    }
+  }
+
+  @media (min-width: 480px) {
+    [style] {
+      --sm: ;
+    }
+  }
+
+  @media (min-width: 768px) {
     [style] {
       --md: ;
     }
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 976px) {
     [style] {
       --lg: ;
     }
   }
 
-  @media (min-width: 1280px) {
+  @media (min-width: 1440px) {
     [style] {
       --xl: ;
     }
   }
 
-  @media (min-width: 1536px) {
-    [style] {
-      --2xl: ;
-    }
+  .theme-light [style] {
+    --light: ;
+  }
+
+  .theme-dark [style] {
+    --dark: ;
   }
 }

@@ -1,5 +1,9 @@
-import { css } from '@tokenami/css';
+import * as DS from '@tokenami/example-design-system';
 
 export default function Home() {
-  return <main style={css({ '--color': 'var(--color_sky-500)' })}>boop</main>;
+  return (
+    <main>
+      <DS.Button>button</DS.Button>
+    </main>
+  );
 }
