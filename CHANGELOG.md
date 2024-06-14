@@ -1,3 +1,38 @@
+# v0.0.54 (Fri Jun 14 2024)
+
+### Release Notes
+
+#### allow typed custom properties ([#297](https://github.com/tokenami/tokenami/pull/297))
+
+if you are configuring your own `properties` in your `tokenami.config`, please update each property with a double-dash prefix to avoid breaking changes.
+
+---
+
+#### 💥 Breaking Change
+
+- allow typed custom properties [#297](https://github.com/tokenami/tokenami/pull/297) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- intellisense color previews for all color formats [#296](https://github.com/tokenami/tokenami/pull/296) ([@jjenzz](https://github.com/jjenzz))
+- fix css package transitive dep [#292](https://github.com/tokenami/tokenami/pull/292) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- upgrade turbo [#295](https://github.com/tokenami/tokenami/pull/295) ([@jjenzz](https://github.com/jjenzz))
+- remove redundant `removeSpecialCharEscaping` from ts-plugin [#288](https://github.com/tokenami/tokenami/pull/288) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- move typescript CI instructions to typescript section [#298](https://github.com/tokenami/tokenami/pull/298) ([@jjenzz](https://github.com/jjenzz))
+- add vue support to readme [#290](https://github.com/tokenami/tokenami/pull/290) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.53 (Sat Jun 01 2024)
 
 #### 🚀 Enhancement
