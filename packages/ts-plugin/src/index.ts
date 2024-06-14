@@ -140,7 +140,8 @@ function init(modules: { typescript: typeof tslib }) {
   function transformTokenPropertyEntry(entry: tslib.CompletionEntry): tslib.CompletionEntry | null {
     const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
     if (!property.success) return null;
-    const sortText = '$' + entry.name;
+    // we want known token properties to come before custom ones in sort order
+    const sortText = entry.name.startsWith('---') ? '$' + entry.name : '$$' + entry.name;
     const name = entry.name;
     return { ...entry, name, sortText, insertText: name };
   }

@@ -49,8 +49,10 @@ type VariantProperty<P extends string> =
       ? Tokenami.VariantProperty<P, VariantKey>
       : Tokenami.VariantProperty<P, string>);
 
-type TokenValue<P> = P extends keyof PropertyConfig
-  ? PropertyThemeValue<PropertyConfig[P][number]>
+type TokenValue<P> = P extends string
+  ? Tokenami.TokenProperty<P> extends keyof PropertyConfig
+    ? PropertyThemeValue<PropertyConfig[Tokenami.TokenProperty<P>][number]>
+    : never
   : never;
 
 type PropertyThemeValue<ThemeKey extends string> =
@@ -63,6 +65,11 @@ type TokensByThemeKey = { [key: string]: never } & {
   [K in keyof Theme]: keyof Theme[K] extends `${infer Token}`
     ? Tokenami.TokenValue<K, Token>
     : never;
+};
+
+type CustomProperty = Omit<PropertyConfig, Tokenami.TokenProperty<keyof Tokenami.CSSProperties>>;
+type CustomProperties = {
+  [K in keyof CustomProperty]?: K extends Tokenami.TokenProperty<infer P> ? TokenValue<P> : never;
 };
 
 /**
@@ -80,7 +87,7 @@ type TokensByThemeKey = { [key: string]: never } & {
  * -------------------------------------------------------------------------
  */
 
-export interface Properties {
+export interface Properties extends CustomProperties {
   all: TokenProperties<'all'>;
   animation: TokenProperties<'animation'>;
   'animation-range': TokenProperties<'animation-range'>;
@@ -573,7 +580,8 @@ export interface Properties {
  */
 
 interface TokenamiProperties
-  extends TokenProperties<'all'>,
+  extends CustomProperties,
+    TokenProperties<'all'>,
     TokenProperties<'animation'>,
     TokenProperties<'animation-range'>,
     TokenProperties<'background'>,
