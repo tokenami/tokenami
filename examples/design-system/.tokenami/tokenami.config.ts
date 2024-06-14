@@ -1,4 +1,4 @@
-import { createConfig, defaultConfig } from '@tokenami/css';
+import { type Config, createConfig, defaultConfig } from '@tokenami/css';
 
 const palette = {
   'slate-100': '#f1f5f9',
@@ -33,7 +33,7 @@ const theme = {
     fill: '100%',
     'screen-h': '100vh',
   },
-};
+} satisfies Config['theme'];
 
 export default createConfig({
   include: ['./src/**/*.{ts,tsx}'],

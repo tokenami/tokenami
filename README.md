@@ -14,7 +14,6 @@
   <img src="https://github.com/tokenami/tokenami/assets/175330/0669ee2e-d02e-4c6e-b75b-8760e9b4cfb4" alt="SolidJS support" width="40" />
 </div>
 
-
 <details>
 <summary align="center"><h2 id="user-content-why-another-css-library">Why another CSS library?</h2></summary>
 
@@ -94,7 +93,8 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
 - [Advanced](#user-content-advanced)
   - [Selectors](#user-content-selectors)
   - [Aliases](#user-content-aliases)
-  - [Mapping properties to theme](#user-content-mapping-properties-to-theme)
+  - [Map properties to theme](#user-content-map-properties-to-theme)
+  - [Map custom properties to theme](#user-content-map-custom-properties-to-theme)
   - [Browserslist](#user-content-browserslist)
   - [Continuous Integration](#user-content-continuous-integration)
   - [Design systems with Tokenami](#user-content-design-systems-with-tokenami)
@@ -543,7 +543,7 @@ module.exports = createConfig({
 
 With the above config, `px` is shorthand for `padding-left` and `padding-right`. This allows the `css` utility to apply padding on the left and right when `--px` is used.
 
-### Mapping properties to theme
+### Map properties to theme
 
 Tokenami provides sensible defaults to restrict which values can be passed to properties based on your theme. For instance, `--border-color` will only accept tokens from your `color` object in theme, `--padding` allows multiples of your grid, and `--height` expects tokens from a `size` key or multiples of your grid.
 
@@ -564,14 +564,14 @@ module.exports = createConfig({
   },
   properties: {
     ...defaultConfig.properties,
-    width: ['grid', 'container'],
-    height: ['grid', 'container'],
-    content: ['pet'],
+    '--width': ['grid', 'container'],
+    '--height': ['grid', 'container'],
+    '--content': ['pet'],
   },
 });
 ```
 
-With this configuration, using `'--content': 'var(--container_half)'` would error because `container` does not exist in the property config for `content`, but `'--content': 'var(--pet_dog)'` would be allowed:
+With this configuration, using `'--content': 'var(--container_half)'` would error because `container` does not exist in the property config for `--content`, but `'--content': 'var(--pet_dog)'` would be allowed:
 
 ```tsx
 <div
@@ -579,6 +579,53 @@ With this configuration, using `'--content': 'var(--container_half)'` would erro
     '--width': 75 /*  300px with a 4px grid */,
     '--height': 'var(--container_half)',
     '--after_content': 'var(--pet_cat)',
+  })}
+/>
+```
+
+### Map custom properties to theme
+
+Tokenami allows custom CSS properties using the triple dash syntax (`---custom-property`). If you'd like to ensure these properties only accept token values from your theme, add them to the `properties` config.
+
+This helps you create a configurable design system. For example, you can create `---gradient-from` and `---gradient-to` properties that accept color tokens to make reusable gradients:
+
+```tsx
+module.exports = createConfig({
+  // ...
+  properties: {
+    ...defaultConfig.properties,
+    '---gradient-from': ['color'],
+    '---gradient-to': ['color'],
+  },
+});
+```
+
+Then use the properties in your theme:
+
+```tsx
+module.exports = createConfig({
+  theme: {
+    color: {
+      primary: '#f1f5f9',
+      secondary: '#334155',
+    },
+    surface: {
+      'radial-gradient':
+        'radial-gradient(circle at top, var(---gradient-from), var(---gradient-to) 80%)',
+    },
+  },
+  // ...
+});
+```
+
+You can then set different gradient stops when applying the gradient, and intellisense will suggest colors from your theme.
+
+```tsx
+<div
+  style={css({
+    '---gradient-from': 'var(--color_primary)',
+    '---gradient-to': 'var(--color_secondary)',
+    '--background': 'var(--surface_radial-gradient)',
   })}
 />
 ```
