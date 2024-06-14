@@ -1,3 +1,15 @@
+# v0.0.56 (Fri Jun 14 2024)
+
+#### 🚀 Enhancement
+
+- inherit custom property values [#300](https://github.com/tokenami/tokenami/pull/300) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.55 (Fri Jun 14 2024)
 
 #### 🐛 Bug Fix
