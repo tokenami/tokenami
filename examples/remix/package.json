@@ -4,7 +4,6 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "prepare": "tokenami",
     "build": "tokenami --minify && remix build",
     "dev": "pnpm run \"/dev:/\"",
     "dev:app": "remix dev",
