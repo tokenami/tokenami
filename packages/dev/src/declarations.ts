@@ -50,8 +50,8 @@ type VariantProperty<P extends string> =
       : Tokenami.VariantProperty<P, string>);
 
 type TokenValue<P> = P extends string
-  ? Tokenami.TokenProperty<P> extends keyof PropertyConfig
-    ? PropertyThemeValue<PropertyConfig[Tokenami.TokenProperty<P>][number]>
+  ? P extends keyof PropertyConfig
+    ? PropertyThemeValue<PropertyConfig[P][number]>
     : never
   : never;
 
@@ -67,10 +67,8 @@ type TokensByThemeKey = { [key: string]: never } & {
     : never;
 };
 
-type CustomProperty = Omit<PropertyConfig, Tokenami.TokenProperty<keyof Tokenami.CSSProperties>>;
-type CustomProperties = {
-  [K in keyof CustomProperty]?: K extends Tokenami.TokenProperty<infer P> ? TokenValue<P> : never;
-};
+type CustomProperty = Omit<PropertyConfig, keyof Tokenami.CSSProperties>;
+type CustomProperties = { [K in keyof CustomProperty]?: TokenValue<K> };
 
 /**
  * -------------------------------------------------------------------------

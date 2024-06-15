@@ -583,14 +583,14 @@ module.exports = createConfig({
   },
   properties: {
     ...defaultConfig.properties,
-    '--width': ['grid', 'container'],
-    '--height': ['grid', 'container'],
-    '--content': ['pet'],
+    width: ['grid', 'container'],
+    height: ['grid', 'container'],
+    content: ['pet'],
   },
 });
 ```
 
-With this configuration, using `'--content': 'var(--container_half)'` would error because `container` does not exist in the property config for `--content`, but `'--content': 'var(--pet_dog)'` would be allowed:
+With this configuration, passing `var(--container_half)` to a `content` property would error because `container` does not exist in its property config, but `var(--pet_dog)` would be allowed:
 
 ```tsx
 <div
