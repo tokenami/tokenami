@@ -1,3 +1,23 @@
+# v0.0.57 (Sat Jun 15 2024)
+
+### Release Notes
+
+#### revert breaking change to known properties config shape ([#302](https://github.com/tokenami/tokenami/pull/302))
+
+this reverts the breaking change in [v0.0.54](https://github.com/tokenami/tokenami/releases/tag/v0.0.54), so it can be ignored. sorry for the messing around today. hoping i've switched this back quickly enough before it impacted anyone 🙈
+
+---
+
+#### 🐛 Bug Fix
+
+- revert breaking change to known properties config shape [#302](https://github.com/tokenami/tokenami/pull/302) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.56 (Fri Jun 14 2024)
 
 #### 🚀 Enhancement
