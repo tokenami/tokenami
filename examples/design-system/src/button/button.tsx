@@ -21,7 +21,7 @@ const button = css.compose({
   '--bg-color': 'var(--color_primary)',
   '--color': 'var(--color_secondary)',
   '--border': 'var(---,none)',
-  '--border-bottom': 'var(---, 2px solid var(--color_slate-700))',
+  '--border-bottom': 'var(--border_thin)',
   '--border-radius': 'var(--radii_rounded)',
   '--font-family': 'var(--font_sans)',
   '--width': 'var(---,180px)',

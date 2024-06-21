@@ -24,11 +24,11 @@ body {
     --_grid: .25rem;
     --anim_wiggle: wiggle 1s ease-in-out infinite;
     --border_thin: 1px solid var(--color_slate-700);
+    --color_slate-700: #334155;
     --color_primary: #f1f5f9;
     --color_secondary: #334155;
     --color_sky-500: #0ea5e9;
     --color_slate-100: #f1f5f9;
-    --color_slate-700: #334155;
     --font_sans: sans-serif;
     --pet_favourite: "🐶";
     --radii_circle: 9999px;
@@ -39,15 +39,19 @@ body {
     --size_screen-h: 100vh;
   }
 
+  [style] {
+    --border_thin: 1px solid var(--color_slate-700);
+  }
+
   .theme-dark {
     --_grid: .25rem;
     --anim_wiggle: wiggle 1s ease-in-out infinite;
     --border_thin: 1px solid var(--color_slate-700);
+    --color_slate-700: #334155;
     --color_primary: #0ea5e9;
     --color_secondary: #f1f5f9;
     --color_sky-500: #0ea5e9;
     --color_slate-100: #f1f5f9;
-    --color_slate-700: #334155;
     --font_sans: sans-serif;
     --pet_favourite: "🐱";
     --radii_circle: 9999px;
