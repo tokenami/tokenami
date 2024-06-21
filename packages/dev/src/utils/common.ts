@@ -90,15 +90,38 @@ function getCiTypeDefsPath(configPath: string) {
  * -----------------------------------------------------------------------------------------------*/
 
 function getThemeValuesByTokenValues(tokenValues: Tokenami.TokenValue[], theme: Tokenami.Theme) {
+  const entries = getThemeValueByTokenValueEntries(tokenValues, theme);
+  return Object.fromEntries(entries);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getThemeValueByTokenValueEntries
+ * -----------------------------------------------------------------------------------------------*/
+
+function getThemeValueByTokenValueEntries(
+  tokenValues: Tokenami.TokenValue[],
+  theme: Tokenami.Theme
+): [string, string][] {
   // make entries a deterministic order instead of usage order
   const sorted = [...tokenValues].sort();
-  const entries = sorted.flatMap((tokenValue) => {
+  return sorted.flatMap((tokenValue) => {
     const parts = Tokenami.getTokenValueParts(tokenValue);
     const value = theme[parts.themeKey]?.[parts.token];
     if (value == null) return [];
-    return [[parts.property, value]] as const;
+    const tokenValues = findTokenValuesInThemeValue(value);
+    const themeValuesEntries = getThemeValueByTokenValueEntries(tokenValues, theme);
+    return [[parts.property, value], ...themeValuesEntries];
   });
-  return Object.fromEntries(entries);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * findTokenValuesInThemeValue
+ * -----------------------------------------------------------------------------------------------*/
+
+function findTokenValuesInThemeValue(themeValue: string) {
+  const cssVariables = themeValue.match(/var\([\w-_]+\)/g) || [];
+  const tokenValues = cssVariables.filter((v) => Tokenami.TokenValue.safeParse(v).success);
+  return tokenValues as Tokenami.TokenValue[];
 }
 
 /* -------------------------------------------------------------------------------------------------
