@@ -1,3 +1,27 @@
+# v0.0.58 (Sun Jun 30 2024)
+
+### Release Notes
+
+#### add selector support to custom properties ([#305](https://github.com/tokenami/tokenami/pull/305))
+
+please remove the triple-dash prefix for any custom properties you have defined in the `properties` object of your `tokenami.config` and update usage with a double-dash prefix. custom properties now behave like regular properties to enable selector support.
+
+---
+
+#### 💥 Breaking Change
+
+- add selector support to custom properties [#305](https://github.com/tokenami/tokenami/pull/305) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- recursively generate theme in stylesheet [#304](https://github.com/tokenami/tokenami/pull/304) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.57 (Sat Jun 15 2024)
 
 ### Release Notes
