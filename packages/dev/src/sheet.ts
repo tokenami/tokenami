@@ -7,6 +7,7 @@ import * as log from './log';
 
 const UNUSED_LAYERS_REGEX = /\n\s*@layer[-\w\s,]+;/g;
 const DEFAULT_SELECTOR = '[style]';
+const CUSTOM_PROP_PREFIX = '--_';
 const LAYERS = {
   BASE: 'tk',
   LOGICAL: 'tkl',
@@ -17,6 +18,7 @@ const LAYERS = {
 type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   order: number;
   tokenProperty: Tokenami.TokenProperty;
+  isCustom: boolean;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -34,6 +36,7 @@ function generate(params: {
 
   const tokenProperties = params.tokens.properties;
   const tokenValues = params.tokens.values;
+  const configProperties = Object.keys(params.config.properties || {});
   const propertyConfigsByCSSProperty = getPropertyConfigs(tokenProperties, params.config);
   const allPropertyConfigs = Array.from(propertyConfigsByCSSProperty.values()).flat();
 
@@ -62,8 +65,9 @@ function generate(params: {
     }, 'revert-layer');
 
     configs.forEach((config) => {
-      const layerCount = getAtomicLayer(cssProperty);
+      const layerCount = getAtomicLayer(cssProperty, configProperties);
       const toggleKey = config.responsive || config.selector;
+      const propertyPrefix = config.isCustom ? CUSTOM_PROP_PREFIX : '';
 
       if (layerCount === -1) return;
 
@@ -75,10 +79,9 @@ function generate(params: {
         const hashedProperty = hashVariantProperty(config.variant, cssProperty);
         const variantProperty = Tokenami.parsedVariantProperty(config.variant, cssProperty);
         const toggleProperty = Tokenami.parsedTokenProperty(config.variant);
-
         const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) var(${variantProperty});`;
         const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerCount}`;
-        const declaration = `${cssProperty}: ${variantValue};`;
+        const declaration = `${propertyPrefix}${cssProperty}: ${variantValue};`;
 
         const toggle = responsiveSelectors.reduceRight(
           (declaration, selector) => `${selector} { ${declaration} }`,
@@ -93,7 +96,7 @@ function generate(params: {
         styles.toggles[toggleKey]!.add(toggle);
       } else {
         const propertyValue = `var(${config.tokenProperty}, revert-layer)`;
-        const declaration = `${DEFAULT_SELECTOR} { ${cssProperty}: ${propertyValue}; }`;
+        const declaration = `${DEFAULT_SELECTOR} { ${propertyPrefix}${cssProperty}: ${propertyValue}; }`;
         const layer = `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerCount}`;
         styles.reset.add(`${config.tokenProperty}: initial;`);
         styles.atomic.add(`@layer ${layer} { ${declaration} }`);
@@ -159,6 +162,9 @@ function getPropertyConfigs(
   config: Tokenami.Config
 ): Map<string, PropertyConfig[]> {
   let propertyConfigs: Map<string, PropertyConfig[]> = new Map();
+  const customProperties = Object.keys(config.properties || {}).filter((property) => {
+    return !supportedProperties.has(property as any);
+  });
 
   tokenProperties.forEach((tokenProperty) => {
     const parts = Tokenami.getTokenPropertyParts(tokenProperty, config);
@@ -171,7 +177,8 @@ function getPropertyConfigs(
     properties.forEach((cssProperty) => {
       const tokenProperty = Tokenami.parsedTokenProperty(cssProperty);
       const currentConfigs = propertyConfigs.get(cssProperty as any) || [];
-      const nextConfig = { ...parts, tokenProperty, order };
+      const isCustom = customProperties.includes(cssProperty);
+      const nextConfig = { ...parts, tokenProperty, order, isCustom };
       propertyConfigs.set(cssProperty, [...currentConfigs, nextConfig]);
     });
   });
@@ -185,15 +192,16 @@ function getPropertyConfigs(
 
 const SHORTHAND_TO_LONGHAND_ENTRIES = [...Tokenami.mapShorthandToLonghands.entries()];
 
-function getAtomicLayer(cssProperty: string): number {
-  const isSupported = supportedProperties.has(cssProperty as any);
+function getAtomicLayer(cssProperty: string, configProperties: string[]): number {
+  const validProperties = new Set([...supportedProperties, ...configProperties]);
+  const isSupported = validProperties.has(cssProperty as any);
   const initialDepth = isSupported ? 1 : -1;
 
   if (cssProperty === 'all') return 0;
 
   return SHORTHAND_TO_LONGHAND_ENTRIES.reduce((depth, [shorthand, longhands]) => {
     const isLonghand = (longhands as string[]).includes(cssProperty);
-    return isLonghand ? depth + getAtomicLayer(shorthand) : depth;
+    return isLonghand ? depth + getAtomicLayer(shorthand, configProperties) : depth;
   }, initialDepth);
 }
 
@@ -222,38 +230,95 @@ function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Token
 
 function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
   const { modes, ...rootTheme } = config.theme;
-  const gridValue = { [Tokenami.gridProperty()]: config.grid };
   const rootSelector = ':root';
 
   if (!modes) {
-    const rootThemeValues = utils.getThemeValuesByTokenValues(tokenValues, rootTheme);
-    const inlineThemeValues = getTokensValuesWithCSSVariables(rootThemeValues);
-    const rootWithGridValues = { ...gridValue, ...rootThemeValues };
-    return stringify({ [rootSelector]: rootWithGridValues, [DEFAULT_SELECTOR]: inlineThemeValues });
+    const rootEntries = getThemeEntries(
+      rootSelector,
+      tokenValues,
+      rootTheme,
+      config.properties,
+      config.grid
+    );
+    return stringify(Object.fromEntries(rootEntries));
   }
 
   const modeThemeEntries = Object.entries(modes).flatMap(([mode, theme]) => {
     const modeThemeSelector = config.themeSelector ? config.themeSelector(mode) : rootSelector;
-    const modeThemeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
-    const inlineThemeValues = getTokensValuesWithCSSVariables(modeThemeValues);
-    const modeWithGridValues = { ...gridValue, ...modeThemeValues };
-    return [
-      [modeThemeSelector, modeWithGridValues],
-      [DEFAULT_SELECTOR, inlineThemeValues],
-    ];
+    const modeEntries = getThemeEntries(
+      modeThemeSelector,
+      tokenValues,
+      theme,
+      config.properties,
+      config.grid
+    );
+    return modeEntries;
   });
 
   return stringify(Object.fromEntries(modeThemeEntries));
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getTokensValuesWithCSSVariables
+ * getThemeEntries
  * -----------------------------------------------------------------------------------------------*/
 
-function getTokensValuesWithCSSVariables(themeValues: { [key: string]: string }) {
-  const entries = Object.entries(themeValues).filter(([, value]) => /var\(.+\)/g.test(value));
+const getThemeEntries = (
+  selector: string,
+  tokenValues: Tokenami.TokenValue[],
+  theme: Tokenami.Theme,
+  properties: Tokenami.Config['properties'],
+  grid: Tokenami.Config['grid']
+) => {
+  const gridValue = { [Tokenami.gridProperty()]: grid };
+  const themeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
+  const customPropertyThemeValues = getCustomPropertyThemeValues(themeValues, properties);
+  for (const customKey of Object.keys(customPropertyThemeValues)) {
+    delete themeValues[customKey];
+  }
+  return [
+    [selector, { ...gridValue, ...themeValues }],
+    [DEFAULT_SELECTOR, customPropertyThemeValues],
+  ];
+};
+
+/* -------------------------------------------------------------------------------------------------
+ * getCustomPropertyThemeValues
+ * -----------------------------------------------------------------------------------------------*/
+
+function getCustomPropertyThemeValues(
+  themeValues: { [key: string]: string },
+  properties?: Tokenami.Config['properties']
+) {
+  const entries = Object.entries(themeValues).flatMap(([key, value]) => {
+    const valueWithCustomPrefixes = getPrefixedCustomPropertyValues(value, properties);
+    return valueWithCustomPrefixes ? [[key, valueWithCustomPrefixes] as const] : [];
+  });
   return Object.fromEntries(entries);
 }
+
+/* -------------------------------------------------------------------------------------------------
+ * getPrefixedCustomPropertyValues
+ * -----------------------------------------------------------------------------------------------*/
+
+const getPrefixedCustomPropertyValues = (
+  themeValue: string,
+  properties?: Tokenami.Config['properties']
+) => {
+  const variables = themeValue.match(/--[\w-_]+/g);
+  if (!variables) return null;
+
+  for (const variable of variables) {
+    const tokenProperty = Tokenami.TokenProperty.safeParse(variable);
+    if (!tokenProperty.success) return;
+    const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
+    if (supportedProperties.has(parts.alias as any) || !properties?.[parts.alias]) return;
+    const tokenPrefix = Tokenami.tokenProperty('');
+    const customPrefixTokenValue = tokenProperty.output.replace(tokenPrefix, CUSTOM_PROP_PREFIX);
+    themeValue = themeValue.replace(tokenProperty.output, customPrefixTokenValue);
+  }
+
+  return themeValue;
+};
 
 /* -------------------------------------------------------------------------------------------------
  * hash

@@ -68,7 +68,11 @@ type TokensByThemeKey = { [key: string]: never } & {
 };
 
 type CustomProperty = Omit<PropertyConfig, keyof Tokenami.CSSProperties>;
-type CustomProperties = { [K in keyof CustomProperty]?: TokenValue<K> };
+type CustomProperties = {
+  [K in VariantProperty<keyof CustomProperty>]?: K extends VariantProperty<infer P>
+    ? TokenValue<P>
+    : never;
+};
 
 /**
  * -------------------------------------------------------------------------

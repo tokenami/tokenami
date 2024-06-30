@@ -32,22 +32,29 @@ function init(modules: { typescript: typeof tslib }) {
     const configSelectorEntries = Object.entries(config.selectors || {});
     const allSelectorEntries = configSelectorEntries.concat([['{}', '']]);
     const configAliasProperties = Object.keys(config.aliases || {});
+    const baseProperties = [...Tokenami.supportedProperties, ...configAliasProperties];
+    const customProperties = Object.keys(config.properties || {}).filter(
+      (property) => !Tokenami.supportedProperties.has(property as any)
+    );
 
-    return [...Tokenami.supportedProperties, ...configAliasProperties].flatMap((property) => {
-      const createCompletionEntry = createVariantPropertyEntry(property, quote);
+    const processEntries = (create: ReturnType<typeof createVariantPropertyEntry>) => {
       const responsiveEntries = configResponsiveEntries.flatMap(
         ([responsiveSelector, responsiveValue]) => {
-          const responsiveEntry = createCompletionEntry([responsiveSelector, responsiveValue]);
+          const responsiveEntry = create([responsiveSelector, responsiveValue]);
           const combinedEntries = allSelectorEntries.map(([selector, value]) => {
             const combinedSelector = `${responsiveSelector}_${selector}`;
             const combinedValue = [responsiveValue].concat(value);
-            return createCompletionEntry([combinedSelector, combinedValue]);
+            return create([combinedSelector, combinedValue]);
           });
           return [responsiveEntry, ...combinedEntries];
         }
       );
-      const selectorEntries = allSelectorEntries.map(createCompletionEntry);
+      const selectorEntries = allSelectorEntries.map(create);
       return [...responsiveEntries, ...selectorEntries];
+    };
+
+    return [...baseProperties, ...customProperties].flatMap((property) => {
+      return processEntries(createVariantPropertyEntry(property, quote));
     });
   }
 
@@ -59,20 +66,28 @@ function init(modules: { typescript: typeof tslib }) {
     return ([selector, value]: [string, string | string[]]): tslib.CompletionEntry => {
       const tokenProperty = TokenamiConfig.variantProperty(selector, property);
       const name = `${quote}${tokenProperty}${quote}`;
-      const kind = tslib.ScriptElementKind.memberVariableElement;
-      const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
-      const isArbitrary = name.includes('{}');
-      updateEntryDetailsConfig({ name, kind, kindModifiers, value });
-
-      if (isArbitrary) {
-        // we prepend 1 to sort arbitrary values after non-arbitrary ones
-        const sortText = `1${name}`;
-        const insertText = name.replace('{}', '{${1}}');
-        return { name, kind, kindModifiers, sortText, insertText, isSnippet: true };
-      }
-
-      return { name, kind, kindModifiers, sortText: `0${name}`, insertText: name };
+      return createPropertyEntry(name, value);
     };
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * createPropertyEntry
+   * -----------------------------------------------------------------------------------------------*/
+
+  const createPropertyEntry = (name: string, value: string | string[]): tslib.CompletionEntry => {
+    const kind = tslib.ScriptElementKind.memberVariableElement;
+    const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
+    const isArbitrary = name.includes('{}');
+    updateEntryDetailsConfig({ name, kind, kindModifiers, value });
+
+    if (isArbitrary) {
+      // we prepend 1 to sort arbitrary values after non-arbitrary ones
+      const sortText = `1${name}`;
+      const insertText = name.replace('{}', '{${1}}');
+      return { name, kind, kindModifiers, sortText, insertText, isSnippet: true };
+    }
+
+    return { name, kind, kindModifiers, sortText: `0${name}`, insertText: name };
   };
 
   /* -----------------------------------------------------------------------------------------------

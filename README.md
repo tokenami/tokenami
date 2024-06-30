@@ -604,22 +604,20 @@ With this configuration, passing `var(--container_half)` to a `content` property
 
 ### Map custom properties to theme
 
-Tokenami allows custom CSS properties using the triple dash syntax (`---custom-property`). If you'd like to ensure these properties only accept token values from your theme, add them to the `properties` config.
-
-This helps you create a configurable design system. For example, you can create `---gradient-from` and `---gradient-to` properties that accept color tokens to make reusable gradients:
+Tokenami allows custom properties in the `properties` config. This helps to create a configurable design system. For example, you can create `--gradient-from` and `--gradient-to` properties that accept color tokens to make reusable gradients:
 
 ```tsx
 module.exports = createConfig({
   // ...
   properties: {
     ...defaultConfig.properties,
-    '---gradient-from': ['color'],
-    '---gradient-to': ['color'],
+    'gradient-from': ['color'],
+    'gradient-to': ['color'],
   },
 });
 ```
 
-Then use the properties in your theme:
+And use the properties in your theme:
 
 ```tsx
 module.exports = createConfig({
@@ -630,24 +628,75 @@ module.exports = createConfig({
     },
     surface: {
       'radial-gradient':
-        'radial-gradient(circle at top, var(---gradient-from), var(---gradient-to) 80%)',
+        'radial-gradient(circle at top, var(--gradient-from), var(--gradient-to) 80%)',
     },
   },
   // ...
 });
 ```
 
-You can then set different gradient stops when applying the gradient, and intellisense will suggest colors from your theme.
+Now you can set different gradient stops when applying the gradient, and intellisense will suggest colours from your theme.
 
 ```tsx
 <div
   style={css({
-    '---gradient-from': 'var(--color_primary)',
-    '---gradient-to': 'var(--color_secondary)',
+    '--gradient-from': 'var(--color_primary)',
+    '--gradient-to': 'var(--color_secondary)',
     '--background': 'var(--surface_radial-gradient)',
   })}
 />
 ```
+
+#### CSS limitations
+
+Theme values containing custom properties are not applied to theme selectors in the generated stylesheet. Tokenami [must apply them to each element](https://codepen.io/jjenzz/pen/eYayMWo) to ensure custom properties are inherited from the element's style attribute. This means theme modes cannot mix custom properties with differing hardcoded values/variables. For example:
+
+```tsx
+// ❌
+{
+  light: {
+    surface: {
+      gradient: 'linear-gradient(to right, red, var(--surface-to))';
+    }
+  }
+  dark: {
+    surface: {
+      gradient: 'linear-gradient(to right, blue, var(--surface-to))';
+    }
+  }
+}
+```
+
+Instead, use matching custom properties and then use custom selectors to apply the different stops based on the theme mode:
+
+```tsx
+// ✅
+{
+  light: {
+    surface: {
+      gradient: 'linear-gradient(to right, var(--surface-from), var(--surface-to))';
+    }
+  }
+  dark: {
+    surface: {
+      gradient: 'linear-gradient(to right, var(--surface-from), var(--surface-to))';
+    }
+  }
+}
+```
+
+```tsx
+<div
+  style={css({
+    '--light_surface-from': 'var(--color_white)',
+    '--dark_surface-from': 'var(--color_black)',
+    '--surface-to': 'var(--color_primary)',
+    '--background': 'var(--surface_gradient)',
+  })}
+/>
+```
+
+This will ensure `--surface-from` is set to `var(--color_white)` in the light theme and `var(--color_black)` in the dark theme.
 
 ### Browserslist
 
