@@ -647,7 +647,7 @@ Now you can set different gradient stops when applying the gradient, and intelli
 />
 ```
 
-#### CSS limitations
+#### CSS limitations
 
 Theme values containing custom properties are not applied to theme selectors in the generated stylesheet. Tokenami [must apply them to each element](https://codepen.io/jjenzz/pen/eYayMWo) to ensure custom properties are inherited from the element's style attribute. This means theme modes cannot mix custom properties with differing hardcoded values/variables. For example:
 
