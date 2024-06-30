@@ -39,10 +39,6 @@ body {
     --size_screen-h: 100vh;
   }
 
-  [style] {
-    --border_thin: 1px solid var(--color_slate-700);
-  }
-
   .theme-dark {
     --_grid: .25rem;
     --anim_wiggle: wiggle 1s ease-in-out infinite;

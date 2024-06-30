@@ -153,7 +153,7 @@ function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): Pr
   const [firstVariant, secondVariant] = variants;
   const firstSelector = getValidSelector(firstVariant, config);
   const secondSelector = getValidSelector(secondVariant, config);
-  const responsive = config.responsive?.[firstVariant!] && firstVariant;
+  const responsive = getValidResponsive(firstVariant, config);
   const selector = firstSelector || secondSelector;
   const validVariant = [responsive, selector].filter(Boolean).join('_');
   const variantProp = variantProperty(validVariant, alias);
@@ -167,7 +167,18 @@ function getTokenPropertyParts(tokenProperty: TokenProperty, config: Config): Pr
 
 function getValidSelector(selector: string | undefined, config: Config) {
   if (!selector) return;
-  return (getArbitrarySelector(selector) || config.selectors?.[selector!]) && selector;
+  const configSelector = config.selectors?.[selector!];
+  return (getArbitrarySelector(selector) || configSelector) && selector;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getValidResponsive
+ * -----------------------------------------------------------------------------------------------*/
+
+function getValidResponsive(responsive: string | undefined, config: Config) {
+  if (!responsive) return;
+  const configResponsive = config.responsive?.[responsive!];
+  return configResponsive && responsive;
 }
 
 /* -------------------------------------------------------------------------------------------------

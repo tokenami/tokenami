@@ -47,7 +47,7 @@ interface Config {
   aliases?: Aliases;
   themeSelector?: (mode: string) => string;
   theme: ThemeConfig;
-  properties?: Partial<Record<CSSProperty | `---${string}`, PropertiesOptions>>;
+  properties?: Partial<Record<CSSProperty | (string & {}), PropertiesOptions>>;
 }
 
 const defaultConfig = {
