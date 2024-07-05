@@ -66,6 +66,10 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 
 ## Demo
 
+If you prefer to get stuck straight in, give Tokenami a try on [StackBlitz](https://stackblitz.com/~/github.com/tokenami/tokenami-vite?file=src/App.tsx).
+
+For an enhanced dev experience press `CMD+Shift+P` and choose the workspace version of TypeScript. StackBlitz can't match the experience of a local dev environment (no colour swatches in intellisense) but it's a great way to get started.
+
 https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e99714ef
 
 ## Contents
