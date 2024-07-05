@@ -3,10 +3,10 @@
 <div align="center">
   <h3>Tokenami</h3>
   <p align="center">
-    Atomic CSS-in-JS, in the style attribute.
+    <a href="https://css-tricks.com/just-in-time-css/">Just-in-time</a> atomic CSS, in the style attribute.
   </p>
   <p align="center">
-    Type-safe static styles with theming, responsive variant support, and no bundler integration.
+    <strong>Fully typed</strong> static styles with theming, variant support, and <strong>no bundler integration</strong>.
   </p>
 
   <img src="https://github.com/tokenami/tokenami/assets/175330/8cdfcdf8-05da-4096-8e0b-5645e1b329e5" alt="React support" width="40" />
