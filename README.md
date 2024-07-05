@@ -738,7 +738,9 @@ Before raising a bug, please double-check that it isn't [already in my todo list
 
 In order to reduce style calculations at runtime, Tokenami puts the styles you write directly into the style attribute. This means the properties need to be valid `style` syntax. Since the style attribute does not support media queries and psuedo selectors, Tokenami uses CSS variable syntax to enable them and therefore makes all properties consistently CSS variables for a reduced learning curve.
 
-This approach also helps you update styles directly in devtools because the output syntax becomes second nature. The goal is for the double-dash to eventually feel as natural as typing custom class names in Tailwind. Instead of memorising many custom class names though, you can use CSS properties as usual, and intellisense will add the double-dash for you:
+Additionaly, CSS properties applied to the style attribute have highest specificity making them hard to override. By using CSS variables instead, you can easily override Tokeanami's styles by adding a stylesheet after Tokenami's in your document.
+
+This approach also helps you update styles directly in devtools because the syntax becomes second nature. The goal is for the double-dash to eventually feel as natural as typing custom class names in Tailwind. Instead of memorising many custom class names though, you can use CSS properties as usual, and intellisense will add the double-dash for you:
 
 ![property autocomplete](https://github.com/tokenami/tokenami/assets/175330/9906ea3b-275a-439e-a4c8-ee6a4790290f)
 
