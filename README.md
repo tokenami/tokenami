@@ -14,53 +14,6 @@
   <img src="https://github.com/tokenami/tokenami/assets/175330/0669ee2e-d02e-4c6e-b75b-8760e9b4cfb4" alt="SolidJS support" width="40" />
 </div>
 
-<details>
-<summary align="center"><h2 id="user-content-why-another-css-library">Why another CSS library?</h2></summary>
-
-CSS-in-JS solutions that rely on style injection [won't be recommended by the React team](https://github.com/reactwg/react-18/discussions/110) going forward, and instead they suggest the following:
-
-> Our preferred solution is to use [`<link rel="stylesheet">`](https://github.com/reactwg/react-18/discussions/108) for statically extracted styles and plain inline styles for dynamic values. E.g. `<div style={{...}}>`
-
-In other words—_write CSS like we used to_. But what about the benefits that CSS-in-JS gave us?
-
-There are CSS-in-JS solutions that extract static rules from your template files into external `.css` files, however, these approaches often require [bundler integration](https://vanilla-extract.style/documentation/integrations/next/) and come with [build-time limitations](https://panda-css.com/docs/guides/dynamic-styling).
-
-The learning curve can be intimidating but developers invest regardless so they can have type errors and intellisense for their design system tokens as well as style deduping, critical path CSS, scoping, and composition.
-
-Tailwind CSS adopts a different strategy to achieve these goals:
-
-- We can style inline to prototype quickly
-- Editor extensions for intellisense based on your theme
-- Statically generated styles with a simple CLI script, no bundler integration
-- Atomic CSS so styles have a cap on how large they can grow
-
-On the flip side:
-
-- Removing values from your theme won't flag redundant references
-- We must memorise Tailwind's custom class names which spawns things like the [Tailwind Cheatsheet](https://tailwindcomponents.com/cheatsheet/)
-- Specificity issues when composing unless we use third-party packages like [tailwind-merge](https://www.npmjs.com/package/tailwind-merge)
-- Styling inline can be unpleasant to maintain, resulting in third-party packages like [cva](https://cva.style/docs)
-- Classes must exist as [complete unbroken strings](https://tailwindcss.com/docs/content-configuration#dynamic-class-names)
-- Debugging in dev tools is tricky because styles are spread across atomic classes
-
-### Introducing Tokenami
-
-Tokenami aims to improve some of these areas by using CSS variables instead of CSS properties in the `style` attribute, and bringing all necessary tools under one roof. It features:
-
-- Simple naming convention—use the CSS properties you already know, prefixed with double-dash
-- Smaller stylesheet made possible by atomic CSS variables
-- Config file for defining your theme
-- Feature-rich intellisense when authoring styles
-- A tiny `css` utility with variants, and responsive variants support
-- Seamless composition across component boundaries using the `css` utility
-- Runtime style support e.g. `style={css({ '--color': props.color })}`
-- Aliasable properties e.g. `style={css({ '--p': 4 })}` for padding
-- Custom selector support enabling descendant selectors
-- Improved debugging experience in dev tools
-- Statically generated styles
-- No bundler integration
-</details>
-
 > [!Warning]
 > This is a pre-alpha version of tokenami so there will be bugs, breaking changes, and missing features. Please check the [existing issues](https://github.com/tokenami/tokenami/issues) for planned features/known bugs before creating new ones.
 
@@ -70,6 +23,7 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
 
 ## Contents
 
+- [Why another CSS library?](#user-content-why-another-css-library)
 - [Getting started](#user-content-getting-started)
   - [Installation](#user-content-installation)
   - [Configure TypeScript](#user-content-configure-typescript)
@@ -104,6 +58,56 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
   - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
 - [Contributors](#user-contributors)
 - [Credits](#user-content-credits)
+
+## Why another CSS library?
+
+CSS-in-JS solutions that rely on style injection [were no longer recommended by the React team](https://github.com/reactwg/react-18/discussions/110), and instead they suggested:
+
+> Our preferred solution is to use [`<link rel="stylesheet">`](https://github.com/reactwg/react-18/discussions/108) for statically extracted styles and plain inline styles for dynamic values. E.g. `<div style={{...}}>`
+
+In other words—_write CSS like we used to_. But what about the benefits that CSS-in-JS gave us?
+
+There are CSS-in-JS solutions that extract static rules from your template files into external `.css` files, however, these approaches often require [bundler integration](https://vanilla-extract.style/documentation/integrations/next/) and come with [build-time limitations](https://panda-css.com/docs/guides/dynamic-styling).
+
+The learning curve can be intimidating but developers invest regardless so they can have type errors and intellisense for their design system tokens as well as style deduping, critical path CSS, scoping, and composition.
+
+<details>
+<summary>Read more</summary>
+<br/>
+
+Tailwind CSS adopts a different strategy to achieve these goals:
+
+- We can style inline to prototype quickly
+- Editor extensions for intellisense based on your theme
+- Statically generated styles with a simple CLI script, no bundler integration
+- Atomic CSS so styles have a cap on how large they can grow
+
+On the flip side:
+
+- Removing values from your theme won't flag redundant references
+- We must memorise Tailwind's custom class names which spawns things like the [Tailwind Cheatsheet](https://tailwindcomponents.com/cheatsheet/)
+- Specificity issues when composing unless we use third-party packages like [tailwind-merge](https://www.npmjs.com/package/tailwind-merge)
+- Styling inline can be unpleasant to maintain, resulting in third-party packages like [cva](https://cva.style/docs)
+- Classes must exist as [complete unbroken strings](https://tailwindcss.com/docs/content-configuration#dynamic-class-names)
+- Debugging in dev tools is tricky because styles are spread across atomic classes
+
+### Introducing Tokenami
+
+Tokenami aims to improve some of these areas by using CSS variables instead of CSS properties in the `style` attribute, and bringing all necessary tools under one roof. It features:
+
+- Simple naming convention—use the CSS properties you already know, prefixed with double-dash
+- Smaller stylesheet made possible by atomic CSS variables
+- Config file for defining your theme
+- Feature-rich intellisense when authoring styles
+- A tiny `css` utility with variants, and responsive variants support
+- Seamless composition across component boundaries using the `css` utility
+- Runtime style support e.g. `style={css({ '--color': props.color })}`
+- Aliasable properties e.g. `style={css({ '--p': 4 })}` for padding
+- Custom selector support enabling descendant selectors
+- Improved debugging experience in dev tools
+- Statically generated styles
+- No bundler integration
+</details>
 
 ## Getting started
 
