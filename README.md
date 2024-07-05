@@ -57,6 +57,7 @@ https://github.com/tokenami/tokenami/assets/175330/123e5386-75af-4dbe-8d0c-1015e
   - [Browserslist](#user-content-browserslist)
   - [Design systems with Tokenami](#user-content-design-systems-with-tokenami)
 - [Support](#user-content-support)
+  - [Why the double-dash prefix?](#user-content-why-the-double-dash-prefix)
   - [Supported frameworks](#user-content-supported-frameworks)
   - [Supported browsers](#user-content-supported-browsers)
   - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
@@ -240,7 +241,7 @@ module.exports = createConfig({
 
 With your theme set up, there are only a few rules to remember:
 
-1. A Tokenami **property** is any CSS property prefixed with double dash, e.g. `--font-size`. Use `---` (triple dash) to add custom CSS variables to an element.
+1. A Tokenami **property** is any CSS property prefixed with double dash, e.g. `--font-size` ([why?](#user-content-why-the-double-dash-prefix)). Use `---` (triple dash) to add custom CSS variables to an element.
 1. A Tokenami **token** is any theme key followed by a value identifier, and separated by an underscore. For example, a `color` object in theme with a `red-100` entry maps to `var(--color_red-100)`.
 1. Properties can include selectors like media queries, pseudo-classes, and pseudo-elements separated with an underscore. For instance, `--hover_background-color`, `--md_hover_background-color`.
 
@@ -732,6 +733,12 @@ Tokenami will automatically generate styles and merge them correctly across comp
 ## Support
 
 Before raising a bug, please double-check that it isn't [already in my todo list](https://github.com/tokenami/tokenami/issues). Some common pitfalls are listed below. If you need additional support or encounter any issues, please don't hesitate to join the [Tokenami discord server](https://discord.gg/CAU4HNR4XK).
+
+### Why the double-dash prefix?
+
+The goal is for the double-dash to eventually feel as natural as typing custom class names in Tailwind. This helps you prototype quickly in devtools or HTML, including with media query or pseudo selectors directly in the style attribute (without needing the CSS utility). Instead of memorising many custom class names though, you can type CSS properties as usual, and intellisense will add the double-dash for you:
+
+![property autocomplete](https://github.com/tokenami/tokenami/assets/175330/9906ea3b-275a-439e-a4c8-ee6a4790290f)
 
 ### Supported frameworks
 
