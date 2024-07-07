@@ -437,7 +437,9 @@ function init(modules: { typescript: typeof tslib }) {
 
         if (entryConfig.themeKey === 'color') {
           const description = createColorTokenDescription(entryConfig.modeValues);
-          const hex = firstValue ? convertToHex(firstValue) : firstValue;
+          const hex = firstValue
+            ? convertToHex(replaceCssVarsWithFallback(firstValue))
+            : firstValue;
           const docs = { text: `${hex}\n\n${description}`, kind: 'markdown' };
           return { ...common, documentation: [docs, ...originalDocumentation] };
         } else {
@@ -528,8 +530,16 @@ function createRow(row: string[]) {
 }
 
 const createSquare = (color: string) => {
-  const svg = `<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" x="0" y="0" fill="${color}" /></svg>`;
+  const fill = replaceCssVarsWithFallback(color);
+  const svg = `<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" x="0" y="0" fill="${fill}" /></svg>`;
   return `![Image](data:image/svg+xml;base64,${btoa(svg)})`;
 };
+
+function replaceCssVarsWithFallback(value: string) {
+  // regular expression to find CSS variables with fallback values
+  const regex = /var\([\w-_]+,\s*([\w-_]+)\)/g;
+  // replace the CSS variables with their fallback values
+  return value.replace(regex, (_, fallback) => fallback);
+}
 
 export = init;
