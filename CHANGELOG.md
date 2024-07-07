@@ -1,3 +1,28 @@
+# v0.0.59 (Sun Jul 07 2024)
+
+#### 🚀 Enhancement
+
+- add ts plugin colour swatches for custom colour theme keys [#321](https://github.com/tokenami/tokenami/pull/321) ([@jjenzz](https://github.com/jjenzz))
+- replace css vars in colors with fallbacks for ts plugin swatches [#320](https://github.com/tokenami/tokenami/pull/320) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- shorter demo video [#316](https://github.com/tokenami/tokenami/pull/316) ([@jjenzz](https://github.com/jjenzz))
+- comprehensive demo vid [#314](https://github.com/tokenami/tokenami/pull/314) ([@jjenzz](https://github.com/jjenzz))
+- add double-dash specificity info [#313](https://github.com/tokenami/tokenami/pull/313) ([@jjenzz](https://github.com/jjenzz))
+- improve why double-dash [#312](https://github.com/tokenami/tokenami/pull/312) ([@jjenzz](https://github.com/jjenzz))
+- why double-dash section [#311](https://github.com/tokenami/tokenami/pull/311) ([@jjenzz](https://github.com/jjenzz))
+- fully typed and static clarity [#310](https://github.com/tokenami/tokenami/pull/310) ([@jjenzz](https://github.com/jjenzz))
+- move why section [#308](https://github.com/tokenami/tokenami/pull/308) ([@jjenzz](https://github.com/jjenzz))
+- add stackblitz demo to readme [#307](https://github.com/tokenami/tokenami/pull/307) ([@jjenzz](https://github.com/jjenzz))
+- fix readme heading [#306](https://github.com/tokenami/tokenami/pull/306) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.58 (Sun Jun 30 2024)
 
 ### Release Notes
