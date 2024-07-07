@@ -22,22 +22,28 @@ body {
 
   .theme-light {
     --_grid: .25rem;
+    --alpha_100: 1;
+    --alpha_30: .3;
+    --alpha_80: .8;
     --anim_wiggle: wiggle 1s ease-in-out infinite;
     --border_thin: 1px solid var(--color_slate-700);
-    --color_slate-700: rgba(51 65 85 / var(--color-opacity, 1));
-    --color_primary: rgba(241 245 249 / var(--color-opacity, 1));
-    --color_secondary: rgba(51 65 85 / var(--color-opacity, 1));
     --font_sans: sans-serif;
     --radii_rounded: 10px;
   }
 
+  [style] {
+    --color_slate-700: rgba(51 65 85 / var(--_color-opacity, 1));
+    --color_primary: rgba(14 165 233 / var(--_color-opacity, 1));
+    --color_secondary: rgba(241 245 249 / var(--_color-opacity, 1));
+  }
+
   .theme-dark {
     --_grid: .25rem;
+    --alpha_100: 1;
+    --alpha_30: .3;
+    --alpha_80: .8;
     --anim_wiggle: wiggle 1s ease-in-out infinite;
     --border_thin: 1px solid var(--color_slate-700);
-    --color_slate-700: rgba(51 65 85 / var(--color-opacity, 1));
-    --color_primary: rgba(14 165 233 / var(--color-opacity, 1));
-    --color_secondary: rgba(241 245 249 / var(--color-opacity, 1));
     --font_sans: sans-serif;
     --radii_rounded: 10px;
   }
@@ -58,8 +64,11 @@ body {
     --height: initial;
     --transition: initial;
     --hover_animation: initial;
-    --font-size: initial;
+    --color-opacity: initial;
     --md: initial;
+    --md_color-opacity: initial;
+    --hover_color-opacity: initial;
+    --font-size: initial;
     --md_font-size: initial;
     --lg: initial;
     --lg_font-size: initial;
@@ -77,6 +86,7 @@ body {
       width: var(--width, revert-layer);
       height: var(--height, revert-layer);
       transition: var(--transition, revert-layer);
+      --_color-opacity: var(--color-opacity, revert-layer);
     }
   }
 
@@ -95,6 +105,9 @@ body {
       --_853it7: var(--hover) var(--hover_color);
       animation: var(--_1upk2ho, revert-layer);
       --_1upk2ho: var(--hover) var(--hover_animation);
+      --_color-opacity: var(--_hgg3v5, var(--_r6a24m, var(--color-opacity)));
+      --_r6a24m: var(--md) var(--md_color-opacity);
+      --_hgg3v5: var(--hover) var(--hover_color-opacity);
     }
   }
 

@@ -1,17 +1,39 @@
 import { type Config, createConfig, defaultConfig } from '@tokenami/css';
 
-const palette = {
-  'slate-100': 'rgba(241 245 249 / var(--color-opacity, 1))',
-  'slate-700': 'rgba(51 65 85 / var(--color-opacity, 1))',
-  'sky-500': 'rgba(14 165 233 / var(--color-opacity, 1))',
-};
+const createPalette = (opacity: string) => ({
+  'slate-100': `rgba(241 245 249 / ${opacity})`,
+  'slate-700': `rgba(51 65 85 / ${opacity})`,
+  'sky-500': `rgba(14 165 233 / ${opacity})`,
+});
+
+const colorPalette = createPalette('var(--color-opacity, 1)');
+const shadowPalette = createPalette('var(--shadow-opacity, 1)');
 
 const theme = {
+  alpha: {
+    '0': '0',
+    '10': '0.1',
+    '20': '0.2',
+    '30': '0.3',
+    '40': '0.4',
+    '50': '0.5',
+    '60': '0.6',
+    '70': '0.7',
+    '80': '0.8',
+    '90': '0.9',
+    '100': '1',
+  },
   color: {
-    ...palette,
-    primary: palette['slate-100'],
-    secondary: palette['slate-700'],
-    tertiary: palette['sky-500'],
+    ...colorPalette,
+    primary: colorPalette['slate-100'],
+    secondary: colorPalette['slate-700'],
+    tertiary: colorPalette['sky-500'],
+  },
+  shadow: {
+    ...shadowPalette,
+    primary: shadowPalette['slate-100'],
+    secondary: shadowPalette['slate-700'],
+    tertiary: shadowPalette['sky-500'],
   },
   anim: {
     wiggle: 'wiggle 1s ease-in-out infinite',
@@ -60,10 +82,16 @@ export default createConfig({
       dark: {
         ...theme,
         color: {
-          ...theme.color,
-          primary: palette['sky-500'],
-          secondary: palette['slate-100'],
-          tertiary: palette['slate-700'],
+          ...colorPalette,
+          primary: colorPalette['sky-500'],
+          secondary: colorPalette['slate-100'],
+          tertiary: colorPalette['slate-700'],
+        },
+        shadow: {
+          ...shadowPalette,
+          primary: shadowPalette['sky-500'],
+          secondary: shadowPalette['slate-100'],
+          tertiary: shadowPalette['slate-700'],
         },
       },
     },
@@ -94,5 +122,10 @@ export default createConfig({
     pr: ['padding-right'],
     pb: ['padding-bottom'],
     pl: ['padding-left'],
+  },
+  properties: {
+    ...defaultConfig.properties,
+    'color-opacity': ['alpha'],
+    'shadow-opacity': ['alpha'],
   },
 });

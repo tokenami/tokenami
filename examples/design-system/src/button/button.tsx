@@ -32,6 +32,9 @@ const button = css.compose({
   '--hover_color': 'var(---,white)',
   '--hover_animation': 'var(--anim_wiggle)',
   '--{&:focus:hover}_background-color': 'var(---, red)',
+  '--color-opacity': 'var(--alpha_30)',
+  '--md_color-opacity': 'var(--alpha_80)',
+  '--hover_color-opacity': 'var(--alpha_100)',
 
   responsiveVariants: {
     size: {
