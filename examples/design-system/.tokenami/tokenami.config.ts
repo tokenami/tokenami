@@ -1,9 +1,9 @@
 import { type Config, createConfig, defaultConfig } from '@tokenami/css';
 
 const palette = {
-  'slate-100': '#f1f5f9',
-  'slate-700': '#334155',
-  'sky-500': '#0ea5e9',
+  'slate-100': 'rgba(241 245 249 / var(--color-opacity, 1))',
+  'slate-700': 'rgba(51 65 85 / var(--color-opacity, 1))',
+  'sky-500': 'rgba(14 165 233 / var(--color-opacity, 1))',
 };
 
 const theme = {
