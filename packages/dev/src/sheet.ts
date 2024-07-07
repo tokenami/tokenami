@@ -81,7 +81,11 @@ function generate(params: {
         const toggleProperty = Tokenami.parsedTokenProperty(config.variant);
         const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) var(${variantProperty});`;
         const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerCount}`;
-        const declaration = `${propertyPrefix}${cssProperty}: ${variantValue};`;
+        const customPropertyFallback = `var(${Tokenami.tokenProperty(cssProperty)})`;
+        const customPropertyValue = variantValue.replace('revert-layer', customPropertyFallback);
+        const declaration = `${propertyPrefix}${cssProperty}: ${
+          config.isCustom ? customPropertyValue : variantValue
+        };`;
 
         const toggle = responsiveSelectors.reduceRight(
           (declaration, selector) => `${selector} { ${declaration} }`,
@@ -98,10 +102,7 @@ function generate(params: {
         const propertyValue = `var(${config.tokenProperty}, revert-layer)`;
         const declaration = `${DEFAULT_SELECTOR} { ${propertyPrefix}${cssProperty}: ${propertyValue}; }`;
         const layer = `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerCount}`;
-        const resetProperty = config.isCustom
-          ? config.tokenProperty.replace(Tokenami.tokenProperty(''), CUSTOM_PROP_PREFIX)
-          : config.tokenProperty;
-        styles.reset.add(`${resetProperty}: initial;`);
+        styles.reset.add(`${config.tokenProperty}: initial;`);
         styles.atomic.add(`@layer ${layer} { ${declaration} }`);
       }
     });

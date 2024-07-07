@@ -10,6 +10,19 @@ const colorPalette = createPalette('var(--color-opacity, 1)');
 const shadowPalette = createPalette('var(--shadow-opacity, 1)');
 
 const theme = {
+  alpha: {
+    '0': '0',
+    '10': '0.1',
+    '20': '0.2',
+    '30': '0.3',
+    '40': '0.4',
+    '50': '0.5',
+    '60': '0.6',
+    '70': '0.7',
+    '80': '0.8',
+    '90': '0.9',
+    '100': '1',
+  },
   color: {
     ...colorPalette,
     primary: colorPalette['slate-100'],
@@ -112,7 +125,7 @@ export default createConfig({
   },
   properties: {
     ...defaultConfig.properties,
-    'color-opacity': ['color'],
-    'shadow-opacity': ['shadow'],
+    'color-opacity': ['alpha'],
+    'shadow-opacity': ['alpha'],
   },
 });
