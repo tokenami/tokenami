@@ -81,6 +81,8 @@ function generate(params: {
         const toggleProperty = Tokenami.parsedTokenProperty(config.variant);
         const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) var(${variantProperty});`;
         const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerCount}`;
+        // revert-layer doesn't work for custom properties in Safari so we explicitly set the fallback
+        // to the base custom property value for variants
         const customPropertyFallback = `var(${Tokenami.tokenProperty(cssProperty)})`;
         const customPropertyValue = variantValue.replace('revert-layer', customPropertyFallback);
         const declaration = `${propertyPrefix}${cssProperty}: ${
