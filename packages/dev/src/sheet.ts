@@ -98,7 +98,10 @@ function generate(params: {
         const propertyValue = `var(${config.tokenProperty}, revert-layer)`;
         const declaration = `${DEFAULT_SELECTOR} { ${propertyPrefix}${cssProperty}: ${propertyValue}; }`;
         const layer = `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerCount}`;
-        styles.reset.add(`${config.tokenProperty}: initial;`);
+        const resetProperty = config.isCustom
+          ? config.tokenProperty.replace(Tokenami.tokenProperty(''), CUSTOM_PROP_PREFIX)
+          : config.tokenProperty;
+        styles.reset.add(`${resetProperty}: initial;`);
         styles.atomic.add(`@layer ${layer} { ${declaration} }`);
       }
     });

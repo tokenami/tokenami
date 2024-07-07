@@ -178,7 +178,7 @@ function init(modules: { typescript: typeof tslib }) {
     if (!Object.entries(modeValues).length) return entry;
 
     const name = `$${parts.token}`;
-    const kindModifiers = parts.themeKey;
+    const kindModifiers = isColorThemeEntry(modeValues) ? 'color' : parts.themeKey;
     const sortText = '$' + entryName;
     const labelDetails = { detail: '', description: entryName };
     const insertText = entryName;
@@ -435,7 +435,7 @@ function init(modules: { typescript: typeof tslib }) {
         const entries = Object.entries(entryConfig.modeValues);
         const [, firstValue] = entries[0] || [];
 
-        if (entryConfig.themeKey === 'color') {
+        if (isColorThemeEntry(entryConfig.modeValues)) {
           const description = createColorTokenDescription(entryConfig.modeValues);
           const hex = firstValue
             ? convertToHex(replaceCssVarsWithFallback(firstValue))
@@ -481,10 +481,8 @@ function init(modules: { typescript: typeof tslib }) {
       const propertyParts = TokenamiConfig.getTokenPropertyParts(tokenProperty.output, config);
       if (!propertyParts && variants.length) return;
 
-      const parts = TokenamiConfig.getTokenValueParts(tokenValue.output);
       const modeValues = Tokenami.getThemeValuesByThemeMode(tokenValue.output, config.theme);
-      const isColor = parts.themeKey === 'color';
-      const text = isColor
+      const text = isColorThemeEntry(modeValues)
         ? createColorTokenDescription(modeValues)
         : createTokenDescription(modeValues);
 
@@ -540,6 +538,11 @@ function replaceCssVarsWithFallback(value: string) {
   const regex = /var\([\w-_]+,\s*([\w-_]+)\)/g;
   // replace the CSS variables with their fallback values
   return value.replace(regex, (_, fallback) => fallback);
+}
+
+function isColorThemeEntry(modeValues: Record<string, string>) {
+  const firstValue = Object.values(modeValues || {})?.[0];
+  return Boolean(culori.parse(replaceCssVarsWithFallback(firstValue || '')));
 }
 
 export = init;
