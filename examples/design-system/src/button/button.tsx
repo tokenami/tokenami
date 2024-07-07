@@ -18,23 +18,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, forwarde
 });
 
 const button = css.compose({
-  '--bg-color': 'var(--color_primary)',
-  '--color': 'var(--color_secondary)',
-  '--border': 'var(---,none)',
-  '--border-bottom': 'var(--border_thin)',
-  '--border-radius': 'var(--radii_rounded)',
-  '--font-family': 'var(--font_sans)',
-  '--width': 'var(---,180px)',
-  '--height': 15,
-  '--transition': 'var(---,all 150ms)',
-
-  '--hover_background-color': 'var(--color_slate-700)',
-  '--hover_color': 'var(---,white)',
-  '--hover_animation': 'var(--anim_wiggle)',
-  '--{&:focus:hover}_background-color': 'var(---, red)',
-  '--color-opacity': 'var(--alpha_30)',
-  '--md_color-opacity': 'var(--alpha_80)',
-  '--hover_color-opacity': 'var(--alpha_100)',
+  '--bg-gradient': 'var(--gradient_to-r)',
+  '--from': 'var(--bg_violet-700)',
+  '--to': 'var(--bg_green-600)',
+  '--via': 'var(--bg_amber-400)',
+  '--width': 'var(---, 1000px)',
+  '--height': 'var(---, 1000px)',
+  '--accent': 'var(--accent_slate-100)',
+  '--inset': 'var(--inset_1/2)',
 
   responsiveVariants: {
     size: {
