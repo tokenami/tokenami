@@ -18,19 +18,16 @@ export default createConfig({
     'child-para': '& > p',
   },
   theme: {
+    ...designSystemConfig.theme,
     modes: {
       ...designSystemConfig.theme.modes,
       light: {
         ...designSystemConfig.theme.modes.light,
-        pet: {
-          favourite: '"🐶"',
-        },
+        pet: { favourite: '"🐶"' },
       },
       dark: {
         ...designSystemConfig.theme.modes.dark,
-        pet: {
-          favourite: '"🐱"',
-        },
+        pet: { favourite: '"🐱"' },
       },
     },
   },

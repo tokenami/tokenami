@@ -1,4 +1,4 @@
-import { type Config, createConfig, defaultConfig } from '@tokenami/css';
+import { createConfig, defaultConfig } from '@tokenami/css';
 
 const createPalette = (opacity: string) => ({
   'slate-100': `rgba(241 245 249 / ${opacity})`,
@@ -8,54 +8,6 @@ const createPalette = (opacity: string) => ({
 
 const colorPalette = createPalette('var(--color-opacity, 1)');
 const shadowPalette = createPalette('var(--shadow-opacity, 1)');
-
-const theme = {
-  alpha: {
-    '0': '0',
-    '10': '0.1',
-    '20': '0.2',
-    '30': '0.3',
-    '40': '0.4',
-    '50': '0.5',
-    '60': '0.6',
-    '70': '0.7',
-    '80': '0.8',
-    '90': '0.9',
-    '100': '1',
-  },
-  color: {
-    ...colorPalette,
-    primary: colorPalette['slate-100'],
-    secondary: colorPalette['slate-700'],
-    tertiary: colorPalette['sky-500'],
-  },
-  shadow: {
-    ...shadowPalette,
-    primary: shadowPalette['slate-100'],
-    secondary: shadowPalette['slate-700'],
-    tertiary: shadowPalette['sky-500'],
-  },
-  anim: {
-    wiggle: 'wiggle 1s ease-in-out infinite',
-  },
-  border: {
-    thin: '1px solid var(--color_slate-700)',
-  },
-  font: {
-    serif: 'serif',
-    sans: 'sans-serif',
-  },
-  radii: {
-    rounded: '10px',
-    circle: '9999px',
-    none: 'none',
-  },
-  size: {
-    auto: 'auto',
-    fill: '100%',
-    'screen-h': '100vh',
-  },
-} satisfies Config['theme'];
 
 export default createConfig({
   include: ['./src/**/*.{ts,tsx}'],
@@ -77,10 +29,55 @@ export default createConfig({
     '2xl': '@media (min-width: 1536px)',
   },
   theme: {
+    alpha: {
+      '0': '0',
+      '10': '0.1',
+      '20': '0.2',
+      '30': '0.3',
+      '40': '0.4',
+      '50': '0.5',
+      '60': '0.6',
+      '70': '0.7',
+      '80': '0.8',
+      '90': '0.9',
+      '100': '1',
+    },
+    anim: {
+      wiggle: 'wiggle 1s ease-in-out infinite',
+    },
+    border: {
+      thin: '1px solid var(--color_slate-700)',
+    },
+    font: {
+      serif: 'serif',
+      sans: 'sans-serif',
+    },
+    radii: {
+      rounded: '10px',
+      circle: '9999px',
+      none: 'none',
+    },
+    size: {
+      auto: 'auto',
+      fill: '100%',
+      'screen-h': '100vh',
+    },
     modes: {
-      light: theme,
+      light: {
+        color: {
+          ...colorPalette,
+          primary: colorPalette['slate-100'],
+          secondary: colorPalette['slate-700'],
+          tertiary: colorPalette['sky-500'],
+        },
+        shadow: {
+          ...shadowPalette,
+          primary: shadowPalette['slate-100'],
+          secondary: shadowPalette['slate-700'],
+          tertiary: shadowPalette['sky-500'],
+        },
+      },
       dark: {
-        ...theme,
         color: {
           ...colorPalette,
           primary: colorPalette['sky-500'],

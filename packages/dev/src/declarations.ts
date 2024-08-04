@@ -23,7 +23,10 @@ type VariantKey =
   | ArbitrarySelectorKey
   | ResponsiveArbitrarySelectorKey;
 
-type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T> ? T : ThemeConfig;
+type ThemeWithoutModes = Omit<ThemeConfig, 'modes'>;
+type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T>
+  ? Omit<T, keyof ThemeWithoutModes> & ThemeWithoutModes
+  : ThemeWithoutModes;
 
 type TokenProperties<P> = {
   [K in TokenProperty<P>]?: TokenValue<P> extends never

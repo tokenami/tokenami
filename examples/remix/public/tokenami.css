@@ -20,7 +20,7 @@ body {
     }
   }
 
-  .theme-light {
+  :root {
     --_grid: .25rem;
     --alpha_100: 1;
     --alpha_30: .3;
@@ -28,7 +28,6 @@ body {
     --anim_wiggle: wiggle 1s ease-in-out infinite;
     --border_thin: 1px solid var(--color_slate-700);
     --font_sans: sans-serif;
-    --pet_favourite: "🐶";
     --radii_circle: 9999px;
     --radii_none: none;
     --radii_rounded: 10px;
@@ -37,29 +36,20 @@ body {
     --size_screen-h: 100vh;
   }
 
+  .theme-light {
+    --pet_favourite: "🐶";
+  }
+
   [style] {
-    --color_slate-700: rgba(51 65 85 / var(--_color-opacity, 1));
     --color_primary: rgba(14 165 233 / var(--_color-opacity, 1));
     --color_secondary: rgba(241 245 249 / var(--_color-opacity, 1));
     --color_sky-500: rgba(14 165 233 / var(--_color-opacity, 1));
     --color_slate-100: rgba(241 245 249 / var(--_color-opacity, 1));
+    --color_slate-700: rgba(51 65 85 / var(--_color-opacity, 1));
   }
 
   .theme-dark {
-    --_grid: .25rem;
-    --alpha_100: 1;
-    --alpha_30: .3;
-    --alpha_80: .8;
-    --anim_wiggle: wiggle 1s ease-in-out infinite;
-    --border_thin: 1px solid var(--color_slate-700);
-    --font_sans: sans-serif;
     --pet_favourite: "🐱";
-    --radii_circle: 9999px;
-    --radii_none: none;
-    --radii_rounded: 10px;
-    --size_auto: auto;
-    --size_fill: 100%;
-    --size_screen-h: 100vh;
   }
 
   [style] {
