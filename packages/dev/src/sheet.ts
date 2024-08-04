@@ -237,31 +237,30 @@ function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Token
 function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
   const { modes, ...rootTheme } = config.theme;
   const rootSelector = ':root';
-
-  if (!modes) {
-    const rootEntries = getThemeEntries(
-      rootSelector,
-      tokenValues,
-      rootTheme,
-      config.properties,
-      config.grid
-    );
-    return stringify(Object.fromEntries(rootEntries));
-  }
-
-  const modeThemeEntries = Object.entries(modes).flatMap(([mode, theme]) => {
-    const modeThemeSelector = config.themeSelector ? config.themeSelector(mode) : rootSelector;
-    const modeEntries = getThemeEntries(
-      modeThemeSelector,
-      tokenValues,
-      theme,
-      config.properties,
-      config.grid
-    );
+  const rootEntries = getThemeEntries(rootSelector, tokenValues, rootTheme, config.properties);
+  const modeThemeEntries = Object.entries(modes || {}).flatMap(([mode, theme]) => {
+    if (!config.themeSelector) return [];
+    const selector = config.themeSelector(mode);
+    const modeEntries = getThemeEntries(selector, tokenValues, theme, config.properties);
     return modeEntries;
   });
 
-  return stringify(Object.fromEntries(modeThemeEntries));
+  const rootStyles = Object.fromEntries(rootEntries);
+  // mode values applied to default selector must have the same shape
+  // so its okay for Object.fromEntries to be used here
+  const modeStyles = Object.fromEntries(modeThemeEntries);
+
+  return stringify({
+    [rootSelector]: {
+      [Tokenami.gridProperty()]: config.grid,
+      ...rootStyles[rootSelector],
+    },
+    ...modeStyles,
+    [DEFAULT_SELECTOR]: {
+      ...rootStyles[DEFAULT_SELECTOR],
+      ...modeStyles[DEFAULT_SELECTOR],
+    },
+  });
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -272,19 +271,17 @@ const getThemeEntries = (
   selector: string,
   tokenValues: Tokenami.TokenValue[],
   theme: Tokenami.Theme,
-  properties: Tokenami.Config['properties'],
-  grid: Tokenami.Config['grid']
+  properties: Tokenami.Config['properties']
 ) => {
-  const gridValue = { [Tokenami.gridProperty()]: grid };
   const themeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
   const customPropertyThemeValues = getCustomPropertyThemeValues(themeValues, properties);
   for (const customKey of Object.keys(customPropertyThemeValues)) {
     delete themeValues[customKey];
   }
   return [
-    [selector, { ...gridValue, ...themeValues }],
+    [selector, themeValues],
     [DEFAULT_SELECTOR, customPropertyThemeValues],
-  ];
+  ] as const;
 };
 
 /* -------------------------------------------------------------------------------------------------
