@@ -312,14 +312,14 @@ const getPrefixedCustomPropertyValues = (
   themeValue: string,
   properties?: Tokenami.Config['properties']
 ) => {
-  const variables = themeValue.match(/--[\w-_]+/g);
+  const variables = themeValue.match(/\(--[^-][\w-]+/g)?.map((v) => v.replace('(', ''));
   if (!variables) return null;
 
   for (const variable of variables) {
     const tokenProperty = Tokenami.TokenProperty.safeParse(variable);
-    if (!tokenProperty.success) return;
+    if (!tokenProperty.success) continue;
     const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
-    if (supportedProperties.has(parts.alias as any) || !properties?.[parts.alias]) return;
+    if (supportedProperties.has(parts.alias as any) || !properties?.[parts.alias]) continue;
     const tokenPrefix = Tokenami.tokenProperty('');
     const customPrefixTokenValue = tokenProperty.output.replace(tokenPrefix, CUSTOM_PROP_PREFIX);
     themeValue = themeValue.replace(tokenProperty.output, customPrefixTokenValue);
