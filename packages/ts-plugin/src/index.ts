@@ -501,7 +501,7 @@ function convertToHex(input: string) {
   try {
     const parsed = culori.parse(input);
     return culori.formatHex8(parsed);
-  } catch (e) {
+  } catch {
     return input;
   }
 }
@@ -541,8 +541,12 @@ function replaceCssVarsWithFallback(value: string) {
 }
 
 function isColorThemeEntry(modeValues: Record<string, string>) {
-  const firstValue = Object.values(modeValues || {})?.[0];
-  return Boolean(culori.parse(replaceCssVarsWithFallback(firstValue || '')));
+  try {
+    const firstValue = Object.values(modeValues || {})?.[0];
+    return Boolean(culori.parse(replaceCssVarsWithFallback(firstValue || '')));
+  } catch {
+    return false;
+  }
 }
 
 export = init;
