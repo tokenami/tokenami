@@ -1,3 +1,33 @@
+# v0.0.60 (Sun Aug 18 2024)
+
+### Release Notes
+
+#### improve ts plugin performance with trie search ([#326](https://github.com/tokenami/tokenami/pull/326))
+
+intellisense behaviour has changed significantly which may seem a little jarring at first. results are chunked so they will update with more specific matches when you type an underscore, similar to typing colon in tailwind. this was necessary to improve intellisense performance for projects with larger themes. 
+
+if you select a result suffixed with underscore, press `CTRL+SPACE` to reopen intellisense with matches at that position.
+
+https://github.com/user-attachments/assets/9c64f791-8480-4a22-9b26-4979851682aa
+
+---
+
+#### 🚀 Enhancement
+
+- improve ts plugin performance with trie search [#326](https://github.com/tokenami/tokenami/pull/326) ([@jjenzz](https://github.com/jjenzz))
+- allow partial theme in modes [#325](https://github.com/tokenami/tokenami/pull/325) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- selector support for all custom properties in theme values [#324](https://github.com/tokenami/tokenami/pull/324) ([@jjenzz](https://github.com/jjenzz))
+- add global layer [#323](https://github.com/tokenami/tokenami/pull/323) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.59 (Sun Jul 07 2024)
 
 #### 🚀 Enhancement
