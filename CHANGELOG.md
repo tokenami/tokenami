@@ -1,3 +1,15 @@
+# v0.0.61 (Sun Aug 18 2024)
+
+#### 🚀 Enhancement
+
+- add support for mixed custom properties and hardcoded values in theme modes [#327](https://github.com/tokenami/tokenami/pull/327) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.60 (Sun Aug 18 2024)
 
 ### Release Notes
