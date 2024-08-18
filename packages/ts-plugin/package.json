@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "@tokenami/config": "workspace:*",
-    "culori": "^4.0.1"
+    "culori": "^4.0.1",
+    "trie-search": "^2.0.0"
   },
   "devDependencies": {
     "@tokenami/dev": "workspace:*",

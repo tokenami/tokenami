@@ -1,4 +1,5 @@
 import tslib from 'typescript/lib/tsserverlibrary';
+import TrieSearch from 'trie-search';
 import * as culori from 'culori';
 import * as TokenamiConfig from '@tokenami/config';
 import * as Tokenami from '@tokenami/dev';
@@ -14,59 +15,199 @@ type EntryConfigItem = {
   themeKey?: string;
 };
 
+type CompletionEntry = Omit<tslib.CompletionEntry, 'kindModifiers'> & { kindModifiers: string };
+
 function init(modules: { typescript: typeof tslib }) {
   const ts = modules.typescript;
   let entryConfigMap = new Map<string, EntryConfigItem>();
 
-  /* ---------------------------------------------------------------------------------------------
+  /* -------------------------------------------------------------------------------------------------
+   * getAllProperties
+   * -----------------------------------------------------------------------------------------------*/
+
+  function getAllProperties(config: TokenamiConfig.Config) {
+    const properties = new Set([
+      ...Tokenami.supportedProperties,
+      ...Object.keys(config.properties || {}),
+      ...Object.keys(config.aliases || {}),
+    ]);
+    return Array.from(properties);
+  }
+
+  /* -------------------------------------------------------------------------------------------------
+   * getSelectorEntries
+   * -----------------------------------------------------------------------------------------------*/
+
+  function getSelectorEntries(config: TokenamiConfig.Config) {
+    const configSelectorEntries = Object.entries(config.selectors || {});
+    return configSelectorEntries.concat([['{}', '']]);
+  }
+
+  /* -------------------------------------------------------------------------------------------------
+   * getResponsiveEntries
+   * -----------------------------------------------------------------------------------------------*/
+
+  function getResponsiveEntries(config: TokenamiConfig.Config) {
+    return Object.entries(config.responsive || {});
+  }
+
+  /* -------------------------------------------------------------------------------------------------
+   * getResponsiveSelectorEntries
+   * -----------------------------------------------------------------------------------------------*/
+
+  function getResponsiveSelectorEntries(config: TokenamiConfig.Config) {
+    const selectorEntries = getSelectorEntries(config);
+    const responsiveEntries = getResponsiveEntries(config);
+    const responsiveSelectorEntries = responsiveEntries.flatMap(
+      ([responsiveSelector, responsiveValue]) => {
+        return selectorEntries.map(([selector, value]) => {
+          const combinedSelector = `${responsiveSelector}_${selector}`;
+          const combinedValue = [responsiveValue].concat(value);
+          return [combinedSelector, combinedValue] as [string, string | string[]];
+        });
+      }
+    );
+    return responsiveSelectorEntries;
+  }
+
+  /* -------------------------------------------------------------------------------------------------
    * getSelectorCompletions
-   * ---------------------------------------------------------------------------------------------
-   * we pre-compute selector entries to improve performance
-   * -------------------------------------------------------------------------------------------*/
+   * -----------------------------------------------------------------------------------------------*/
 
   function getSelectorCompletions(
     config: TokenamiConfig.Config,
     quote?: string
-  ): tslib.CompletionEntry[] {
-    const configResponsiveEntries = Object.entries(config.responsive || {});
-    const configSelectorEntries = Object.entries(config.selectors || {});
-    const allSelectorEntries = configSelectorEntries.concat([['{}', '']]);
-    const configAliasProperties = Object.keys(config.aliases || {});
-    const baseProperties = [...Tokenami.supportedProperties, ...configAliasProperties];
-    const customProperties = Object.keys(config.properties || {}).filter(
-      (property) => !Tokenami.supportedProperties.has(property as any)
-    );
-
-    const processEntries = (create: ReturnType<typeof createVariantPropertyEntry>) => {
-      const responsiveEntries = configResponsiveEntries.flatMap(
-        ([responsiveSelector, responsiveValue]) => {
-          const responsiveEntry = create([responsiveSelector, responsiveValue]);
-          const combinedEntries = allSelectorEntries.map(([selector, value]) => {
-            const combinedSelector = `${responsiveSelector}_${selector}`;
-            const combinedValue = [responsiveValue].concat(value);
-            return create([combinedSelector, combinedValue]);
-          });
-          return [responsiveEntry, ...combinedEntries];
-        }
-      );
-      const selectorEntries = allSelectorEntries.map(create);
-      return [...responsiveEntries, ...selectorEntries];
-    };
-
-    return [...baseProperties, ...customProperties].flatMap((property) => {
-      return processEntries(createVariantPropertyEntry(property, quote));
+  ): CompletionEntry[] {
+    const entries = getSelectorEntries(config).concat(getResponsiveEntries(config));
+    const properties = getAllProperties(config);
+    return properties.flatMap((property) => {
+      const create = createVariantPropertyEntry(property, quote);
+      return entries.map(create);
     });
   }
+
+  /* -------------------------------------------------------------------------------------------------
+   * getResponsiveSelectorCompletions
+   * -----------------------------------------------------------------------------------------------*/
+
+  function getResponsiveSelectorCompletions(
+    config: TokenamiConfig.Config,
+    quote?: string
+  ): CompletionEntry[] {
+    const entries = getResponsiveSelectorEntries(config);
+    const properties = getAllProperties(config);
+    return properties.flatMap((property) => {
+      const create = createVariantPropertyEntry(property, quote);
+      return entries.map(create);
+    });
+  }
+
+  /* -------------------------------------------------------------------------------------------------
+   * getSelectorSnippetCompletions
+   * -----------------------------------------------------------------------------------------------*/
+
+  function getSelectorSnippetCompletions(
+    config: TokenamiConfig.Config,
+    quote?: string
+  ): CompletionEntry[] {
+    const entries = getSelectorEntries(config).concat(getResponsiveEntries(config));
+    const create = createVariantPropertyEntry('', quote);
+    return entries.map(create);
+  }
+
+  /* -------------------------------------------------------------------------------------------------
+   * getResponsiveSelectorSnippetCompletions
+   * -----------------------------------------------------------------------------------------------*/
+
+  function getResponsiveSelectorSnippetCompletions(
+    config: TokenamiConfig.Config,
+    quote?: string
+  ): CompletionEntry[] {
+    const entries = getResponsiveSelectorEntries(config);
+    const create = createVariantPropertyEntry('', quote);
+    return entries.map(create);
+  }
+
+  /* -------------------------------------------------------------------------------------------------
+   * createSelectorSnippetTrie
+   * -----------------------------------------------------------------------------------------------*/
+
+  const createSelectorSnippetTrie = (config: TokenamiConfig.Config) => {
+    const completions = getSelectorSnippetCompletions(config);
+    const quotedCompletions = getSelectorSnippetCompletions(config, '"');
+    return {
+      unquoted: createCompletionEntriesTrie(completions),
+      quoted: createCompletionEntriesTrie(quotedCompletions),
+    };
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * createResponsiveSelectorSnippetTrie
+   * -----------------------------------------------------------------------------------------------*/
+
+  const createResponsiveSelectorSnippetTrie = (config: TokenamiConfig.Config) => {
+    const completions = getResponsiveSelectorSnippetCompletions(config);
+    const quotedCompletions = getResponsiveSelectorSnippetCompletions(config, '"');
+    return {
+      unquoted: createCompletionEntriesTrie(completions),
+      quoted: createCompletionEntriesTrie(quotedCompletions),
+    };
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * createSelectorTrie
+   * -----------------------------------------------------------------------------------------------*/
+
+  const createSelectorTrie = (config: TokenamiConfig.Config) => {
+    const completions = getSelectorCompletions(config);
+    const quotedCompletions = getSelectorCompletions(config, '"');
+    return {
+      unquoted: createCompletionEntriesTrie(completions),
+      quoted: createCompletionEntriesTrie(quotedCompletions),
+    };
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * createResponsiveSelectorTrie
+   * -----------------------------------------------------------------------------------------------*/
+
+  const createResponsiveSelectorTrie = (config: TokenamiConfig.Config) => {
+    const completions = getResponsiveSelectorCompletions(config);
+    const quotedCompletions = getResponsiveSelectorCompletions(config, '"');
+    return {
+      unquoted: createCompletionEntriesTrie(completions),
+      quoted: createCompletionEntriesTrie(quotedCompletions),
+    };
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * createCompletionEntriesTrie
+   * -----------------------------------------------------------------------------------------------*/
+
+  const createCompletionEntriesTrie = (
+    items: tslib.CompletionEntry[]
+  ): TrieSearch<tslib.CompletionEntry> => {
+    const trie = new TrieSearch<tslib.CompletionEntry>('sortText', {
+      splitOnRegEx: /\$/g,
+      expandRegexes: [],
+    });
+
+    trie.addAll(items);
+    return trie;
+  };
 
   /* ---------------------------------------------------------------------------------------------
    * createVariantPropertyEntry
    * -------------------------------------------------------------------------------------------*/
 
   const createVariantPropertyEntry = (property: string, quote = '') => {
-    return ([selector, value]: [string, string | string[]]): tslib.CompletionEntry => {
+    return ([selector, value]: [string, string | string[]]): CompletionEntry => {
       const tokenProperty = TokenamiConfig.variantProperty(selector, property);
       const name = `${quote}${tokenProperty}${quote}`;
-      return createPropertyEntry(name, value);
+      const isSnippet = name.includes('{}');
+      const entry = isSnippet ? createPropertySnippetEntry(name) : createPropertyEntry(name);
+      updateEntryDetailsConfig({ ...entry, value });
+      return entry;
     };
   };
 
@@ -74,20 +215,32 @@ function init(modules: { typescript: typeof tslib }) {
    * createPropertyEntry
    * -----------------------------------------------------------------------------------------------*/
 
-  const createPropertyEntry = (name: string, value: string | string[]): tslib.CompletionEntry => {
+  const createPropertyEntry = (name: string, sortText = getSortText(name)): CompletionEntry => {
     const kind = tslib.ScriptElementKind.memberVariableElement;
     const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
-    const isArbitrary = name.includes('{}');
-    updateEntryDetailsConfig({ name, kind, kindModifiers, value });
+    return { name, kind, kindModifiers, sortText, insertText: name };
+  };
 
-    if (isArbitrary) {
-      // we prepend 1 to sort arbitrary values after non-arbitrary ones
-      const sortText = `1${name}`;
-      const insertText = name.replace('{}', '{${1}}');
-      return { name, kind, kindModifiers, sortText, insertText, isSnippet: true };
-    }
+  /* -------------------------------------------------------------------------------------------------
+   * createPropertySnippetEntry
+   * -----------------------------------------------------------------------------------------------*/
 
-    return { name, kind, kindModifiers, sortText: `0${name}`, insertText: name };
+  const createPropertySnippetEntry = (
+    name: string,
+    sortText = getSortText(name)
+  ): CompletionEntry => {
+    const entry = createPropertyEntry(name, sortText);
+    const insertText = entry.name.replace('{}', '{${1}}');
+    return { ...entry, insertText, isSnippet: true };
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * getSortText
+   * -----------------------------------------------------------------------------------------------*/
+
+  const getSortText = (name: string): `$${string}` => {
+    const regex = new RegExp(`['"-]|${TokenamiConfig.tokenProperty('')}`, 'g');
+    return `$${name.replace(regex, '')}`;
   };
 
   /* -----------------------------------------------------------------------------------------------
@@ -107,6 +260,23 @@ function init(modules: { typescript: typeof tslib }) {
     return entryConfigMap.get(name);
   }
 
+  /* -------------------------------------------------------------------------------------------------
+   * getBaseResults
+   * -----------------------------------------------------------------------------------------------*/
+
+  function getBaseResults(entries: tslib.CompletionEntry[], search: string) {
+    const baseTrie = createCompletionEntriesTrie(entries);
+    return baseTrie.search(search);
+  }
+
+  /* -------------------------------------------------------------------------------------------------
+   * isQuoted
+   * -----------------------------------------------------------------------------------------------*/
+
+  function isQuoted(node: tslib.Node) {
+    return ts.isStringLiteral(node);
+  }
+
   /* -----------------------------------------------------------------------------------------------
    * findNodeAtPosition
    * ---------------------------------------------------------------------------------------------*/
@@ -119,6 +289,26 @@ function init(modules: { typescript: typeof tslib }) {
     }
     return find(sourceFile);
   }
+
+  /* -------------------------------------------------------------------------------------------------
+   * getInputAtPosition
+   * -----------------------------------------------------------------------------------------------*/
+
+  const getInputAtPosition = (node: tslib.Node, position: number) => {
+    let input = node.getText();
+
+    if (ts.isObjectLiteralExpression(node)) {
+      for (const property of node.properties) {
+        const start = property.getStart();
+        const end = property.getEnd();
+        if (start <= position && position <= end) {
+          input = property.getText();
+        }
+      }
+    }
+
+    return input.replace(/'|"/g, '');
+  };
 
   /* -----------------------------------------------------------------------------------------------
    * createTextSpanFromNode
@@ -149,16 +339,14 @@ function init(modules: { typescript: typeof tslib }) {
   }
 
   /* ---------------------------------------------------------------------------------------------
-   * transformTokenPropertyEntry
+   * transformBasePropertyEntry
    * -------------------------------------------------------------------------------------------*/
 
-  function transformTokenPropertyEntry(entry: tslib.CompletionEntry): tslib.CompletionEntry | null {
+  function transformBasePropertyEntry(entry: tslib.CompletionEntry): tslib.CompletionEntry | null {
     const property = TokenamiConfig.TokenProperty.safeParse(entry.name);
     if (!property.success) return null;
-    // we want known token properties to come before custom ones in sort order
-    const sortText = entry.name.startsWith('---') ? '$' + entry.name : '$$' + entry.name;
-    const name = entry.name;
-    return { ...entry, name, sortText, insertText: name };
+    const sortText = `$${getSortText(entry.name)}`;
+    return { ...entry, sortText, insertText: entry.name };
   }
 
   /* ---------------------------------------------------------------------------------------------
@@ -179,7 +367,7 @@ function init(modules: { typescript: typeof tslib }) {
 
     const name = `$${parts.token}`;
     const kindModifiers = isColorThemeEntry(modeValues) ? 'color' : parts.themeKey;
-    const sortText = '$' + entryName;
+    const sortText = getSortText(entryName);
     const labelDetails = { detail: '', description: entryName };
     const insertText = entryName;
     const nextEntry = { ...entry, name, sortText, kindModifiers, insertText, labelDetails };
@@ -211,10 +399,11 @@ function init(modules: { typescript: typeof tslib }) {
     }
 
     let config = Tokenami.getConfigAtPath(configPath);
-    let selectorCompletions = {
-      unquoted: getSelectorCompletions(config),
-      quoted: getSelectorCompletions(config, '"'),
-    };
+    // pre-compute variant entries to improve performance
+    let selectorCompletions = createSelectorTrie(config);
+    let selectorSnippetCompletions = createSelectorSnippetTrie(config);
+    let responsiveSelectorCompletions = createResponsiveSelectorTrie(config);
+    let responsiveSelectorSnippetCompletions = createResponsiveSelectorSnippetTrie(config);
 
     logger.info(`Tokenami:: Watching config at ${configPath}`);
     ts.sys.watchFile?.(configPath, (_, eventKind: tslib.FileWatcherEventKind) => {
@@ -223,15 +412,32 @@ function init(modules: { typescript: typeof tslib }) {
         try {
           config = Tokenami.getReloadedConfigAtPath(configPath);
           info.project.refreshDiagnostics();
-          selectorCompletions = {
-            unquoted: getSelectorCompletions(config),
-            quoted: getSelectorCompletions(config, '"'),
-          };
+          selectorCompletions = createSelectorTrie(config);
+          selectorSnippetCompletions = createSelectorSnippetTrie(config);
+          responsiveSelectorCompletions = createResponsiveSelectorTrie(config);
+          responsiveSelectorSnippetCompletions = createResponsiveSelectorSnippetTrie(config);
         } catch (e) {
           logger.info(`Tokenami:: Skipped change to ${configPath} with ${e}`);
         }
       }
     });
+
+    const getVariantResults = (input: string, search: string, node: tslib.Node) => {
+      const parts = TokenamiConfig.getTokenPropertySplit(input as any);
+      const type = isQuoted(node) ? 'unquoted' : 'quoted';
+
+      if (parts.variants.length) {
+        if (parts.variants.length > 1) {
+          return responsiveSelectorCompletions[type].search(search);
+        }
+
+        const selectors = selectorCompletions[type].search(search);
+        const snippets = responsiveSelectorSnippetCompletions[type].search(search);
+        return [...selectors, ...snippets];
+      }
+
+      return selectorSnippetCompletions[type].search(search);
+    };
 
     /* ---------------------------------------------------------------------------------------------
      * getSemanticDiagnostics
@@ -368,7 +574,7 @@ function init(modules: { typescript: typeof tslib }) {
       const original = info.languageService.getCompletionsAtPosition(fileName, position, options);
       const program = info.languageService.getProgram();
       const sourceFile = program?.getSourceFile(fileName);
-      if (!original || !sourceFile) return original;
+      if (!original || !sourceFile) return;
 
       const isTokenPropertyEntries = original.entries.some(
         (entry) => TokenamiConfig.TokenProperty.safeParse(entry.name).success
@@ -378,18 +584,30 @@ function init(modules: { typescript: typeof tslib }) {
       );
 
       if (isTokenValueEntries) {
-        original.entries = original.entries.map((entry) => {
-          return transformTokenValueEntry(entry, config);
-        });
+        original.entries = original.entries.map((entry) => transformTokenValueEntry(entry, config));
       } else if (isTokenPropertyEntries) {
-        const isQuoted = Boolean(original.entries[0]?.name.match(/^"/));
-        original.entries = [
-          ...original.entries.flatMap((entry) => {
-            const transformedEntry = transformTokenPropertyEntry(entry);
-            return transformedEntry ? [transformedEntry] : [];
-          }),
-          ...(isQuoted ? selectorCompletions.quoted : selectorCompletions.unquoted),
-        ];
+        const node = findNodeAtPosition(sourceFile, position);
+        if (!node) return;
+
+        const input = getInputAtPosition(node, position);
+        const search = getSortText(input).replace('$', '');
+        const entries = original.entries.flatMap((entry) => {
+          const transformedEntry = transformBasePropertyEntry(entry);
+          return transformedEntry ? [transformedEntry] : [];
+        });
+
+        if (search) {
+          const baseResults = getBaseResults(entries, search);
+          const variantResults = getVariantResults(input, search, node);
+          original.entries = [...baseResults, ...variantResults];
+        } else {
+          const snippetEntries = isQuoted(node)
+            ? getSelectorSnippetCompletions(config)
+            : getSelectorSnippetCompletions(config, '"');
+          original.entries = [...entries, ...snippetEntries];
+        }
+
+        return { ...original, isIncomplete: true };
       }
 
       return original;
