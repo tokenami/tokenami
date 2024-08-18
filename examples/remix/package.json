@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/example-remix",
-  "version": "0.0.59",
+  "version": "0.0.60",
   "private": true,
   "sideEffects": false,
   "scripts": {
