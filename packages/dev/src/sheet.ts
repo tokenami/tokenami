@@ -248,20 +248,15 @@ function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenam
   });
 
   const rootStyles = Object.fromEntries(rootEntries);
-  // mode values applied to default selector must have the same shape
-  // so its okay for Object.fromEntries to be used here
   const modeStyles = Object.fromEntries(modeThemeEntries);
 
   return stringify({
+    ...rootStyles,
     [rootSelector]: {
       [Tokenami.gridProperty()]: config.grid,
       ...rootStyles[rootSelector],
     },
     ...modeStyles,
-    [DEFAULT_SELECTOR]: {
-      ...rootStyles[DEFAULT_SELECTOR],
-      ...modeStyles[DEFAULT_SELECTOR],
-    },
   });
 }
 
@@ -282,7 +277,7 @@ const getThemeEntries = (
   }
   return [
     [selector, themeValues],
-    [DEFAULT_SELECTOR, customPropertyThemeValues],
+    [`${selector}, ${selector} ${DEFAULT_SELECTOR}`, customPropertyThemeValues],
   ] as const;
 };
 
