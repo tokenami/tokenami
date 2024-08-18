@@ -656,57 +656,6 @@ Now you can set different gradient stops when applying the gradient, and intelli
 />
 ```
 
-#### CSS limitations
-
-Theme values containing custom properties are not applied to theme selectors in the generated stylesheet. Tokenami [must apply them to each element](https://codepen.io/jjenzz/pen/eYayMWo) to ensure custom properties are inherited from the element's style attribute. This means theme modes cannot mix custom properties with differing hardcoded values/variables. For example:
-
-```tsx
-// ❌
-{
-  light: {
-    surface: {
-      gradient: 'linear-gradient(to right, red, var(--surface-to))';
-    }
-  }
-  dark: {
-    surface: {
-      gradient: 'linear-gradient(to right, blue, var(--surface-to))';
-    }
-  }
-}
-```
-
-Instead, use matching custom properties and then use custom selectors to apply the different stops based on the theme mode:
-
-```tsx
-// ✅
-{
-  light: {
-    surface: {
-      gradient: 'linear-gradient(to right, var(--surface-from), var(--surface-to))';
-    }
-  }
-  dark: {
-    surface: {
-      gradient: 'linear-gradient(to right, var(--surface-from), var(--surface-to))';
-    }
-  }
-}
-```
-
-```tsx
-<div
-  style={css({
-    '--light_surface-from': 'var(--color_white)',
-    '--dark_surface-from': 'var(--color_black)',
-    '--surface-to': 'var(--color_primary)',
-    '--background': 'var(--surface_gradient)',
-  })}
-/>
-```
-
-This will ensure `--surface-from` is set to `var(--color_white)` in the light theme and `var(--color_black)` in the dark theme.
-
 ### Browserslist
 
 You can use [browserslist](https://browsersl.ist/) to add autoprefixing to your CSS properties in the generated CSS file. However, Tokenami currently doesn't support vendor-prefixed **values**, which is being tracked in [this issue](https://github.com/tokenami/tokenami/issues/103).
