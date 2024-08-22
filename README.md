@@ -2,11 +2,11 @@
 
 <div align="center">
   <h3>Tokenami</h3>
+  <h4 align="center">
+    CSS-in-JS Reinvented for Scalable, Typesafe Design Systems
+  </h4>
   <p align="center">
-    <a href="https://css-tricks.com/just-in-time-css/">Just-in-time</a> atomic CSS, in the style attribute.
-  </p>
-  <p align="center">
-    <strong>Fully typed</strong> static styles with theming, variant support, and <strong>no bundler integration</strong>.
+    A modern approach to <a href="https://css-tricks.com/just-in-time-css/">just-in-time</a> atomic CSS using CSS variables—<strong>no bundler required</strong>.
   </p>
 
   <img src="https://github.com/tokenami/tokenami/assets/175330/8cdfcdf8-05da-4096-8e0b-5645e1b329e5" alt="React support" width="40" />
