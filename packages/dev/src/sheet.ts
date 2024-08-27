@@ -19,6 +19,7 @@ type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   order: number;
   tokenProperty: Tokenami.TokenProperty;
   isCustom: boolean;
+  isGrid: boolean;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -78,8 +79,9 @@ function generate(params: {
         const responsiveSelectors = [responsive, ...selectors].filter(Boolean) as string[];
         const hashedProperty = hashVariantProperty(config.variant, cssProperty);
         const variantProperty = Tokenami.parsedVariantProperty(config.variant, cssProperty);
+        const basePropertyValue = getBasePropertyValue(variantProperty, config, false);
         const toggleProperty = Tokenami.parsedTokenProperty(config.variant);
-        const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) var(${variantProperty});`;
+        const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) ${basePropertyValue};`;
         const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerCount}`;
         // revert-layer doesn't work for custom properties in Safari so we explicitly set the fallback
         // to the base custom property value for variants
@@ -100,12 +102,20 @@ function generate(params: {
         styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${toggleDeclaration} } }`);
         styles.toggles[toggleKey] ??= new Set<string>();
         styles.toggles[toggleKey]!.add(toggle);
+        if (config.isGrid) {
+          const gridToggle = getGridPropertyToggle(variantProperty);
+          styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${gridToggle} } }`);
+        }
       } else {
-        const propertyValue = `var(${config.tokenProperty}, revert-layer)`;
+        const propertyValue = getBasePropertyValue(config.tokenProperty, config);
         const declaration = `${DEFAULT_SELECTOR} { ${propertyPrefix}${cssProperty}: ${propertyValue}; }`;
         const layer = `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerCount}`;
         styles.reset.add(`${config.tokenProperty}: initial;`);
         styles.atomic.add(`@layer ${layer} { ${declaration} }`);
+        if (config.isGrid) {
+          const gridToggle = getGridPropertyToggle(config.tokenProperty);
+          styles.atomic.add(`@layer ${layer} { ${DEFAULT_SELECTOR} { ${gridToggle} } }`);
+        }
       }
     });
   });
@@ -151,6 +161,26 @@ function generate(params: {
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * getGridPropertyToggle
+ * -----------------------------------------------------------------------------------------------*/
+
+function getGridPropertyToggle(property: string) {
+  const hashGridProperty = hashVariantProperty('grid', property);
+  const gridProperty = Tokenami.gridProperty();
+  return `${hashGridProperty}: var(${property}__calc) calc(var(${property}) * var(${gridProperty}));`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getBasePropertyValue
+ * -----------------------------------------------------------------------------------------------*/
+
+function getBasePropertyValue(property: string, config: PropertyConfig, revert = true) {
+  const hashGridProperty = hashVariantProperty('grid', property);
+  const baseProperty = `var(${property}${revert ? ', revert-layer' : ''})`;
+  return config.isGrid ? `var(${hashGridProperty}, ${baseProperty})` : baseProperty;
+}
+
+/* -------------------------------------------------------------------------------------------------
  * generatePlaceholderLayers
  * -----------------------------------------------------------------------------------------------*/
 
@@ -186,7 +216,8 @@ function getPropertyConfigs(
       const tokenProperty = Tokenami.parsedTokenProperty(cssProperty);
       const currentConfigs = propertyConfigs.get(cssProperty as any) || [];
       const isCustom = customProperties.includes(cssProperty);
-      const nextConfig = { ...parts, tokenProperty, order, isCustom };
+      const isGrid = config.properties?.[cssProperty]?.includes('grid') ?? false;
+      const nextConfig = { ...parts, tokenProperty, order, isCustom, isGrid };
       propertyConfigs.set(cssProperty, [...currentConfigs, nextConfig]);
     });
   });

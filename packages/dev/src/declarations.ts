@@ -62,7 +62,7 @@ type PropertyThemeValue<ThemeKey extends string> =
   | Tokenami.ArbitraryValue
   | CSS.Globals
   | TokensByThemeKey[ThemeKey]
-  | (ThemeKey extends 'grid' ? Tokenami.GridValue : never);
+  | (ThemeKey extends 'grid' | 'number' ? Tokenami.GridValue : never);
 
 type TokensByThemeKey = { [key: string]: never } & {
   [K in keyof Theme]: keyof Theme[K] extends `${infer Token}`

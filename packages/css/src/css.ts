@@ -88,33 +88,36 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
 
     [baseStyles, ...overrides].forEach((originalStyles) => {
       if (!originalStyles) return;
-      Object.entries(originalStyles).forEach(([key, value]) => {
+
+      for (const [key, value] of Object.entries(originalStyles)) {
         const tokenProperty = Tokenami.TokenProperty.safeParse(key);
         if (!tokenProperty.success) {
           Object.assign(overriddenStyles, { [key]: value });
-          return;
+          continue;
         }
 
         const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
         const cssProperties = Tokenami.getCSSPropertiesForAlias(parts.alias, config.aliases);
 
-        cssProperties.forEach((cssProperty) => {
+        for (const cssProperty of cssProperties) {
           const long = createLonghandProperty(tokenProperty.output, cssProperty);
+          const isNumber = typeof value === 'number' && value > 0;
           const tokenPropertyLong = Tokenami.parseProperty(long, {
             escapeSpecialChars: globalOptions?.escapeSpecialChars,
           });
 
-          if (typeof value === 'number' && value > 0) {
-            const gridVar = Tokenami.gridProperty();
-            value = `calc(var(${gridVar}) * ${value})`;
-          }
-
           overrideLonghands(overriddenStyles, tokenPropertyLong);
           // this must happen each iteration so that each override applies to the
           // mutated css object from the previous override iteration
-          Object.assign(overriddenStyles, { [tokenPropertyLong]: value });
-        });
-      });
+          Object.assign(overriddenStyles, {
+            // add grid toggle to enable grid calc for grid properties. set it to
+            // undefined to remove the toggle if it was added by a previous iteration.
+            // it cannot be an empty string because some fws strip it (e.g. vite)
+            [tokenPropertyLong + '__calc']: isNumber ? '/*on*/' : undefined,
+            [tokenPropertyLong]: value,
+          });
+        }
+      }
     });
 
     cache.set(cacheId, overriddenStyles);

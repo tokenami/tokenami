@@ -83,8 +83,10 @@
       color: var(--color, revert-layer);
       border: var(--border, revert-layer);
       border-radius: var(--border-radius, revert-layer);
-      width: var(--width, revert-layer);
-      height: var(--height, revert-layer);
+      width: var(--_15jvuf0, var(--width, revert-layer));
+      --_15jvuf0: var(--width__calc) calc(var(--width) * var(--_grid));
+      height: var(--_r8sevj, var(--height, revert-layer));
+      --_r8sevj: var(--height__calc) calc(var(--height) * var(--_grid));
       transition: var(--transition, revert-layer);
       --_color-opacity: var(--color-opacity, revert-layer);
     }
