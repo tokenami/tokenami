@@ -1,36 +1,13 @@
-import type { LinksFunction } from '@remix-run/node';
 import * as DS from '@tokenami/example-design-system';
-import styles from '~/../public/tokenami.css';
 import { css } from '~/css';
-
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
 export default function Index() {
   return (
-    <div
-      style={css({
-        '---radial-gradient': 'radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)',
-        '---grid-bg-size': 'calc(var(--_grid) * 5)',
-        '--background-size': 'var(---,var(---grid-bg-size) var(---grid-bg-size))',
-        '--background-image': 'var(---,var(---radial-gradient))',
-        '--background-color': 'var(--color_sky-500)',
-        '--background-position-x': 1,
-        '--background-position-y': 0.5,
-        '--height': 'var(--size_screen-h)',
-        '--display': 'flex',
-        '--flex-direction': 'column',
-        '--align-items': 'center',
-        '--justify-content': 'center',
-        '--child-para_background-color': 'var(--color_secondary)',
-        '--child-para_color': 'var(--color_primary)',
-        '--child-para_border-radius': 'var(--radii_rounded)',
-        '--child-para_px': 2,
-      })}
-    >
+    <>
       <figure
         style={css({
-          '--bg-color': 'var(--color_slate-100)',
-          '--border-radius': 'var(--radii_rounded)',
+          '--bg': 'var(--color_white12a)',
+          '--border-radius': 'var(--radii_lg)',
           '--text-align': 'center',
           '--overflow': 'hidden',
           '--m': 10,
@@ -40,7 +17,7 @@ export default function Index() {
           '--md_p': 0,
           '--md_text-align': 'left',
           '--font-family': 'var(--font_sans)',
-          '--line-height': 'var(---,1.8)',
+          '--line-height': 'var(--leading_loose)',
           '--after_content': 'var(--pet_favourite)',
           '--md_after_content': 'var(---, "🐠")',
         })}
@@ -56,13 +33,13 @@ export default function Index() {
           <blockquote style={css({ '--m': 0 })}>
             <p
               style={css({
-                '--font-size': 'var(---,1.125rem)',
-                '--line-height': 'var(---,1.75rem)',
-                '--font-weight': 'var(---,500)',
+                '--font-size': 'var(--text-size_lg)',
+                '--line-height': 'var(--leading_7)',
+                '--font-weight': 'var(--weight_medium)',
                 '--m': 0,
                 '--mb': 4,
-                '--select_background-color': 'var(--color_sky-500)',
-                '--select_color': 'var(---, white)',
+                '--select_background-color': 'var(--color_indigo10)',
+                '--select_color': 'var(--color_white12a)',
               })}
             >
               "Like Tailwind, but atomic tokens."
@@ -74,20 +51,20 @@ export default function Index() {
             </div>
           </blockquote>
 
-          <figcaption style={css({ '--font-weight': 'var(---,500)' })}>
-            <div style={css({ '--color': 'var(--color_sky-500)' })}>Jenna Smith</div>
-            <div style={css({ '--color': 'var(--color_slate-700)' })}>@jjenzz</div>
+          <figcaption style={css({ '--font-weight': 'var(--weight_medium)' })}>
+            <div style={css({ '--color': 'var(--color_indigo10)' })}>Jenna Smith</div>
+            <div style={css({ '--color': 'var(--color_amber12)' })}>@jjenzz</div>
           </figcaption>
         </div>
       </figure>
 
-      <div style={css({ '--mb': 5, '--p': 5, '--border': 'var(--border_thin)' })}>
+      <div style={css({ '--mb': 5, '--p': 5, '--border': 'var(--line_px)' })}>
         boop
         <div
           style={css({
             '--p': 'inherit',
-            '--background-color': 'var(--color_slate-700)',
-            '--color': 'var(--color_slate-100)',
+            '--background-color': 'var(--color_amber12)',
+            '--color': 'var(--color_amber9)',
           })}
         >
           Testing inherit
@@ -96,26 +73,26 @@ export default function Index() {
 
       <button
         style={css({
-          '--border-block-end': 'var(---, 1px solid var(--color_slate-700))',
+          '--border-block-end': 'var(---, 1px solid var(--color_amber12))',
           '--width': 'var(---,180px)',
           '--height': 15,
-          '--border-radius': 'var(--radii_rounded)',
-          '--border': 'var(---,none)',
+          '--border-radius': 'var(--radii_3xl)',
+          '--border': 'var(--line_0)',
           '--font-family': 'var(--font_sans)',
-          '--font-size': 'var(---,20px)',
-          '--2xl_font-size': 'var(---, 25px)',
-          '--bg-color': 'var(--color_slate-100)',
-          '--hover_background-color': 'var(--color_slate-700)',
+          '--font-size': 'var(--text-size_xl)',
+          '--xxl_font-size': 'var(--text-size_4xl)',
+          '--bg': 'var(--color_amber9)',
+          '--hover_background-color': 'var(--color_amber12)',
           '--hover_color': 'var(---,white)',
-          '--transition': 'var(---,all 150ms)',
-          '--hover_animation': 'var(--anim_wiggle)',
-          '--{&:focus:hover}_background-color': 'var(--color_sky-500)',
+          '--transition': 'var(--morph_all)',
+          '--hover_animation': 'var(--anim_pulse)',
+          '--{&:focus:hover}_background-color': 'var(--color_indigo10)',
         })}
       >
         Button
       </button>
       <DS.Button style={css({ '--border-color': 'var(---, red)' })}>Button</DS.Button>
-    </div>
+    </>
   );
 }
 
@@ -127,7 +104,7 @@ const quoteImage = css.compose({
       circle: {
         '--width': 24,
         '--height': 24,
-        '--border-radius': 'var(--radii_circle)',
+        '--border-radius': 'var(--radii_full)',
       },
       fill: {
         '--width': 'var(---,11rem)',

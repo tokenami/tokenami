@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [".tokenami/tokenami.env.ci.d.ts", "*.ts", "*.tsx", "src/**/*", ".storylite/**/*"]
+}
