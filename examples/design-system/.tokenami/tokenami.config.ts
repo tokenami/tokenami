@@ -1,4 +1,3 @@
-import { createConfig, defaultConfig } from '@tokenami/css';
 
 const createPalette = (opacity: string) => ({
   'slate-100': `rgba(241 245 249 / ${opacity})`,
@@ -8,6 +7,7 @@ const createPalette = (opacity: string) => ({
 
 const colorPalette = createPalette('var(--color-opacity, 1)');
 const shadowPalette = createPalette('var(--shadow-opacity, 1)');
+import { createConfig } from '@tokenami/css';
 
 export default createConfig({
   include: ['./src/**/*.{ts,tsx}'],

@@ -1,11 +1,10 @@
 ![image](https://github.com/jjenzz/pretty-cache-header/assets/175330/18df3dab-ba82-4fd6-a74b-ec1c4aecc4ab)
 
 <div align="center">
-  <h3>Tokenami</h3>
-  <h4 align="center">
+  <h3>
     CSS-in-JS Reinvented for Scalable, Typesafe Design Systems
-  </h4>
-  <p align="center">
+  </h3>
+  <p>
     A modern approach to <a href="https://css-tricks.com/just-in-time-css/">just-in-time</a> atomic CSS using CSS variables—<strong>no bundler required</strong>.
   </p>
 
@@ -109,7 +108,7 @@ Tokenami aims to improve some of these areas by using CSS variables instead of C
 - Runtime style support e.g. `style={css({ '--color': props.color })}`
 - Aliasable properties e.g. `style={css({ '--p': 4 })}` for padding
 - Custom selector support enabling descendant selectors
-- Improved debugging experience in dev tools
+- Improved debugging experience in dev tools (coming soon)
 - Statically generated styles
 - No bundler integration
 </details>
@@ -484,17 +483,17 @@ To improve performance during development, Tokenami widens its types and uses th
 
 ### Selectors
 
-Tokenami provides some [common default selectors](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.ts#L52) for you but you can define your own custom selectors in the `selectors` object of your config.
+Tokenami provides some [common default selectors](https://github.com/tokenami/tokenami/blob/main/packages/dev/stubs/tokenami.config.ts#L27) in your project for you, but you can define your own or override the defaults.
 
 Use the ampersand (`&`) to specify where the current element's selector should be injected:
 
 ```ts
-const { createConfig, defaultConfig } = require('@tokenami/css');
+const { createConfig } = require('@tokenami/css');
 
 module.exports = createConfig({
   // ...
   selectors: {
-    ...defaultConfig.selectors,
+    //...
     'parent-hover': '.parent:hover > &',
   },
 });
@@ -523,7 +522,7 @@ Use an array value for custom selectors to generate nested rules:
 module.exports = createConfig({
   // ...
   selectors: {
-    ...defaultConfig.selectors,
+    // ...
     hover: ['@media (hover: hover) and (pointer: fine)', '&:hover'],
   },
 });
@@ -575,10 +574,10 @@ With the above config, `px` is shorthand for `padding-left` and `padding-right`.
 
 Tokenami provides sensible defaults to restrict which values can be passed to properties based on your theme. For instance, `--border-color` will only accept tokens from your `color` object in theme, `--padding` allows multiples of your grid, and `--height` expects tokens from a `size` key or multiples of your grid.
 
-You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/config/src/config.ts#L67) by overriding the `properties` object:
+You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/dev/stubs/tokenami.config.ts#L42) generated in your project by updating the `properties` object:
 
 ```ts
-const { createConfig, defaultConfig } = require('@tokenami/css');
+const { createConfig } = require('@tokenami/css');
 
 module.exports = createConfig({
   theme: {
@@ -591,7 +590,7 @@ module.exports = createConfig({
     },
   },
   properties: {
-    ...defaultConfig.properties,
+    // ...
     width: ['grid', 'container'],
     height: ['grid', 'container'],
     content: ['pet'],
@@ -619,7 +618,7 @@ Tokenami allows custom properties in the `properties` config. This helps to crea
 module.exports = createConfig({
   // ...
   properties: {
-    ...defaultConfig.properties,
+    // ...
     'gradient-from': ['color'],
     'gradient-to': ['color'],
   },

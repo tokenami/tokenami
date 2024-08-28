@@ -2,7 +2,7 @@ import type * as CSS from 'csstype';
 import type * as Tokenami from '@tokenami/config';
 
 type Merge<A, B> = B extends never ? A : Omit<A, keyof B> & B;
-type DefaultConfig = Tokenami.DefaultConfig & { CI: false };
+type DefaultConfig = Tokenami.Config & { CI: false };
 
 // consumer will override this interface
 interface TokenamiConfig {}

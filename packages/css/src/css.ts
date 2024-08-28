@@ -212,7 +212,7 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
 
 /* ---------------------------------------------------------------------------------------------- */
 
-const css = createCss(Tokenami.defaultConfig, { escapeSpecialChars: true });
+const css = createCss({ include: [], theme: {} }, { escapeSpecialChars: true });
 
 export type { TokenamiCSS, CSS };
 export { createCss, css, convertToMediaStyles };

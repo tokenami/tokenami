@@ -10,5 +10,5 @@ export type Variants<T extends (...args: any) => any> = Parameters<T>[0] extends
 
 export type { TokenamiCSS, CSS } from './css';
 export type { Config } from '@tokenami/config';
-export { createConfig, defaultConfig } from '@tokenami/config';
+export { createConfig } from '@tokenami/config';
 export { createCss, css } from './css';
