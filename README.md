@@ -1,9 +1,7 @@
 ![image](https://github.com/jjenzz/pretty-cache-header/assets/175330/18df3dab-ba82-4fd6-a74b-ec1c4aecc4ab)
 
 <div align="center">
-  <h3>
-    CSS-in-JS Reinvented for Scalable, Typesafe Design Systems
-  </h3>
+  <h3>CSS-in-JS Reinvented for Scalable, Typesafe Design Systems</h3>
   <p>
     A modern approach to <a href="https://css-tricks.com/just-in-time-css/">just-in-time</a> atomic CSS using CSS variables—<strong>no bundler required</strong>.
   </p>
@@ -48,13 +46,14 @@ For an enhanced dev experience press `CMD+Shift+P` and choose the workspace vers
   - [Variants](#user-content-variants-1)
   - [TokenamiStyle](#user-content-tokenami-style)
   - [Continuous Integration](#user-content-continuous-integration)
+- [Design systems](#user-content-design-systems)
+  - [Official design system](#user-content-official-design-system)
 - [Advanced](#user-content-advanced)
   - [Selectors](#user-content-selectors)
   - [Aliases](#user-content-aliases)
   - [Map properties to theme](#user-content-map-properties-to-theme)
   - [Map custom properties to theme](#user-content-map-custom-properties-to-theme)
   - [Browserslist](#user-content-browserslist)
-  - [Design systems with Tokenami](#user-content-design-systems-with-tokenami)
 - [Support](#user-content-support)
   - [Why the double-dash prefix?](#user-content-why-the-double-dash-prefix)
   - [Supported frameworks](#user-content-supported-frameworks)
@@ -173,7 +172,10 @@ function Page() {
 
 ### Theming
 
-Tokenami relies on your theme to provide design system constraints. There isn't a predefined theme so you must add your own to the `.tokenami/tokenami.config`. For example:
+Tokenami relies on your theme to provide design system constraints. There isn't a predefined theme so you must add your own to the `.tokenami/tokenami.config`.
+
+> [!Note]
+> If you'd prefer to use a pre-built theme, you can use the [offical design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) and [skip this section](#user-content-styling).
 
 ```ts
 module.exports = createConfig({
@@ -479,6 +481,37 @@ To improve performance during development, Tokenami widens its types and uses th
   tsc --noEmit --project tsconfig.ci.json
   ```
 
+## Design systems
+
+Integrating a design system built with Tokenami is straightforward. Include its `tokenami.config.js` file and corresponding stylesheet (where applicable) in your project:
+
+```tsx
+import designSystemConfig from '@acme/design-system';
+import { createConfig } from '@tokenami/css';
+
+export default createConfig({
+  ...designSystemConfig,
+  include: ['./app/**/*.{ts,tsx}', 'node_modules/@acme/design-system/tokenami.css'],
+});
+```
+
+Tokenami will automatically generate styles and merge them correctly across component boundaries.
+
+**Note**: It is only necessary to include the design system stylesheet if the design system provides components that you'd like to use in your project.
+
+### Official design system
+
+Tokenami has an [official design system package](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) you can use as a starting point for your project.
+
+It features:
+
+- [Radix UI colours](https://www.radix-ui.com/colors/docs/palette-composition/scales) enabling dark mode by default
+- [Fluid spacing and font sizes](https://utopia.fyi/) for responsive design
+- Right-to-left support out of the box (`padding-left` becomes `padding-inline-start` etc.)
+- Custom aliases for common properties, such as `--p` for `padding` and `--px` for `padding-left` and `padding-right`
+
+Follow the package docs to [get started](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md).
+
 ## Advanced
 
 ### Selectors
@@ -661,22 +694,6 @@ You can use [browserslist](https://browsersl.ist/) to add autoprefixing to your 
 
 > [!Note]
 > Tokenami does not support browsers below the listed [supported browser versions](#user-content-supported-browsers).
-
-### Design systems with Tokenami
-
-Integrating a design system built with Tokenami is straightforward. Include the `tokenami.config.js` file and corresponding stylesheet from the design system in your project:
-
-```tsx
-import designSystemConfig from '@acme/design-system';
-import { createConfig } from '@tokenami/css';
-
-export default createConfig({
-  ...designSystemConfig,
-  include: ['./app/**/*.{ts,tsx}', 'node_modules/@acme/design-system/tokenami.css'],
-});
-```
-
-Tokenami will automatically generate styles and merge them correctly across component boundaries. See the example [design system project](https://github.com/tokenami/tokenami/blob/main/examples/design-system) and [Remix project](https://github.com/tokenami/tokenami/blob/main/examples/remix/.tokenami/tokenami.config.ts) for a demo.
 
 ## Support
 
