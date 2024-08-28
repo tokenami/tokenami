@@ -155,7 +155,7 @@ function generate(params: {
 
     return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
   } catch (e) {
-    log.debug(`Skipped generate style with ${e}`);
+    log.debug(`Skipped style generation with ${e}`);
     return `${e}`;
   }
 }
@@ -331,24 +331,25 @@ function getCustomPropertyThemeValues(
  * getPrefixedCustomPropertyValues
  * -----------------------------------------------------------------------------------------------*/
 
+const CUSTOM_PROP_REGEX = /\(--[^-][\w-]+/g;
+
 const getPrefixedCustomPropertyValues = (
   themeValue: string,
   properties?: Tokenami.Config['properties']
 ) => {
-  const variables = themeValue.match(/\(--[^-][\w-]+/g)?.map((v) => v.replace('(', ''));
+  const variables = themeValue.match(CUSTOM_PROP_REGEX);
   if (!variables) return null;
 
-  for (const variable of variables) {
-    const tokenProperty = Tokenami.TokenProperty.safeParse(variable);
-    if (!tokenProperty.success) continue;
+  return themeValue.replace(CUSTOM_PROP_REGEX, (m) => {
+    const match = m.replace('(', '');
+    const tokenProperty = Tokenami.TokenProperty.safeParse(match);
+    if (!tokenProperty.success) return m;
     const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
-    if (supportedProperties.has(parts.alias as any) || !properties?.[parts.alias]) continue;
+    if (supportedProperties.has(parts.alias as any) || !properties?.[parts.alias]) return m;
     const tokenPrefix = Tokenami.tokenProperty('');
     const customPrefixTokenValue = tokenProperty.output.replace(tokenPrefix, CUSTOM_PROP_PREFIX);
-    themeValue = themeValue.replace(tokenProperty.output, customPrefixTokenValue);
-  }
-
-  return themeValue;
+    return '(' + customPrefixTokenValue;
+  });
 };
 
 /* -------------------------------------------------------------------------------------------------
