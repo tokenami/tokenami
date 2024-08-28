@@ -12,27 +12,27 @@ export const expectInvalidValuesToError = css({
 
 export const expectInvalidSelectorToError = css({
   // @ts-ignore
-  '--selector_color': 'var(--color_sky-500)',
+  '--selector_color': 'var(--color_sky1)',
 });
 
 export const expectInvalidResponsiveSelectorsToError = css({
   // @ts-ignore
-  '--responsive_selector_color': 'var(--color_sky-500)',
+  '--responsive_selector_color': 'var(--color_sky1)',
 });
 
 export const expectInvalidResponsiveWithValidSelectorToError = css({
   // @ts-ignore
-  '--responsive_hover_color': 'var(--color_sky-500)',
+  '--responsive_hover_color': 'var(--color_sky1)',
 });
 
 export const expectValidResponsiveWithInvalidSelectorToError = css({
   // @ts-ignore
-  '--md_selector_color': 'var(--color_sky-500)',
+  '--md_selector_color': 'var(--color_sky1)',
 });
 
 export const expectValidResponsiveAndValidSelectorWithInvalidPropertyToError = css({
-  // @ts-expect-error
-  '--md_hover_boop': 'var(--color_sky-500)',
+  // @ts-ignore
+  '--md_hover_boop': 'var(--color_sky1)',
 });
 
 export const expectValidPropertiesToPass = css({
@@ -40,13 +40,13 @@ export const expectValidPropertiesToPass = css({
 });
 
 export const expectValidThemeValuesToPass = css({
-  '--color': 'var(--color_sky-500)',
+  '--color': 'var(--color_sky1)',
 });
 
 export const expectValidSelectorToPass = css({
-  '--hover_color': 'var(--color_sky-500)',
+  '--hover_color': 'var(--color_sky1)',
 });
 
 export const expectValidResponsiveSelectorToPass = css({
-  '--md_hover_color': 'var(--color_sky-500)',
+  '--md_hover_color': 'var(--color_sky1)',
 });
