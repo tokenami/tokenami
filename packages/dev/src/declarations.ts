@@ -9,7 +9,7 @@ interface TokenamiConfig {}
 interface TokenamiFinalConfig extends Merge<DefaultConfig, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
-type AliasConfig = TokenamiFinalConfig['aliases'];
+type AliasConfig = Omit<TokenamiFinalConfig['aliases'], Tokenami.CSSProperty>;
 type PropertyConfig = TokenamiFinalConfig['properties'];
 type SelectorKey = keyof TokenamiFinalConfig['selectors'];
 type ResponsiveKey = keyof TokenamiFinalConfig['responsive'];
