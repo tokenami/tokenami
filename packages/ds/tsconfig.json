@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+    "outDir": "dist",
+    "paths": {
+      "@tokenami/config": ["../config/src"]
+    }
+  }
+}
