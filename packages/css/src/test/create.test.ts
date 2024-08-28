@@ -53,20 +53,20 @@ describe('css returned from createCss', () => {
     });
 
     it<TestContext>('should remove first override padding styles', (context) => {
-      const unexpected = { '--padding-left': 'calc(var(--_grid) * 10)' };
+      const unexpected = { '--padding-left': 10 };
       expect(hasSomeStyles(context.output, unexpected)).toBe(false);
     });
 
     it<TestContext>('should remove second override padding styles', (context) => {
       const unexpected = {
-        '--padding-left': 'calc(var(--_grid) * 20)',
-        '--padding-right': 'calc(var(--_grid) * 20)',
+        '--padding-left': 20,
+        '--padding-right': 20,
       };
       expect(hasSomeStyles(context.output, unexpected)).toBe(false);
     });
 
     it<TestContext>('should keep final override style', (context) => {
-      const expected = { '--padding': 'calc(var(--_grid) * 40)' };
+      const expected = { '--padding': 40, '--padding__calc': '/*on*/' };
       expect(hasStyles(context.output, expected)).toBe(true);
     });
 
@@ -124,8 +124,10 @@ describe('css returned from createCss', () => {
 
     it<TestContext>('should override correctly', (context) => {
       expect(context.output).toStrictEqual({
-        '--padding-left': 'calc(var(--_grid) * 20)',
-        '--padding-right': 'calc(var(--_grid) * 20)',
+        '--padding-left': 20,
+        '--padding-right': 20,
+        '--padding-left__calc': '/*on*/',
+        '--padding-right__calc': '/*on*/',
       });
     });
   });

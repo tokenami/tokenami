@@ -16,7 +16,7 @@ describe('css utility', () => {
     });
 
     it<TestContext>('should convert value to calc', (context) => {
-      expect(context.output).toEqual({ '--padding-left': 'calc(var(--_grid) * 10)' });
+      expect(context.output).toEqual({ '--padding-left': 10, '--padding-left__calc': '/*on*/' });
     });
   });
 
@@ -26,7 +26,17 @@ describe('css utility', () => {
     });
 
     it<TestContext>('should keep the shorthand styles only', (context) => {
-      expect(context.output).toEqual({ '--padding': 'calc(var(--_grid) * 20)' });
+      expect(context.output).toEqual({ '--padding': 20, '--padding__calc': '/*on*/' });
+    });
+  });
+
+  describe('when called with a non-numeric override', () => {
+    beforeEach<TestContext>((context) => {
+      context.output = css({ '--padding': 20 }, { '--padding': 'var(---, 30px)' });
+    });
+
+    it<TestContext>('should remove calc toggle', (context) => {
+      expect(context.output).toEqual({ '--padding': 'var(---, 30px)' });
     });
   });
 });

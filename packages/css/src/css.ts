@@ -86,19 +86,22 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
 
     if (cached) return cached;
 
-    [baseStyles, ...overrides].forEach((originalStyles) => {
-      if (!originalStyles) return;
+    const allStyles = [baseStyles, ...overrides];
+
+    for (const originalStyles of allStyles) {
+      if (!originalStyles) continue;
 
       for (const [key, value] of Object.entries(originalStyles)) {
         const tokenProperty = Tokenami.TokenProperty.safeParse(key);
         if (!tokenProperty.success) {
-          Object.assign(overriddenStyles, { [key]: value });
+          overriddenStyles[key as any] = value;
           continue;
         }
 
         const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
         const cssProperties = Tokenami.getCSSPropertiesForAlias(parts.alias, config.aliases);
 
+        // most the time this will only be one property
         for (const cssProperty of cssProperties) {
           const long = createLonghandProperty(tokenProperty.output, cssProperty);
           const isNumber = typeof value === 'number' && value > 0;
@@ -109,16 +112,15 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
           overrideLonghands(overriddenStyles, tokenPropertyLong);
           // this must happen each iteration so that each override applies to the
           // mutated css object from the previous override iteration
-          Object.assign(overriddenStyles, {
-            // add grid toggle to enable grid calc for grid properties. set it to
-            // undefined to remove the toggle if it was added by a previous iteration.
-            // it cannot be an empty string because some fws strip it (e.g. vite)
-            [tokenPropertyLong + '__calc']: isNumber ? '/*on*/' : undefined,
-            [tokenPropertyLong]: value,
-          });
+          overriddenStyles[tokenPropertyLong as any] = value;
+          // add grid toggle to enable grid calc for grid properties. set it to
+          // undefined to remove the toggle if it was added by a previous iteration.
+          // it cannot be an empty string because some fws strip it (e.g. vite)
+          // @ts-ignore
+          overriddenStyles[calcProperty(tokenPropertyLong)] = isNumber ? '/*on*/' : undefined;
         }
       }
-    });
+    }
 
     cache.set(cacheId, overriddenStyles);
     return overriddenStyles;
@@ -170,10 +172,19 @@ function overrideLonghands(style: Record<string, any>, tokenProperty: Tokenami.T
   const longhands: string[] = Tokenami.mapShorthandToLonghands.get(parts.alias as any) || [];
   longhands.forEach((longhand) => {
     const tokenPropertyLong = createLonghandProperty(tokenProperty, longhand);
-    if (style[tokenPropertyLong]) delete style[tokenPropertyLong];
+    if (style[tokenPropertyLong]) {
+      delete style[tokenPropertyLong];
+      delete style[calcProperty(tokenPropertyLong)];
+    }
     overrideLonghands(style, tokenPropertyLong);
   });
 }
+
+/* -------------------------------------------------------------------------------------------------
+ * calcProperty
+ * -----------------------------------------------------------------------------------------------*/
+
+const calcProperty = (property: string) => property + '__calc';
 
 /* -------------------------------------------------------------------------------------------------
  * createLonghandProperty
