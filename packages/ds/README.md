@@ -1,6 +1,6 @@
 # @tokenami/ds
 
-This is the official design system for Tokenami. You can use it as a starting point for your project or as a reference for building your own.
+The official design system for Tokenami. You can use it as a starting point for your project or as a reference for building your own.
 
 ## Getting started
 
@@ -22,11 +22,15 @@ export default createConfig({
 });
 ```
 
-This design system includes custom aliases for common properties, such as `--p` for `padding` and `--px` for `padding-left` and `padding-right`. Please follow the [aliases guide](https://github.com/tokenami/tokenami?tab=readme-ov-file#aliases) on [configuring the `css` utility](https://github.com/tokenami/tokenami?tab=readme-ov-file#configure-utility) to ensure the aliases merge correctly across component boundaries.
+The design system includes custom aliases for common properties, such as `--p` for `padding` and `--px` for `padding-left` and `padding-right`. Please follow the [aliases guide](https://github.com/tokenami/tokenami?tab=readme-ov-file#aliases) on [configuring the `css` utility](https://github.com/tokenami/tokenami?tab=readme-ov-file#configure-utility) to ensure the aliases merge correctly across component boundaries.
+
+## Theme selector
+
+Use a `data-theme` attribute to apply the appropriate light or dark theme to your elements. Otherwise, it will apply the `light` theme by default to the `:root` selector.
 
 ## Grid
 
-Spacing in this design system is based on a 4px grid using `rem` units. The `rem` value is calculated based on a `16px` base font size.
+Spacing is based on a 4px grid using `rem` units. The `rem` value is calculated based on a `16px` base font size.
 
 Using numeric values for grid properties such as `padding` and `margin` will result in multiples of this grid being applied. For instance, `--padding: 2` will add `8px` (`0.5rem`) padding to your element.
 
@@ -42,7 +46,7 @@ The following example will apply `8px` (`0.5rem`) padding to your element at the
 css({ '--padding': 'var(--fluid-p_min-max)', '--fluid-p-min': 2, '--fluid-p-max': 4 });
 ```
 
-You can adjust the breakpoints the fluid spacing tokens apply to by changing the `--padding` property:
+You can adjust the breakpoints the fluid spacings apply to by changing the `--padding` property:
 
 ```tsx
 css({ '--padding': 'var(--fluid-p_sm-md)' /* ...  */ });
@@ -62,11 +66,11 @@ css({
 });
 ```
 
-This will result in a font size that scales between `32px` (`2rem`) and `64px` (`4rem`) from smallest to largest breakpoints.
+This will mean a font size that scales between `32px` (`2rem`) and `64px` (`4rem`) from smallest to largest breakpoints.
 
 ## Radix UI Colours
 
-The design system uses [Radix UI colours](https://www.radix-ui.com/colors/docs/palette-composition/scales). A powerful feature of this palette is dark mode by default when applying the appropriate steps in the scale to each use case.
+The design system uses [Radix UI colours](https://www.radix-ui.com/colors). A powerful feature of this palette is dark mode by default when applying the appropriate steps in the scale to each use case.
 
 Find out more about [how to use the Radix palette](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale) on their website.
 

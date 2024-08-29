@@ -6,7 +6,7 @@ export default function Index() {
     <>
       <figure
         style={css({
-          '--bg': 'var(--color_white12a)',
+          '--bg': 'var(--color_white)',
           '--border-radius': 'var(--radii_lg)',
           '--text-align': 'center',
           '--overflow': 'hidden',
@@ -38,8 +38,8 @@ export default function Index() {
                 '--font-weight': 'var(--weight_medium)',
                 '--m': 0,
                 '--mb': 4,
-                '--select_background-color': 'var(--color_indigo10)',
-                '--select_color': 'var(--color_white12a)',
+                '--selection_background-color': 'var(--color_indigo10)',
+                '--selection_color': 'var(--color_white)',
               })}
             >
               "Like Tailwind, but atomic tokens."

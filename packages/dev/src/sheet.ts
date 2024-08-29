@@ -274,21 +274,15 @@ function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenam
   const modeThemeEntries = Object.entries(modes || {}).flatMap(([mode, theme]) => {
     if (!config.themeSelector) return [];
     const selector = config.themeSelector(mode);
-    const modeEntries = getThemeEntries(selector, tokenValues, theme, config.properties);
-    return modeEntries;
+    // prefix mode selectors with comment to group them in stylesheet
+    return getThemeEntries(`/*mode*/${selector}`, tokenValues, theme, config.properties);
   });
 
+  const gridStyles = { [rootSelector]: { [Tokenami.gridProperty()]: config.grid } };
   const rootStyles = Object.fromEntries(rootEntries);
   const modeStyles = Object.fromEntries(modeThemeEntries);
 
-  return stringify({
-    ...rootStyles,
-    [rootSelector]: {
-      [Tokenami.gridProperty()]: config.grid,
-      ...rootStyles[rootSelector],
-    },
-    ...modeStyles,
-  });
+  return stringify(mergeStyles(mergeStyles(gridStyles, rootStyles), modeStyles));
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -429,5 +423,17 @@ function getSelectorsFromConfig(
 }
 
 /* ---------------------------------------------------------------------------------------------- */
+
+function mergeStyles(target: Record<string, any>, source: Record<string, any>) {
+  const result = { ...target, ...source };
+  for (const key of Object.keys(result)) {
+    result[key] =
+      typeof target[key] == 'object' && typeof source[key] == 'object'
+        ? mergeStyles(target[key], source[key])
+        : // we're only dealing with objects/strings for now, so this is safe
+          JSON.parse(JSON.stringify(result[key]));
+  }
+  return result;
+}
 
 export { generate };

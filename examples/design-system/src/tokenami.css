@@ -2,21 +2,22 @@
   *, :before, :after {
     box-sizing: border-box;
     border: 0 solid;
+    margin: 0;
+    padding: 0;
   }
 
   html, :host {
     -webkit-text-size-adjust: 100%;
-    -webkit-tap-highlight-color: transparent;
-    tab-size: 2;
+    tab-size: 4;
     font-feature-settings: normal;
     font-variation-settings: normal;
+    -webkit-tap-highlight-color: transparent;
     font-family: ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
     line-height: 1.5;
   }
 
   body {
     line-height: inherit;
-    margin: 0;
   }
 
   hr {
@@ -78,26 +79,35 @@
   }
 
   button, input, optgroup, select, textarea {
+    font: inherit;
     font-feature-settings: inherit;
     font-variation-settings: inherit;
-    font-family: inherit;
-    font-size: 100%;
-    font-weight: inherit;
-    line-height: inherit;
     letter-spacing: inherit;
     color: inherit;
-    margin: 0;
-    padding: 0;
+    background: none;
   }
 
-  button, select {
-    text-transform: none;
+  ::file-selector-button {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    background: none;
+  }
+
+  input:where(:not([type="button"], [type="reset"], [type="submit"])), select, textarea {
+    border: 1px solid;
   }
 
   button, input:where([type="button"]), input:where([type="reset"]), input:where([type="submit"]) {
     -webkit-appearance: button;
-    background-color: #0000;
-    background-image: none;
+    appearance: button;
+  }
+
+  ::file-selector-button {
+    -webkit-appearance: button;
+    appearance: button;
   }
 
   :-moz-focusring {
@@ -120,65 +130,33 @@
     height: auto;
   }
 
-  [type="search"] {
-    -webkit-appearance: textfield;
-    outline-offset: -2px;
-  }
-
-  ::-webkit-search-decoration {
+  ::webkit-search-decoration {
     -webkit-appearance: none;
-  }
-
-  ::-webkit-file-upload-button {
-    -webkit-appearance: button;
-    font: inherit;
   }
 
   summary {
     display: list-item;
   }
 
-  blockquote, dl, dd, h1, h2, h3, h4, h5, h6, hr, figure, p, pre {
-    margin: 0;
-  }
-
-  fieldset {
-    margin: 0;
-    padding: 0;
-  }
-
-  legend {
-    padding: 0;
-  }
-
   ol, ul, menu {
-    margin: 0;
-    padding: 0;
     list-style: none;
-  }
-
-  dialog {
-    padding: 0;
   }
 
   textarea {
     resize: vertical;
   }
 
-  input::placeholder, textarea::placeholder {
+  ::placeholder {
     opacity: 1;
-    color: #9ca3af;
-  }
-
-  :disabled {
-    cursor: default;
+    color: color-mix(in srgb, currentColor 50%, transparent);
   }
 
   img, svg, video, canvas, audio, iframe, embed, object {
     vertical-align: middle;
+    display: block;
   }
 
-  [hidden] {
+  [hidden]:not([hidden="until-found"]) {
     display: none;
   }
 }
@@ -208,18 +186,18 @@
     --text_xl: 1.25rem / 1.75rem var(--font-family);
   }
 
-  [data-theme="light"] {
+  :root, [data-theme="light"] {
     --color_violet10: #654dc4;
     --color_violet11: #6550b9;
     --color_violet9: #6e56cf;
-    --color_white12a: #fffffff2;
+    --color_white: #fff;
   }
 
   [data-theme="dark"] {
     --color_violet10: #7d66d9;
     --color_violet11: #baa7ff;
     --color_violet9: #6e56cf;
-    --color_white12a: #fffffff2;
+    --color_white: #fff;
   }
 
   [style] {
@@ -247,27 +225,12 @@
     --xl_font: initial;
     --xxl: initial;
     --xxl_font: initial;
-    --max-sm: initial;
-    --max-sm_font: initial;
-    --max-md: initial;
-    --max-md_font: initial;
-    --max-lg: initial;
-    --max-lg_font: initial;
-    --max-xl: initial;
-    --max-xl_font: initial;
-    --max-xxl: initial;
-    --max-xxl_font: initial;
     --font-family: initial;
     --sm_font-family: initial;
     --md_font-family: initial;
     --lg_font-family: initial;
     --xl_font-family: initial;
     --xxl_font-family: initial;
-    --max-sm_font-family: initial;
-    --max-md_font-family: initial;
-    --max-lg_font-family: initial;
-    --max-xl_font-family: initial;
-    --max-xxl_font-family: initial;
   }
 
   @layer tk1 {
@@ -306,17 +269,12 @@
     [style] {
       animation: var(--_1upk2ho, revert-layer);
       --_1upk2ho: var(--hover) var(--hover_animation);
-      font: var(--_1bb0b2i, var(--_120bec, var(--_9a0rpd, var(--_8hbn8h, var(--_35jtee, var(--_1gipe25, var(--_mhgvlt, var(--_10ti6tm, var(--_104t2cq, var(--_qp58in, revert-layer))))))))));
+      font: var(--_1gipe25, var(--_mhgvlt, var(--_10ti6tm, var(--_104t2cq, var(--_qp58in, revert-layer)))));
       --_qp58in: var(--sm) var(--sm_font);
       --_104t2cq: var(--md) var(--md_font);
       --_10ti6tm: var(--lg) var(--lg_font);
       --_mhgvlt: var(--xl) var(--xl_font);
       --_1gipe25: var(--xxl) var(--xxl_font);
-      --_35jtee: var(--max-sm) var(--max-sm_font);
-      --_8hbn8h: var(--max-md) var(--max-md_font);
-      --_9a0rpd: var(--max-lg) var(--max-lg_font);
-      --_120bec: var(--max-xl) var(--max-xl_font);
-      --_1bb0b2i: var(--max-xxl) var(--max-xxl_font);
     }
   }
 
@@ -325,17 +283,12 @@
       background-color: var(--_1r7lnia, var(--_4dvc60, revert-layer));
       --_4dvc60: var(--hover) var(--hover_background-color);
       --_1r7lnia: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
-      font-family: var(--_11ch1m1, var(--_14rohbr, var(--_1gqeccu, var(--_shai02, var(--_amcfqv, var(--_6j96ia, var(--_9d9ope, var(--_10sf9dp, var(--_1l5j3ql, var(--_1oveq08, revert-layer))))))))));
+      font-family: var(--_6j96ia, var(--_9d9ope, var(--_10sf9dp, var(--_1l5j3ql, var(--_1oveq08, revert-layer)))));
       --_1oveq08: var(--sm) var(--sm_font-family);
       --_1l5j3ql: var(--md) var(--md_font-family);
       --_10sf9dp: var(--lg) var(--lg_font-family);
       --_9d9ope: var(--xl) var(--xl_font-family);
       --_6j96ia: var(--xxl) var(--xxl_font-family);
-      --_amcfqv: var(--max-sm) var(--max-sm_font-family);
-      --_shai02: var(--max-md) var(--max-md_font-family);
-      --_1gqeccu: var(--max-lg) var(--max-lg_font-family);
-      --_14rohbr: var(--max-xl) var(--max-xl_font-family);
-      --_11ch1m1: var(--max-xxl) var(--max-xxl_font-family);
     }
   }
 
@@ -376,36 +329,6 @@
   @media (min-width: 96rem) {
     [style] {
       --xxl: ;
-    }
-  }
-
-  @media (min-width: 39.9375rem) {
-    [style] {
-      --max-sm: ;
-    }
-  }
-
-  @media (min-width: 47.9375rem) {
-    [style] {
-      --max-md: ;
-    }
-  }
-
-  @media (min-width: 63.9375rem) {
-    [style] {
-      --max-lg: ;
-    }
-  }
-
-  @media (min-width: 79.9375rem) {
-    [style] {
-      --max-xl: ;
-    }
-  }
-
-  @media (min-width: 95.9375rem) {
-    [style] {
-      --max-xxl: ;
     }
   }
 }

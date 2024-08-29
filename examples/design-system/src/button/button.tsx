@@ -19,7 +19,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, forwarde
 
 const button = css.compose({
   '--bg': 'var(--color_violet9)',
-  '--color': 'var(--color_white12a)',
+  '--color': 'var(--color_white)',
   '--border-bottom': 'var(--line_px)',
   '--border-color': 'var(--color_violet11)',
   '--border-radius': 'var(--radii_lg)',

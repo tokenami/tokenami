@@ -128,6 +128,7 @@ import {
 } from '@radix-ui/colors';
 
 const shared = {
+  black: '#000',
   black1a: blackA.blackA1,
   black2a: blackA.blackA2,
   black3a: blackA.blackA3,
@@ -141,6 +142,7 @@ const shared = {
   black11a: blackA.blackA11,
   black12a: blackA.blackA12,
 
+  white: '#fff',
   white1a: whiteA.whiteA1,
   white2a: whiteA.whiteA2,
   white3a: whiteA.whiteA3,

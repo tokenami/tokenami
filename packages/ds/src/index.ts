@@ -8,11 +8,6 @@ const BP_MD = 768;
 const BP_LG = 1024;
 const BP_XL = 1280;
 const BP_2XL = 1536;
-const MAX_BP_SM = 639;
-const MAX_BP_MD = 767;
-const MAX_BP_LG = 1023;
-const MAX_BP_XL = 1279;
-const MAX_BP_2XL = 1535;
 
 const rem = <T extends number>(value: T) => `${value / BASE_FONT_SIZE}rem` as const;
 const remBreakpoint = <T extends number>(bp: T) => `@media (min-width: ${rem(bp)})` as const;
@@ -42,18 +37,13 @@ const fluid = <P extends string, MinPx extends number, MaxPx extends number>(par
 export default createConfig({
   include: [],
   grid: rem(BASE_GRID_SIZE),
-  themeSelector: (mode) => `[data-theme=${mode}]`,
+  themeSelector: (mode) => (mode === 'root' ? ':root' : `[data-theme=${mode}]`),
   responsive: {
     sm: remBreakpoint(BP_SM),
     md: remBreakpoint(BP_MD),
     lg: remBreakpoint(BP_LG),
     xl: remBreakpoint(BP_XL),
     xxl: remBreakpoint(BP_2XL),
-    'max-sm': remBreakpoint(MAX_BP_SM),
-    'max-md': remBreakpoint(MAX_BP_MD),
-    'max-lg': remBreakpoint(MAX_BP_LG),
-    'max-xl': remBreakpoint(MAX_BP_XL),
-    'max-xxl': remBreakpoint(MAX_BP_2XL),
   },
   keyframes: {
     spin: {
@@ -93,24 +83,24 @@ export default createConfig({
       '50%': { transform: 'rotate(3deg)' },
     },
   },
-  // tweaked version of preflight from Tailwind https://unpkg.com/tailwindcss@3.4.4/src/css/preflight.css
+  // tweaked version of preflight from Tailwind https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/preflight.css
   globalStyles: {
     '*, *::before, *::after': {
-      border: '0 solid',
       boxSizing: 'border-box',
+      margin: 0,
+      padding: 0,
+      border: '0 solid',
     },
     'html, :host': {
       lineHeight: 1.5,
       WebkitTextSizeAdjust: '100%',
-      WebkitTapHighlightColor: 'transparent',
-      MozTabSize: '2',
-      tabSize: 2,
+      tabSize: 4,
       fontFamily: `ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`,
       fontFeatureSettings: 'normal',
       fontVariationSettings: 'normal',
+      WebkitTapHighlightColor: 'transparent',
     },
     body: {
-      margin: '0',
       lineHeight: 'inherit',
     },
     hr: {
@@ -158,26 +148,20 @@ export default createConfig({
       borderColor: 'inherit',
       borderCollapse: 'collapse',
     },
-    'button, input, optgroup, select, textarea': {
-      fontFamily: 'inherit',
+    'button, input, optgroup, select, textarea, ::file-selector-button': {
+      font: 'inherit',
       fontFeatureSettings: 'inherit',
       fontVariationSettings: 'inherit',
-      fontSize: '100%',
-      fontWeight: 'inherit',
-      lineHeight: 'inherit',
       letterSpacing: 'inherit',
       color: 'inherit',
-      margin: '0',
-      padding: '0',
+      background: 'transparent',
     },
-    'button, select': {
-      textTransform: 'none',
+    'input:where(:not([type="button"], [type="reset"], [type="submit"])), select, textarea': {
+      border: '1px solid',
     },
-    'button, input:where([type="button"]), input:where([type="reset"]), input:where([type="submit"])':
+    'button, input:where([type="button"]), input:where([type="reset"]), input:where([type="submit"]), ::file-selector-button ':
       {
-        WebkitAppearance: 'button',
-        backgroundColor: 'transparent',
-        backgroundImage: 'none',
+        appearance: 'button',
       },
     ':-moz-focusring': {
       outline: 'auto',
@@ -191,57 +175,40 @@ export default createConfig({
     '::-webkit-inner-spin-button, ::-webkit-outer-spin-button': {
       height: 'auto',
     },
-    '[type="search"]': {
-      WebkitAppearance: 'textfield',
-      outlineOffset: '-2px',
-    },
-    '::-webkit-search-decoration': {
+    '::webkit-search-decoration': {
       WebkitAppearance: 'none',
-    },
-    '::-webkit-file-upload-button': {
-      WebkitAppearance: 'button',
-      font: 'inherit',
     },
     summary: {
       display: 'list-item',
     },
-    'blockquote, dl, dd, h1, h2, h3, h4, h5, h6, hr, figure, p, pre': {
-      margin: '0',
-    },
-    fieldset: {
-      margin: '0',
-      padding: '0',
-    },
-    legend: {
-      padding: '0',
-    },
     'ol, ul, menu': {
       listStyle: 'none',
-      margin: '0',
-      padding: '0',
-    },
-    dialog: {
-      padding: '0',
     },
     textarea: {
       resize: 'vertical',
     },
-    'input::placeholder, textarea::placeholder': {
+    '::placeholder': {
       opacity: '1',
-      color: '#9ca3af',
-    },
-    ':disabled': {
-      cursor: 'default',
+      color: 'color-mix(in srgb, currentColor 50%, transparent)',
     },
     'img, svg, video, canvas, audio, iframe, embed, object': {
+      display: 'block',
       verticalAlign: 'middle',
     },
-    '[hidden]': {
+    '[hidden]:not([hidden="until-found"])': {
       display: 'none',
     },
   },
   theme: {
     modes: {
+      root: {
+        color: {
+          current: 'currentColor',
+          transparent: 'transparent',
+          ...colors.shared,
+          ...colors.light,
+        },
+      },
       light: {
         color: {
           current: 'currentColor',
@@ -336,7 +303,7 @@ export default createConfig({
       'alpha-100': 'opacity(1)',
       'blur-none': 'blur(0)',
       'blur-sm': 'blur(4px)',
-      'blur-default': 'blur(8px)',
+      blur: 'blur(8px)',
       'blur-md': 'blur(12px)',
       'blur-lg': 'blur(16px)',
       'blur-xl': 'blur(24px)',
@@ -1024,7 +991,7 @@ export default createConfig({
     radii: {
       none: '0',
       sm: rem(2),
-      default: rem(4),
+      base: rem(4),
       md: rem(6),
       lg: rem(8),
       xl: rem(12),
@@ -1039,7 +1006,7 @@ export default createConfig({
     },
     shadow: {
       sm: `0 1px 2px 0 var(--shadow-color, rgb(0 0 0 / 0.05))`,
-      default: `0 1px 3px 0 var(--shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--shadow-color, rgb(0 0 0 / 0.1))`,
+      base: `0 1px 3px 0 var(--shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--shadow-color, rgb(0 0 0 / 0.1))`,
       md: `0 4px 6px -1px var(--shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--shadow-color, rgb(0 0 0 / 0.1))`,
       lg: `0 10px 15px -3px var(--shadow-color, rgb(0 0 0 / 0.1)), 0 4px 6px -4px var(--shadow-color, rgb(0 0 0 / 0.1))`,
       xl: `0 20px 25px -5px var(--shadow-color, rgb(0 0 0 / 0.1)), 0 10px 10px -5px var(--shadow-color, rgb(0 0 0 / 0.1))`,
@@ -1051,17 +1018,23 @@ export default createConfig({
       '0': '0',
       px: rem(1),
       auto: 'auto',
+      fit: 'fit-content',
+      full: '100%',
       half: '50%',
       third: '33.333333%',
       'two-thirds': '66.666667%',
       quarter: '25%',
       'three-quarters': '75%',
-      full: '100%',
-      'screen-w': '100vw',
-      'screen-h': '100vh',
       min: 'min-content',
       max: 'max-content',
-      fit: 'fit-content',
+      'screen-w': '100vw',
+      'screen-h': '100vh',
+      dvh: '100dvh',
+      dvw: '100dvw',
+      svh: '100svh',
+      svw: '100svw',
+      lvh: '100lvh',
+      lvw: '100lvw',
     },
     span: {
       auto: 'auto',
@@ -1180,7 +1153,6 @@ export default createConfig({
     active: '&:active',
     visited: '&:visited',
     target: '&:target',
-    has: '& > *',
     first: '&:first-child',
     last: '&:last-child',
     only: '&:only-child',

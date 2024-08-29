@@ -505,7 +505,8 @@ Tokenami has an [official design system package](https://github.com/tokenami/tok
 
 It features:
 
-- [Radix UI colours](https://www.radix-ui.com/colors/docs/palette-composition/scales) enabling dark mode by default
+- Global reset based on [Preflight from Tailwind](https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/preflight.css)
+- [Radix UI colours](https://www.radix-ui.com/colors) enabling dark mode by default
 - [Fluid spacing and font sizes](https://utopia.fyi/) for responsive design
 - Right-to-left support out of the box (`padding-left` becomes `padding-inline-start` etc.)
 - Custom aliases for common properties, such as `--p` for `padding` and `--px` for `padding-left` and `padding-right`
