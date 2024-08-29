@@ -4,6 +4,9 @@
   "license": "MIT",
   "main": "./dist/index.js",
   "repository": "https://github.com/tokenami/tokenami",
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist"
   ],
