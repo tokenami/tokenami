@@ -1,3 +1,40 @@
+# v0.0.62 (Thu Aug 29 2024)
+
+### Release Notes
+
+#### add official tokenami design system package (`@tokenami/ds`) ([#331](https://github.com/tokenami/tokenami/pull/331))
+
+Tokenami now has a prebuilt design system/theme to help you get up and running quickly 🎉  it features:
+
+- Global reset based on [Preflight from Tailwind](https://unpkg.com/tailwindcss@3.4.4/src/css/preflight.css)
+- [Radix UI colours](https://www.radix-ui.com/colors/docs/palette-composition/scales) enabling dark mode by default
+- [Fluid spacing and font sizes](https://utopia.fyi/) for responsive design
+- Right-to-left support out of the box (`padding-left` becomes `padding-inline-start` etc.)
+- Custom aliases for common properties, such as `--p` for `padding` and `--px` for `padding-left` and `padding-right`
+
+Follow the [migration guide](https://github.com/tokenami/tokenami/pull/331) in the PR description to resolve breaking changes in your project.
+
+---
+
+#### 💥 Breaking Change
+
+- add official tokenami design system package (`@tokenami/ds`) [#331](https://github.com/tokenami/tokenami/pull/331) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🚀 Enhancement
+
+- add grid toggle to stylesheet to preserve number property values [#330](https://github.com/tokenami/tokenami/pull/330) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- add `publishConfig` to public packages [#334](https://github.com/tokenami/tokenami/pull/334) ([@jjenzz](https://github.com/jjenzz))
+- fix ds package version [#333](https://github.com/tokenami/tokenami/pull/333) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.61 (Sun Aug 18 2024)
 
 #### 🚀 Enhancement
