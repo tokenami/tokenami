@@ -14,13 +14,15 @@ export default createConfig({
   },
   selectors: {
     ...designSystemConfig.selectors,
-    select: '&::selection',
     'child-para': '& > p',
   },
   theme: {
     ...designSystemConfig.theme,
     modes: {
-      ...designSystemConfig.theme.modes,
+      root: {
+        ...designSystemConfig.theme.modes.root,
+        pet: { favourite: '"🐶"' },
+      },
       light: {
         ...designSystemConfig.theme.modes.light,
         pet: { favourite: '"🐶"' },

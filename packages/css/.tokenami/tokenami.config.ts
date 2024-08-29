@@ -1,9 +1,11 @@
-const { createConfig } = require('@tokenami/css');
+import { createConfig } from '../src';
 
-module.exports = createConfig({
-  include: [],
+export default createConfig({
+  include: ['./src/**/*.{ts,tsx}'],
   grid: '0.25rem',
-  responsive: {},
+  responsive: {
+    md: '@media (min-width: 768px)',
+  },
   themeSelector: (mode) => (mode === 'root' ? ':root' : `.theme-${mode}`),
   theme: {
     alpha: {},

@@ -1,0 +1,40 @@
+{
+  "name": "@tokenami/ds",
+  "version": "0.0.59",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "repository": "https://github.com/tokenami/tokenami",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "typecheck:ci": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@radix-ui/colors": "^3.0.0",
+    "@tokenami/config": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^7.0.0",
+    "typescript": "^5.1.3"
+  }
+}

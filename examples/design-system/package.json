@@ -19,10 +19,11 @@
     "storylite:app": "vite --port=7007 --host=0.0.0.0",
     "storylite:css": "tokenami --output ./src/tokenami.css --watch",
     "typecheck": "tsc --noEmit",
-    "typecheck:ci": "pnpm typecheck"
+    "typecheck:ci": "tsc --noEmit --project tsconfig.ci.json"
   },
   "dependencies": {
-    "@tokenami/css": "workspace:*"
+    "@tokenami/css": "workspace:*",
+    "@tokenami/ds": "workspace:*"
   },
   "devDependencies": {
     "@storylite/storylite": "^0.14.0",

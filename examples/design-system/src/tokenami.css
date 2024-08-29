@@ -1,13 +1,163 @@
 @layer global {
   *, :before, :after {
     box-sizing: border-box;
+    border: 0 solid;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, :host {
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    font-feature-settings: normal;
+    font-variation-settings: normal;
+    -webkit-tap-highlight-color: transparent;
+    font-family: ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+    line-height: 1.5;
   }
 
   body {
-    margin: 0;
-    padding: 0;
-    font-family: system-ui, sans-serif;
-    line-height: 1.5;
+    line-height: inherit;
+  }
+
+  hr {
+    color: inherit;
+    border-top-width: 1px;
+    height: 0;
+  }
+
+  abbr:where([title]) {
+    -webkit-text-decoration: underline dotted;
+    text-decoration: underline dotted;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  a {
+    color: inherit;
+    -webkit-text-decoration: inherit;
+    text-decoration: inherit;
+  }
+
+  b, strong {
+    font-weight: bolder;
+  }
+
+  code, kbd, samp, pre {
+    font-feature-settings: normal;
+    font-variation-settings: normal;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+    font-size: 1em;
+  }
+
+  small {
+    font-size: 80%;
+  }
+
+  sub, sup {
+    vertical-align: baseline;
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+  }
+
+  sub {
+    bottom: -.25em;
+  }
+
+  sup {
+    top: -.5em;
+  }
+
+  table {
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+  }
+
+  button, input, optgroup, select, textarea {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    background: none;
+  }
+
+  ::file-selector-button {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    background: none;
+  }
+
+  input:where(:not([type="button"], [type="reset"], [type="submit"])), select, textarea {
+    border: 1px solid;
+  }
+
+  button, input:where([type="button"]), input:where([type="reset"]), input:where([type="submit"]) {
+    -webkit-appearance: button;
+    appearance: button;
+  }
+
+  ::file-selector-button {
+    -webkit-appearance: button;
+    appearance: button;
+  }
+
+  :-moz-focusring {
+    outline: auto;
+  }
+
+  :-moz-ui-invalid {
+    box-shadow: none;
+  }
+
+  progress {
+    vertical-align: baseline;
+  }
+
+  ::-webkit-inner-spin-button {
+    height: auto;
+  }
+
+  ::-webkit-outer-spin-button {
+    height: auto;
+  }
+
+  ::webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+
+  summary {
+    display: list-item;
+  }
+
+  ol, ul, menu {
+    list-style: none;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  ::placeholder {
+    opacity: 1;
+    color: color-mix(in srgb, currentColor 50%, transparent);
+  }
+
+  img, svg, video, canvas, audio, iframe, embed, object {
+    vertical-align: middle;
+    display: block;
+  }
+
+  [hidden]:not([hidden="until-found"]) {
+    display: none;
   }
 }
 
@@ -24,28 +174,30 @@
 
   :root {
     --_grid: .25rem;
-    --alpha_100: 1;
-    --alpha_30: .3;
-    --alpha_80: .8;
     --anim_wiggle: wiggle 1s ease-in-out infinite;
-    --font_sans: sans-serif;
-    --radii_rounded: 10px;
+    --font_sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --line_px: .0625rem solid;
+    --morph_all: all cubic-bezier(.4, 0, .2, 1) .15s;
+    --radii_lg: .5rem;
   }
 
   :root, :root [style] {
-    --border_thin: 1px solid var(--color_slate-700);
+    --text_base: 1rem / 1.5rem var(--font-family);
+    --text_xl: 1.25rem / 1.75rem var(--font-family);
   }
 
-  .theme-light, .theme-light [style] {
-    --color_primary: rgba(241 245 249 / var(--_color-opacity, 1));
-    --color_secondary: rgba(51 65 85 / var(--_color-opacity, 1));
-    --color_slate-700: rgba(51 65 85 / var(--_color-opacity, 1));
+  :root, [data-theme="light"] {
+    --color_violet10: #654dc4;
+    --color_violet11: #6550b9;
+    --color_violet9: #6e56cf;
+    --color_white: #fff;
   }
 
-  .theme-dark, .theme-dark [style] {
-    --color_primary: rgba(14 165 233 / var(--_color-opacity, 1));
-    --color_secondary: rgba(241 245 249 / var(--_color-opacity, 1));
-    --color_slate-700: rgba(51 65 85 / var(--_color-opacity, 1));
+  [data-theme="dark"] {
+    --color_violet10: #7d66d9;
+    --color_violet11: #baa7ff;
+    --color_violet9: #6e56cf;
+    --color_white: #fff;
   }
 
   [style] {
@@ -55,61 +207,74 @@
     --\{\&\;focus\;hover\}: initial;
     --\{\&\;focus\;hover\}_background-color: initial;
     --color: initial;
-    --hover_color: initial;
-    --border: initial;
-    --border-bottom: initial;
+    --border-block-end-width: initial;
+    --border-color: initial;
     --border-radius: initial;
-    --font-family: initial;
-    --width: initial;
-    --height: initial;
+    --inline-size: initial;
+    --block-size: initial;
     --transition: initial;
     --hover_animation: initial;
-    --color-opacity: initial;
+    --font: initial;
+    --sm: initial;
+    --sm_font: initial;
     --md: initial;
-    --md_color-opacity: initial;
-    --hover_color-opacity: initial;
-    --font-size: initial;
-    --md_font-size: initial;
+    --md_font: initial;
     --lg: initial;
-    --lg_font-size: initial;
+    --lg_font: initial;
     --xl: initial;
-    --xl_font-size: initial;
-    --2xl: initial;
-    --2xl_font-size: initial;
+    --xl_font: initial;
+    --xxl: initial;
+    --xxl_font: initial;
+    --font-family: initial;
+    --sm_font-family: initial;
+    --md_font-family: initial;
+    --lg_font-family: initial;
+    --xl_font-family: initial;
+    --xxl_font-family: initial;
   }
 
   @layer tk1 {
     [style] {
       color: var(--color, revert-layer);
-      border: var(--border, revert-layer);
       border-radius: var(--border-radius, revert-layer);
-      width: var(--_15jvuf0, var(--width, revert-layer));
-      --_15jvuf0: var(--width__calc) calc(var(--width) * var(--_grid));
-      height: var(--_r8sevj, var(--height, revert-layer));
-      --_r8sevj: var(--height__calc) calc(var(--height) * var(--_grid));
       transition: var(--transition, revert-layer);
-      --_color-opacity: var(--color-opacity, revert-layer);
+      font: var(--font, revert-layer);
     }
   }
 
   @layer tk2 {
     [style] {
       background-color: var(--background-color, revert-layer);
-      border-bottom: var(--border-bottom, revert-layer);
+      border-color: var(--border-color, revert-layer);
       font-family: var(--font-family, revert-layer);
-      font-size: var(--font-size, revert-layer);
+    }
+  }
+
+  @layer tkl1 {
+    [style] {
+      inline-size: var(--_g44f3h, var(--inline-size, revert-layer));
+      --_g44f3h: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
+      block-size: var(--_1ieen97, var(--block-size, revert-layer));
+      --_1ieen97: var(--block-size__calc) calc(var(--block-size) * var(--_grid));
+    }
+  }
+
+  @layer tkl7 {
+    [style] {
+      border-block-end-width: var(--border-block-end-width, revert-layer);
     }
   }
 
   @layer tks1 {
     [style] {
-      color: var(--_853it7, revert-layer);
-      --_853it7: var(--hover) var(--hover_color);
       animation: var(--_1upk2ho, revert-layer);
       --_1upk2ho: var(--hover) var(--hover_animation);
-      --_color-opacity: var(--_hgg3v5, var(--_r6a24m, var(--color-opacity)));
-      --_r6a24m: var(--md) var(--md_color-opacity);
-      --_hgg3v5: var(--hover) var(--hover_color-opacity);
+      font: var(--_1gipe25, var(--_mhgvlt, var(--_10ti6tm, var(--_104t2cq, var(--_qp58in, revert-layer)))));
+      --_qp58in: var(--sm) var(--sm_font);
+      --_104t2cq: var(--md) var(--md_font);
+      --_10ti6tm: var(--lg) var(--lg_font);
+      --_mhgvlt: var(--xl) var(--xl_font);
+      --_1gipe25: var(--xxl) var(--xxl_font);
     }
   }
 
@@ -118,16 +283,17 @@
       background-color: var(--_1r7lnia, var(--_4dvc60, revert-layer));
       --_4dvc60: var(--hover) var(--hover_background-color);
       --_1r7lnia: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
-      font-size: var(--_1qfo97, var(--_1tqbkib, var(--_1283h2s, var(--_1pod6o8, revert-layer))));
-      --_1pod6o8: var(--md) var(--md_font-size);
-      --_1283h2s: var(--lg) var(--lg_font-size);
-      --_1tqbkib: var(--xl) var(--xl_font-size);
-      --_1qfo97: var(--2xl) var(--2xl_font-size);
+      font-family: var(--_6j96ia, var(--_9d9ope, var(--_10sf9dp, var(--_1l5j3ql, var(--_1oveq08, revert-layer)))));
+      --_1oveq08: var(--sm) var(--sm_font-family);
+      --_1l5j3ql: var(--md) var(--md_font-family);
+      --_10sf9dp: var(--lg) var(--lg_font-family);
+      --_9d9ope: var(--xl) var(--xl_font-family);
+      --_6j96ia: var(--xxl) var(--xxl_font-family);
     }
   }
 
   @media (hover: hover) and (pointer: fine) {
-    [style]:hover {
+    [style]:not(:disabled):hover {
       --hover: ;
     }
   }
@@ -136,27 +302,33 @@
     --\{\&\;focus\;hover\}: ;
   }
 
-  @media (min-width: 700px) {
+  @media (min-width: 40rem) {
+    [style] {
+      --sm: ;
+    }
+  }
+
+  @media (min-width: 48rem) {
     [style] {
       --md: ;
     }
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 64rem) {
     [style] {
       --lg: ;
     }
   }
 
-  @media (min-width: 1280px) {
+  @media (min-width: 80rem) {
     [style] {
       --xl: ;
     }
   }
 
-  @media (min-width: 1536px) {
+  @media (min-width: 96rem) {
     [style] {
-      --2xl: ;
+      --xxl: ;
     }
   }
 }

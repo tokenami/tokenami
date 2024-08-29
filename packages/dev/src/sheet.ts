@@ -155,7 +155,7 @@ function generate(params: {
 
     return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
   } catch (e) {
-    log.debug(`Skipped generate style with ${e}`);
+    log.debug(`Skipped style generation with ${e}`);
     return `${e}`;
   }
 }
@@ -274,21 +274,15 @@ function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenam
   const modeThemeEntries = Object.entries(modes || {}).flatMap(([mode, theme]) => {
     if (!config.themeSelector) return [];
     const selector = config.themeSelector(mode);
-    const modeEntries = getThemeEntries(selector, tokenValues, theme, config.properties);
-    return modeEntries;
+    // prefix mode selectors with comment to group them in stylesheet
+    return getThemeEntries(`/*mode*/${selector}`, tokenValues, theme, config.properties);
   });
 
+  const gridStyles = { [rootSelector]: { [Tokenami.gridProperty()]: config.grid } };
   const rootStyles = Object.fromEntries(rootEntries);
   const modeStyles = Object.fromEntries(modeThemeEntries);
 
-  return stringify({
-    ...rootStyles,
-    [rootSelector]: {
-      [Tokenami.gridProperty()]: config.grid,
-      ...rootStyles[rootSelector],
-    },
-    ...modeStyles,
-  });
+  return stringify(mergeStyles(mergeStyles(gridStyles, rootStyles), modeStyles));
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -331,24 +325,25 @@ function getCustomPropertyThemeValues(
  * getPrefixedCustomPropertyValues
  * -----------------------------------------------------------------------------------------------*/
 
+const CUSTOM_PROP_REGEX = /\(--[^-][\w-]+/g;
+
 const getPrefixedCustomPropertyValues = (
   themeValue: string,
   properties?: Tokenami.Config['properties']
 ) => {
-  const variables = themeValue.match(/\(--[^-][\w-]+/g)?.map((v) => v.replace('(', ''));
+  const variables = themeValue.match(CUSTOM_PROP_REGEX);
   if (!variables) return null;
 
-  for (const variable of variables) {
-    const tokenProperty = Tokenami.TokenProperty.safeParse(variable);
-    if (!tokenProperty.success) continue;
+  return themeValue.replace(CUSTOM_PROP_REGEX, (m) => {
+    const match = m.replace('(', '');
+    const tokenProperty = Tokenami.TokenProperty.safeParse(match);
+    if (!tokenProperty.success) return m;
     const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
-    if (supportedProperties.has(parts.alias as any) || !properties?.[parts.alias]) continue;
+    if (supportedProperties.has(parts.alias as any) || !properties?.[parts.alias]) return m;
     const tokenPrefix = Tokenami.tokenProperty('');
     const customPrefixTokenValue = tokenProperty.output.replace(tokenPrefix, CUSTOM_PROP_PREFIX);
-    themeValue = themeValue.replace(tokenProperty.output, customPrefixTokenValue);
-  }
-
-  return themeValue;
+    return '(' + customPrefixTokenValue;
+  });
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -428,5 +423,17 @@ function getSelectorsFromConfig(
 }
 
 /* ---------------------------------------------------------------------------------------------- */
+
+function mergeStyles(target: Record<string, any>, source: Record<string, any>) {
+  const result = { ...target, ...source };
+  for (const key of Object.keys(result)) {
+    result[key] =
+      typeof target[key] == 'object' && typeof source[key] == 'object'
+        ? mergeStyles(target[key], source[key])
+        : // we're only dealing with objects/strings for now, so this is safe
+          JSON.parse(JSON.stringify(result[key]));
+  }
+  return result;
+}
 
 export { generate };

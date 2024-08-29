@@ -18,31 +18,28 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, forwarde
 });
 
 const button = css.compose({
-  '--bg-color': 'var(--color_primary)',
-  '--color': 'var(--color_secondary)',
-  '--border': 'var(---,none)',
-  '--border-bottom': 'var(--border_thin)',
-  '--border-radius': 'var(--radii_rounded)',
-  '--font-family': 'var(--font_sans)',
+  '--bg': 'var(--color_violet9)',
+  '--color': 'var(--color_white)',
+  '--border-bottom': 'var(--line_px)',
+  '--border-color': 'var(--color_violet11)',
+  '--border-radius': 'var(--radii_lg)',
   '--width': 'var(---,180px)',
   '--height': 15,
-  '--transition': 'var(---,all 150ms)',
+  '--transition': 'var(--morph_all)',
 
-  '--hover_background-color': 'var(--color_slate-700)',
-  '--hover_color': 'var(---,white)',
+  '--hover_background-color': 'var(--color_violet10)',
   '--hover_animation': 'var(--anim_wiggle)',
   '--{&:focus:hover}_background-color': 'var(---, red)',
-  '--color-opacity': 'var(--alpha_30)',
-  '--md_color-opacity': 'var(--alpha_80)',
-  '--hover_color-opacity': 'var(--alpha_100)',
 
   responsiveVariants: {
     size: {
       small: {
-        '--font-size': 'var(---,20px)',
+        '--font': 'var(--text_base)',
+        '--font-family': 'var(--font_sans)',
       },
       large: {
-        '--font-size': 'var(---,25px)',
+        '--font': 'var(--text_xl)',
+        '--font-family': 'var(--font_sans)',
       },
     },
   },

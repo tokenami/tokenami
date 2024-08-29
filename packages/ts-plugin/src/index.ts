@@ -375,6 +375,28 @@ function init(modules: { typescript: typeof tslib }) {
     return nextEntry;
   }
 
+  /* -------------------------------------------------------------------------------------------------
+   * updateEnvFile
+   * -----------------------------------------------------------------------------------------------*/
+
+  function updateEnvFile(envFilePath: string, config: TokenamiConfig.Config) {
+    const envFileContent = ts.sys.readFile(envFilePath, 'utf-8');
+    if (!envFileContent) throw new Error('Cannot read tokenami.env.d.ts file');
+
+    const properties = Object.keys(config.properties || {});
+    const customProperties = properties.flatMap((property) => {
+      const supported = Tokenami.supportedProperties.has(property as any);
+      return supported ? [] : [`TokenProperties<'${property}'>`];
+    });
+
+    const updatedEnvFileContent = envFileContent.replace(
+      /interface TokenamiProperties([^\\{]*){/,
+      `interface TokenamiProperties extends ${customProperties.join(', ')} {`
+    );
+
+    ts.sys.writeFile(envFilePath, updatedEnvFileContent);
+  }
+
   /* -----------------------------------------------------------------------------------------------
    * create
    * ---------------------------------------------------------------------------------------------*/
@@ -391,6 +413,7 @@ function init(modules: { typescript: typeof tslib }) {
     const logger = info.project.projectService.logger;
     const cwd = info.project.getCurrentDirectory();
     const configPath = Tokenami.getConfigPath(cwd, info.config.configPath);
+    const typedefsPath = Tokenami.getTypeDefsPath(configPath);
     const configExists = ts.sys.fileExists(configPath);
 
     if (!configExists) {
@@ -405,6 +428,12 @@ function init(modules: { typescript: typeof tslib }) {
     let responsiveSelectorCompletions = createResponsiveSelectorTrie(config);
     let responsiveSelectorSnippetCompletions = createResponsiveSelectorSnippetTrie(config);
 
+    try {
+      updateEnvFile(typedefsPath, config);
+    } catch (e) {
+      logger.info(`Tokenami:: Skipped update of ${typedefsPath} with ${e}`);
+    }
+
     logger.info(`Tokenami:: Watching config at ${configPath}`);
     ts.sys.watchFile?.(configPath, (_, eventKind: tslib.FileWatcherEventKind) => {
       if (eventKind === modules.typescript.FileWatcherEventKind.Changed) {
@@ -416,6 +445,7 @@ function init(modules: { typescript: typeof tslib }) {
           selectorSnippetCompletions = createSelectorSnippetTrie(config);
           responsiveSelectorCompletions = createResponsiveSelectorTrie(config);
           responsiveSelectorSnippetCompletions = createResponsiveSelectorSnippetTrie(config);
+          updateEnvFile(typedefsPath, config);
         } catch (e) {
           logger.info(`Tokenami:: Skipped change to ${configPath} with ${e}`);
         }

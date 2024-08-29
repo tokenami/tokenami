@@ -2,14 +2,14 @@ import type * as CSS from 'csstype';
 import type * as Tokenami from '@tokenami/config';
 
 type Merge<A, B> = B extends never ? A : Omit<A, keyof B> & B;
-type DefaultConfig = Tokenami.DefaultConfig & { CI: false };
+type DefaultConfig = Tokenami.Config & { CI: false };
 
 // consumer will override this interface
 interface TokenamiConfig {}
 interface TokenamiFinalConfig extends Merge<DefaultConfig, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
-type AliasConfig = TokenamiFinalConfig['aliases'];
+type AliasConfig = Omit<TokenamiFinalConfig['aliases'], Tokenami.CSSProperty>;
 type PropertyConfig = TokenamiFinalConfig['properties'];
 type SelectorKey = keyof TokenamiFinalConfig['selectors'];
 type ResponsiveKey = keyof TokenamiFinalConfig['responsive'];
@@ -54,7 +54,9 @@ type VariantProperty<P extends string> =
 
 type TokenValue<P> = P extends string
   ? P extends keyof PropertyConfig
-    ? PropertyThemeValue<PropertyConfig[P][number]>
+    ? PropertyConfig[P][number] extends `${infer ThemeKey}`
+      ? PropertyThemeValue<ThemeKey>
+      : never
     : never
   : never;
 
@@ -67,13 +69,6 @@ type PropertyThemeValue<ThemeKey extends string> =
 type TokensByThemeKey = { [key: string]: never } & {
   [K in keyof Theme]: keyof Theme[K] extends `${infer Token}`
     ? Tokenami.TokenValue<K, Token>
-    : never;
-};
-
-type CustomProperty = Omit<PropertyConfig, keyof Tokenami.CSSProperties>;
-type CustomProperties = {
-  [K in VariantProperty<keyof CustomProperty>]?: K extends VariantProperty<infer P>
-    ? TokenValue<P>
     : never;
 };
 
@@ -92,7 +87,7 @@ type CustomProperties = {
  * -------------------------------------------------------------------------
  */
 
-export interface Properties extends CustomProperties {
+export interface Properties {
   all: TokenProperties<'all'>;
   animation: TokenProperties<'animation'>;
   'animation-range': TokenProperties<'animation-range'>;
@@ -585,8 +580,7 @@ export interface Properties extends CustomProperties {
  */
 
 interface TokenamiProperties
-  extends CustomProperties,
-    TokenProperties<'all'>,
+  extends TokenProperties<'all'>,
     TokenProperties<'animation'>,
     TokenProperties<'animation-range'>,
     TokenProperties<'background'>,
@@ -1077,4 +1071,5 @@ export type {
   TokenamiProperties,
   TokenamiPropertiesPick,
   TokenamiPropertiesOmit,
+  TokenProperties,
 };

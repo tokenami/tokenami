@@ -1,13 +1,12 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", ".tokenami/tokenami.env.d.ts"],
+  "include": ["src"],
   "compilerOptions": {
     "baseUrl": ".",
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "outDir": "dist",
     "paths": {
-      "@tokenami/config": ["../config/src"],
-      "@tokenami/dev": ["../dev/src"]
+      "@tokenami/config": ["../config/src"]
     }
   }
 }

@@ -161,7 +161,7 @@ function generateConfig(include: string, configPath: string) {
  * -----------------------------------------------------------------------------------------------*/
 
 function mergedConfigs(theirs: Tokenami.Config): Tokenami.Config {
-  return { ...Tokenami.defaultConfig, ...theirs };
+  return theirs;
 }
 
 /* -------------------------------------------------------------------------------------------------
