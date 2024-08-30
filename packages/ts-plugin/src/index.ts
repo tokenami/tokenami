@@ -791,7 +791,10 @@ function replaceCssVarsWithFallback(value: string) {
 function isColorThemeEntry(modeValues: Record<string, string>) {
   try {
     const firstValue = Object.values(modeValues || {})?.[0];
-    return Boolean(culori.parse(replaceCssVarsWithFallback(firstValue || '')));
+    // culori parses number strings as colours e.g. "300" becomes `{ mode: 'rgb', r: 0,2, g: 0, b: 0 }`
+    // so we make sure value cannot coerce to a number before parsing
+    const isString = isNaN(Number(firstValue));
+    return isString ? Boolean(culori.parse(replaceCssVarsWithFallback(firstValue || ''))) : false;
   } catch {
     return false;
   }
