@@ -1,3 +1,20 @@
+# v0.0.63 (Fri Aug 30 2024)
+
+#### 🚀 Enhancement
+
+- add light/dark bg color to translucent swatches in intellisense detail [#337](https://github.com/tokenami/tokenami/pull/337) ([@jjenzz](https://github.com/jjenzz))
+- make CSS vars inherited by default when equivalent CSS property is inheritable [#335](https://github.com/tokenami/tokenami/pull/335) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- prevent colour swatches in intellisense for number strings (e.g. font-weights) [#336](https://github.com/tokenami/tokenami/pull/336) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.62 (Thu Aug 29 2024)
 
 ### Release Notes
