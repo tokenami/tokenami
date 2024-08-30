@@ -1,4 +1,12 @@
 @layer global {
+  :root {
+    --font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-stretch: normal;
+    --font-style: normal;
+    --font-variant: normal;
+    --font-weight: normal;
+  }
+
   *, :before, :after {
     box-sizing: border-box;
     border: 0 solid;
@@ -9,11 +17,11 @@
   html, :host {
     -webkit-text-size-adjust: 100%;
     tab-size: 4;
+    line-height: 1.5;
+    font-family: var(--font-family);
     font-feature-settings: normal;
     font-variation-settings: normal;
     -webkit-tap-highlight-color: transparent;
-    font-family: ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
-    line-height: 1.5;
   }
 
   body {
@@ -45,9 +53,10 @@
   }
 
   code, kbd, samp, pre {
+    --font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: var(--font-family);
     font-feature-settings: normal;
     font-variation-settings: normal;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
     font-size: 1em;
   }
 
@@ -182,6 +191,7 @@
     --_grid: .25rem;
     --anim_pulse: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
     --anim_wiggle: wiggle 1s ease-in-out infinite;
+    --font_mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --font_sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --leading_7: 1.75rem;
     --leading_loose: 2;
@@ -202,8 +212,8 @@
   }
 
   :root, :root [style] {
-    --text_base: 1rem / 1.5rem var(--font-family);
-    --text_xl: 1.25rem / 1.75rem var(--font-family);
+    --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
+    --text_xl: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1.25rem / 1.75rem var(--font-family);
   }
 
   :root, [data-theme="light"] {
@@ -233,17 +243,11 @@
   }
 
   [style] {
-    --font-family: initial;
     --sm: initial;
-    --sm_font-family: initial;
     --md: initial;
-    --md_font-family: initial;
     --lg: initial;
-    --lg_font-family: initial;
     --xl: initial;
-    --xl_font-family: initial;
     --xxl: initial;
-    --xxl_font-family: initial;
     --background-color: initial;
     --hover: initial;
     --hover_background-color: initial;
@@ -252,9 +256,6 @@
     --child-para: initial;
     --selection: initial;
     --selection_background-color: initial;
-    --color: initial;
-    --selection_color: initial;
-    --hover_color: initial;
     --border-block-end-width: initial;
     --border-color: initial;
     --border-radius: initial;
@@ -277,12 +278,6 @@
     --xxl_block-size: initial;
     --transition: initial;
     --hover_animation: initial;
-    --font: initial;
-    --sm_font: initial;
-    --md_font: initial;
-    --lg_font: initial;
-    --xl_font: initial;
-    --xxl_font: initial;
     --min-height: initial;
     --background-size: initial;
     --background-image: initial;
@@ -294,22 +289,16 @@
     --align-items: initial;
     --justify-content: initial;
     --padding-inline: initial;
-    --text-align: initial;
-    --md_text-align: initial;
     --overflow: initial;
     --margin: initial;
     --padding-block: initial;
     --md_padding: initial;
     --padding: initial;
-    --line-height: initial;
     --after: initial;
     --after_content: initial;
     --md_after: initial;
     --md_after_content: initial;
     --padding-block-start: initial;
-    --font-size: initial;
-    --xxl_font-size: initial;
-    --font-weight: initial;
     --margin-block-end: initial;
     --margin-inline: initial;
     --margin-inline-start: initial;
@@ -320,9 +309,9 @@
 
   @layer tk1 {
     [style] {
-      color: var(--color, revert-layer);
       border-radius: var(--border-radius, revert-layer);
       transition: var(--transition, revert-layer);
+      color: var(--color, revert-layer);
       font: var(--font, revert-layer);
       min-height: var(--_1ljreoo, var(--min-height, revert-layer));
       --_1ljreoo: var(--min-height__calc) calc(var(--min-height) * var(--_grid));
@@ -341,6 +330,10 @@
   @layer tk2 {
     [style] {
       font-family: var(--font-family, revert-layer);
+      font-stretch: var(--font-stretch, revert-layer);
+      font-style: var(--font-style, revert-layer);
+      font-variant: var(--font-variant, revert-layer);
+      font-weight: var(--font-weight, revert-layer);
       background-color: var(--background-color, revert-layer);
       border-color: var(--border-color, revert-layer);
       background-size: var(--background-size, revert-layer);
@@ -350,7 +343,6 @@
       justify-content: var(--justify-content, revert-layer);
       line-height: var(--line-height, revert-layer);
       font-size: var(--font-size, revert-layer);
-      font-weight: var(--font-weight, revert-layer);
     }
   }
 
@@ -403,9 +395,6 @@
 
   @layer tks1 {
     [style], [style] > p, [style*="selection_"]::selection, [style]:after {
-      color: var(--_853it7, var(--_1v8oal9, revert-layer));
-      --_1v8oal9: var(--selection) var(--selection_color);
-      --_853it7: var(--hover) var(--hover_color);
       border-radius: var(--_18mum7u, var(--_1ckstr7, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, var(--_117pkm7, revert-layer))))));
       --_18mum7u: var(--child-para) var(--child-para_border-radius);
       --_117pkm7: var(--sm) var(--sm_border-radius);
@@ -415,6 +404,9 @@
       --_1ckstr7: var(--xxl) var(--xxl_border-radius);
       animation: var(--_1upk2ho, revert-layer);
       --_1upk2ho: var(--hover) var(--hover_animation);
+      color: var(--_853it7, var(--_1v8oal9, revert-layer));
+      --_1v8oal9: var(--selection) var(--selection_color);
+      --_853it7: var(--hover) var(--hover_color);
       font: var(--_1gipe25, var(--_mhgvlt, var(--_10ti6tm, var(--_104t2cq, var(--_qp58in, revert-layer)))));
       --_qp58in: var(--sm) var(--sm_font);
       --_104t2cq: var(--md) var(--md_font);

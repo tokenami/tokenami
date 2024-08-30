@@ -35,11 +35,10 @@ const button = css.compose({
     size: {
       small: {
         '--font': 'var(--text_base)',
-        '--font-family': 'var(--font_sans)',
       },
       large: {
         '--font': 'var(--text_xl)',
-        '--font-family': 'var(--font_sans)',
+        '--font-family': 'var(--font_mono)',
       },
     },
   },
