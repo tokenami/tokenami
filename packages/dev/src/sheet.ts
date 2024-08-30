@@ -2,7 +2,7 @@ import * as Tokenami from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
 import * as utils from './utils';
-import { supportedProperties, supportedLogicalProperties } from './supports';
+import * as Supports from './supports';
 import * as log from './log';
 
 const UNUSED_LAYERS_REGEX = /\n\s*@layer[-\w\s,]+;/g;
@@ -56,7 +56,8 @@ function generate(params: {
   };
 
   propertyConfigsByCSSProperty.forEach((configs, cssProperty) => {
-    const isLogical = supportedLogicalProperties.has(cssProperty as any);
+    const isLogical = Supports.supportedLogicalProperties.has(cssProperty as any);
+    const isInheritable = Supports.inheritedProperties.has(cssProperty);
     // sort configs to ensure property value orders fallbacks correctly
     const sortedConfigs = [...configs].sort((a, b) => a.order - b.order);
     const variants = sortedConfigs.flatMap((config) => (config.variant ? [config.variant] : []));
@@ -66,23 +67,23 @@ function generate(params: {
     }, 'revert-layer');
 
     configs.forEach((config) => {
-      const layerCount = getAtomicLayer(cssProperty, configProperties);
+      const layerIndex = getAtomicLayerIndex(cssProperty, configProperties);
       const toggleKey = config.responsive || config.selector;
       const propertyPrefix = config.isCustom ? CUSTOM_PROP_PREFIX : '';
 
-      if (layerCount === -1) return;
+      if (layerIndex === -1) return;
 
       if (config.variant && toggleKey) {
         const responsive = getResponsiveSelectorFromConfig(config.responsive, params.config);
         const selectors = getSelectorsFromConfig(config.selector, params.config);
-        const shouldInherit = selectors.some(isCombinatorSelector);
+        const hasCombinator = selectors.some(isCombinatorSelector);
         const responsiveSelectors = [responsive, ...selectors].filter(Boolean) as string[];
         const hashedProperty = hashVariantProperty(config.variant, cssProperty);
         const variantProperty = Tokenami.parsedVariantProperty(config.variant, cssProperty);
         const basePropertyValue = getBasePropertyValue(variantProperty, config, false);
         const toggleProperty = Tokenami.parsedTokenProperty(config.variant);
         const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) ${basePropertyValue};`;
-        const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerCount}`;
+        const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerIndex}`;
         // revert-layer doesn't work for custom properties in Safari so we explicitly set the fallback
         // to the base custom property value for variants
         const customPropertyFallback = `var(${Tokenami.tokenProperty(cssProperty)})`;
@@ -97,7 +98,7 @@ function generate(params: {
         );
 
         styles.reset.add(`${toggleProperty}: initial;`);
-        if (!shouldInherit) styles.reset.add(`${variantProperty}: initial;`);
+        if (!isInheritable && !hasCombinator) styles.reset.add(`${variantProperty}: initial;`);
         styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${declaration} } }`);
         styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${toggleDeclaration} } }`);
         styles.toggles[toggleKey] ??= new Set<string>();
@@ -109,8 +110,9 @@ function generate(params: {
       } else {
         const propertyValue = getBasePropertyValue(config.tokenProperty, config);
         const declaration = `${DEFAULT_SELECTOR} { ${propertyPrefix}${cssProperty}: ${propertyValue}; }`;
-        const layer = `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerCount}`;
-        styles.reset.add(`${config.tokenProperty}: initial;`);
+        const layer = `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerIndex}`;
+
+        if (!isInheritable) styles.reset.add(`${config.tokenProperty}: initial;`);
         styles.atomic.add(`@layer ${layer} { ${declaration} }`);
         if (config.isGrid) {
           const gridToggle = getGridPropertyToggle(config.tokenProperty);
@@ -201,7 +203,7 @@ function getPropertyConfigs(
 ): Map<string, PropertyConfig[]> {
   let propertyConfigs: Map<string, PropertyConfig[]> = new Map();
   const customProperties = Object.keys(config.properties || {}).filter((property) => {
-    return !supportedProperties.has(property as any);
+    return !Supports.supportedProperties.has(property as any);
   });
 
   tokenProperties.forEach((tokenProperty) => {
@@ -226,13 +228,13 @@ function getPropertyConfigs(
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getAtomicLayer
+ * getAtomicLayerIndex
  * -----------------------------------------------------------------------------------------------*/
 
 const SHORTHAND_TO_LONGHAND_ENTRIES = [...Tokenami.mapShorthandToLonghands.entries()];
 
-function getAtomicLayer(cssProperty: string, configProperties: string[]): number {
-  const validProperties = new Set([...supportedProperties, ...configProperties]);
+function getAtomicLayerIndex(cssProperty: string, configProperties: string[]): number {
+  const validProperties = new Set([...Supports.supportedProperties, ...configProperties]);
   const isSupported = validProperties.has(cssProperty as any);
   const initialDepth = isSupported ? 1 : -1;
 
@@ -240,7 +242,7 @@ function getAtomicLayer(cssProperty: string, configProperties: string[]): number
 
   return SHORTHAND_TO_LONGHAND_ENTRIES.reduce((depth, [shorthand, longhands]) => {
     const isLonghand = (longhands as string[]).includes(cssProperty);
-    return isLonghand ? depth + getAtomicLayer(shorthand, configProperties) : depth;
+    return isLonghand ? depth + getAtomicLayerIndex(shorthand, configProperties) : depth;
   }, initialDepth);
 }
 
@@ -338,8 +340,12 @@ const getPrefixedCustomPropertyValues = (
     const match = m.replace('(', '');
     const tokenProperty = Tokenami.TokenProperty.safeParse(match);
     if (!tokenProperty.success) return m;
+
     const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
-    if (supportedProperties.has(parts.alias as any) || !properties?.[parts.alias]) return m;
+    const isSupported = Supports.supportedProperties.has(parts.alias as any);
+    const isAlias = properties?.[parts.alias];
+    if (isSupported || !isAlias) return m;
+
     const tokenPrefix = Tokenami.tokenProperty('');
     const customPrefixTokenValue = tokenProperty.output.replace(tokenPrefix, CUSTOM_PROP_PREFIX);
     return '(' + customPrefixTokenValue;

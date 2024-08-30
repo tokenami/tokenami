@@ -11,6 +11,10 @@ const BP_2XL = 1536;
 
 const rem = <T extends number>(value: T) => `${value / BASE_FONT_SIZE}rem` as const;
 const remBreakpoint = <T extends number>(bp: T) => `@media (min-width: ${rem(bp)})` as const;
+
+const font = <S extends string, L extends string>(fontSize: S, lineHeight: L) =>
+  `var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) ${fontSize}/${lineHeight} var(--font-family)` as const;
+
 const optionalViaGradient = <T extends string>(direction: T) =>
   `linear-gradient(${direction}, var(--gradient-from) var(--gradient-from-stop,/**/), var(---via, var(--gradient-to) var(--gradient-to-stop,/**/)));
   ---via: var(--gradient-via) var(--gradient-via-stop,/**/), var(--gradient-to)` as const;
@@ -85,6 +89,14 @@ export default createConfig({
   },
   // tweaked version of preflight from Tailwind https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/preflight.css
   globalStyles: {
+    ':root': {
+      /* set up default vars for var(text_*) tokens */
+      ['--font-family' as string]: `ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`,
+      ['--font-stretch' as string]: 'normal',
+      ['--font-style' as string]: 'normal',
+      ['--font-variant' as string]: 'normal',
+      ['--font-weight' as string]: 'normal',
+    },
     '*, *::before, *::after': {
       boxSizing: 'border-box',
       margin: 0,
@@ -95,7 +107,7 @@ export default createConfig({
       lineHeight: 1.5,
       WebkitTextSizeAdjust: '100%',
       tabSize: 4,
-      fontFamily: `ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`,
+      fontFamily: 'var(--font-family)',
       fontFeatureSettings: 'normal',
       fontVariationSettings: 'normal',
       WebkitTapHighlightColor: 'transparent',
@@ -123,7 +135,8 @@ export default createConfig({
       fontWeight: 'bolder',
     },
     'code, kbd, samp, pre': {
-      fontFamily: `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`,
+      ['--font-family' as string]: `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`,
+      fontFamily: 'var(--font-family)',
       fontFeatureSettings: 'normal',
       fontVariationSettings: 'normal',
       fontSize: '1em',
@@ -1087,19 +1100,19 @@ export default createConfig({
       '1000': '1000ms',
     },
     text: {
-      xs: `${rem(12)}/1rem var(--font-family)`,
-      sm: `${rem(14)}/1.25rem var(--font-family)`,
-      base: `${rem(16)}/1.5rem var(--font-family)`,
-      lg: `${rem(18)}/1.75rem var(--font-family)`,
-      xl: `${rem(20)}/1.75rem var(--font-family)`,
-      '2xl': `${rem(24)}/2rem var(--font-family)`,
-      '3xl': `${rem(30)}/2.25rem var(--font-family)`,
-      '4xl': `${rem(36)}/2.5rem var(--font-family)`,
-      '5xl': `${rem(48)}/1 var(--font-family)`,
-      '6xl': `${rem(60)}/1 var(--font-family)`,
-      '7xl': `${rem(72)}/1 var(--font-family)`,
-      '8xl': `${rem(96)}/1 var(--font-family)`,
-      '9xl': `${rem(128)}/1 var(--font-family)`,
+      xs: font(rem(12), rem(16)),
+      sm: font(rem(14), rem(20)),
+      base: font(rem(16), rem(24)),
+      lg: font(rem(18), rem(28)),
+      xl: font(rem(20), rem(28)),
+      '2xl': font(rem(24), rem(32)),
+      '3xl': font(rem(30), rem(36)),
+      '4xl': font(rem(36), rem(40)),
+      '5xl': font(rem(48), '1'),
+      '6xl': font(rem(60), '1'),
+      '7xl': font(rem(72), '1'),
+      '8xl': font(rem(96), '1'),
+      '9xl': font(rem(128), '1'),
     },
     'text-size': {
       xs: rem(12),

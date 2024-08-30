@@ -487,9 +487,42 @@ const supported: AllProperties = {
   ...supportedLogical,
 };
 
+const inheritedProperties = new Set([
+  'azimuth',
+  'border-collapse',
+  'border-spacing',
+  'caption-side',
+  'color',
+  'cursor',
+  'direction',
+  'empty-cells',
+  'font-family',
+  'font-size',
+  'font-style',
+  'font-variant',
+  'font-weight',
+  'font-stretch',
+  'font',
+  'letter-spacing',
+  'line-height',
+  'list-style-image',
+  'list-style-position',
+  'list-style-type',
+  'list-style',
+  'orphans',
+  'quotes',
+  'text-align',
+  'text-indent',
+  'text-transform',
+  'visibility',
+  'white-space',
+  'widows',
+  'word-spacing',
+]);
+
 type LogicalProperties = keyof typeof supportedLogical;
 const supportedProperties = new Set(Object.keys(supported)) as Set<CSSProperty>;
 const supportedLogicalProperties = new Set(Object.keys(supportedLogical)) as Set<LogicalProperties>;
 
 export type { CSSProperty };
-export { supportedProperties, supportedLogicalProperties };
+export { supportedProperties, supportedLogicalProperties, inheritedProperties };

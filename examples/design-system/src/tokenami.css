@@ -1,4 +1,12 @@
 @layer global {
+  :root {
+    --font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-stretch: normal;
+    --font-style: normal;
+    --font-variant: normal;
+    --font-weight: normal;
+  }
+
   *, :before, :after {
     box-sizing: border-box;
     border: 0 solid;
@@ -9,11 +17,11 @@
   html, :host {
     -webkit-text-size-adjust: 100%;
     tab-size: 4;
+    line-height: 1.5;
+    font-family: var(--font-family);
     font-feature-settings: normal;
     font-variation-settings: normal;
     -webkit-tap-highlight-color: transparent;
-    font-family: ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
-    line-height: 1.5;
   }
 
   body {
@@ -47,9 +55,10 @@
   }
 
   code, kbd, samp, pre {
+    --font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: var(--font-family);
     font-feature-settings: normal;
     font-variation-settings: normal;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
     font-size: 1em;
   }
 
@@ -175,15 +184,15 @@
   :root {
     --_grid: .25rem;
     --anim_wiggle: wiggle 1s ease-in-out infinite;
-    --font_sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font_mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --line_px: .0625rem solid;
     --morph_all: all cubic-bezier(.4, 0, .2, 1) .15s;
     --radii_lg: .5rem;
   }
 
   :root, :root [style] {
-    --text_base: 1rem / 1.5rem var(--font-family);
-    --text_xl: 1.25rem / 1.75rem var(--font-family);
+    --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
+    --text_xl: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1.25rem / 1.75rem var(--font-family);
   }
 
   :root, [data-theme="light"] {
@@ -206,7 +215,6 @@
     --hover_background-color: initial;
     --\{\&\;focus\;hover\}: initial;
     --\{\&\;focus\;hover\}_background-color: initial;
-    --color: initial;
     --border-block-end-width: initial;
     --border-color: initial;
     --border-radius: initial;
@@ -214,23 +222,11 @@
     --block-size: initial;
     --transition: initial;
     --hover_animation: initial;
-    --font: initial;
     --sm: initial;
-    --sm_font: initial;
     --md: initial;
-    --md_font: initial;
     --lg: initial;
-    --lg_font: initial;
     --xl: initial;
-    --xl_font: initial;
     --xxl: initial;
-    --xxl_font: initial;
-    --font-family: initial;
-    --sm_font-family: initial;
-    --md_font-family: initial;
-    --lg_font-family: initial;
-    --xl_font-family: initial;
-    --xxl_font-family: initial;
   }
 
   @layer tk1 {
