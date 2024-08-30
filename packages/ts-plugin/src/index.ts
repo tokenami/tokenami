@@ -240,7 +240,8 @@ function init(modules: { typescript: typeof tslib }) {
 
   const getSortText = (name: string): `$${string}` => {
     const regex = new RegExp(`['"-]|${TokenamiConfig.tokenProperty('')}`, 'g');
-    return `$${name.replace(regex, '')}`;
+    name = name.replace(regex, '').replace(/[0-9]+/g, (m) => m.padStart(6, '0'));
+    return `$${name}`;
   };
 
   /* -----------------------------------------------------------------------------------------------
