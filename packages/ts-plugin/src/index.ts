@@ -240,7 +240,8 @@ function init(modules: { typescript: typeof tslib }) {
 
   const getSortText = (name: string): `$${string}` => {
     const regex = new RegExp(`['"-]|${TokenamiConfig.tokenProperty('')}`, 'g');
-    return `$${name.replace(regex, '')}`;
+    name = name.replace(regex, '').replace(/[0-9]+/g, (m) => m.padStart(6, '0'));
+    return `$${name}`;
   };
 
   /* -----------------------------------------------------------------------------------------------
@@ -686,7 +687,7 @@ function init(modules: { typescript: typeof tslib }) {
         if (isColorThemeEntry(entryConfig.modeValues)) {
           const description = createColorTokenDescription(entryConfig.modeValues);
           const hex = firstValue
-            ? convertToHex(replaceCssVarsWithFallback(firstValue))
+            ? convertToRgb(replaceCssVarsWithFallback(firstValue))
             : firstValue;
           const docs = { text: `${hex}\n\n${description}`, kind: 'markdown' };
           return { ...common, documentation: [docs, ...originalDocumentation] };
@@ -745,17 +746,20 @@ function init(modules: { typescript: typeof tslib }) {
 
 /* ---------------------------------------------------------------------------------------------- */
 
-function convertToHex(input: string) {
+// we have to use RBG for alpha channel support because the vscode suggestion
+// widget renderer doesn't support 8-digit hex codes
+// https://github.com/microsoft/vscode/blob/9aa46099e12c6b45f41b0451e19389d91990d0ed/src/vs/editor/contrib/suggest/browser/suggestWidgetRenderer.ts#L36
+function convertToRgb(input: string) {
   try {
     const parsed = culori.parse(input);
-    return culori.formatHex8(parsed);
+    return culori.formatRgb(parsed) ?? input;
   } catch {
     return input;
   }
 }
 
 function createColorTokenDescription(modeValues: NonNullable<EntryConfigItem['modeValues']>) {
-  return createDescription(modeValues, (mode, value) => [createSquare(value), mode, value]);
+  return createDescription(modeValues, (mode, value) => [createSquare(value, mode), mode, value]);
 }
 
 function createTokenDescription(modeValues: NonNullable<EntryConfigItem['modeValues']>) {
@@ -775,9 +779,12 @@ function createRow(row: string[]) {
   return row.join(createSquare('transparent') + createSquare('transparent'));
 }
 
-const createSquare = (color: string) => {
+const createSquare = (color: string, mode?: string) => {
+  const rect = (color: string) => `<rect width="10" height="10" x="0" y="0" fill="${color}" />`;
   const fill = replaceCssVarsWithFallback(color);
-  const svg = `<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" x="0" y="0" fill="${fill}" /></svg>`;
+  const bgRect = mode ? rect(mode === 'dark' ? '#000' : '#fff') : '';
+  const foregroundRect = rect(fill);
+  const svg = `<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">${bgRect}${foregroundRect}</svg>`;
   return `![Image](data:image/svg+xml;base64,${btoa(svg)})`;
 };
 
