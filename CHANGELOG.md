@@ -1,3 +1,23 @@
+# v0.0.64 (Fri Aug 30 2024)
+
+### Release Notes
+
+#### keep radix naming convention for alpha colours ([#338](https://github.com/tokenami/tokenami/pull/338))
+
+if you're using any alpha colours from the new tokenami design system, rename them from `var(--color_{name}{n}a)` to `var(--color_{name}A{n})`.
+
+---
+
+#### 💥 Breaking Change
+
+- keep radix naming convention for alpha colours [#338](https://github.com/tokenami/tokenami/pull/338) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.63 (Fri Aug 30 2024)
 
 #### 🚀 Enhancement
