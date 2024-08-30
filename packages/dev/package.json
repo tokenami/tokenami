@@ -59,8 +59,5 @@
     "lightningcss": "1.23.0",
     "pathe": "^1.1.1",
     "sucrase": "^3.34.0"
-  },
-  "peerDependencies": {
-    "typescript": ">= 5"
   }
 }
