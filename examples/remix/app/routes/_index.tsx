@@ -87,6 +87,7 @@ export default function Index() {
           '--transition': 'var(--morph_all)',
           '--hover_animation': 'var(--anim_pulse)',
           '--{&:focus:hover}_background-color': 'var(--color_indigo10)',
+          '--radius-top': 'var(--radii_xl)',
         })}
       >
         Button

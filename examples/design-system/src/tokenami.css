@@ -9,7 +9,7 @@
 
   *, :before, :after {
     box-sizing: border-box;
-    border: 0 solid;
+    border: 0;
     margin: 0;
     padding: 0;
   }
@@ -215,7 +215,7 @@
     --hover_background-color: initial;
     --\{\&\;focus\;hover\}: initial;
     --\{\&\;focus\;hover\}_background-color: initial;
-    --border-block-end-width: initial;
+    --border-block-end: initial;
     --border-color: initial;
     --border-radius: initial;
     --inline-size: initial;
@@ -255,9 +255,9 @@
     }
   }
 
-  @layer tkl7 {
+  @layer tkl3 {
     [style] {
-      border-block-end-width: var(--border-block-end-width, revert-layer);
+      border-block-end: var(--border-block-end, revert-layer);
     }
   }
 
