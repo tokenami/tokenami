@@ -682,14 +682,14 @@ function init(modules: { typescript: typeof tslib }) {
 
       if (entryConfig.modeValues) {
         const entries = Object.entries(entryConfig.modeValues);
-        const [, firstValue] = entries[0] || [];
+        const [mode, firstValue] = entries[0] || [];
 
         if (isColorThemeEntry(entryConfig.modeValues)) {
           const description = createColorTokenDescription(entryConfig.modeValues);
-          const hex = firstValue
-            ? convertToRgb(replaceCssVarsWithFallback(firstValue))
+          const rgb = firstValue
+            ? convertToRgb(replaceCssVarsWithFallback(firstValue), mode)
             : firstValue;
-          const docs = { text: `${hex}\n\n${description}`, kind: 'markdown' };
+          const docs = { text: `${rgb}\n\n${description}`, kind: 'markdown' };
           return { ...common, documentation: [docs, ...originalDocumentation] };
         } else {
           const description = createTokenDescription(entryConfig.modeValues);
@@ -749,12 +749,27 @@ function init(modules: { typescript: typeof tslib }) {
 // we have to use RBG for alpha channel support because the vscode suggestion
 // widget renderer doesn't support 8-digit hex codes
 // https://github.com/microsoft/vscode/blob/9aa46099e12c6b45f41b0451e19389d91990d0ed/src/vs/editor/contrib/suggest/browser/suggestWidgetRenderer.ts#L36
-function convertToRgb(input: string) {
+function convertToRgb(fill: string, mode?: string) {
   try {
-    const parsed = culori.parse(input);
-    return culori.formatRgb(parsed) ?? input;
+    const parsed = culori.parse(fill);
+    const color = culori.rgb(parsed);
+    const modeColor = culori.rgb(mode == 'dark' ? '#000' : '#fff');
+    const bgColor = fill === 'transparent' ? undefined : modeColor;
+
+    if (!color) return fill;
+    if (!bgColor || parsed?.alpha === undefined || parsed.alpha === 1) {
+      return culori.formatRgb(color);
+    }
+
+    const alpha = parsed.alpha;
+    color.r = color.r * alpha + bgColor.r * (1 - alpha);
+    color.g = color.g * alpha + bgColor.g * (1 - alpha);
+    color.b = color.b * alpha + bgColor.b * (1 - alpha);
+    color.alpha = 1;
+
+    return culori.formatRgb(color);
   } catch {
-    return input;
+    return fill;
   }
 }
 
@@ -780,11 +795,8 @@ function createRow(row: string[]) {
 }
 
 const createSquare = (color: string, mode?: string) => {
-  const rect = (color: string) => `<rect width="10" height="10" x="0" y="0" fill="${color}" />`;
-  const fill = replaceCssVarsWithFallback(color);
-  const bgRect = mode ? rect(mode === 'dark' ? '#000' : '#fff') : '';
-  const foregroundRect = rect(fill);
-  const svg = `<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">${bgRect}${foregroundRect}</svg>`;
+  const fill = convertToRgb(replaceCssVarsWithFallback(color), mode);
+  const svg = `<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" x="0" y="0" fill="${fill}" /></svg>`;
   return `![Image](data:image/svg+xml;base64,${btoa(svg)})`;
 };
 
