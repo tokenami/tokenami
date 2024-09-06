@@ -101,7 +101,7 @@ export default createConfig({
       boxSizing: 'border-box',
       margin: 0,
       padding: 0,
-      border: '0 solid',
+      border: 0,
     },
     'html, :host': {
       lineHeight: 1.5,
