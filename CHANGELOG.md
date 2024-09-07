@@ -1,3 +1,22 @@
+# v0.0.65 (Sat Sep 07 2024)
+
+#### 🚀 Enhancement
+
+- prevent esm warning in node 22 projects [#345](https://github.com/tokenami/tokenami/pull/345) ([@jjenzz](https://github.com/jjenzz))
+- remove unused layers from minified stylesheet [#344](https://github.com/tokenami/tokenami/pull/344) ([@jjenzz](https://github.com/jjenzz))
+- [ts-plugin] match detail panel swatch in intellisense for alpha colours [#342](https://github.com/tokenami/tokenami/pull/342) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- fix shorthand overrides for logical properties [#343](https://github.com/tokenami/tokenami/pull/343) ([@jjenzz](https://github.com/jjenzz))
+- [ds] fix `border-*` mappings, overrides, and global reset rule [#341](https://github.com/tokenami/tokenami/pull/341) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.64 (Fri Aug 30 2024)
 
 ### Release Notes
