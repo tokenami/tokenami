@@ -1,9 +1,8 @@
 import * as Tokenami from '@tokenami/config';
-import jitiFactory from 'jiti';
+import createJiti from 'jiti';
 import { transform } from 'sucrase';
 import * as pathe from 'pathe';
 import * as fs from 'fs';
-import { safeRequire } from './require';
 
 const DEFAULT_PATHS = {
   js: './.tokenami/tokenami.config.js',
@@ -30,7 +29,7 @@ function getConfigPath(cwd: string, path?: string, type?: ProjectType) {
 function getConfigAtPath(path: string): Tokenami.Config {
   const config = (function () {
     try {
-      return safeRequire(path);
+      return require(path);
     } catch {
       return lazyJiti()(path);
     }
@@ -46,8 +45,8 @@ function getConfigAtPath(path: string): Tokenami.Config {
 function getReloadedConfigAtPath(path: string): Tokenami.Config {
   const config = (function () {
     try {
-      delete safeRequire.cache[safeRequire.resolve(path)];
-      return safeRequire(path);
+      delete require.cache[require.resolve(path)];
+      return require(path);
     } catch {
       return lazyJiti({ cache: false })(path);
     }
@@ -207,12 +206,16 @@ function unique<T>(items: T[]) {
 
 /* ---------------------------------------------------------------------------------------------- */
 
-let jiti: ReturnType<typeof jitiFactory> | null = null;
-function lazyJiti({ cache = true } = {}) {
-  return (jiti ??= jitiFactory(__filename, {
+type Options = { cache?: boolean };
+type Jiti = ReturnType<typeof createJiti>;
+const jitiCache: Record<string, Jiti> = {};
+
+function lazyJiti(options: Options = {}) {
+  const cacheId = JSON.stringify(options);
+  return (jitiCache[cacheId] ??= createJiti(__filename, {
     transform: (opts) => transform(opts.source, { transforms: ['typescript', 'imports'] }),
     interopDefault: true,
-    requireCache: cache,
+    requireCache: options.cache,
   }));
 }
 
