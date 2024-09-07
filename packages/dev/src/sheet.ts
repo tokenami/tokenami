@@ -5,7 +5,7 @@ import * as utils from './utils';
 import * as Supports from './supports';
 import * as log from './log';
 
-const UNUSED_LAYERS_REGEX = /\n\s*@layer[-\w\s,]+;/g;
+const UNUSED_LAYERS_REGEX = /[\n\s]*@layer[^;{]+;/g;
 const DEFAULT_SELECTOR = '[style]';
 const CUSTOM_PROP_PREFIX = '--_';
 const LAYERS = {
