@@ -121,8 +121,7 @@ Tokenami offers a CLI tool for generating static styles, a [~2kb](https://bundle
 Install using your package manager of choice. For example:
 
 ```sh
-npm install @tokenami/dev @tokenami/ts-plugin -D
-npm install @tokenami/css
+npm install -D @tokenami/dev @tokenami/ts-plugin && npm install @tokenami/css
 ```
 
 And then initialise your tokenami project:
