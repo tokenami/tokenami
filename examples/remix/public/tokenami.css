@@ -9,7 +9,7 @@
 
   *, :before, :after {
     box-sizing: border-box;
-    border: 0 solid;
+    border: 0;
     margin: 0;
     padding: 0;
   }
@@ -203,6 +203,7 @@
     --radii_lg: .5rem;
     --radii_none: 0;
     --radii_sm: .125rem;
+    --radii_xl: .75rem;
     --size_auto: auto;
     --size_full: 100%;
     --text-size_4xl: 2.25rem;
@@ -256,7 +257,7 @@
     --child-para: initial;
     --selection: initial;
     --selection_background-color: initial;
-    --border-block-end-width: initial;
+    --border-block-end: initial;
     --border-color: initial;
     --border-radius: initial;
     --sm_border-radius: initial;
@@ -303,7 +304,8 @@
     --margin-inline: initial;
     --margin-inline-start: initial;
     --border: initial;
-    --border-block-end: initial;
+    --border-start-start-radius: initial;
+    --border-start-end-radius: initial;
     --object-fit: initial;
   }
 
@@ -343,6 +345,8 @@
       justify-content: var(--justify-content, revert-layer);
       line-height: var(--line-height, revert-layer);
       font-size: var(--font-size, revert-layer);
+      border-start-start-radius: var(--border-start-start-radius, revert-layer);
+      border-start-end-radius: var(--border-start-end-radius, revert-layer);
     }
   }
 
@@ -384,12 +388,6 @@
   @layer tkl3 {
     [style] {
       border-block-end: var(--border-block-end, revert-layer);
-    }
-  }
-
-  @layer tkl7 {
-    [style] {
-      border-block-end-width: var(--border-block-end-width, revert-layer);
     }
   }
 
