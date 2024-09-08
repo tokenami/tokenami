@@ -56,7 +56,7 @@ For an enhanced dev experience press `CMD+Shift+P` and choose the workspace vers
   - [Browserslist](#user-content-browserslist)
 - [Support](#user-content-support)
   - [Why the double-dash prefix?](#user-content-why-the-double-dash-prefix)
-  - [VSCode intellisense configuration](#user-vscode-intellisense-configuration)
+  - [VSCode intellisense configuration](#user-content-vscode-intellisense-configuration)
   - [Supported frameworks](#user-content-supported-frameworks)
   - [Supported browsers](#user-content-supported-browsers)
   - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
@@ -144,7 +144,7 @@ Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.jso
 }
 ```
 
-Ensure your editor is configured to use the project's TypeScript version. Instructions can be found in your editor's documentation, such as [VSCode's guide](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript). VSCode users should also [enable `editor.quickSuggestions` for strings](#user-vscode-intellisense-configuration).
+Ensure your editor is configured to use the project's TypeScript version. Instructions can be found in your editor's documentation, such as [VSCode's guide](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript). VSCode users should also [enable `editor.quickSuggestions` for strings](#user-content-vscode-intellisense-configuration).
 
 ### Start the CLI watch script
 
