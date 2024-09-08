@@ -4,5 +4,9 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   // ~/.config/Code/logs/**/tsserver.log
   "typescript.tsserver.log": "verbose",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  "editor.quickSuggestions": {
+    "strings": true
+  }
 }
