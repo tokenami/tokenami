@@ -56,6 +56,7 @@ For an enhanced dev experience press `CMD+Shift+P` and choose the workspace vers
   - [Browserslist](#user-content-browserslist)
 - [Support](#user-content-support)
   - [Why the double-dash prefix?](#user-content-why-the-double-dash-prefix)
+  - [VSCode intellisense configuration](#user-vscode-intellisense-configuration)
   - [Supported frameworks](#user-content-supported-frameworks)
   - [Supported browsers](#user-content-supported-browsers)
   - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
@@ -143,7 +144,7 @@ Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.jso
 }
 ```
 
-Make sure your editor is configured to use the project's version of TypeScript. You can find instructions for various editors in their documentation, such as for VSCode [here](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript).
+Ensure your editor is configured to use the project's TypeScript version. Instructions can be found in your editor's documentation, such as [VSCode's guide](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript). VSCode users should also [enable `editor.quickSuggestions` for strings](#user-vscode-intellisense-configuration).
 
 ### Start the CLI watch script
 
@@ -708,6 +709,20 @@ Additionaly, CSS properties applied to the style attribute have highest specific
 This approach also helps you update styles directly in devtools because the syntax becomes second nature. The goal is for the double-dash to eventually feel as natural as typing custom class names in Tailwind. Instead of memorising many custom class names though, you can use CSS properties as usual, and intellisense will add the double-dash for you:
 
 ![property autocomplete](https://github.com/tokenami/tokenami/assets/175330/9906ea3b-275a-439e-a4c8-ee6a4790290f)
+
+### VSCode intellisense configuration
+
+By default, VSCode will not trigger intellisense for strings which can hinder the developer experience if you've chosen an incomplete suggestion from the suggestion list. To fix this, add the following to your `.vscode/settings.json`:
+
+```json
+"editor.quickSuggestions": {
+  "strings": true
+}
+```
+
+| BEFORE                                                                                                               | AFTER                                                                                                                |
+| -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| ![CleanShot 2024-09-08 at 14 10 10](https://github.com/user-attachments/assets/9b99edb4-dec0-402e-99c9-671525332ccf) | ![CleanShot 2024-09-08 at 14 09 43](https://github.com/user-attachments/assets/ad2ed719-c2ca-4929-902d-5fdf5142468b) |
 
 ### Supported frameworks
 
