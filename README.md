@@ -16,8 +16,6 @@
 
 ## Demo
 
-https://github.com/tokenami/tokenami/assets/175330/e41bf385-6836-4f51-8731-33ac796d837d
-
 If you prefer to get stuck straight in, give the [vite starter](https://github.com/tokenami/tokenami-vite) a try and remember to choose the workspace version of TypeScript.
 
 ## Contents
@@ -700,13 +698,12 @@ Before raising a bug, please double-check that it isn't [already in my todo list
 
 ### Why the double-dash prefix?
 
-In order to reduce style calculations at runtime, Tokenami puts the styles you write directly into the style attribute. This means the properties need to be valid `style` syntax. Since the style attribute does not support media queries and psuedo selectors, Tokenami uses CSS variable syntax to enable them and therefore makes all properties consistently CSS variables for a reduced learning curve.
+To minimise runtime style calculations, Tokenami directly applies your styles to the `style` attribute. Since the `style` attribute doesn't support media queries or pseudo-selectors, Tokenami uses CSS variables to enable them, and simplifies the learning curve by making all properties CSS variables.
 
-Additionaly, CSS properties applied to the style attribute have highest specificity making them hard to override. By using CSS variables instead, you can easily override Tokeanami's styles by adding a stylesheet after Tokenami's in your document.
+> [!Note]
+> Don't worry about the extra characters! Simply type `bord` (without quotes), and Tokenami's Intellisense will automatically complete it for you, including hyphens and quotes.
 
-This approach also helps you update styles directly in devtools because the syntax becomes second nature. The goal is for the double-dash to eventually feel as natural as typing custom class names in Tailwind. Instead of memorising many custom class names though, you can use CSS properties as usual, and intellisense will add the double-dash for you:
-
-![property autocomplete](https://github.com/tokenami/tokenami/assets/175330/9906ea3b-275a-439e-a4c8-ee6a4790290f)
+Additionaly, CSS properties applied to the `style` attribute have highest specificity making them hard to override. By using CSS variables instead, you can easily override Tokeanami's styles by adding a stylesheet after Tokenami's to your document.
 
 ### VSCode intellisense configuration
 
