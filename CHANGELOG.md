@@ -1,3 +1,29 @@
+# v0.0.66 (Fri Sep 13 2024)
+
+#### 🚀 Enhancement
+
+- make `css` utility behave more like `tailwind-merge` [#350](https://github.com/tokenami/tokenami/pull/350) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- [ds] add logical aliases for `border-{color|width|style}` [#351](https://github.com/tokenami/tokenami/pull/351) ([@jjenzz](https://github.com/jjenzz))
+- make ts plugin error for invalid special chars [#349](https://github.com/tokenami/tokenami/pull/349) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- css util updates [#352](https://github.com/tokenami/tokenami/pull/352) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- remove stackblitz from readme [#347](https://github.com/tokenami/tokenami/pull/347) ([@jjenzz](https://github.com/jjenzz))
+- add instructions for vscode intellisense settings [#346](https://github.com/tokenami/tokenami/pull/346) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.65 (Sat Sep 07 2024)
 
 #### 🚀 Enhancement
