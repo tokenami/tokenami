@@ -446,7 +446,7 @@ interface ButtonProps extends ButtonElementProps, Variants<typeof button> {}
 
 ### TokenamiStyle
 
-Use `TokenamiStyle` to accept the `css` utility as a value for the `style` prop. This prevents errors when `props.style` is used for overrides.
+The `TokenamiStyle` type allows you to extend the `style` prop of your component with Tokenami-specific properties.
 
 ```tsx
 import { type TokenamiStyle, css } from '@tokenami/css';
@@ -456,6 +456,12 @@ interface ButtonProps extends TokenamiStyle<React.ComponentProps<'button'>> {}
 function Button(props: ButtonProps) {
   return <button {...props} style={css({}, props.style)} />;
 }
+```
+
+You can then use the component as usual, overriding styles as needed. Since the component is already typed and integrates the `css` utility internally, you no longer need to use the utility to apply styles:
+
+```tsx
+<Button style={{ '--padding': 4 }} />
 ```
 
 ### Continuous Integration

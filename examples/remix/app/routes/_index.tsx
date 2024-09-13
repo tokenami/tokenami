@@ -92,7 +92,7 @@ export default function Index() {
       >
         Button
       </button>
-      <DS.Button style={css({ '--border-color': 'var(---, red)' })}>Button</DS.Button>
+      <DS.Button style={{ '--border-color': 'var(---, red)' }}>Button</DS.Button>
     </>
   );
 }
