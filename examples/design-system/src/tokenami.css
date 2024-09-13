@@ -216,7 +216,8 @@
     --\{\&\;focus\;hover\}: initial;
     --\{\&\;focus\;hover\}_background-color: initial;
     --border-block-end: initial;
-    --border-color: initial;
+    --border-block-color: initial;
+    --border-inline-color: initial;
     --border-radius: initial;
     --inline-size: initial;
     --block-size: initial;
@@ -241,7 +242,6 @@
   @layer tk2 {
     [style] {
       background-color: var(--background-color, revert-layer);
-      border-color: var(--border-color, revert-layer);
       font-family: var(--font-family, revert-layer);
     }
   }
@@ -258,6 +258,13 @@
   @layer tkl3 {
     [style] {
       border-block-end: var(--border-block-end, revert-layer);
+    }
+  }
+
+  @layer tkl5 {
+    [style] {
+      border-block-color: var(--border-block-color, revert-layer);
+      border-inline-color: var(--border-inline-color, revert-layer);
     }
   }
 

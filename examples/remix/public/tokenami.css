@@ -258,7 +258,8 @@
     --\{\&\;focus\;hover\}: initial;
     --\{\&\;focus\;hover\}_background-color: initial;
     --border-block-end: initial;
-    --border-color: initial;
+    --border-block-color: initial;
+    --border-inline-color: initial;
     --border-radius: initial;
     --sm_border-radius: initial;
     --md_border-radius: initial;
@@ -337,7 +338,6 @@
       font-variant: var(--font-variant, revert-layer);
       font-weight: var(--font-weight, revert-layer);
       background-color: var(--background-color, revert-layer);
-      border-color: var(--border-color, revert-layer);
       background-size: var(--background-size, revert-layer);
       background-image: var(--background-image, revert-layer);
       flex-direction: var(--flex-direction, revert-layer);
@@ -388,6 +388,13 @@
       margin-block-end: var(--_13f2miu, var(--margin-block-end, revert-layer));
       margin-inline-start: var(--_14lv7pp, var(--margin-inline-start, revert-layer));
       padding-block-start: var(--_1mbhke0, var(--padding-block-start, revert-layer));
+    }
+  }
+
+  @layer tkl5 {
+    [style] {
+      border-block-color: var(--border-block-color, revert-layer);
+      border-inline-color: var(--border-inline-color, revert-layer);
     }
   }
 
