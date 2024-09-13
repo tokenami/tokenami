@@ -252,11 +252,11 @@
     --background-color: initial;
     --hover: initial;
     --hover_background-color: initial;
-    --\{\&\;focus\;hover\}: initial;
-    --\{\&\;focus\;hover\}_background-color: initial;
     --child-para: initial;
     --selection: initial;
     --selection_background-color: initial;
+    --\{\&\;focus\;hover\}: initial;
+    --\{\&\;focus\;hover\}_background-color: initial;
     --border-block-end: initial;
     --border-color: initial;
     --border-radius: initial;
@@ -365,6 +365,11 @@
       --_g44f3h: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
       block-size: var(--_1ieen97, var(--block-size, revert-layer));
       --_1ieen97: var(--block-size__calc) calc(var(--block-size) * var(--_grid));
+    }
+  }
+
+  @layer tkl2 {
+    [style] {
       padding-inline: var(--_1od2e5r, var(--padding-inline, revert-layer));
       --_1od2e5r: var(--padding-inline__calc) calc(var(--padding-inline) * var(--_grid));
       padding-block: var(--_esg7el, var(--padding-block, revert-layer));
@@ -374,20 +379,15 @@
     }
   }
 
-  @layer tkl2 {
+  @layer tkl3 {
     [style] {
+      border-block-end: var(--border-block-end, revert-layer);
       --_1mbhke0: var(--padding-block-start__calc) calc(var(--padding-block-start) * var(--_grid));
       --_13f2miu: var(--margin-block-end__calc) calc(var(--margin-block-end) * var(--_grid));
       --_14lv7pp: var(--margin-inline-start__calc) calc(var(--margin-inline-start) * var(--_grid));
       margin-block-end: var(--_13f2miu, var(--margin-block-end, revert-layer));
       margin-inline-start: var(--_14lv7pp, var(--margin-inline-start, revert-layer));
       padding-block-start: var(--_1mbhke0, var(--padding-block-start, revert-layer));
-    }
-  }
-
-  @layer tkl3 {
-    [style] {
-      border-block-end: var(--border-block-end, revert-layer);
     }
   }
 
@@ -432,9 +432,8 @@
       --_10sf9dp: var(--lg) var(--lg_font-family);
       --_9d9ope: var(--xl) var(--xl_font-family);
       --_6j96ia: var(--xxl) var(--xxl_font-family);
-      background-color: var(--_1r7lnia, var(--_1ir0lsg, var(--_1chvnfl, var(--_1fio48, var(--_4dvc60, revert-layer)))));
+      background-color: var(--_1r7lnia, var(--_1ir0lsg, var(--_1chvnfl, var(--_4dvc60, revert-layer))));
       --_4dvc60: var(--hover) var(--hover_background-color);
-      --_1fio48: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
       --_1chvnfl: var(--child-para) var(--child-para_background-color);
       --_1ir0lsg: var(--selection) var(--selection_background-color);
       --_1r7lnia: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
@@ -467,6 +466,11 @@
       --_1n1rrhq: var(--xl_block-size__calc) calc(var(--xl_block-size) * var(--_grid));
       --_1uebu2j: var(--xxl) var(--_m7qn96, var(--xxl_block-size));
       --_m7qn96: var(--xxl_block-size__calc) calc(var(--xxl_block-size) * var(--_grid));
+    }
+  }
+
+  @layer tksl2 {
+    [style], [style] > p, [style*="selection_"]::selection, [style]:after {
       padding-inline: var(--_hvq2vq, revert-layer);
       --_hvq2vq: var(--child-para) var(--_13rhg63, var(--child-para_padding-inline));
       --_13rhg63: var(--child-para_padding-inline__calc) calc(var(--child-para_padding-inline) * var(--_grid));
