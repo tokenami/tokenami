@@ -35,6 +35,15 @@ export const expectValidResponsiveAndValidSelectorWithInvalidPropertyToError = c
   '--md_hover_boop': 'var(--color_sky1)',
 });
 
+export const expectValidSelectorsWithSpecialCharactersToError = css({
+  // @ts-ignore
+  '--@md_$hover_color': 'var(--color_sky1)',
+});
+
+export const expectValidSelectorsWithArbitrarySelectorToPass = css({
+  '--md_{&:hover}_color': 'var(--color_sky1)',
+});
+
 export const expectValidPropertiesToPass = css({
   '--display': 'block',
 });

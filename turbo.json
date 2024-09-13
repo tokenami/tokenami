@@ -16,10 +16,6 @@
       "cache": false
     },
     "typecheck": {
-      "dependsOn": ["topo"],
-      "outputs": ["node_modules/.cache/tsbuildinfo.json"]
-    },
-    "typecheck:ci": {
       "dependsOn": ["topo"]
     },
     "storylite": {}

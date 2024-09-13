@@ -33,8 +33,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit",
-    "typecheck:ci": "tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
