@@ -133,7 +133,7 @@ Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.jso
 
 ```json
 {
-  "include": [".tokenami/tokenami.env.d.ts"],
+  "include": [".tokenami/tokenami.env.d.ts", "src"],
   "compilerOptions": {
     "plugins": [{ "name": "@tokenami/ts-plugin" }]
   }
@@ -473,7 +473,7 @@ To improve performance during development, Tokenami widens its types and uses th
   ```json
   {
     "extends": "./tsconfig.json",
-    "include": [".tokenami/tokenami.env.ci.d.ts"]
+    "include": [".tokenami/tokenami.env.ci.d.ts", "src"]
   }
   ```
 
