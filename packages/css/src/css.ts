@@ -41,21 +41,18 @@ const cache = {
   limit: 500,
   cache: new Map(),
   get(key: string) {
-    if (!this.cache.has(key)) return null;
     const value = this.cache.get(key);
+    if (!value) return;
     // re-insert as most recently used
     this.cache.delete(key);
     this.cache.set(key, value);
     return value;
   },
   set(key: string, value: TokenamiCSS) {
-    if (this.cache.has(key)) {
-      // ensure inserts are most recent
-      this.cache.delete(key);
-    } else if (this.cache.size === this.limit) {
-      const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
-    }
+    // ensure inserts are most recent
+    this.cache.delete(key);
+    // remove oldest entry
+    if (this.cache.size === this.limit) this.cache.delete(this.cache.keys().next().value);
     this.cache.set(key, value);
   },
 };
@@ -85,39 +82,36 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
     const cached = cache.get(cacheId);
 
     if (cached) return cached;
-
     const allStyles = [baseStyles, ...overrides];
 
     for (const originalStyles of allStyles) {
       if (!originalStyles) continue;
 
-      for (const [key, value] of Object.entries(originalStyles)) {
-        const tokenProperty = Tokenami.TokenProperty.safeParse(key);
-        if (!tokenProperty.success) {
+      for (let [key, value] of Object.entries(originalStyles)) {
+        if (!key.startsWith('--')) {
           overriddenStyles[key as any] = value;
           continue;
         }
 
-        const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
+        const tokenProperty = key as Tokenami.TokenProperty;
+        const parts = Tokenami.getTokenPropertySplit(tokenProperty);
         const cssProperties = Tokenami.getCSSPropertiesForAlias(parts.alias, config.aliases);
 
         // most the time this will only be one property
         for (const cssProperty of cssProperties) {
-          const long = createLonghandProperty(tokenProperty.output, cssProperty);
+          const longProperty = createLonghandProperty(tokenProperty, cssProperty);
           const isNumber = typeof value === 'number' && value > 0;
-          const tokenPropertyLong = Tokenami.parseProperty(long, {
-            escapeSpecialChars: globalOptions?.escapeSpecialChars,
-          });
+          const parsedProperty = Tokenami.parseProperty(longProperty, globalOptions);
 
-          overrideLonghands(overriddenStyles, tokenPropertyLong);
+          overrideLonghands(overriddenStyles, parsedProperty);
           // this must happen each iteration so that each override applies to the
           // mutated css object from the previous override iteration
-          overriddenStyles[tokenPropertyLong as any] = value;
+          overriddenStyles[parsedProperty as any] = value;
           // add grid toggle to enable grid calc for grid properties. set it to
           // undefined to remove the toggle if it was added by a previous iteration.
           // it cannot be an empty string because some fws strip it (e.g. vite)
           // @ts-ignore
-          overriddenStyles[calcProperty(tokenPropertyLong)] = isNumber ? '/*on*/' : undefined;
+          overriddenStyles[calcProperty(parsedProperty)] = isNumber ? '/*on*/' : undefined;
         }
       }
     }
@@ -129,30 +123,22 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
   css.compose = (config) => {
     const { variants, responsiveVariants, ...baseStyles } = config;
 
-    return function generate(selectedVariants, ...overrides) {
-      const cacheId = JSON.stringify({
-        baseStyles,
-        variants,
-        responsiveVariants,
-        selectedVariants,
-        overrides,
-      });
+    return function generate(selectedVariants = {}, ...overrides) {
+      const cacheId = JSON.stringify({ config, selectedVariants, overrides });
       const cached = cache.get(cacheId);
       if (cached) return cached;
 
-      const variantStyles: TokenamiProperties[] = selectedVariants
-        ? Object.entries(selectedVariants).flatMap(([key, variant]) => {
-            if (!variant) return [];
-            const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
-            if (bp) {
-              const styles = responsiveVariants?.[type]?.[variant as any];
-              return styles ? [convertToMediaStyles(bp, styles)] : [];
-            } else {
-              const styles = (variants || responsiveVariants)?.[type]?.[variant as any];
-              return styles ? [styles] : [];
-            }
-          })
-        : [];
+      let variantStyles: Override[] = [];
+      for (const [key, variant] of Object.entries(selectedVariants)) {
+        if (!variant) continue;
+        const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
+        const responsive = responsiveVariants?.[type]?.[variant as any];
+        if (bp && responsive) {
+          variantStyles.push(convertToMediaStyles(bp, responsive));
+        } else {
+          variantStyles.push(variants?.[type]?.[variant as any] ?? responsive);
+        }
+      }
 
       const styles = css(baseStyles, ...variantStyles, ...overrides);
       cache.set(cacheId, styles);
