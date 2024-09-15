@@ -22,13 +22,7 @@ export default function Index() {
           '--md_after_content': 'var(---, "🐠")',
         })}
       >
-        <img
-          style={quoteImage({ variant: 'circle', md_variant: 'fill' })}
-          src="/me.jpg"
-          alt=""
-          width="400"
-          height="400"
-        />
+        <QuoteImage />
         <div style={css({ '--pt': 4, '--md_p': 8 })}>
           <blockquote style={css({ '--m': 0 })}>
             <p
@@ -111,20 +105,27 @@ export default function Index() {
   );
 }
 
-const quoteImage = css.compose({
-  '--object-fit': 'cover',
+const QuoteImage = () => {
+  const [cn, style] = styles.quoteImage({ variant: 'circle', md_variant: 'fill' });
+  return <img className={cn()} style={style()} src="/me.jpg" alt="" width="400" height="400" />;
+};
 
-  responsiveVariants: {
-    variant: {
-      circle: {
-        '--width': 24,
-        '--height': 24,
-        '--border-radius': 'var(--radii_full)',
-      },
-      fill: {
-        '--width': 'var(---,11rem)',
-        '--height': 'var(--size_auto)',
-        '--border-radius': 'var(--radii_none)',
+const styles = css.compose({
+  quoteImage: {
+    '--object-fit': 'cover',
+
+    responsiveVariants: {
+      variant: {
+        circle: {
+          '--width': 24,
+          '--height': 24,
+          '--border-radius': 'var(--radii_full)',
+        },
+        fill: {
+          '--width': 'var(---,11rem)',
+          '--height': 'var(--size_auto)',
+          '--border-radius': 'var(--radii_none)',
+        },
       },
     },
   },

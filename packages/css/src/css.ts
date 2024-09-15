@@ -16,29 +16,28 @@ type ResponsiveVariants<C> = undefined extends C
   ? {}
   : { [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> } }[keyof C];
 
-type ComposeCSS<V, R> = TokenamiProperties & {
-  variants?: V & VariantsConfig;
-  responsiveVariants?: R & VariantsConfig;
+type Compose<T extends ComposeStyleConfig> = {
+  [K in keyof T]: GenerateCSS<T[K]['variants'], T[K]['responsiveVariants']>;
 };
 
-interface CSS {
-  // return type is purposfully `{}` to support `style` attribute type for different frameworks.
-  // returning `TokenamiProperties` is not enough here bcos that type can create circular refs
-  // in frameworks like SolidJS that use `CSS.PropertiesHyphen` as style attr type. i'm unsure
-  // what usecases requires an accurate return type here, so open to investigating further if we
-  // discover usecases later.
-  (baseStyles: TokenamiProperties, ...overrides: Override[]): TokenamiCSS;
+type GenerateCSS<V, R> = (
+  selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>
+) => StyleFns;
 
-  compose: <V extends VariantsConfig | undefined, R extends VariantsConfig | undefined>(
-    config: ComposeCSS<V, R>
-  ) => (
-    selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>,
-    ...overrides: Override[]
-  ) => TokenamiCSS;
-}
+type ComposeStyleConfig = {
+  [key: string]: TokenamiProperties & {
+    variants?: VariantsConfig;
+    responsiveVariants?: VariantsConfig;
+  };
+};
+
+type StyleFns = [
+  cn: (...classNames: (string | undefined | null | false)[]) => string,
+  style: (...overrides: Override[]) => TokenamiCSS
+];
 
 const cache = {
-  limit: 500,
+  limit: 1_500,
   cache: new Map(),
   get(key: string) {
     const value = this.cache.get(key);
@@ -48,7 +47,7 @@ const cache = {
     this.cache.set(key, value);
     return value;
   },
-  set(key: string, value: TokenamiCSS) {
+  set(key: string, value: any) {
     // ensure inserts are most recent
     this.cache.delete(key);
     // remove oldest entry
@@ -78,7 +77,7 @@ function createCss(
 ) {
   (globalThis as any)[_TOKENAMI_CSS] = options;
 
-  const css: CSS = (baseStyles, ...overrides) => {
+  function css(baseStyles: TokenamiProperties, ...overrides: Override[]): TokenamiCSS {
     let overriddenStyles = {} as TokenamiCSS;
     const globalOptions = (globalThis as any)[_TOKENAMI_CSS];
     const cacheId = JSON.stringify({ baseStyles, overrides });
@@ -105,33 +104,40 @@ function createCss(
           const longProperty = createLonghandProperty(tokenProperty, cssProperty);
           const isNumber = typeof value === 'number' && value !== 0;
           const parsedProperty = Tokenami.parseProperty(longProperty, globalOptions);
+          const calcToggle = calcProperty(parsedProperty);
 
           overrideLonghands(overriddenStyles, parsedProperty);
           // this must happen each iteration so that each override applies to the
           // mutated css object from the previous override iteration
           overriddenStyles[parsedProperty as any] = value;
-          // add grid toggle to enable grid calc for grid properties. set it to
-          // undefined to remove the toggle if it was added by a previous iteration.
-          // it cannot be an empty string because some fws strip it (e.g. vite)
-          // @ts-ignore
-          overriddenStyles[calcProperty(parsedProperty)] = isNumber ? '/*on*/' : undefined;
+
+          if (isNumber) {
+            // add grid toggle to enable grid calc for grid properties. it cannot
+            // be an empty string because some fws strip it (e.g. vite)
+            (overriddenStyles as any)[calcToggle] = '/*on*/';
+          } else {
+            // remove the toggle if it was added by a previous iteration.
+            delete (overriddenStyles as any)[calcToggle];
+          }
         }
       }
     }
 
     cache.set(cacheId, overriddenStyles);
     return overriddenStyles;
-  };
+  }
 
-  css.compose = (config) => {
-    const { variants, responsiveVariants, ...baseStyles } = config;
+  css.compose = <T extends ComposeStyleConfig>(configs: T): Compose<T> => {
+    const result = {} as Compose<T>;
 
-    return function generate(selectedVariants = {}, ...overrides) {
-      const cacheId = JSON.stringify({ config, selectedVariants, overrides });
+    const generate = (block: string, styleConfig: T[keyof T], selectedVariants = {}) => {
+      const cacheId = JSON.stringify({ styleConfig, selectedVariants });
       const cached = cache.get(cacheId);
       if (cached) return cached;
 
+      const { variants, responsiveVariants } = styleConfig;
       let variantStyles: Override[] = [];
+
       for (const [key, variant] of Object.entries(selectedVariants)) {
         if (!variant) continue;
         const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
@@ -143,10 +149,19 @@ function createCss(
         }
       }
 
-      const styles = css(baseStyles, ...variantStyles, ...overrides);
-      cache.set(cacheId, styles);
-      return styles;
+      const cn: StyleFns[0] = (...classNames) => [block, ...classNames].filter(Boolean).join(' ');
+      const style: StyleFns[1] = (...overrides) => css({}, ...variantStyles, ...overrides);
+      const result: StyleFns = [cn, style];
+
+      cache.set(cacheId, result);
+      return result;
     };
+
+    for (const [key, styleConfig] of Object.entries(configs)) {
+      result[key as keyof T] = generate.bind(null, key, styleConfig as T[keyof T]);
+    }
+
+    return result;
   };
 
   return css;
@@ -203,5 +218,5 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
 
 const css = createCss({});
 
-export type { TokenamiCSS, CSS };
+export type { TokenamiCSS };
 export { createCss, css, convertToMediaStyles };
