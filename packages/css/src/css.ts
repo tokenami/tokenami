@@ -16,29 +16,24 @@ type ResponsiveVariants<C> = undefined extends C
   ? {}
   : { [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> } }[keyof C];
 
-type ComposeCSS<V, R> = TokenamiProperties & {
-  variants?: V & VariantsConfig;
-  responsiveVariants?: R & VariantsConfig;
+type Compose<T extends ComposeStyleConfig<any, any>> = {
+  [K in keyof T]: GenerateCSS<T[K]['variants'], T[K]['responsiveVariants']>;
 };
 
-interface CSS {
-  // return type is purposfully `{}` to support `style` attribute type for different frameworks.
-  // returning `TokenamiProperties` is not enough here bcos that type can create circular refs
-  // in frameworks like SolidJS that use `CSS.PropertiesHyphen` as style attr type. i'm unsure
-  // what usecases requires an accurate return type here, so open to investigating further if we
-  // discover usecases later.
-  (baseStyles: TokenamiProperties, ...overrides: Override[]): TokenamiCSS;
+type ComposeStyleConfig<V, R> = {
+  [key: string]: TokenamiProperties & {
+    variants?: V & VariantsConfig;
+    responsiveVariants?: R & VariantsConfig;
+  };
+};
 
-  compose: <V extends VariantsConfig | undefined, R extends VariantsConfig | undefined>(
-    config: ComposeCSS<V, R>
-  ) => (
-    selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>,
-    ...overrides: Override[]
-  ) => TokenamiCSS;
-}
+type GenerateCSS<V, R> = (
+  selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>,
+  ...overrides: Override[]
+) => TokenamiCSS;
 
 const cache = {
-  limit: 500,
+  limit: 1_500,
   cache: new Map(),
   get(key: string) {
     const value = this.cache.get(key);
@@ -76,7 +71,7 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
   (globalThis as any)[_TOKENAMI_CSS] = options || {};
   const globalOptions: CreateCssOptions = (globalThis as any)[_TOKENAMI_CSS];
 
-  const css: CSS = (baseStyles, ...overrides) => {
+  function css(baseStyles: TokenamiProperties, ...overrides: Override[]): TokenamiCSS {
     let overriddenStyles = {} as TokenamiCSS;
     const cacheId = JSON.stringify({ baseStyles, overrides });
     const cached = cache.get(cacheId);
@@ -118,17 +113,23 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
 
     cache.set(cacheId, overriddenStyles);
     return overriddenStyles;
-  };
+  }
 
-  css.compose = (config) => {
-    const { variants, responsiveVariants, ...baseStyles } = config;
+  css.compose = <T extends ComposeStyleConfig<any, any>>(configs: T): Compose<T> => {
+    const result = {} as Compose<T>;
 
-    return function generate(selectedVariants = {}, ...overrides) {
-      const cacheId = JSON.stringify({ config, selectedVariants, overrides });
+    const generate = <V, R>(
+      styleConfig: ComposeStyleConfig<V, R>[string],
+      selectedVariants: Variants<V> & Variants<R> & ResponsiveVariants<R> = {},
+      ...overrides: Override[]
+    ): TokenamiCSS => {
+      const cacheId = JSON.stringify({ styleConfig, selectedVariants, overrides });
       const cached = cache.get(cacheId);
       if (cached) return cached;
 
+      const { variants, responsiveVariants, ...baseStyles } = styleConfig;
       let variantStyles: Override[] = [];
+
       for (const [key, variant] of Object.entries(selectedVariants)) {
         if (!variant) continue;
         const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
@@ -144,6 +145,12 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
       cache.set(cacheId, styles);
       return styles;
     };
+
+    for (const [key, styleConfig] of Object.entries(configs)) {
+      result[key as keyof T] = generate.bind(null, styleConfig) as GenerateCSS<any, any>;
+    }
+
+    return result;
   };
 
   return css;
@@ -200,5 +207,5 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
 
 const css = createCss({ include: [], theme: {} }, { escapeSpecialChars: true });
 
-export type { TokenamiCSS, CSS };
+export type { TokenamiCSS };
 export { createCss, css, convertToMediaStyles };
