@@ -22,13 +22,7 @@ export default function Index() {
           '--md_after_content': 'var(---, "🐠")',
         })}
       >
-        <img
-          style={styles.quoteImage({ variant: 'circle', md_variant: 'fill' })}
-          src="/me.jpg"
-          alt=""
-          width="400"
-          height="400"
-        />
+        <QuoteImage />
         <div style={css({ '--pt': 4, '--md_p': 8 })}>
           <blockquote style={css({ '--m': 0 })}>
             <p
@@ -96,6 +90,11 @@ export default function Index() {
     </>
   );
 }
+
+const QuoteImage = () => {
+  const [cn, style] = styles.quoteImage({ variant: 'circle', md_variant: 'fill' });
+  return <img className={cn()} style={style()} src="/me.jpg" alt="" width="400" height="400" />;
+};
 
 const styles = css.compose({
   quoteImage: {

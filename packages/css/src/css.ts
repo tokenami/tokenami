@@ -16,21 +16,26 @@ type ResponsiveVariants<C> = undefined extends C
   ? {}
   : { [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> } }[keyof C];
 
-type Compose<T extends ComposeStyleConfig<any, any>> = {
+type Compose<T extends ComposeStyleConfig> = {
   [K in keyof T]: GenerateCSS<T[K]['variants'], T[K]['responsiveVariants']>;
-};
-
-type ComposeStyleConfig<V, R> = {
-  [key: string]: TokenamiProperties & {
-    variants?: V & VariantsConfig;
-    responsiveVariants?: R & VariantsConfig;
-  };
 };
 
 type GenerateCSS<V, R> = (
   selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>,
   ...overrides: Override[]
-) => TokenamiCSS;
+) => StyleFns;
+
+type ComposeStyleConfig = {
+  [key: string]: TokenamiProperties & {
+    variants?: VariantsConfig;
+    responsiveVariants?: VariantsConfig;
+  };
+};
+
+type StyleFns = [
+  cn: (...classNames: (string | undefined | null | false)[]) => string | undefined,
+  style: (...overrides: Override[]) => TokenamiCSS
+];
 
 const cache = {
   limit: 1_500,
@@ -43,7 +48,7 @@ const cache = {
     this.cache.set(key, value);
     return value;
   },
-  set(key: string, value: TokenamiCSS) {
+  set(key: string, value: any) {
     // ensure inserts are most recent
     this.cache.delete(key);
     // remove oldest entry
@@ -115,14 +120,10 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
     return overriddenStyles;
   }
 
-  css.compose = <T extends ComposeStyleConfig<any, any>>(configs: T): Compose<T> => {
+  css.compose = <T extends ComposeStyleConfig>(configs: T): Compose<T> => {
     const result = {} as Compose<T>;
 
-    const generate = <V, R>(
-      styleConfig: ComposeStyleConfig<V, R>[string],
-      selectedVariants: Variants<V> & Variants<R> & ResponsiveVariants<R> = {},
-      ...overrides: Override[]
-    ): TokenamiCSS => {
+    const generate = (styleConfig: T[keyof T], selectedVariants = {}, ...overrides: Override[]) => {
       const cacheId = JSON.stringify({ styleConfig, selectedVariants, overrides });
       const cached = cache.get(cacheId);
       if (cached) return cached;
@@ -142,12 +143,17 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
       }
 
       const styles = css(baseStyles, ...variantStyles, ...overrides);
-      cache.set(cacheId, styles);
-      return styles;
+      const cn: StyleFns[0] = (...classNames) => classNames.filter(Boolean).join(' ') || undefined;
+      const style: StyleFns[1] = (...overrides) =>
+        overrides.length ? css(styles, ...overrides) : styles;
+
+      const result: StyleFns = [cn, style];
+      cache.set(cacheId, result);
+      return result;
     };
 
     for (const [key, styleConfig] of Object.entries(configs)) {
-      result[key as keyof T] = generate.bind(null, styleConfig) as GenerateCSS<any, any>;
+      result[key as keyof T] = generate.bind(null, styleConfig as T[keyof T]);
     }
 
     return result;

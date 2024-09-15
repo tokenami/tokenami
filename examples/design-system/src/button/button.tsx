@@ -10,12 +10,14 @@ interface ButtonProps extends TokenamiStyle<ButtonElementProps>, Variants<typeof
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, forwardedRef) => {
   const { size = 'small', children, ...buttonProps } = props;
+  const [cn, style] = styles.button({ size });
   return (
     <button
       type="button"
       {...buttonProps}
       ref={forwardedRef}
-      style={styles.button({ size }, props.style)}
+      className={cn()}
+      style={style(props.style)}
     >
       {children}
     </button>
