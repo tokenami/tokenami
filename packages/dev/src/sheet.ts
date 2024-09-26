@@ -1,4 +1,5 @@
 import * as Tokenami from '@tokenami/config';
+import { type TokenamiProperties, createCss } from '@tokenami/css';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
 import * as utils from './utils';
@@ -13,6 +14,7 @@ const LAYERS = {
   LOGICAL: 'tkl',
   SELECTORS: 'tks',
   SELECTORS_LOGICAL: 'tksl',
+  COMPONENTS: 'tkc',
 };
 
 type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
@@ -27,24 +29,30 @@ type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
  * -----------------------------------------------------------------------------------------------*/
 
 function generate(params: {
-  tokens: { properties: Tokenami.TokenProperty[]; values: Tokenami.TokenValue[] };
   output: string;
   config: Tokenami.Config;
   minify?: boolean;
   targets?: lightning.Targets;
+  tokens: {
+    properties: Tokenami.TokenProperty[];
+    values: Tokenami.TokenValue[];
+    composeBlocks: Record<string, TokenamiProperties> | undefined;
+  };
 }) {
   if (!params.tokens.properties.length) return '';
 
   const tokenProperties = params.tokens.properties;
   const tokenValues = params.tokens.values;
   const configProperties = Object.keys(params.config.properties || {});
+  const composeBlocks = params.tokens.composeBlocks || {};
   const propertyConfigsByCSSProperty = getPropertyConfigs(tokenProperties, params.config);
   const allPropertyConfigs = Array.from(propertyConfigsByCSSProperty.values()).flat();
+  const styleSelector = createBaseSelector(Object.keys(composeBlocks));
 
   const elemSelectors = utils.unique(
     allPropertyConfigs.map((config) => {
       const selectors = getSelectorsFromConfig(config.selector, params.config);
-      return selectors.find(isElementSelector) || DEFAULT_SELECTOR;
+      return selectors.find(isElementSelector) || styleSelector;
     })
   );
 
@@ -52,6 +60,7 @@ function generate(params: {
     reset: new Set<string>(),
     atomic: new Set<string>(),
     selectors: new Set<string>(),
+    components: {} as Record<string, Set<string>>,
     toggles: {} as Record<string, Set<string>>,
   };
 
@@ -109,17 +118,32 @@ function generate(params: {
         }
       } else {
         const propertyValue = getBasePropertyValue(config.tokenProperty, config);
-        const declaration = `${DEFAULT_SELECTOR} { ${propertyPrefix}${cssProperty}: ${propertyValue}; }`;
+        const declaration = `${styleSelector} { ${propertyPrefix}${cssProperty}: ${propertyValue}; }`;
         const layer = `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerIndex}`;
 
         if (!isInheritable) styles.reset.add(`${config.tokenProperty}: initial;`);
         styles.atomic.add(`@layer ${layer} { ${declaration} }`);
         if (config.isGrid) {
           const gridToggle = getGridPropertyToggle(config.tokenProperty);
-          styles.atomic.add(`@layer ${layer} { ${DEFAULT_SELECTOR} { ${gridToggle} } }`);
+          styles.atomic.add(`@layer ${layer} { ${styleSelector} { ${gridToggle} } }`);
         }
       }
     });
+  });
+
+  const css = createCss(params.config);
+
+  for (const [block, tokenamiProperties] of Object.entries(composeBlocks)) {
+    const parsed = css(tokenamiProperties);
+    for (const [property, value] of Object.entries(parsed)) {
+      const atomicPair = `${property}: ${value};`;
+      styles.components[atomicPair] ??= new Set<string>();
+      styles.components[atomicPair]!.add(`.${block}`);
+    }
+  }
+
+  const composeStyles = Object.entries(styles.components).map(([atomicPair, blocks]) => {
+    return `@layer ${LAYERS.COMPONENTS} { ${Array.from(blocks)} { ${atomicPair} } }`;
   });
 
   const sheet = `
@@ -127,24 +151,24 @@ function generate(params: {
       ${params.config.globalStyles ? stringify(params.config.globalStyles) : ''}
     }
 
-    @layer tokenami {
+    @layer tkb {
       ${generateKeyframeRules(tokenValues, params.config)}
-      ${generateThemeTokens(tokenValues, params.config)}
-
-      ${DEFAULT_SELECTOR} { ${Array.from(styles.reset).join(' ')} }
-
-      ${generatePlaceholderLayers(LAYERS.BASE)}
-      ${generatePlaceholderLayers(LAYERS.LOGICAL)}
-      ${generatePlaceholderLayers(LAYERS.SELECTORS)}
-      ${generatePlaceholderLayers(LAYERS.SELECTORS_LOGICAL)}
-
-      ${Array.from(styles.atomic).join(' ')}
-      ${Array.from(styles.selectors).join(' ')}
-
+      ${generateThemeTokens(tokenValues, styleSelector, params.config)}
+      ${styleSelector} { ${Array.from(styles.reset).join(' ')} }
       ${Object.values(styles.toggles)
         .flatMap((set) => Array.from(set))
         .join(' ')}
     }
+
+    ${generatePlaceholderLayers(LAYERS.BASE)}
+    ${generatePlaceholderLayers(LAYERS.LOGICAL)}
+    ${generatePlaceholderLayers(LAYERS.SELECTORS)}
+    ${generatePlaceholderLayers(LAYERS.SELECTORS_LOGICAL)}
+    ${generatePlaceholderLayers(LAYERS.COMPONENTS)}
+
+    ${Array.from(styles.atomic).join(' ')}
+    ${Array.from(styles.selectors).join(' ')}
+    ${composeStyles.join(' ')}
   `;
 
   try {
@@ -160,6 +184,15 @@ function generate(params: {
     log.debug(`Skipped style generation with ${e}`);
     return `${e}`;
   }
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * createBaseSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function createBaseSelector(blockNames: string[]) {
+  const classNames = blockNames.map((block) => `.${block}`);
+  return [...classNames, DEFAULT_SELECTOR];
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -269,15 +302,31 @@ function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Token
  * generateThemeTokens
  * -----------------------------------------------------------------------------------------------*/
 
-function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
+function generateThemeTokens(
+  tokenValues: Tokenami.TokenValue[],
+  styleSelector: string | string[],
+  config: Tokenami.Config
+) {
   const { modes, ...rootTheme } = config.theme;
   const rootSelector = ':root';
-  const rootEntries = getThemeEntries(rootSelector, tokenValues, rootTheme, config.properties);
+  const rootEntries = getThemeEntries(
+    styleSelector,
+    rootSelector,
+    tokenValues,
+    rootTheme,
+    config.properties
+  );
   const modeThemeEntries = Object.entries(modes || {}).flatMap(([mode, theme]) => {
     if (!config.themeSelector) return [];
     const selector = config.themeSelector(mode);
     // prefix mode selectors with comment to group them in stylesheet
-    return getThemeEntries(`/*mode*/${selector}`, tokenValues, theme, config.properties);
+    return getThemeEntries(
+      styleSelector,
+      `/*mode*/${selector}`,
+      tokenValues,
+      theme,
+      config.properties
+    );
   });
 
   const gridStyles = { [rootSelector]: { [Tokenami.gridProperty()]: config.grid } };
@@ -292,6 +341,7 @@ function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenam
  * -----------------------------------------------------------------------------------------------*/
 
 const getThemeEntries = (
+  styleSelector: string | string[],
   selector: string,
   tokenValues: Tokenami.TokenValue[],
   theme: Tokenami.Theme,
@@ -299,12 +349,15 @@ const getThemeEntries = (
 ) => {
   const themeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
   const customPropertyThemeValues = getCustomPropertyThemeValues(themeValues, properties);
+  const baseSelectors = [styleSelector].flat().map((s) => `${selector} ${s}`);
+
   for (const customKey of Object.keys(customPropertyThemeValues)) {
     delete themeValues[customKey];
   }
+
   return [
     [selector, themeValues],
-    [`${selector}, ${selector} ${DEFAULT_SELECTOR}`, customPropertyThemeValues],
+    [`${selector}, ${baseSelectors}`, customPropertyThemeValues],
   ] as const;
 };
 

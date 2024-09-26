@@ -1,4 +1,4 @@
-import type { TokenamiProperties, TokenamiFinalConfig } from '@tokenami/dev';
+import type { TokenamiProperties, TokenamiFinalConfig } from './declarations';
 import * as Tokenami from '@tokenami/config';
 
 const _TOKENAMI_CSS = Symbol.for('@tokenami/css');
@@ -21,8 +21,7 @@ type Compose<T extends ComposeStyleConfig> = {
 };
 
 type GenerateCSS<V, R> = (
-  selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>,
-  ...overrides: Override[]
+  selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>
 ) => StyleFns;
 
 type ComposeStyleConfig = {
@@ -33,7 +32,7 @@ type ComposeStyleConfig = {
 };
 
 type StyleFns = [
-  cn: (...classNames: (string | undefined | null | false)[]) => string | undefined,
+  cn: (...classNames: (string | undefined | null | false)[]) => string,
   style: (...overrides: Override[]) => TokenamiCSS
 ];
 
@@ -102,16 +101,21 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
           const longProperty = createLonghandProperty(tokenProperty, cssProperty);
           const isNumber = typeof value === 'number' && value > 0;
           const parsedProperty = Tokenami.parseProperty(longProperty, globalOptions);
+          const calcToggle = calcProperty(parsedProperty);
 
           overrideLonghands(overriddenStyles, parsedProperty);
           // this must happen each iteration so that each override applies to the
           // mutated css object from the previous override iteration
           overriddenStyles[parsedProperty as any] = value;
-          // add grid toggle to enable grid calc for grid properties. set it to
-          // undefined to remove the toggle if it was added by a previous iteration.
-          // it cannot be an empty string because some fws strip it (e.g. vite)
-          // @ts-ignore
-          overriddenStyles[calcProperty(parsedProperty)] = isNumber ? '/*on*/' : undefined;
+
+          if (isNumber) {
+            // add grid toggle to enable grid calc for grid properties. it cannot
+            // be an empty string because some fws strip it (e.g. vite)
+            (overriddenStyles as any)[calcToggle] = '/*on*/';
+          } else {
+            // remove the toggle if it was added by a previous iteration.
+            delete (overriddenStyles as any)[calcToggle];
+          }
         }
       }
     }
@@ -123,12 +127,12 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
   css.compose = <T extends ComposeStyleConfig>(configs: T): Compose<T> => {
     const result = {} as Compose<T>;
 
-    const generate = (styleConfig: T[keyof T], selectedVariants = {}, ...overrides: Override[]) => {
-      const cacheId = JSON.stringify({ styleConfig, selectedVariants, overrides });
+    const generate = (block: string, styleConfig: T[keyof T], selectedVariants = {}) => {
+      const cacheId = JSON.stringify({ styleConfig, selectedVariants });
       const cached = cache.get(cacheId);
       if (cached) return cached;
 
-      const { variants, responsiveVariants, ...baseStyles } = styleConfig;
+      const { variants, responsiveVariants } = styleConfig;
       let variantStyles: Override[] = [];
 
       for (const [key, variant] of Object.entries(selectedVariants)) {
@@ -142,18 +146,16 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
         }
       }
 
-      const styles = css(baseStyles, ...variantStyles, ...overrides);
-      const cn: StyleFns[0] = (...classNames) => classNames.filter(Boolean).join(' ') || undefined;
-      const style: StyleFns[1] = (...overrides) =>
-        overrides.length ? css(styles, ...overrides) : styles;
-
+      const cn: StyleFns[0] = (...classNames) => [block, ...classNames].filter(Boolean).join(' ');
+      const style: StyleFns[1] = (...overrides) => css({}, ...variantStyles, ...overrides);
       const result: StyleFns = [cn, style];
+
       cache.set(cacheId, result);
       return result;
     };
 
     for (const [key, styleConfig] of Object.entries(configs)) {
-      result[key as keyof T] = generate.bind(null, styleConfig as T[keyof T]);
+      result[key as keyof T] = generate.bind(null, key, styleConfig as T[keyof T]);
     }
 
     return result;

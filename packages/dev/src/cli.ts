@@ -1,3 +1,4 @@
+import { type TokenamiProperties } from '@tokenami/css';
 import * as Tokenami from '@tokenami/config';
 import browserslist from 'browserslist';
 import { browserslistToTargets } from 'lightningcss';
@@ -162,6 +163,7 @@ function watch(cwd: string, include: readonly string[], exclude?: readonly strin
 interface UsedTokens {
   properties: Tokenami.TokenProperty[];
   values: Tokenami.TokenValue[];
+  composeBlocks: Record<string, TokenamiProperties>;
 }
 
 async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<UsedTokens> {
@@ -170,14 +172,68 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
   const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore: exclude });
   let tokenProperties: Tokenami.TokenProperty[] = [];
   let tokenValues: Tokenami.TokenValue[] = [];
+  let composeBlocks: Record<string, TokenamiProperties> = {};
+
   entries.forEach((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
     const tokens = matchTokens(fileContent, config.theme);
     const responsiveProperties = matchResponsiveComposeVariants(fileContent, config);
     tokenProperties = [...tokenProperties, ...tokens.properties, ...responsiveProperties];
     tokenValues = [...tokenValues, ...tokens.values];
+    composeBlocks = { ...composeBlocks, ...findComposeBlocks(fileContent) };
   });
-  return { properties: tokenProperties, values: tokenValues };
+  return { properties: tokenProperties, values: tokenValues, composeBlocks };
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * findComposeBlocks
+ * -----------------------------------------------------------------------------------------------*/
+
+function findComposeBlocks(fileContent: string) {
+  const composeBlocks = fileContent.match(COMPOSE_BLOCKS_REGEX);
+  let result: Record<string, TokenamiProperties> | undefined = undefined;
+
+  if (!composeBlocks) return;
+
+  for (const block of composeBlocks) {
+    const ast = acorn.parse(block, { ecmaVersion: 'latest' });
+
+    acornWalk.simple(ast, {
+      CallExpression(node) {
+        const arg = node.arguments[0];
+        if (arg?.type !== 'ObjectExpression') return;
+
+        for (const block of arg.properties) {
+          if (
+            block.type !== 'Property' ||
+            block.key.type !== 'Identifier' ||
+            block.value.type !== 'ObjectExpression'
+          ) {
+            continue;
+          }
+
+          for (const tokenProperty of block.value.properties) {
+            if (
+              tokenProperty.type !== 'Property' ||
+              tokenProperty.key.type !== 'Literal' ||
+              tokenProperty.value.type !== 'Literal'
+            ) {
+              continue;
+            }
+
+            const property = tokenProperty.key.value;
+            const value = tokenProperty.value.value;
+
+            result ??= {};
+            result[block.key.name] ??= {};
+            result![block.key.name]![property as any] = value as any;
+          }
+        }
+      },
+    });
+  }
+
+  return result as Record<string, TokenamiProperties> | undefined;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -222,10 +278,10 @@ const COMPOSE_BLOCKS_REGEX = /css\.compose\(\{([\s\S]*?)\}\)/g;
 function matchResponsiveComposeVariants(fileContent: string, config: Tokenami.Config) {
   const composeBlocks = fileContent.match(COMPOSE_BLOCKS_REGEX);
   if (!composeBlocks) return [];
-  const responsiveBlocks = composeBlocks.filter((block) => block.match('responsiveVariants'));
 
-  return responsiveBlocks.flatMap((block) => {
-    const ast = acorn.parse(block, { ecmaVersion: 2020 });
+  return composeBlocks.flatMap((block) => {
+    if (!block.match('responsiveVariants')) return [];
+    const ast = acorn.parse(block, { ecmaVersion: 'latest' });
     const responsiveVariants = findResponsiveVariants(ast);
     const tokens = matchTokens(JSON.stringify(responsiveVariants), config.theme);
     return tokens.properties.flatMap((tokenProperty) => {
@@ -238,7 +294,7 @@ function matchResponsiveComposeVariants(fileContent: string, config: Tokenami.Co
  * findResponsiveVariants
  * -----------------------------------------------------------------------------------------------*/
 
-function findResponsiveVariants(node: acorn.AnyNode): acorn.ObjectExpression | null {
+function findResponsiveVariants(node: acorn.AnyNode): acorn.Property | null {
   let responsiveVariantsNode = null;
 
   acornWalk.simple(node, {

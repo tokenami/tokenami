@@ -1,6 +1,7 @@
 import { describe, beforeEach, it, expect } from 'vitest';
+import { css } from '@tokenami/css';
 import { hasStyles, hasSomeStyles } from './utils';
-import { css, convertToMediaStyles } from '../css';
+import { convertToMediaStyles } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup

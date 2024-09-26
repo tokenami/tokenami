@@ -183,6 +183,9 @@ importers:
       '@tokenami/config':
         specifier: workspace:*
         version: link:../config
+      '@tokenami/css':
+        specifier: '>= 0'
+        version: link:../css
       '@tokenami/ds':
         specifier: workspace:*
         version: link:../ds
