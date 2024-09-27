@@ -495,4 +495,4 @@ function mergeStyles(target: Record<string, any>, source: Record<string, any>) {
   return result;
 }
 
-export { generate };
+export { generate, LAYERS };
