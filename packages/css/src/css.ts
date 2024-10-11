@@ -2,10 +2,11 @@ import type { TokenamiProperties, TokenamiFinalConfig } from './declarations';
 import * as Tokenami from '@tokenami/config';
 
 const _TOKENAMI_CSS = Symbol.for('@tokenami/css');
+const _COMPOSE = Symbol();
 
 // return type purposfully isn't `TokenamiProperties` bcos frameworks limit the `style`
 // types to `CSS.PropertiesHyphen` or `CSS.Properties` which doesn't include `--custom-properties`
-type TokenamiCSS = { [_: symbol]: 'TokenamiCSS' };
+type TokenamiCSS = { [_: symbol]: TokenamiProperties };
 type VariantsConfig = Record<string, Record<string, TokenamiProperties>>;
 type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type ReponsiveKey = Extract<keyof TokenamiFinalConfig['responsive'], string>;
@@ -75,7 +76,10 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
   (globalThis as any)[_TOKENAMI_CSS] = options || {};
   const globalOptions: CreateCssOptions = (globalThis as any)[_TOKENAMI_CSS];
 
-  function css(baseStyles: TokenamiProperties, ...overrides: Override[]): TokenamiCSS {
+  function css(
+    baseStyles: TokenamiProperties | TokenamiCSS,
+    ...overrides: Override[]
+  ): TokenamiCSS {
     let overriddenStyles = {} as TokenamiCSS;
     const cacheId = JSON.stringify({ baseStyles, overrides });
     const cached = cache.get(cacheId);
@@ -85,8 +89,10 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
 
     for (const originalStyles of allStyles) {
       if (!originalStyles) continue;
+      const styles: TokenamiProperties =
+        (originalStyles as TokenamiCSS)[_COMPOSE] || originalStyles;
 
-      for (let [key, value] of Object.entries(originalStyles)) {
+      for (let [key, value] of Object.entries(styles)) {
         if (!key.startsWith('--')) {
           overriddenStyles[key as any] = value;
           continue;
@@ -132,7 +138,7 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
       const cached = cache.get(cacheId);
       if (cached) return cached;
 
-      const { variants, responsiveVariants } = styleConfig;
+      const { variants, responsiveVariants, ...baseStyles } = styleConfig;
       let variantStyles: Override[] = [];
 
       for (const [key, variant] of Object.entries(selectedVariants)) {
@@ -147,9 +153,12 @@ function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
       }
 
       const cn: StyleFns[0] = (...classNames) => [block, ...classNames].filter(Boolean).join(' ');
-      const style: StyleFns[1] = (...overrides) => css({}, ...variantStyles, ...overrides);
-      const result: StyleFns = [cn, style];
 
+      const style: StyleFns[1] = (...overrides) => {
+        return css({ [_COMPOSE]: baseStyles }, ...variantStyles, ...overrides);
+      };
+
+      const result: StyleFns = [cn, style];
       cache.set(cacheId, result);
       return result;
     };
@@ -174,7 +183,7 @@ function overrideLonghands(style: Record<string, any>, tokenProperty: Tokenami.T
   longhands.forEach((longhand) => {
     const tokenPropertyLong = createLonghandProperty(tokenProperty, longhand);
     if (style[tokenPropertyLong]) {
-      delete style[tokenPropertyLong];
+      style[tokenPropertyLong] = 'initial';
       delete style[calcProperty(tokenPropertyLong)];
     }
     overrideLonghands(style, tokenPropertyLong);

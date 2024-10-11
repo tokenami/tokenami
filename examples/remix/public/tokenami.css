@@ -196,6 +196,7 @@
     --leading_7: 1.75rem;
     --leading_loose: 2;
     --line_0: 0 solid;
+    --line_4: .25rem solid;
     --line_px: .0625rem solid;
     --morph_all: all cubic-bezier(.4, 0, .2, 1) .15s;
     --radii_3xl: 1.5rem;
@@ -212,7 +213,7 @@
     --weight_medium: 500;
   }
 
-  :root, :root .button, :root .quoteImage, :root [style] {
+  :root, :root .button, :root .link, :root .quoteImage, :root [style] {
     --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
     --text_xl: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1.25rem / 1.75rem var(--font-family);
   }
@@ -243,7 +244,7 @@
     --pet_favourite: "🐱";
   }
 
-  .button, .quoteImage, [style] {
+  .button, .link, .quoteImage, [style] {
     --sm: initial;
     --md: initial;
     --lg: initial;
@@ -308,6 +309,7 @@
     --border-start-start-radius: initial;
     --border-start-end-radius: initial;
     --object-fit: initial;
+    --padding-inline-start: initial;
   }
 
   @media (width >= 40rem) {
@@ -368,7 +370,7 @@
 }
 
 @layer tk1 {
-  .button, .quoteImage, [style] {
+  .button, .link, .quoteImage, [style] {
     border-radius: var(--border-radius, revert-layer);
     transition: var(--transition, revert-layer);
     color: var(--color, revert-layer);
@@ -388,7 +390,7 @@
 }
 
 @layer tk2 {
-  .button, .quoteImage, [style] {
+  .button, .link, .quoteImage, [style] {
     font-family: var(--font-family, revert-layer);
     font-stretch: var(--font-stretch, revert-layer);
     font-style: var(--font-style, revert-layer);
@@ -408,7 +410,7 @@
 }
 
 @layer tk3 {
-  .button, .quoteImage, [style] {
+  .button, .link, .quoteImage, [style] {
     background-position-x: var(--_1k3at6j, var(--background-position-x, revert-layer));
     --_1k3at6j: var(--background-position-x__calc) calc(var(--background-position-x) * var(--_grid));
     background-position-y: var(--_1k3at6i, var(--background-position-y, revert-layer));
@@ -417,7 +419,7 @@
 }
 
 @layer tkl1 {
-  .button, .quoteImage, [style] {
+  .button, .link, .quoteImage, [style] {
     inline-size: var(--_g44f3h, var(--inline-size, revert-layer));
     --_g44f3h: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
     block-size: var(--_1ieen97, var(--block-size, revert-layer));
@@ -426,7 +428,7 @@
 }
 
 @layer tkl2 {
-  .button, .quoteImage, [style] {
+  .button, .link, .quoteImage, [style] {
     padding-inline: var(--_1od2e5r, var(--padding-inline, revert-layer));
     --_1od2e5r: var(--padding-inline__calc) calc(var(--padding-inline) * var(--_grid));
     padding-block: var(--_esg7el, var(--padding-block, revert-layer));
@@ -437,26 +439,28 @@
 }
 
 @layer tkl3 {
-  .button, .quoteImage, [style] {
+  .button, .link, .quoteImage, [style] {
     border-block-end: var(--border-block-end, revert-layer);
     --_1mbhke0: var(--padding-block-start__calc) calc(var(--padding-block-start) * var(--_grid));
     --_13f2miu: var(--margin-block-end__calc) calc(var(--margin-block-end) * var(--_grid));
     --_14lv7pp: var(--margin-inline-start__calc) calc(var(--margin-inline-start) * var(--_grid));
+    --_i8im6g: var(--padding-inline-start__calc) calc(var(--padding-inline-start) * var(--_grid));
     margin-block-end: var(--_13f2miu, var(--margin-block-end, revert-layer));
     margin-inline-start: var(--_14lv7pp, var(--margin-inline-start, revert-layer));
     padding-block-start: var(--_1mbhke0, var(--padding-block-start, revert-layer));
+    padding-inline-start: var(--_i8im6g, var(--padding-inline-start, revert-layer));
   }
 }
 
 @layer tkl5 {
-  .button, .quoteImage, [style] {
+  .button, .link, .quoteImage, [style] {
     border-block-color: var(--border-block-color, revert-layer);
     border-inline-color: var(--border-inline-color, revert-layer);
   }
 }
 
 @layer tks1 {
-  .button, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style]:after {
+  .button, .link, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style]:after {
     border-radius: var(--_18mum7u, var(--_1ckstr7, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, var(--_117pkm7, revert-layer))))));
     --_18mum7u: var(--child-para) var(--child-para_border-radius);
     --_117pkm7: var(--sm) var(--sm_border-radius);
@@ -489,7 +493,7 @@
 }
 
 @layer tks2 {
-  .button, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style]:after {
+  .button, .link, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style]:after {
     font-family: var(--_6j96ia, var(--_9d9ope, var(--_10sf9dp, var(--_1l5j3ql, var(--_1oveq08, revert-layer)))));
     --_1oveq08: var(--sm) var(--sm_font-family);
     --_1l5j3ql: var(--md) var(--md_font-family);
@@ -507,7 +511,7 @@
 }
 
 @layer tksl1 {
-  .button, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style]:after {
+  .button, .link, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style]:after {
     inline-size: var(--_1s1v5hn, var(--_1c1c65v, var(--_19kqniq, var(--_lbmt5u, var(--_3gor0r, revert-layer)))));
     --_3gor0r: var(--sm) var(--_kbghma, var(--sm_inline-size));
     --_kbghma: var(--sm_inline-size__calc) calc(var(--sm_inline-size) * var(--_grid));
@@ -534,7 +538,7 @@
 }
 
 @layer tksl2 {
-  .button, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style]:after {
+  .button, .link, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style]:after {
     padding-inline: var(--_hvq2vq, revert-layer);
     --_hvq2vq: var(--child-para) var(--_13rhg63, var(--child-para_padding-inline));
     --_13rhg63: var(--child-para_padding-inline__calc) calc(var(--child-para_padding-inline) * var(--_grid));
@@ -558,7 +562,18 @@
     --\{\&\;focus\;hover\}_background-color: var(---, red);
   }
 
+  .link {
+    --border: var(--line_4);
+    --border-block-color: var(--color_amber12);
+    --border-inline-color: var(--color_amber12);
+    --padding: 5;
+    --padding__calc: ;
+  }
+
   .quoteImage {
     --object-fit: cover;
+    --border: var(--line_0);
+    --padding-inline-start: 3;
+    --padding-inline-start__calc: ;
   }
 }

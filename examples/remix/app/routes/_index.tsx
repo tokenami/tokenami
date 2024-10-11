@@ -2,6 +2,8 @@ import * as DS from '@tokenami/example-design-system';
 import { css } from '~/css';
 
 export default function Index() {
+  const [linkClass, linkStyle] = styles.link();
+
   return (
     <>
       <figure
@@ -22,7 +24,7 @@ export default function Index() {
           '--md_after_content': 'var(---, "🐠")',
         })}
       >
-        <QuoteImage />
+        <QuoteImage className={linkClass()} style={linkStyle()} />
         <div style={css({ '--pt': 4, '--md_p': 8 })}>
           <blockquote style={css({ '--m': 0 })}>
             <p
@@ -86,19 +88,37 @@ export default function Index() {
       >
         Button
       </button>
-      <DS.Button style={{ '--border-color': 'var(---, red)' }}>Button</DS.Button>
+      <DS.Button className={linkClass()} style={{ '--border-color': 'var(---, red)' }}>
+        Button
+      </DS.Button>
     </>
   );
 }
 
-const QuoteImage = () => {
+const QuoteImage = (props: any) => {
   const [cn, style] = styles.quoteImage({ variant: 'circle', md_variant: 'fill' });
-  return <img className={cn()} style={style()} src="/me.jpg" alt="" width="400" height="400" />;
+  return (
+    <img
+      className={cn(props.className)}
+      style={style(props.style)}
+      src="/me.jpg"
+      alt=""
+      width="400"
+      height="400"
+    />
+  );
 };
 
 const styles = css.compose({
+  link: {
+    '--border': 'var(--line_4)',
+    '--border-color': 'var(--color_amber12)',
+    '--padding': 5,
+  },
   quoteImage: {
     '--object-fit': 'cover',
+    '--border': 'var(--line_0)',
+    '--padding-left': 3,
 
     responsiveVariants: {
       variant: {
