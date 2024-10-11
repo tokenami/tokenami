@@ -107,9 +107,10 @@ function getThemeValueByTokenValueEntries(
     const parts = Tokenami.getTokenValueParts(tokenValue);
     const value = theme[parts.themeKey]?.[parts.token];
     if (value == null) return [];
-    const tokenValues = findTokenValuesInThemeValue(value);
+    const valueString = String(value);
+    const tokenValues = findTokenValuesInThemeValue(valueString);
     const themeValuesEntries = getThemeValueByTokenValueEntries(tokenValues, theme);
-    return [[parts.property, value], ...themeValuesEntries];
+    return [[parts.property, valueString], ...themeValuesEntries];
   });
 }
 
@@ -139,7 +140,7 @@ function getThemeValuesByThemeMode(
   const modeThemeEntries: [string, Tokenami.Theme][] = Object.entries(modes);
   const modeValues = modeThemeEntries.concat([['root', rootTheme]]).flatMap(([mode, theme]) => {
     const value = theme[parts.themeKey]?.[parts.token];
-    return value ? [[mode, value] as const] : [];
+    return value == null ? [] : [[mode, String(value)] as const];
   });
   return Object.fromEntries(modeValues);
 }

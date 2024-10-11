@@ -43,30 +43,39 @@ Use the fluid spacing and font size tokens to create responsive designs without 
 The following example will apply `8px` (`0.5rem`) padding to your element at the smallest breakpoint, and `16px` (`1rem`) padding at the largest breakpoint.
 
 ```tsx
-css({ '--padding': 'var(--fluid-p_min-max)', '--fluid-p-min': 2, '--fluid-p-max': 4 });
+css({
+  '--padding': 'var(--fluid-p-clamp_min-max)',
+  '--fluid-p-min': 2,
+  '--fluid-p-max': 4,
+});
 ```
 
-You can adjust the breakpoints the fluid spacings apply to by changing the `--padding` property:
+You can adjust the breakpoints the fluid spacings apply to by changing the `--padding` clamp value:
 
-```tsx
-css({ '--padding': 'var(--fluid-p_sm-md)' /* ...  */ });
+```diff
+css({
+- '--padding': 'var(--fluid-p-clamp_min-max)',
++ '--padding': 'var(--fluid-p-clamp_sm-md)',
+  '--fluid-p-min': 2,
+  '--fluid-p-max': 4,
+});
 ```
 
 This will clamp the minimum padding at the small breakpoint, and the maximum padding at the medium breakpoint.
 
 ### Font sizes
 
-Fluid font sizes are multiples of the base font size. For instance, a `--text-size-min` of `2` will result in a font size of `32px` (`2rem`).
+Fluid font sizes accept fluid tokens:
 
 ```tsx
 css({
-  '--font-size': 'var(--fluid-text-size_min-max)',
-  '--fluid-text-size-min': 2,
-  '--fluid-text-size-max': 4,
+  '--font-size': 'var(--fluid-text-size-clamp_min-max)',
+  '--fluid-text-size-min': 'var(--fluid-text-size_xs)',
+  '--fluid-text-size-max': 'var(--fluid-text-size_lg)',
 });
 ```
 
-This will mean a font size that scales between `32px` (`2rem`) and `64px` (`4rem`) from smallest to largest breakpoints.
+This will mean a font size that scales between `12px` (`0.75rem`) and `18px` (`1.125rem`) from smallest to largest breakpoints.
 
 ## Radix UI Colours
 
