@@ -19,6 +19,7 @@ export default createConfig({
   theme: {
     ...designSystemConfig.theme,
     modes: {
+      ...designSystemConfig.theme.modes,
       root: {
         ...designSystemConfig.theme.modes.root,
         pet: { favourite: '"🐶"' },
@@ -29,6 +30,18 @@ export default createConfig({
       },
       dark: {
         ...designSystemConfig.theme.modes.dark,
+        pet: { favourite: '"🐱"' },
+      },
+      rootP3: {
+        ...designSystemConfig.theme.modes.rootP3,
+        pet: { favourite: '"🐶"' },
+      },
+      lightP3: {
+        ...designSystemConfig.theme.modes.lightP3,
+        pet: { favourite: '"🐶"' },
+      },
+      darkP3: {
+        ...designSystemConfig.theme.modes.darkP3,
         pet: { favourite: '"🐱"' },
       },
     },

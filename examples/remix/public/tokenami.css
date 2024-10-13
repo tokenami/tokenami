@@ -243,6 +243,36 @@
     --pet_favourite: "🐱";
   }
 
+  @supports (color: color(display-p3 1 1 1)) {
+    @media (color-gamut: p3) {
+      :root, [data-theme="light"] {
+        --color_amber12: color(display-p3 .294 .208 .145);
+        --color_amber9: color(display-p3 1 .77 .26);
+        --color_indigo10: color(display-p3 .234 .343 .801);
+        --color_indigo5: color(display-p3 .831 .87 1);
+        --color_indigo6: color(display-p3 .767 .814 .995);
+        --color_violet10: color(display-p3 .381 .306 .741);
+        --color_violet11: color(display-p3 .383 .317 .702);
+        --color_violet9: color(display-p3 .417 .341 .784);
+        --color_white: color(display-p3 1 1 1);
+        --pet_favourite: "🐶";
+      }
+
+      [data-theme="dark"] {
+        --color_amber12: color(display-p3 .984 .909 .726);
+        --color_amber9: color(display-p3 1 .77 .26);
+        --color_indigo10: color(display-p3 .354 .445 .866);
+        --color_indigo5: color(display-p3 .163 .22 .439);
+        --color_indigo6: color(display-p3 .203 .262 .5);
+        --color_violet10: color(display-p3 .477 .402 .823);
+        --color_violet11: color(display-p3 .72 .65 1);
+        --color_violet9: color(display-p3 .417 .341 .784);
+        --color_white: color(display-p3 1 1 1);
+        --pet_favourite: "🐱";
+      }
+    }
+  }
+
   [style] {
     --sm: initial;
     --md: initial;

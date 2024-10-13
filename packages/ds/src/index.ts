@@ -41,7 +41,6 @@ const fluid = <P extends string, MinPx extends number, MaxPx extends number>(par
 export default createConfig({
   include: [],
   grid: rem(BASE_GRID_SIZE),
-  themeSelector: (mode) => (mode === 'root' ? ':root' : `[data-theme=${mode}]`),
   responsive: {
     sm: remBreakpoint(BP_SM),
     md: remBreakpoint(BP_MD),
@@ -212,6 +211,19 @@ export default createConfig({
       display: 'none',
     },
   },
+  themeSelector: (mode) => {
+    const attrSelector = (mode: string) => `[data-theme=${mode}]`;
+    const p3 = (modeSelector: string) => [
+      '@supports (color: color(display-p3 1 1 1))',
+      '@media (color-gamut: p3)',
+      modeSelector,
+    ];
+    if (mode === 'root') return ':root';
+    if (mode === 'rootP3') return p3(':root');
+    if (mode === 'lightP3') return p3(attrSelector('light'));
+    if (mode === 'darkP3') return p3(attrSelector('dark'));
+    return attrSelector(mode);
+  },
   theme: {
     modes: {
       root: {
@@ -236,6 +248,30 @@ export default createConfig({
           transparent: 'transparent',
           ...colors.shared,
           ...colors.dark,
+        },
+      },
+      rootP3: {
+        color: {
+          current: 'currentColor',
+          transparent: 'transparent',
+          ...colors.sharedP3,
+          ...colors.lightP3,
+        },
+      },
+      lightP3: {
+        color: {
+          current: 'currentColor',
+          transparent: 'transparent',
+          ...colors.sharedP3,
+          ...colors.lightP3,
+        },
+      },
+      darkP3: {
+        color: {
+          current: 'currentColor',
+          transparent: 'transparent',
+          ...colors.sharedP3,
+          ...colors.darkP3,
         },
       },
     },
