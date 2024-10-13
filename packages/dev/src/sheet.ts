@@ -272,40 +272,48 @@ function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Token
 function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
   const { modes, ...rootTheme } = config.theme;
   const rootSelector = ':root';
-  const rootEntries = getThemeEntries(rootSelector, tokenValues, rootTheme, config.properties);
-  const modeThemeEntries = Object.entries(modes || {}).flatMap(([mode, theme]) => {
-    if (!config.themeSelector) return [];
-    const selector = config.themeSelector(mode);
-    // prefix mode selectors with comment to group them in stylesheet
-    return getThemeEntries(`/*mode*/${selector}`, tokenValues, theme, config.properties);
-  });
+  const gridStyles = `${rootSelector} { ${Tokenami.gridProperty()}: ${config.grid}; }`;
+  const rootStyles = getThemeStyles(rootSelector, tokenValues, rootTheme, config.properties);
+  const modeStyles = config.themeSelector
+    ? Object.entries(modes || {}).map(([mode, theme]) => {
+        const selector = config.themeSelector!(mode);
+        return getThemeStyles(selector, tokenValues, theme, config.properties);
+      })
+    : null;
 
-  const gridStyles = { [rootSelector]: { [Tokenami.gridProperty()]: config.grid } };
-  const rootStyles = Object.fromEntries(rootEntries);
-  const modeStyles = Object.fromEntries(modeThemeEntries);
-
-  return stringify(mergeStyles(mergeStyles(gridStyles, rootStyles), modeStyles));
+  const themeTokens = [gridStyles, rootStyles, modeStyles ? modeStyles.join(' ') : ''];
+  return themeTokens.join(' ');
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getThemeEntries
+ * getThemeStyles
  * -----------------------------------------------------------------------------------------------*/
 
-const getThemeEntries = (
-  selector: string,
+const getThemeStyles = (
+  selector: string | string[],
   tokenValues: Tokenami.TokenValue[],
   theme: Tokenami.Theme,
   properties: Tokenami.Config['properties']
 ) => {
   const themeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
   const customPropertyThemeValues = getCustomPropertyThemeValues(themeValues, properties);
+  const selectors = Array.isArray(selector) ? selector : [selector];
+
   for (const customKey of Object.keys(customPropertyThemeValues)) {
     delete themeValues[customKey];
   }
-  return [
-    [selector, themeValues],
-    [`${selector}, ${selector} ${DEFAULT_SELECTOR}`, customPropertyThemeValues],
-  ] as const;
+
+  const themeStyles = selectors.reduceRight(
+    (declaration, selector) => `${selector} { ${declaration} }`,
+    stringify(themeValues)
+  );
+
+  const elementSelector = selectors.at(-1)!;
+  const customPropertyThemeStyles = selectors.slice(0, -1).reduceRight((declaration, selector) => {
+    return `${selector} { ${declaration} }`;
+  }, `${elementSelector}, ${elementSelector} ${DEFAULT_SELECTOR} { ${stringify(customPropertyThemeValues)} }`);
+
+  return themeStyles + ' ' + customPropertyThemeStyles;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -429,17 +437,5 @@ function getSelectorsFromConfig(
 }
 
 /* ---------------------------------------------------------------------------------------------- */
-
-function mergeStyles(target: Record<string, any>, source: Record<string, any>) {
-  const result = { ...target, ...source };
-  for (const key of Object.keys(result)) {
-    result[key] =
-      typeof target[key] == 'object' && typeof source[key] == 'object'
-        ? mergeStyles(target[key], source[key])
-        : // we're only dealing with objects/strings for now, so this is safe
-          JSON.parse(JSON.stringify(result[key]));
-  }
-  return result;
-}
 
 export { generate };
