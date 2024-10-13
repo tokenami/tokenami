@@ -392,7 +392,10 @@ function init(modules: { typescript: typeof tslib }) {
 
     const updatedEnvFileContent = envFileContent.replace(
       /interface TokenamiProperties([^\\{]*){/,
-      `interface TokenamiProperties extends ${customProperties.join(', ')} {`
+      customProperties.length
+        ? `interface TokenamiProperties extends ${customProperties.join(', ')} {`
+        : // if config is updated to remove custom properties, we need to remove the extends clause
+          'interface TokenamiProperties {'
     );
 
     ts.sys.writeFile(envFilePath, updatedEnvFileContent);
