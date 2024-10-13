@@ -35,6 +35,7 @@ type ThemeModes<T = Theme> = { modes?: ThemeMode<T> };
 type ThemeConfig = Theme | ThemeModes;
 type Aliases = Record<string, readonly CSSProperty[]>;
 type PropertiesOptions = readonly ('grid' | ThemeKey)[];
+type Selector = string | string[];
 
 interface Config {
   include: string[];
@@ -42,10 +43,10 @@ interface Config {
   grid?: string;
   globalStyles?: Record<string, CSS.Properties>;
   responsive?: { [atRule: string]: string };
-  selectors?: { [name: string]: string | string[] };
+  selectors?: { [name: string]: Selector };
   keyframes?: { [name: string]: { [step: string]: CSS.Properties } };
   aliases?: Aliases;
-  themeSelector?: (mode: string) => string;
+  themeSelector?: (mode: string) => Selector;
   theme: ThemeConfig;
   properties?: Partial<Record<CSSProperty | (string & {}), PropertiesOptions>>;
 }
