@@ -153,6 +153,7 @@ function generate(params: {
       filename: params.output,
       minify: params.minify,
       targets: params.targets,
+      exclude: lightning.Features.P3Colors | lightning.Features.ColorFunction,
     });
 
     return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
