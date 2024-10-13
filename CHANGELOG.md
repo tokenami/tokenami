@@ -1,3 +1,39 @@
+# v0.0.67 (Sun Oct 13 2024)
+
+### Release Notes
+
+#### [ds] limit fluid font sizes to theme tokens ([#354](https://github.com/tokenami/tokenami/pull/354))
+
+If you're using the `--fluid-text-size_*` tokens and related custom properties, the properties accept theme tokens only now. to support this change, the fluid breakpoint tokens have all been renamed with a `-clamp` suffix.
+
+```diff
+css({
+-  '--font-size': 'var(--fluid-text-size_min-max)',
+-  '--fluid-text-size-min': 0.75,
+-  '--fluid-text-size-max': 1.125,
++  '--font-size': 'var(--fluid-text-size-clamp_min-max)',
++  '--fluid-text-size-min': 'var(--fluid-text-size_xs)',
++  '--fluid-text-size-max': 'var(--fluid-text-size_lg)',
+});
+```
+
+---
+
+#### 💥 Breaking Change
+
+- [ds] limit fluid font sizes to theme tokens [#354](https://github.com/tokenami/tokenami/pull/354) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🚀 Enhancement
+
+- add radix p3 colours to design system [#357](https://github.com/tokenami/tokenami/pull/357) ([@jjenzz](https://github.com/jjenzz))
+- add nested theme selector support [#356](https://github.com/tokenami/tokenami/pull/356) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.66 (Fri Sep 13 2024)
 
 #### 🚀 Enhancement
