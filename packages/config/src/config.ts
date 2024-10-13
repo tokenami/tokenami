@@ -28,7 +28,7 @@ type ThemeKey =
   | 'z'
   | (string & {});
 
-type ThemeValues = Record<string, string>;
+type ThemeValues = Record<string, string | number>;
 type Theme = { [themeKey in ThemeKey]?: ThemeValues };
 type ThemeMode<T = Theme> = { [mode: string]: T };
 type ThemeModes<T = Theme> = { modes?: ThemeMode<T> };

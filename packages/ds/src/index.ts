@@ -240,27 +240,27 @@ export default createConfig({
       },
     },
     alpha: {
-      '0': '0',
-      '5': '0.05',
-      '10': '0.1',
-      '15': '0.15',
-      '20': '0.2',
-      '25': '0.25',
-      '30': '0.3',
-      '35': '0.35',
-      '40': '0.4',
-      '45': '0.45',
-      '50': '0.5',
-      '55': '0.55',
-      '60': '0.6',
-      '65': '0.65',
-      '70': '0.7',
-      '75': '0.75',
-      '80': '0.8',
-      '85': '0.85',
-      '90': '0.9',
-      '95': '0.95',
-      '100': '1',
+      '0': 0,
+      '5': 0.05,
+      '10': 0.1,
+      '15': 0.15,
+      '20': 0.2,
+      '25': 0.25,
+      '30': 0.3,
+      '35': 0.35,
+      '40': 0.4,
+      '45': 0.45,
+      '50': 0.5,
+      '55': 0.55,
+      '60': 0.6,
+      '65': 0.65,
+      '70': 0.7,
+      '75': 0.75,
+      '80': 0.8,
+      '85': 0.85,
+      '90': 0.9,
+      '95': 0.95,
+      '100': 1,
     },
     anim: {
       none: 'none',
@@ -363,7 +363,7 @@ export default createConfig({
       initial: '0 1 auto',
       none: 'none',
     },
-    'fluid-height': {
+    'fluid-height-clamp': {
       'min-max': fluid({ property: 'fluid-height', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-height', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-height', from: BP_SM, to: BP_LG }),
@@ -374,7 +374,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-height', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-height', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-border-spacing': {
+    'fluid-border-spacing-clamp': {
       'min-max': fluid({ property: 'fluid-border-spacing', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-border-spacing', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-border-spacing', from: BP_SM, to: BP_LG }),
@@ -385,7 +385,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-border-spacing', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-border-spacing', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-column-gap': {
+    'fluid-column-gap-clamp': {
       'min-max': fluid({ property: 'fluid-column-gap', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-column-gap', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-column-gap', from: BP_SM, to: BP_LG }),
@@ -396,7 +396,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-column-gap', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-column-gap', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-column-width': {
+    'fluid-column-width-clamp': {
       'min-max': fluid({ property: 'fluid-column-width', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-column-width', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-column-width', from: BP_SM, to: BP_LG }),
@@ -407,7 +407,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-column-width', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-column-width', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-flex-basis': {
+    'fluid-flex-basis-clamp': {
       'min-max': fluid({ property: 'fluid-flex-basis', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-flex-basis', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-flex-basis', from: BP_SM, to: BP_LG }),
@@ -419,6 +419,21 @@ export default createConfig({
       'lg-2xl': fluid({ property: 'fluid-flex-basis', from: BP_LG, to: BP_2XL }),
     },
     'fluid-text-size': {
+      xs: 12 / BASE_FONT_SIZE,
+      sm: 14 / BASE_FONT_SIZE,
+      base: 16 / BASE_FONT_SIZE,
+      lg: 18 / BASE_FONT_SIZE,
+      xl: 20 / BASE_FONT_SIZE,
+      '2xl': 24 / BASE_FONT_SIZE,
+      '3xl': 30 / BASE_FONT_SIZE,
+      '4xl': 36 / BASE_FONT_SIZE,
+      '5xl': 48 / BASE_FONT_SIZE,
+      '6xl': 60 / BASE_FONT_SIZE,
+      '7xl': 72 / BASE_FONT_SIZE,
+      '8xl': 96 / BASE_FONT_SIZE,
+      '9xl': 128 / BASE_FONT_SIZE,
+    },
+    'fluid-text-size-clamp': {
       'min-max': fluid({ property: 'fluid-text-size', from: BP_SM, to: BP_2XL, divider: 1 }),
       'sm-md': fluid({ property: 'fluid-text-size', from: BP_SM, to: BP_MD, divider: 1 }),
       'sm-lg': fluid({ property: 'fluid-text-size', from: BP_SM, to: BP_LG, divider: 1 }),
@@ -429,7 +444,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-text-size', from: BP_LG, to: BP_XL, divider: 1 }),
       'lg-2xl': fluid({ property: 'fluid-text-size', from: BP_LG, to: BP_2XL, divider: 1 }),
     },
-    'fluid-gap': {
+    'fluid-gap-clamp': {
       'min-max': fluid({ property: 'fluid-gap', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-gap', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-gap', from: BP_SM, to: BP_LG }),
@@ -440,7 +455,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-gap', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-gap', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-width': {
+    'fluid-width-clamp': {
       'min-max': fluid({ property: 'fluid-width', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-width', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-width', from: BP_SM, to: BP_LG }),
@@ -451,7 +466,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-width', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-width', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-inset': {
+    'fluid-inset-clamp': {
       'min-max': fluid({ property: 'fluid-inset', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-inset', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-inset', from: BP_SM, to: BP_LG }),
@@ -462,7 +477,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-inset', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-inset', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-inset-y': {
+    'fluid-inset-y-clamp': {
       'min-max': fluid({ property: 'fluid-inset-y', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-inset-y', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-inset-y', from: BP_SM, to: BP_LG }),
@@ -484,7 +499,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-bottom', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-bottom', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-top': {
+    'fluid-top-clamp': {
       'min-max': fluid({ property: 'fluid-top', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-top', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-top', from: BP_SM, to: BP_LG }),
@@ -506,7 +521,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-inset-x', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-inset-x', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-right': {
+    'fluid-right-clamp': {
       'min-max': fluid({ property: 'fluid-right', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-right', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-right', from: BP_SM, to: BP_LG }),
@@ -517,7 +532,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-right', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-right', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-left': {
+    'fluid-left-clamp': {
       'min-max': fluid({ property: 'fluid-left', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-left', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-left', from: BP_SM, to: BP_LG }),
@@ -539,7 +554,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-m', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-m', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-my': {
+    'fluid-my-clamp': {
       'min-max': fluid({ property: 'fluid-my', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-my', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-my', from: BP_SM, to: BP_LG }),
@@ -550,7 +565,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-my', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-my', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-mb': {
+    'fluid-mb-clamp': {
       'min-max': fluid({ property: 'fluid-mb', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-mb', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-mb', from: BP_SM, to: BP_LG }),
@@ -561,7 +576,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-mb', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-mb', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-mt': {
+    'fluid-mt-clamp': {
       'min-max': fluid({ property: 'fluid-mt', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-mt', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-mt', from: BP_SM, to: BP_LG }),
@@ -572,7 +587,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-mt', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-mt', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-mx': {
+    'fluid-mx-clamp': {
       'min-max': fluid({ property: 'fluid-mx', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-mx', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-mx', from: BP_SM, to: BP_LG }),
@@ -583,7 +598,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-mx', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-mx', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-mr': {
+    'fluid-mr-clamp': {
       'min-max': fluid({ property: 'fluid-mr', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-mr', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-mr', from: BP_SM, to: BP_LG }),
@@ -594,7 +609,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-mr', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-mr', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-ml': {
+    'fluid-ml-clamp': {
       'min-max': fluid({ property: 'fluid-ml', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-ml', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-ml', from: BP_SM, to: BP_LG }),
@@ -605,7 +620,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-ml', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-ml', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-max-height': {
+    'fluid-max-height-clamp': {
       'min-max': fluid({ property: 'fluid-max-height', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-max-height', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-max-height', from: BP_SM, to: BP_LG }),
@@ -616,7 +631,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-max-height', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-max-height', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-max-width': {
+    'fluid-max-width-clamp': {
       'min-max': fluid({ property: 'fluid-max-width', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-max-width', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-max-width', from: BP_SM, to: BP_LG }),
@@ -627,7 +642,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-max-width', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-max-width', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-min-height': {
+    'fluid-min-height-clamp': {
       'min-max': fluid({ property: 'fluid-min-height', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-min-height', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-min-height', from: BP_SM, to: BP_LG }),
@@ -638,7 +653,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-min-height', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-min-height', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-min-width': {
+    'fluid-min-width-clamp': {
       'min-max': fluid({ property: 'fluid-min-width', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-min-width', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-min-width', from: BP_SM, to: BP_LG }),
@@ -649,7 +664,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-min-width', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-min-width', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-p': {
+    'fluid-p-clamp': {
       'min-max': fluid({ property: 'fluid-p', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-p', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-p', from: BP_SM, to: BP_LG }),
@@ -660,7 +675,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-p', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-p', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-py': {
+    'fluid-py-clamp': {
       'min-max': fluid({ property: 'fluid-py', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-py', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-py', from: BP_SM, to: BP_LG }),
@@ -671,7 +686,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-py', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-py', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-pb': {
+    'fluid-pb-clamp': {
       'min-max': fluid({ property: 'fluid-pb', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-pb', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-pb', from: BP_SM, to: BP_LG }),
@@ -682,7 +697,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-pb', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-pb', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-pt': {
+    'fluid-pt-clamp': {
       'min-max': fluid({ property: 'fluid-pt', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-pt', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-pt', from: BP_SM, to: BP_LG }),
@@ -693,7 +708,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-pt', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-pt', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-px': {
+    'fluid-px-clamp': {
       'min-max': fluid({ property: 'fluid-px', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-px', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-px', from: BP_SM, to: BP_LG }),
@@ -704,7 +719,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-px', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-px', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-pr': {
+    'fluid-pr-clamp': {
       'min-max': fluid({ property: 'fluid-pr', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-pr', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-pr', from: BP_SM, to: BP_LG }),
@@ -715,7 +730,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-pr', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-pr', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-pl': {
+    'fluid-pl-clamp': {
       'min-max': fluid({ property: 'fluid-pl', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-pl', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-pl', from: BP_SM, to: BP_LG }),
@@ -726,7 +741,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-pl', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-pl', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-row-gap': {
+    'fluid-row-gap-clamp': {
       'min-max': fluid({ property: 'fluid-row-gap', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-row-gap', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-row-gap', from: BP_SM, to: BP_LG }),
@@ -737,7 +752,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-row-gap', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-row-gap', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-m': {
+    'fluid-scroll-m-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-m', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-m', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-m', from: BP_SM, to: BP_LG }),
@@ -748,7 +763,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-m', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-m', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-my': {
+    'fluid-scroll-my-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-my', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-my', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-my', from: BP_SM, to: BP_LG }),
@@ -759,7 +774,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-my', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-my', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-mb': {
+    'fluid-scroll-mb-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-mb', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-mb', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-mb', from: BP_SM, to: BP_LG }),
@@ -770,7 +785,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-mb', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-mb', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-mt': {
+    'fluid-scroll-mt-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-mt', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-mt', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-mt', from: BP_SM, to: BP_LG }),
@@ -781,7 +796,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-mt', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-mt', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-mx': {
+    'fluid-scroll-mx-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-mx', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-mx', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-mx', from: BP_SM, to: BP_LG }),
@@ -792,7 +807,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-mx', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-mx', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-mr': {
+    'fluid-scroll-mr-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-mr', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-mr', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-mr', from: BP_SM, to: BP_LG }),
@@ -803,7 +818,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-mr', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-mr', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-ml': {
+    'fluid-scroll-ml-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-ml', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-ml', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-ml', from: BP_SM, to: BP_LG }),
@@ -814,7 +829,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-ml', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-ml', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-p': {
+    'fluid-scroll-p-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-p', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-p', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-p', from: BP_SM, to: BP_LG }),
@@ -825,7 +840,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-p', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-p', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-py': {
+    'fluid-scroll-py-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-py', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-py', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-py', from: BP_SM, to: BP_LG }),
@@ -836,7 +851,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-py', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-py', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-pb': {
+    'fluid-scroll-pb-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-pb', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-pb', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-pb', from: BP_SM, to: BP_LG }),
@@ -847,7 +862,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-pb', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-pb', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-pt': {
+    'fluid-scroll-pt-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-pt', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-pt', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-pt', from: BP_SM, to: BP_LG }),
@@ -858,7 +873,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-pt', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-pt', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-px': {
+    'fluid-scroll-px-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-px', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-px', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-px', from: BP_SM, to: BP_LG }),
@@ -869,7 +884,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-px', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-px', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-pr': {
+    'fluid-scroll-pr-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-pr', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-pr', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-pr', from: BP_SM, to: BP_LG }),
@@ -880,7 +895,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-pr', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-pr', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-scroll-pl': {
+    'fluid-scroll-pl-clamp': {
       'min-max': fluid({ property: 'fluid-scroll-pl', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-scroll-pl', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-scroll-pl', from: BP_SM, to: BP_LG }),
@@ -891,7 +906,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-scroll-pl', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-scroll-pl', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-stroke-width': {
+    'fluid-stroke-width-clamp': {
       'min-max': fluid({ property: 'fluid-stroke-width', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-stroke-width', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-stroke-width', from: BP_SM, to: BP_LG }),
@@ -902,7 +917,7 @@ export default createConfig({
       'lg-xl': fluid({ property: 'fluid-stroke-width', from: BP_LG, to: BP_XL }),
       'lg-2xl': fluid({ property: 'fluid-stroke-width', from: BP_LG, to: BP_2XL }),
     },
-    'fluid-text-indent': {
+    'fluid-text-indent-clamp': {
       'min-max': fluid({ property: 'fluid-text-indent', from: BP_SM, to: BP_2XL }),
       'sm-md': fluid({ property: 'fluid-text-indent', from: BP_SM, to: BP_MD }),
       'sm-lg': fluid({ property: 'fluid-text-indent', from: BP_SM, to: BP_LG }),
@@ -929,7 +944,7 @@ export default createConfig({
       'to-tl': optionalViaGradient('to top left'),
     },
     space: {
-      '0': '0',
+      '0': 0,
       px: rem(1),
       auto: 'auto',
       half: '50%',
@@ -963,7 +978,7 @@ export default createConfig({
       '8': `${rem(8)} solid`,
     },
     'line-size': {
-      '0': '0 ',
+      '0': 0,
       px: rem(1),
       '2': rem(2),
       '4': rem(4),
@@ -978,12 +993,12 @@ export default createConfig({
       '8': rem(32),
       '9': rem(36),
       '10': rem(40),
-      none: '1',
-      tight: '1.25',
-      snug: '1.375',
-      normal: '1.5',
-      relaxed: '1.625',
-      loose: '2',
+      none: 1,
+      tight: 1.25,
+      snug: 1.375,
+      normal: 1.5,
+      relaxed: 1.625,
+      loose: 2,
     },
     morph: {
       none: 'none',
@@ -995,14 +1010,14 @@ export default createConfig({
       transform: `transform cubic-bezier(0.4, 0, 0.2, 1) 150ms`,
     },
     offset: {
-      '0': '0',
+      '0': 0,
       px: rem(1),
       '2': rem(2),
       '4': rem(4),
       '8': rem(8),
     },
     radii: {
-      none: '0',
+      none: 0,
       sm: rem(2),
       base: rem(4),
       md: rem(6),
@@ -1028,7 +1043,7 @@ export default createConfig({
       none: 'none',
     },
     size: {
-      '0': '0',
+      '0': 0,
       px: rem(1),
       auto: 'auto',
       fit: 'fit-content',
@@ -1138,15 +1153,15 @@ export default createConfig({
       widest: '0.1em',
     },
     weight: {
-      thin: '100',
-      extralight: '200',
-      light: '300',
-      normal: '400',
-      medium: '500',
-      semibold: '600',
-      bold: '700',
-      extrabold: '800',
-      black: '900',
+      thin: 100,
+      extralight: 200,
+      light: 300,
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
+      extrabold: 800,
+      black: 900,
     },
   },
   selectors: {
@@ -1328,7 +1343,7 @@ export default createConfig({
     'background-image': ['gradient'],
     'background-position-x': ['grid', 'space'],
     'background-position-y': ['grid', 'space'],
-    'block-size': ['size', 'grid', 'fluid-height'],
+    'block-size': ['size', 'grid', 'fluid-height-clamp'],
     'block-size-min': ['number'],
     'block-size-max': ['number'],
     border: ['line'],
@@ -1371,21 +1386,21 @@ export default createConfig({
     'border-start-start-radius': ['radii'],
     'border-end-start-radius': ['radii'],
     'border-end-end-radius': ['radii'],
-    'border-spacing': ['grid', 'fluid-border-spacing'],
+    'border-spacing': ['grid', 'fluid-border-spacing-clamp'],
     bottom: ['grid', 'space', 'fluid-bottom'],
     'box-shadow': ['shadow'],
     'caret-color': ['color'],
     color: ['color'],
-    'column-gap': ['grid', 'fluid-column-gap'],
+    'column-gap': ['grid', 'fluid-column-gap-clamp'],
     'column-rule': ['line'],
     'column-rule-color': ['color'],
     'column-rule-width': ['line-size'],
     columns: ['col'],
-    'column-width': ['size', 'grid', 'fluid-column-width'],
+    'column-width': ['size', 'grid', 'fluid-column-width-clamp'],
     filter: ['effect', 'drop-shadow'],
     fill: ['color'],
     flex: ['flex'],
-    'flex-basis': ['grid', 'space', 'fluid-flex-basis'],
+    'flex-basis': ['grid', 'space', 'fluid-flex-basis-clamp'],
     'flex-basis-min': ['number'],
     'flex-basis-max': ['number'],
     'fluid-height-min': ['number'],
@@ -1398,8 +1413,8 @@ export default createConfig({
     'fluid-column-width-max': ['number'],
     'fluid-flex-basis-min': ['number'],
     'fluid-flex-basis-max': ['number'],
-    'fluid-text-size-min': ['number'],
-    'fluid-text-size-max': ['number'],
+    'fluid-text-size-min': ['fluid-text-size'],
+    'fluid-text-size-max': ['fluid-text-size'],
     'fluid-gap-min': ['number'],
     'fluid-gap-max': ['number'],
     'fluid-width-min': ['number'],
@@ -1490,10 +1505,10 @@ export default createConfig({
     'fluid-text-indent-max': ['number'],
     font: ['text'],
     'font-family': ['font'],
-    'font-size': ['text-size', 'fluid-text-size'],
+    'font-size': ['text-size', 'fluid-text-size-clamp'],
     'font-weight': ['weight'],
     'line-height': ['leading'],
-    gap: ['grid', 'fluid-gap'],
+    gap: ['grid', 'fluid-gap-clamp'],
     'gradient-from': ['color'],
     'gradient-from-stop': ['stop'],
     'gradient-to': ['color'],
@@ -1504,87 +1519,87 @@ export default createConfig({
     'grid-row': ['span'],
     'grid-template-rows': ['grid-span'],
     'grid-template-columns': ['grid-span'],
-    height: ['size', 'grid', 'fluid-height'],
-    'inline-size': ['size', 'grid', 'fluid-width'],
-    inset: ['grid', 'space', 'fluid-inset'],
-    'inset-block': ['grid', 'space', 'fluid-inset-y'],
+    height: ['size', 'grid', 'fluid-height-clamp'],
+    'inline-size': ['size', 'grid', 'fluid-width-clamp'],
+    inset: ['grid', 'space', 'fluid-inset-clamp'],
+    'inset-block': ['grid', 'space', 'fluid-inset-y-clamp'],
     'inset-block-end': ['grid', 'space', 'fluid-bottom'],
-    'inset-block-start': ['grid', 'space', 'fluid-top'],
+    'inset-block-start': ['grid', 'space', 'fluid-top-clamp'],
     'inset-inline': ['grid', 'space', 'fluid-inset-x'],
-    'inset-inline-end': ['grid', 'space', 'fluid-right'],
-    'inset-inline-start': ['grid', 'space', 'fluid-left'],
-    left: ['grid', 'space', 'fluid-left'],
+    'inset-inline-end': ['grid', 'space', 'fluid-right-clamp'],
+    'inset-inline-start': ['grid', 'space', 'fluid-left-clamp'],
+    left: ['grid', 'space', 'fluid-left-clamp'],
     'letter-spacing': ['tracking'],
     margin: ['grid', 'fluid-m'],
-    'margin-block': ['grid', 'fluid-my'],
-    'margin-block-end': ['grid', 'fluid-mb'],
-    'margin-block-start': ['grid', 'fluid-mt'],
+    'margin-block': ['grid', 'fluid-my-clamp'],
+    'margin-block-end': ['grid', 'fluid-mb-clamp'],
+    'margin-block-start': ['grid', 'fluid-mt-clamp'],
     'margin-inline': ['grid', 'fluid-mx'],
-    'margin-inline-end': ['grid', 'fluid-mr'],
-    'margin-inline-start': ['grid', 'fluid-ml'],
-    'margin-top': ['grid', 'fluid-mt'],
-    'margin-right': ['grid', 'fluid-mr'],
-    'margin-bottom': ['grid', 'fluid-mb'],
-    'margin-left': ['grid', 'fluid-ml'],
-    'max-block-size': ['size', 'grid', 'fluid-max-height'],
-    'max-height': ['size', 'grid', 'fluid-max-width'],
-    'max-inline-size': ['size', 'grid', 'fluid-max-width'],
-    'max-width': ['size', 'grid', 'fluid-max-height'],
-    'min-block-size': ['size', 'grid', 'fluid-min-height'],
-    'min-height': ['size', 'grid', 'fluid-min-width'],
-    'min-inline-size': ['size', 'grid', 'fluid-min-width'],
-    'min-width': ['size', 'grid', 'fluid-min-height'],
+    'margin-inline-end': ['grid', 'fluid-mr-clamp'],
+    'margin-inline-start': ['grid', 'fluid-ml-clamp'],
+    'margin-top': ['grid', 'fluid-mt-clamp'],
+    'margin-right': ['grid', 'fluid-mr-clamp'],
+    'margin-bottom': ['grid', 'fluid-mb-clamp'],
+    'margin-left': ['grid', 'fluid-ml-clamp'],
+    'max-block-size': ['size', 'grid', 'fluid-max-height-clamp'],
+    'max-height': ['size', 'grid', 'fluid-max-width-clamp'],
+    'max-inline-size': ['size', 'grid', 'fluid-max-width-clamp'],
+    'max-width': ['size', 'grid', 'fluid-max-height-clamp'],
+    'min-block-size': ['size', 'grid', 'fluid-min-height-clamp'],
+    'min-height': ['size', 'grid', 'fluid-min-width-clamp'],
+    'min-inline-size': ['size', 'grid', 'fluid-min-width-clamp'],
+    'min-width': ['size', 'grid', 'fluid-min-height-clamp'],
     opacity: ['alpha'],
     outline: ['line'],
     'outline-color': ['color'],
     'outline-width': ['line-size'],
     'outline-offset': ['offset'],
     padding: ['grid', 'fluid-p'],
-    'padding-block': ['grid', 'fluid-py'],
-    'padding-block-end': ['grid', 'fluid-pb'],
-    'padding-block-start': ['grid', 'fluid-pt'],
+    'padding-block': ['grid', 'fluid-py-clamp'],
+    'padding-block-end': ['grid', 'fluid-pb-clamp'],
+    'padding-block-start': ['grid', 'fluid-pt-clamp'],
     'padding-inline': ['grid', 'fluid-px'],
-    'padding-inline-end': ['grid', 'fluid-pr'],
-    'padding-inline-start': ['grid', 'fluid-pl'],
-    'padding-top': ['grid', 'fluid-pt'],
-    'padding-right': ['grid', 'fluid-pr'],
-    'padding-bottom': ['grid', 'fluid-pb'],
-    'padding-left': ['grid', 'fluid-pl'],
-    right: ['grid', 'space', 'fluid-right'],
-    'row-gap': ['grid', 'fluid-row-gap'],
+    'padding-inline-end': ['grid', 'fluid-pr-clamp'],
+    'padding-inline-start': ['grid', 'fluid-pl-clamp'],
+    'padding-top': ['grid', 'fluid-pt-clamp'],
+    'padding-right': ['grid', 'fluid-pr-clamp'],
+    'padding-bottom': ['grid', 'fluid-pb-clamp'],
+    'padding-left': ['grid', 'fluid-pl-clamp'],
+    right: ['grid', 'space', 'fluid-right-clamp'],
+    'row-gap': ['grid', 'fluid-row-gap-clamp'],
     'scroll-margin': ['grid', 'fluid-scroll-m'],
-    'scroll-margin-block': ['grid', 'fluid-scroll-my'],
-    'scroll-margin-block-end': ['grid', 'fluid-scroll-mb'],
-    'scroll-margin-block-start': ['grid', 'fluid-scroll-mt'],
+    'scroll-margin-block': ['grid', 'fluid-scroll-my-clamp'],
+    'scroll-margin-block-end': ['grid', 'fluid-scroll-mb-clamp'],
+    'scroll-margin-block-start': ['grid', 'fluid-scroll-mt-clamp'],
     'scroll-margin-inline': ['grid', 'fluid-scroll-mx'],
-    'scroll-margin-inline-end': ['grid', 'fluid-scroll-mr'],
-    'scroll-margin-inline-start': ['grid', 'fluid-scroll-ml'],
-    'scroll-margin-top': ['grid', 'fluid-scroll-mt'],
-    'scroll-margin-right': ['grid', 'fluid-scroll-mr'],
-    'scroll-margin-bottom': ['grid', 'fluid-scroll-mb'],
-    'scroll-margin-left': ['grid', 'fluid-scroll-ml'],
-    'scroll-padding': ['grid', 'fluid-scroll-p'],
-    'scroll-padding-block': ['grid', 'fluid-scroll-py'],
-    'scroll-padding-block-end': ['grid', 'fluid-scroll-pb'],
-    'scroll-padding-block-start': ['grid', 'fluid-scroll-pt'],
+    'scroll-margin-inline-end': ['grid', 'fluid-scroll-mr-clamp'],
+    'scroll-margin-inline-start': ['grid', 'fluid-scroll-ml-clamp'],
+    'scroll-margin-top': ['grid', 'fluid-scroll-mt-clamp'],
+    'scroll-margin-right': ['grid', 'fluid-scroll-mr-clamp'],
+    'scroll-margin-bottom': ['grid', 'fluid-scroll-mb-clamp'],
+    'scroll-margin-left': ['grid', 'fluid-scroll-ml-clamp'],
+    'scroll-padding': ['grid', 'fluid-scroll-p-clamp'],
+    'scroll-padding-block': ['grid', 'fluid-scroll-py-clamp'],
+    'scroll-padding-block-end': ['grid', 'fluid-scroll-pb-clamp'],
+    'scroll-padding-block-start': ['grid', 'fluid-scroll-pt-clamp'],
     'scroll-padding-inline': ['grid', 'fluid-scroll-px'],
-    'scroll-padding-inline-end': ['grid', 'fluid-scroll-pr'],
-    'scroll-padding-inline-start': ['grid', 'fluid-scroll-pl'],
-    'scroll-padding-top': ['grid', 'fluid-scroll-pt'],
-    'scroll-padding-right': ['grid', 'fluid-scroll-pr'],
-    'scroll-padding-bottom': ['grid', 'fluid-scroll-pb'],
-    'scroll-padding-left': ['grid', 'fluid-scroll-pl'],
+    'scroll-padding-inline-end': ['grid', 'fluid-scroll-pr-clamp'],
+    'scroll-padding-inline-start': ['grid', 'fluid-scroll-pl-clamp'],
+    'scroll-padding-top': ['grid', 'fluid-scroll-pt-clamp'],
+    'scroll-padding-right': ['grid', 'fluid-scroll-pr-clamp'],
+    'scroll-padding-bottom': ['grid', 'fluid-scroll-pb-clamp'],
+    'scroll-padding-left': ['grid', 'fluid-scroll-pl-clamp'],
     'shadow-color': ['color'],
     stroke: ['color'],
-    'stroke-width': ['grid', 'fluid-stroke-width'],
+    'stroke-width': ['grid', 'fluid-stroke-width-clamp'],
     'text-decoration-color': ['color'],
-    'text-indent': ['grid', 'fluid-text-indent'],
+    'text-indent': ['grid', 'fluid-text-indent-clamp'],
     'text-shadow': ['shadow'],
-    top: ['grid', 'space', 'fluid-top'],
+    top: ['grid', 'space', 'fluid-top-clamp'],
     transition: ['morph'],
     'transition-duration': ['time'],
     'transition-timing-function': ['ease'],
     'transition-delay': ['time'],
-    width: ['size', 'grid', 'fluid-width'],
+    width: ['size', 'grid', 'fluid-width-clamp'],
   },
 });
