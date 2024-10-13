@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/config",
-  "version": "0.0.67",
+  "version": "0.0.68",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
