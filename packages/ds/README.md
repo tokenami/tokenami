@@ -79,9 +79,9 @@ This will mean a font size that scales between `12px` (`0.75rem`) and `18px` (`1
 
 ## Radix UI Colours
 
-The design system uses [Radix UI colours](https://www.radix-ui.com/colors). A powerful feature of this palette is dark mode by default when applying the appropriate steps in the scale to each use case.
+The design system uses [Radix UI P3 colours](https://www.radix-ui.com/colors) and includes fallbacks for browsers/displays that don't support P3 colours.
 
-Find out more about [how to use the Radix palette](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale) on their website.
+A powerful feature of this palette is dark mode by default when applying the appropriate steps in the scale to each use case. Find out more about [how to use the Radix palette](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale) on their website.
 
 ## Right-to-left support
 
