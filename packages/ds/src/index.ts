@@ -16,7 +16,7 @@ const font = <S extends string, L extends string>(fontSize: S, lineHeight: L) =>
   `var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) ${fontSize}/${lineHeight} var(--font-family)` as const;
 
 const optionalViaGradient = <T extends string>(direction: T) =>
-  `linear-gradient(${direction} in srgb, var(--gradient-from) var(--gradient-from-stop,/**/), var(---via, var(--gradient-to) var(--gradient-to-stop,/**/)));
+  `linear-gradient(${direction}, var(--gradient-from) var(--gradient-from-stop,/**/), var(---via, var(--gradient-to) var(--gradient-to-stop,/**/)));
   ---via: var(--gradient-via) var(--gradient-via-stop,/**/), var(--gradient-to)` as const;
 
 const fluid = <P extends string, MinPx extends number, MaxPx extends number>(params: {
@@ -934,14 +934,22 @@ export default createConfig({
       mono: `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`,
     },
     gradient: {
-      'to-t': optionalViaGradient('to top'),
-      'to-tr': optionalViaGradient('to top right'),
-      'to-r': optionalViaGradient('to right'),
-      'to-br': optionalViaGradient('to bottom right'),
-      'to-b': optionalViaGradient('to bottom'),
-      'to-bl': optionalViaGradient('to bottom left'),
-      'to-l': optionalViaGradient('to left'),
-      'to-tl': optionalViaGradient('to top left'),
+      'to-t': optionalViaGradient('to top in srgb'),
+      'to-tr': optionalViaGradient('to top right in srgb'),
+      'to-r': optionalViaGradient('to right in srgb'),
+      'to-br': optionalViaGradient('to bottom right in srgb'),
+      'to-b': optionalViaGradient('to bottom in srgb'),
+      'to-bl': optionalViaGradient('to bottom left in srgb'),
+      'to-l': optionalViaGradient('to left in srgb'),
+      'to-tl': optionalViaGradient('to top left in srgb'),
+      'hd-to-t': optionalViaGradient('to top in oklch'),
+      'hd-to-tr': optionalViaGradient('to top right in oklch'),
+      'hd-to-r': optionalViaGradient('to right in oklch'),
+      'hd-to-br': optionalViaGradient('to bottom right in oklch'),
+      'hd-to-b': optionalViaGradient('to bottom in oklch'),
+      'hd-to-bl': optionalViaGradient('to bottom left in oklch'),
+      'hd-to-l': optionalViaGradient('to left in oklch'),
+      'hd-to-tl': optionalViaGradient('to top left in oklch'),
     },
     space: {
       '0': 0,
