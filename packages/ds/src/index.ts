@@ -16,7 +16,7 @@ const font = <S extends string, L extends string>(fontSize: S, lineHeight: L) =>
   `var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) ${fontSize}/${lineHeight} var(--font-family)` as const;
 
 const optionalViaGradient = <T extends string>(direction: T) =>
-  `linear-gradient(${direction}, var(--gradient-from) var(--gradient-from-stop,/**/), var(---via, var(--gradient-to) var(--gradient-to-stop,/**/)));
+  `linear-gradient(${direction} in srgb, var(--gradient-from) var(--gradient-from-stop,/**/), var(---via, var(--gradient-to) var(--gradient-to-stop,/**/)));
   ---via: var(--gradient-via) var(--gradient-via-stop,/**/), var(--gradient-to)` as const;
 
 const fluid = <P extends string, MinPx extends number, MaxPx extends number>(params: {
