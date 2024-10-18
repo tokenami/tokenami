@@ -21,8 +21,6 @@ describe('css returned from createCss', () => {
   describe('when invoked with alias override', () => {
     beforeEach<TestContext>((context) => {
       const css = createCss({
-        include: [],
-        theme: {},
         aliases: {
           p: ['padding'],
           px: ['padding-left', 'padding-right'],
@@ -73,8 +71,6 @@ describe('css returned from createCss', () => {
     describe('when invoked with reordered aliases', () => {
       beforeEach<TestContext>((context) => {
         const css = createCss({
-          include: [],
-          theme: {},
           aliases: {
             pt: ['padding-top'],
             pr: ['padding-right'],
@@ -105,8 +101,6 @@ describe('css returned from createCss', () => {
   describe('when invoked with reordered alias longhands', () => {
     beforeEach<TestContext>((context) => {
       const css = createCss({
-        include: [],
-        theme: {},
         aliases: {
           p: ['padding'],
           px: ['padding-left', 'padding-right'],

@@ -72,7 +72,7 @@ type CreateCssOptions = {
   escapeSpecialChars?: boolean;
 };
 
-function createCss(config: Tokenami.Config, options?: CreateCssOptions) {
+function createCss(config: Pick<Tokenami.Config, 'aliases'>, options?: CreateCssOptions) {
   (globalThis as any)[_TOKENAMI_CSS] = options || {};
   const globalOptions: CreateCssOptions = (globalThis as any)[_TOKENAMI_CSS];
 
@@ -198,7 +198,7 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
 
 /* ---------------------------------------------------------------------------------------------- */
 
-const css = createCss({ include: [], theme: {} }, { escapeSpecialChars: true });
+const css = createCss({}, { escapeSpecialChars: true });
 
 export type { TokenamiCSS, CSS };
 export { createCss, css, convertToMediaStyles };

@@ -153,7 +153,6 @@ function generate(params: {
       filename: params.output,
       minify: params.minify,
       targets: params.targets,
-      exclude: lightning.Features.P3Colors | lightning.Features.ColorFunction,
     });
 
     return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
@@ -275,14 +274,22 @@ function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenam
   const rootSelector = ':root';
   const gridStyles = `${rootSelector} { ${Tokenami.gridProperty()}: ${config.grid}; }`;
   const rootStyles = getThemeStyles(rootSelector, tokenValues, rootTheme, config.properties);
-  const modeStyles = config.themeSelector
-    ? Object.entries(modes || {}).map(([mode, theme]) => {
-        const selector = config.themeSelector!(mode);
-        return getThemeStyles(selector, tokenValues, theme, config.properties);
-      })
-    : null;
+  const themeToModes: Record<string, string[]> = {};
+  const modeEntries = Object.entries(modes || {});
 
-  const themeTokens = [gridStyles, rootStyles, modeStyles ? modeStyles.join(' ') : ''];
+  // working around this for now https://github.com/parcel-bundler/lightningcss/issues/841
+  for (const [mode, theme] of modeEntries) {
+    const themeKey = JSON.stringify(theme);
+    if (themeKey in themeToModes) themeToModes[themeKey]!.push(mode);
+    else themeToModes[themeKey] = [mode];
+  }
+
+  const modeStyles = Object.entries(themeToModes).map(([theme, modes]) => {
+    const selector = modes.map(config.themeSelector).join(', ');
+    return getThemeStyles(selector, tokenValues, JSON.parse(theme), config.properties);
+  });
+
+  const themeTokens = [gridStyles, rootStyles, modeStyles.join(' ')];
   return themeTokens.join(' ');
 }
 
@@ -310,11 +317,23 @@ const getThemeStyles = (
   );
 
   const elementSelector = selectors.at(-1)!;
+  const elementThemeStyles = getElementThemeStyles(elementSelector, customPropertyThemeValues);
   const customPropertyThemeStyles = selectors.slice(0, -1).reduceRight((declaration, selector) => {
     return `${selector} { ${declaration} }`;
-  }, `${elementSelector}, ${elementSelector} ${DEFAULT_SELECTOR} { ${stringify(customPropertyThemeValues)} }`);
+  }, elementThemeStyles);
 
   return themeStyles + ' ' + customPropertyThemeStyles;
+};
+
+/* -------------------------------------------------------------------------------------------------
+ * getElementThemeStyles
+ * -----------------------------------------------------------------------------------------------*/
+
+const getElementThemeStyles = (selector: string, themeValues: Record<string, string>) => {
+  const splitChained = selector.split(',');
+  return splitChained
+    .map((selector) => `${selector}, ${selector} ${DEFAULT_SELECTOR} { ${stringify(themeValues)} }`)
+    .join(' ');
 };
 
 /* -------------------------------------------------------------------------------------------------

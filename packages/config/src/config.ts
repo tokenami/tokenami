@@ -46,7 +46,7 @@ interface Config {
   selectors?: { [name: string]: Selector };
   keyframes?: { [name: string]: { [step: string]: CSS.Properties } };
   aliases?: Aliases;
-  themeSelector?: (mode: string) => Selector;
+  themeSelector: (mode: string) => Selector;
   theme: ThemeConfig;
   properties?: Partial<Record<CSSProperty | (string & {}), PropertiesOptions>>;
 }
