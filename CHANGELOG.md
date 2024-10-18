@@ -1,3 +1,21 @@
+# v0.0.69 (Fri Oct 18 2024)
+
+#### 🚀 Enhancement
+
+- [ds] add high definition gradients with oklch [#363](https://github.com/tokenami/tokenami/pull/363) ([@jjenzz](https://github.com/jjenzz))
+- [ds] use srgb colour hint for linear gradients [#362](https://github.com/tokenami/tokenami/pull/362) ([@jjenzz](https://github.com/jjenzz))
+- [ds] use lightningcss for P3 fallbacks [#361](https://github.com/tokenami/tokenami/pull/361) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- [ds] fix missing clamp types [#364](https://github.com/tokenami/tokenami/pull/364) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.68 (Sun Oct 13 2024)
 
 #### 🐛 Bug Fix
