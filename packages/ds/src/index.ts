@@ -1352,8 +1352,6 @@ export default createConfig({
     'background-position-x': ['grid', 'space'],
     'background-position-y': ['grid', 'space'],
     'block-size': ['size', 'grid', 'fluid-height-clamp'],
-    'block-size-min': ['number'],
-    'block-size-max': ['number'],
     border: ['line'],
     'border-top': ['line'],
     'border-right': ['line'],
