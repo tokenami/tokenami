@@ -1,3 +1,26 @@
+# v0.0.70 (Sun Oct 20 2024)
+
+#### 🚀 Enhancement
+
+- match theme order for intellisense tokens [#373](https://github.com/tokenami/tokenami/pull/373) ([@jjenzz](https://github.com/jjenzz))
+- import `TokenamiProperties` in env file only when used [#372](https://github.com/tokenami/tokenami/pull/372) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- prevent duplicate arbitrary selector styles when including third-party stylesheet [#374](https://github.com/tokenami/tokenami/pull/374) ([@jjenzz](https://github.com/jjenzz))
+- fix arbitrary attribute selectors [#371](https://github.com/tokenami/tokenami/pull/371) ([@jjenzz](https://github.com/jjenzz))
+- fix negative grid calcs [#370](https://github.com/tokenami/tokenami/pull/370) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- remove redundant custom property [#369](https://github.com/tokenami/tokenami/pull/369) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.69 (Fri Oct 18 2024)
 
 #### 🚀 Enhancement
