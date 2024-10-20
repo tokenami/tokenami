@@ -380,7 +380,8 @@ function init(modules: { typescript: typeof tslib }) {
    * updateEnvFile
    * -----------------------------------------------------------------------------------------------*/
 
-  function updateEnvFile(envFilePath: string, config: TokenamiConfig.Config) {
+  function updateEnvFile(configPath: string, config: TokenamiConfig.Config) {
+    const envFilePath = Tokenami.getTypeDefsPath(configPath);
     const envFileContent = ts.sys.readFile(envFilePath, 'utf-8');
     if (!envFileContent) throw new Error('Cannot read tokenami.env.d.ts file');
 
@@ -390,13 +391,12 @@ function init(modules: { typescript: typeof tslib }) {
       return supported ? [] : [`TokenProperties<'${property}'>`];
     });
 
-    const updatedEnvFileContent = envFileContent.replace(
-      /interface TokenamiProperties([^\\{]*){/,
-      customProperties.length
-        ? `interface TokenamiProperties extends ${customProperties.join(', ')} {`
-        : // if config is updated to remove custom properties, we need to remove the extends clause
-          'interface TokenamiProperties {'
-    );
+    const updatedEnvFileContent = !customProperties.length
+      ? Tokenami.generateTypeDefs(configPath, '../stubs/tokenami.env.d.ts')
+      : Tokenami.generateTypeDefs(configPath, '../stubs/tokenami.env-custom.d.ts').replace(
+          'interface TokenamiProperties {',
+          `interface TokenamiProperties extends ${customProperties.join(', ')} {`
+        );
 
     ts.sys.writeFile(envFilePath, updatedEnvFileContent);
   }
@@ -417,7 +417,6 @@ function init(modules: { typescript: typeof tslib }) {
     const logger = info.project.projectService.logger;
     const cwd = info.project.getCurrentDirectory();
     const configPath = Tokenami.getConfigPath(cwd, info.config.configPath);
-    const typedefsPath = Tokenami.getTypeDefsPath(configPath);
     const configExists = ts.sys.fileExists(configPath);
 
     if (!configExists) {
@@ -433,9 +432,9 @@ function init(modules: { typescript: typeof tslib }) {
     let responsiveSelectorSnippetCompletions = createResponsiveSelectorSnippetTrie(config);
 
     try {
-      updateEnvFile(typedefsPath, config);
+      updateEnvFile(configPath, config);
     } catch (e) {
-      logger.info(`Tokenami:: Skipped update of ${typedefsPath} with ${e}`);
+      logger.info(`Tokenami:: Skipped typedefs update with ${e}`);
     }
 
     logger.info(`Tokenami:: Watching config at ${configPath}`);
@@ -449,7 +448,7 @@ function init(modules: { typescript: typeof tslib }) {
           selectorSnippetCompletions = createSelectorSnippetTrie(config);
           responsiveSelectorCompletions = createResponsiveSelectorTrie(config);
           responsiveSelectorSnippetCompletions = createResponsiveSelectorSnippetTrie(config);
-          updateEnvFile(typedefsPath, config);
+          updateEnvFile(configPath, config);
         } catch (e) {
           logger.info(`Tokenami:: Skipped change to ${configPath} with ${e}`);
         }

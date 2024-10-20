@@ -46,4 +46,5 @@ const button = css.compose({
 
 /* ---------------------------------------------------------------------------------------------- */
 
+export type { ButtonProps };
 export { Button };
