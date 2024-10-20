@@ -31,9 +31,9 @@ const GridValue = {
  * -----------------------------------------------------------------------------------------------*/
 
 type TokenProperty<P extends string = string> = `--${P}`;
-// thanks chat gpt. will match css variable names that start with `--` and optionally
-// include curly brackets (for arbitrary values), while excluding those prefixed with `var(`
-const tokenPropertyRegex = /(?<!var\()--(?:[^'":{}]+|{&:[^}]*})+/g;
+// will match css variable names that start with `--` and optionally include curly brackets
+// (for arbitrary values), while excluding those prefixed with `var(`
+const tokenPropertyRegex = /(?<!var\()--(?:[^'":{}]+|{[^}]*})+/g;
 
 const TokenProperty = {
   safeParse: (input: unknown) => validate<TokenProperty>(tokenPropertyRegex, input),
