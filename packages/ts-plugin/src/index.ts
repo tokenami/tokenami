@@ -368,12 +368,30 @@ function init(modules: { typescript: typeof tslib }) {
 
     const name = `$${parts.token}`;
     const kindModifiers = isColorThemeEntry(modeValues) ? 'color' : parts.themeKey;
-    const sortText = getSortText(entryName);
+    const tokenIndex = getTokenValueIndexFromTheme(property.output, config.theme);
+    const sortText = getSortText(`${tokenIndex}${entryName}`);
     const labelDetails = { detail: '', description: entryName };
     const insertText = entryName;
     const nextEntry = { ...entry, name, sortText, kindModifiers, insertText, labelDetails };
     updateEntryDetailsConfig({ ...nextEntry, themeKey: parts.themeKey, modeValues });
     return nextEntry;
+  }
+
+  /* ---------------------------------------------------------------------------------------------
+   * getTokenValueIndexFromTheme
+   * -------------------------------------------------------------------------------------------*/
+
+  function getTokenValueIndexFromTheme(
+    tokenValue: TokenamiConfig.TokenValue,
+    theme: TokenamiConfig.Config['theme']
+  ) {
+    const { modes, ...rootTheme } = theme;
+    const parts = TokenamiConfig.getTokenValueParts(tokenValue);
+    const modeKey = modes ? Object.keys(modes)[0] : null;
+    const modeTheme = modes && modeKey && (modes[modeKey] as TokenamiConfig.Theme);
+    const flattenedTheme = { ...rootTheme, ...modeTheme };
+    const tokenNames = Object.keys(flattenedTheme[parts.themeKey]!);
+    return tokenNames.indexOf(parts.token);
   }
 
   /* -------------------------------------------------------------------------------------------------
