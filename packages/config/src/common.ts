@@ -228,6 +228,16 @@ function parseProperty<T extends string>(str: T, options?: { escapeSpecialChars?
   return noColon.replace(escapeSpecialCharsRegex, (match) => `\\${match}`) as T;
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * stringifyProperty
+ * -------------------------------------------------------------------------------------------------
+ * undo parseProperty
+ * -----------------------------------------------------------------------------------------------*/
+
+function stringifyProperty<T extends string>(property: T) {
+  return decodeColon(property).replace(/\\/g, '') as T;
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
 const encodeColon = (str: string) => str.replace(/:/g, ';');
@@ -251,6 +261,7 @@ export {
   parsedTokenProperty,
   parsedVariantProperty,
   parseProperty,
+  stringifyProperty,
   getTokenPropertyName,
   getTokenPropertySplit,
   getTokenPropertyParts,

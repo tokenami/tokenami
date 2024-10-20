@@ -192,8 +192,9 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
 const CSS_VARIABLE_REGEX = /--(?:[\w-]+|\{[^\{\}]*\})+/g;
 
 function matchTokens(content: string, theme: Tokenami.Config['theme']) {
-  const matches = Array.from(content.replace(/\\/g, '').match(CSS_VARIABLE_REGEX) || []);
-  const uniqueMatches = utils.unique(matches);
+  const matches = content.match(CSS_VARIABLE_REGEX) || [];
+  const stringMatches = Array.from(matches).map(Tokenami.stringifyProperty);
+  const uniqueMatches = utils.unique(stringMatches);
   const variableMatches = uniqueMatches.filter((match) => match !== Tokenami.gridProperty());
 
   const values = variableMatches.flatMap((match) => {
