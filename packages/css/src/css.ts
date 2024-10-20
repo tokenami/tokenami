@@ -100,7 +100,7 @@ function createCss(config: Pick<Tokenami.Config, 'aliases'>, options?: CreateCss
         // most the time this will only be one property
         for (const cssProperty of cssProperties) {
           const longProperty = createLonghandProperty(tokenProperty, cssProperty);
-          const isNumber = typeof value === 'number' && value > 0;
+          const isNumber = typeof value === 'number' && value !== 0;
           const parsedProperty = Tokenami.parseProperty(longProperty, globalOptions);
 
           overrideLonghands(overriddenStyles, parsedProperty);
