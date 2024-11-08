@@ -265,6 +265,7 @@ Use arbitrary selectors to prototype quickly:
     '--{&:hover}_color': 'var(--color_primary)',
     '--{&:has(:focus)}_border-color': 'var(--color_highlight)',
     '--{&[data-state=open]}_border-color': 'var(--color_primary)',
+    '--{&_p}_color': 'var(--color_primary)',
   })}
 />
 ```
