@@ -129,7 +129,7 @@ function getTokenPropertyName(property: TokenProperty) {
  * -----------------------------------------------------------------------------------------------*/
 
 // split on underscores that aren't inside curly brackets (arbitrary selectors)
-const propertySplitRegex = /_(?![^{}]*\])/;
+const propertySplitRegex = /_(?![^{}]*})/;
 
 function getTokenPropertySplit(property: TokenProperty) {
   const name = getTokenPropertyName(property);
