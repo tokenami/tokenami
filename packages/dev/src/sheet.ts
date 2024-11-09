@@ -26,7 +26,26 @@ type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
  * generate
  * -----------------------------------------------------------------------------------------------*/
 
-function generate(params: {
+function generate(params: Parameters<typeof createSheet>[0]) {
+  try {
+    const sheet = createSheet(params);
+    const transformed = lightning.transform({
+      code: Buffer.from(sheet),
+      filename: params.output,
+      minify: params.minify,
+      targets: params.targets,
+    });
+
+    return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Unknown error';
+    const escapedMessage = message.replace(/(['"])/g, '\\$1');
+    log.debug(`Error generating stylesheet: ${message}`);
+    return `body::after { content: 'Error generating stylesheet: ${escapedMessage}'; position: fixed; inset: 0; background: #ec6142; color: white; padding: 20px; font-family: sans-serif; z-index: 9999; }`;
+  }
+}
+
+function createSheet(params: {
   tokens: { properties: Tokenami.TokenProperty[]; values: Tokenami.TokenValue[] };
   output: string;
   config: Tokenami.Config;
@@ -122,7 +141,7 @@ function generate(params: {
     });
   });
 
-  const sheet = `
+  return `
     @layer global {
       ${params.config.globalStyles ? stringify(params.config.globalStyles) : ''}
     }
@@ -131,7 +150,7 @@ function generate(params: {
       ${generateKeyframeRules(tokenValues, params.config)}
       ${generateThemeTokens(tokenValues, params.config)}
 
-      ${DEFAULT_SELECTOR} { ${Array.from(styles.reset).join(' ')} }
+      * { ${Array.from(styles.reset).join(' ')} }
 
       ${generatePlaceholderLayers(LAYERS.BASE)}
       ${generatePlaceholderLayers(LAYERS.LOGICAL)}
@@ -146,20 +165,6 @@ function generate(params: {
         .join(' ')}
     }
   `;
-
-  try {
-    const transformed = lightning.transform({
-      code: Buffer.from(sheet),
-      filename: params.output,
-      minify: params.minify,
-      targets: params.targets,
-    });
-
-    return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
-  } catch (e) {
-    log.debug(`Skipped style generation with ${e}`);
-    return `${e}`;
-  }
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -446,6 +451,11 @@ function getSelectorsFromConfig(
   const selector = arbitrarySelector?.replace(/_/g, ' ') || configSelector;
   const selectors = selector ? (Array.isArray(selector) ? selector : [selector]) : ['&'];
   const isSelectionVariant = selectors.includes('&::selection');
+
+  if (selectors.toString().indexOf('&') === -1) {
+    throw new Error(`Selector '${selector}' must include '&'`);
+  }
+
   return selectors.map((selector) => {
     // revert-layer for ::selection doesn't work: https://codepen.io/jjenzz/pen/LYvOydB
     // we use a substring selector for now to ensure selection styles aren't inadvertently
