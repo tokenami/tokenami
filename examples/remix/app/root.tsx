@@ -32,9 +32,9 @@ export default function App() {
           '--flex-direction': 'column',
           '--align-items': 'center',
           '--justify-content': 'center',
-          '--child-para_background-color': 'var(--color_indigo5)',
-          '--child-para_border-radius': 'var(--radii_sm)',
-          '--child-para_px': 2,
+          '--child-p_background-color': 'var(--color_indigo5)',
+          '--child-p_border-radius': 'var(--radii_sm)',
+          '--child-p_px': 2,
         })}
       >
         <DS.Button onClick={() => setTheme((theme) => (theme === 'light' ? 'dark' : 'light'))}>

@@ -71,6 +71,20 @@ export default function Index() {
         </div>
       </div>
 
+      <div
+        style={css({
+          '--prose-p_background-color': 'var(--color_red8)',
+          '--prose-card_background-color': 'var(--color_amber8)',
+          '--my': 10,
+        })}
+      >
+        Testing prose
+        <div className="card">
+          <p>i should be red</p>
+          <span>i should be amber</span>
+        </div>
+      </div>
+
       <button
         style={css({
           '--border-block-end': 'var(---, 1px solid var(--color_amber12))',

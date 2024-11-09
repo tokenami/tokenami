@@ -14,7 +14,9 @@ export default createConfig({
   },
   selectors: {
     ...designSystemConfig.selectors,
-    'child-para': '& > p',
+    'child-p': '& > p',
+    'prose-p': '& p',
+    'prose-card': '& .card',
   },
   theme: {
     ...designSystemConfig.theme,
