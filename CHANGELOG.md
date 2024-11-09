@@ -1,3 +1,15 @@
+# v0.0.72 (Sat Nov 09 2024)
+
+#### 🐛 Bug Fix
+
+- apply resets to universal selector [#381](https://github.com/tokenami/tokenami/pull/381) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.71 (Sat Nov 09 2024)
 
 #### 🐛 Bug Fix
