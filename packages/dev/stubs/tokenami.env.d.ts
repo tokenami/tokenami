@@ -1,4 +1,4 @@
-import config from './tokenami.config';
+import config from './tokenami.config.js';
 
 export type Config = typeof config;
 
