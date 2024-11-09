@@ -1,3 +1,16 @@
+# v0.0.71 (Sat Nov 09 2024)
+
+#### 🐛 Bug Fix
+
+- use .js imports in generated env file to support nodenext envs [#379](https://github.com/tokenami/tokenami/pull/379) ([@jjenzz](https://github.com/jjenzz))
+- fix arbitrary selectors for descendant elements [#378](https://github.com/tokenami/tokenami/pull/378) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.70 (Sun Oct 20 2024)
 
 #### 🚀 Enhancement
