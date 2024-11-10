@@ -125,6 +125,22 @@ function findTokenValuesInThemeValue(themeValue: string) {
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * getThemeFromConfig
+ * -----------------------------------------------------------------------------------------------*/
+
+function getThemeFromConfig(themeConfig: Tokenami.Config['theme']): {
+  modes: Tokenami.ThemeModes['modes'];
+  root: Tokenami.Theme;
+} {
+  const { modes = {}, root, ...base } = themeConfig;
+  if ('modes' in themeConfig) {
+    const config = themeConfig as Tokenami.ThemeModes;
+    return { modes: config.modes, root: config.root };
+  }
+  return { modes: {}, root: base };
+}
+
+/* -------------------------------------------------------------------------------------------------
  * getThemeValuesByThemeMode
  * -----------------------------------------------------------------------------------------------*/
 
@@ -135,10 +151,10 @@ function getThemeValuesByThemeMode(
   tokenValue: Tokenami.TokenValue,
   themeConfig: Tokenami.Config['theme']
 ): Record<Mode, ThemeValue> {
-  const { modes = {}, ...rootTheme } = themeConfig;
+  const theme = getThemeFromConfig(themeConfig);
   const parts = Tokenami.getTokenValueParts(tokenValue);
-  const modeThemeEntries: [string, Tokenami.Theme][] = Object.entries(modes);
-  const modeValues = modeThemeEntries.concat([['root', rootTheme]]).flatMap(([mode, theme]) => {
+  const modeThemeEntries: [string, Tokenami.Theme][] = Object.entries(theme.modes);
+  const modeValues = modeThemeEntries.concat([['root', theme.root]]).flatMap(([mode, theme]) => {
     const value = theme[parts.themeKey]?.[parts.token];
     return value == null ? [] : [[mode, String(value)] as const];
   });
@@ -231,6 +247,7 @@ export {
   generateTypeDefs,
   generateCiTypeDefs,
   getThemeValuesByTokenValues,
+  getThemeFromConfig,
   getThemeValuesByThemeMode,
   getResponsivePropertyVariants,
   unique,

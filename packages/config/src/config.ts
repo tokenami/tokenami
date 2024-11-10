@@ -7,50 +7,49 @@ interface CSSProperties<TLength = (string & {}) | 0, TTime = string & {}>
 
 type CSSProperty = keyof CSSProperties;
 
-type DeepReadonly<T> = T extends Function | any[]
-  ? T
-  : { readonly [P in keyof T]: DeepReadonly<T[P]> };
-
-type ThemeKey =
-  | 'alpha'
-  | 'border'
-  | 'color'
-  | 'ease'
-  | 'font-size'
-  | 'leading'
-  | 'line-style'
-  | 'radii'
-  | 'size'
-  | 'shadow'
-  | 'tracking'
-  | 'transition'
-  | 'weight'
-  | 'z'
-  | (string & {});
-
-type ThemeValues = Record<string, string | number>;
-type Theme = { [themeKey in ThemeKey]?: ThemeValues };
+type Theme = { [themeKey: string]: { [themeToken: string]: string | number } };
 type ThemeMode<T = Theme> = { [mode: string]: T };
-type ThemeModes<T = Theme> = { modes?: ThemeMode<T> };
+type ThemeModes<T = Theme> = { root: Theme; modes: ThemeMode<T> };
 type ThemeConfig = Theme | ThemeModes;
-type Aliases = Record<string, readonly CSSProperty[]>;
-type PropertiesOptions = readonly ('grid' | ThemeKey)[];
+type Responsive = { [atRule: string]: string };
 type Selector = string | string[];
+type Selectors = { [name: string]: Selector };
+type Aliases = Record<string, readonly CSSProperty[]>;
 
-interface Config {
+type Property = CSSProperty | string;
+type Properties<K extends Property = Property, T = ThemeConfig> = Record<
+  K,
+  Array<'grid' | 'number' | ThemeKey<T>>
+>;
+
+type ThemeKey<T = ThemeConfig> = T extends ThemeModes
+  ? keyof T['modes'][keyof T['modes']] | keyof T['root']
+  : keyof T;
+
+type ThemeError = "Move root theme inside 'root' object when using modes";
+type ExactTheme<T> = T extends ThemeModes
+  ? { [K in keyof T]: K extends 'root' | 'modes' ? T[K] : ThemeError }
+  : {};
+
+interface Config<
+  T extends ThemeConfig = ThemeConfig,
+  R extends Responsive = Responsive,
+  S extends Selectors = Selectors,
+  A extends Aliases = Aliases,
+  P extends Properties = Properties
+> {
   include: string[];
   exclude?: string[];
   grid?: string;
   globalStyles?: Record<string, CSS.Properties>;
-  responsive?: { [atRule: string]: string };
-  selectors?: { [name: string]: Selector };
   keyframes?: { [name: string]: { [step: string]: CSS.Properties } };
-  aliases?: Aliases;
   themeSelector: (mode: string) => Selector;
-  theme: ThemeConfig;
-  properties?: Partial<Record<CSSProperty | (string & {}), PropertiesOptions>>;
+  theme: T & ExactTheme<T>;
+  responsive?: R;
+  selectors?: S;
+  aliases?: A;
+  properties?: P & (keyof P extends string ? Properties<keyof P, T> : never);
 }
-
 /* -------------------------------------------------------------------------------------------------
  * createConfig
  * -----------------------------------------------------------------------------------------------*/
@@ -59,27 +58,25 @@ type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (
   ? I
   : never;
 
-type ExactConfig<Shape, T> = T extends Shape
-  ? keyof T extends keyof Shape
-    ? keyof Shape extends keyof T
-      ? T
-      : Shape
-    : Shape
-  : Shape;
-
-type MatchingThemeModes<M> = M extends ThemeMode
+type MatchThemeModes<M> = M extends ThemeMode
   ? { theme: ThemeModes<UnionToIntersection<M[keyof M]>> }
   : {};
 
-function createConfig<T>(
-  obj: ExactConfig<Config, T> & (T extends Config ? MatchingThemeModes<T['theme']['modes']> : {})
-): DeepReadonly<T> {
-  return obj as any as DeepReadonly<T>;
+function createConfig<
+  T extends ThemeConfig,
+  R extends Responsive,
+  S extends Selectors,
+  A extends Aliases,
+  P extends Properties
+>(
+  config: Config<T, R, S, A, P> & MatchThemeModes<Config<T, R, S, A, P>['theme']['modes']>
+): Config<T, R, S, A, P> {
+  return config;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { Config, DeepReadonly };
+export type { Config };
 export type { Theme, ThemeModes, Aliases };
 export type { CSSProperties, CSSProperty };
 export { createConfig };

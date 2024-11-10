@@ -227,7 +227,7 @@
     }
   }
 
-  [style] {
+  * {
     --background-color: initial;
     --hover: initial;
     --hover_background-color: initial;

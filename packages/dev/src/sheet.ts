@@ -275,12 +275,12 @@ function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Token
  * -----------------------------------------------------------------------------------------------*/
 
 function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
-  const { modes, ...rootTheme } = config.theme;
+  const theme = utils.getThemeFromConfig(config.theme);
   const rootSelector = ':root';
   const gridStyles = `${rootSelector} { ${Tokenami.gridProperty()}: ${config.grid}; }`;
-  const rootStyles = getThemeStyles(rootSelector, tokenValues, rootTheme, config.properties);
+  const rootStyles = getThemeStyles(rootSelector, tokenValues, theme.root, config.properties);
   const themeToModes: Record<string, string[]> = {};
-  const modeEntries = Object.entries(modes || {});
+  const modeEntries = Object.entries(theme.modes || {});
 
   // working around this for now https://github.com/parcel-bundler/lightningcss/issues/841
   for (const [mode, theme] of modeEntries) {

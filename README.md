@@ -199,7 +199,9 @@ The keys in your `responsive` and `theme` objects can be anything you wish. Thes
 
 #### Multiple themes
 
-Use the `modes` key to set up multiple themes if preferred. The names of your modes can be anything you like:
+Use the `modes` key to define multiple themes if desired.
+
+You can choose any names for your modes, but tokens that are shared across themes should be placed in the `root` object:
 
 ```ts
 module.exports = createConfig({
@@ -216,6 +218,13 @@ module.exports = createConfig({
           primary: '#0ea5e9',
           secondary: '#f1f5f9',
         },
+      },
+    },
+    root: {
+      radii: {
+        rounded: '10px',
+        circle: '9999px',
+        none: 'none',
       },
     },
   },
