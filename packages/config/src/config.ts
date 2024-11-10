@@ -14,41 +14,37 @@ type ThemeConfig = Theme | ThemeModes;
 type Responsive = { [atRule: string]: string };
 type Selector = string | string[];
 type Selectors = { [name: string]: Selector };
-type Aliases = Record<string, readonly CSSProperty[]>;
+type Aliases = Record<string, CSSProperty[]>;
+type Properties = Partial<Record<CSSProperty | string, string[]>>;
 
-type Property = CSSProperty | string;
-type Properties<K extends Property = Property, T = ThemeConfig> = Record<
-  K,
-  Array<'grid' | 'number' | ThemeKey<T>>
->;
-
-type ThemeKey<T = ThemeConfig> = T extends ThemeModes
-  ? keyof T['modes'][keyof T['modes']] | keyof T['root']
-  : keyof T;
-
-type ThemeError = "Move root theme inside 'root' object when using modes";
 type ExactTheme<T> = T extends ThemeModes
-  ? { [K in keyof T]: K extends 'root' | 'modes' ? T[K] : ThemeError }
+  ? { [K in keyof T]: K extends 'root' | 'modes' ? T[K] : never }
   : {};
 
-interface Config<
-  T extends ThemeConfig = ThemeConfig,
-  R extends Responsive = Responsive,
-  S extends Selectors = Selectors,
-  A extends Aliases = Aliases,
-  P extends Properties = Properties
-> {
+type ExactThemeKey<T> =
+  | ('grid' | 'number')
+  | (T extends ThemeModes
+      ? keyof T['modes'][keyof T['modes']] | keyof T['root']
+      : T extends Theme
+      ? keyof T
+      : string);
+
+type ExactThemeModes<M> = M extends ThemeMode ? ThemeModes<UnionToIntersection<M[keyof M]>> : {};
+
+type ExactProperties<P, T> = Partial<Record<keyof P, ExactThemeKey<T>[]>>;
+
+interface Config<T extends ThemeConfig = ThemeConfig, P extends Properties = Properties> {
   include: string[];
   exclude?: string[];
   grid?: string;
   globalStyles?: Record<string, CSS.Properties>;
   keyframes?: { [name: string]: { [step: string]: CSS.Properties } };
   themeSelector: (mode: string) => Selector;
-  theme: T & ExactTheme<T>;
-  responsive?: R;
-  selectors?: S;
-  aliases?: A;
-  properties?: P & (keyof P extends string ? Properties<keyof P, T> : never);
+  theme: T & ExactTheme<T> & ExactThemeModes<T['modes']>;
+  responsive?: Responsive;
+  selectors?: Selectors;
+  aliases?: Aliases;
+  properties?: P & ExactProperties<P, T>;
 }
 /* -------------------------------------------------------------------------------------------------
  * createConfig
@@ -58,20 +54,18 @@ type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (
   ? I
   : never;
 
-type MatchThemeModes<M> = M extends ThemeMode
-  ? { theme: ThemeModes<UnionToIntersection<M[keyof M]>> }
-  : {};
+type ExactConfig<Shape, T> = T extends Shape
+  ? keyof T extends keyof Shape
+    ? keyof Shape extends keyof T
+      ? T
+      : Shape
+    : Shape
+  : Shape;
 
-function createConfig<
-  T extends ThemeConfig,
-  R extends Responsive,
-  S extends Selectors,
-  A extends Aliases,
-  P extends Properties
->(
-  config: Config<T, R, S, A, P> & MatchThemeModes<Config<T, R, S, A, P>['theme']['modes']>
-): Config<T, R, S, A, P> {
-  return config;
+function createConfig<C extends Config, T extends ThemeConfig, P extends Properties>(
+  config: ExactConfig<Config, C> & Config<T, P>
+): C {
+  return config as any;
 }
 
 /* ---------------------------------------------------------------------------------------------- */

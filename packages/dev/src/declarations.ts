@@ -25,7 +25,7 @@ type VariantKey =
 
 type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T>
   ? T & ThemeConfig['root']
-  : ThemeConfig;
+  : Omit<ThemeConfig, 'modes' | 'root'>;
 
 type TokenProperties<P> = {
   [K in TokenProperty<P>]?: TokenValue<P> extends never
@@ -53,7 +53,7 @@ type VariantProperty<P extends string> =
 
 type TokenValue<P> = P extends string
   ? P extends keyof PropertyConfig
-    ? PropertyConfig[P][number] extends `${infer ThemeKey}`
+    ? NonNullable<PropertyConfig[P]>[number] extends `${infer ThemeKey}`
       ? PropertyThemeValue<ThemeKey>
       : never
     : never
