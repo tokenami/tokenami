@@ -7,50 +7,45 @@ interface CSSProperties<TLength = (string & {}) | 0, TTime = string & {}>
 
 type CSSProperty = keyof CSSProperties;
 
-type DeepReadonly<T> = T extends Function | any[]
-  ? T
-  : { readonly [P in keyof T]: DeepReadonly<T[P]> };
-
-type ThemeKey =
-  | 'alpha'
-  | 'border'
-  | 'color'
-  | 'ease'
-  | 'font-size'
-  | 'leading'
-  | 'line-style'
-  | 'radii'
-  | 'size'
-  | 'shadow'
-  | 'tracking'
-  | 'transition'
-  | 'weight'
-  | 'z'
-  | (string & {});
-
-type ThemeValues = Record<string, string | number>;
-type Theme = { [themeKey in ThemeKey]?: ThemeValues };
+type Theme = { [themeKey: string]: { [themeToken: string]: string | number } };
 type ThemeMode<T = Theme> = { [mode: string]: T };
-type ThemeModes<T = Theme> = { modes?: ThemeMode<T> };
+type ThemeModes<T = Theme> = { root: Theme; modes: ThemeMode<T> };
 type ThemeConfig = Theme | ThemeModes;
-type Aliases = Record<string, readonly CSSProperty[]>;
-type PropertiesOptions = readonly ('grid' | ThemeKey)[];
+type Responsive = { [atRule: string]: string };
 type Selector = string | string[];
+type Selectors = { [name: string]: Selector };
+type Aliases = Record<string, CSSProperty[]>;
+type Properties = Partial<Record<CSSProperty | string, string[]>>;
 
-interface Config {
+type ExactTheme<T> = T extends ThemeModes
+  ? { [K in keyof T]: K extends 'root' | 'modes' ? T[K] : never }
+  : {};
+
+type ExactThemeKey<T> =
+  | ('grid' | 'number')
+  | (T extends ThemeModes
+      ? keyof T['modes'][keyof T['modes']] | keyof T['root']
+      : T extends Theme
+      ? keyof T
+      : string);
+
+type ExactThemeModes<M> = M extends ThemeMode ? ThemeModes<UnionToIntersection<M[keyof M]>> : {};
+
+type ExactProperties<P, T> = Partial<Record<keyof P, ExactThemeKey<T>[]>>;
+
+interface Config<T extends ThemeConfig = ThemeConfig, P extends Properties = Properties> {
   include: string[];
   exclude?: string[];
   grid?: string;
   globalStyles?: Record<string, CSS.Properties>;
-  responsive?: { [atRule: string]: string };
-  selectors?: { [name: string]: Selector };
   keyframes?: { [name: string]: { [step: string]: CSS.Properties } };
-  aliases?: Aliases;
   themeSelector: (mode: string) => Selector;
-  theme: ThemeConfig;
-  properties?: Partial<Record<CSSProperty | (string & {}), PropertiesOptions>>;
+  theme: T & ExactTheme<T> & ExactThemeModes<T['modes']>;
+  responsive?: Responsive;
+  selectors?: Selectors;
+  aliases?: Aliases;
+  properties?: P & ExactProperties<P, T>;
 }
-
 /* -------------------------------------------------------------------------------------------------
  * createConfig
  * -----------------------------------------------------------------------------------------------*/
@@ -67,19 +62,15 @@ type ExactConfig<Shape, T> = T extends Shape
     : Shape
   : Shape;
 
-type MatchingThemeModes<M> = M extends ThemeMode
-  ? { theme: ThemeModes<UnionToIntersection<M[keyof M]>> }
-  : {};
-
-function createConfig<T>(
-  obj: ExactConfig<Config, T> & (T extends Config ? MatchingThemeModes<T['theme']['modes']> : {})
-): DeepReadonly<T> {
-  return obj as any as DeepReadonly<T>;
+function createConfig<C extends Config, T extends ThemeConfig, P extends Properties>(
+  config: ExactConfig<Config, C> & Config<T, P>
+): C {
+  return config as any;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export type { Config, DeepReadonly };
+export type { Config };
 export type { Theme, ThemeModes, Aliases };
 export type { CSSProperties, CSSProperty };
 export { createConfig };

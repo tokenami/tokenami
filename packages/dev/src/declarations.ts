@@ -9,10 +9,10 @@ interface TokenamiConfig {}
 interface TokenamiFinalConfig extends Merge<DefaultConfig, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
-type AliasConfig = Omit<TokenamiFinalConfig['aliases'], Tokenami.CSSProperty>;
-type PropertyConfig = TokenamiFinalConfig['properties'];
-type SelectorKey = keyof TokenamiFinalConfig['selectors'];
-type ResponsiveKey = keyof TokenamiFinalConfig['responsive'];
+type AliasConfig = Omit<NonNullable<TokenamiFinalConfig['aliases']>, Tokenami.CSSProperty>;
+type PropertyConfig = NonNullable<TokenamiFinalConfig['properties']>;
+type SelectorKey = Extract<keyof NonNullable<TokenamiFinalConfig['selectors']>, string>;
+type ResponsiveKey = Extract<keyof NonNullable<TokenamiFinalConfig['responsive']>, string>;
 type ResponsiveSelectorKey = `${ResponsiveKey}_${SelectorKey}`;
 type ResponsiveArbitrarySelectorKey = `${ResponsiveKey}_{${string}}`;
 type ArbitrarySelectorKey = `{${string}}`;
@@ -23,10 +23,9 @@ type VariantKey =
   | ArbitrarySelectorKey
   | ResponsiveArbitrarySelectorKey;
 
-type ThemeWithoutModes = Omit<ThemeConfig, 'modes'>;
 type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T>
-  ? Omit<T, keyof ThemeWithoutModes> & ThemeWithoutModes
-  : ThemeWithoutModes;
+  ? T & ThemeConfig['root']
+  : Omit<ThemeConfig, 'modes' | 'root'>;
 
 type TokenProperties<P> = {
   [K in TokenProperty<P>]?: TokenValue<P> extends never
@@ -54,7 +53,7 @@ type VariantProperty<P extends string> =
 
 type TokenValue<P> = P extends string
   ? P extends keyof PropertyConfig
-    ? PropertyConfig[P][number] extends `${infer ThemeKey}`
+    ? NonNullable<PropertyConfig[P]>[number] extends `${infer ThemeKey}`
       ? PropertyThemeValue<ThemeKey>
       : never
     : never
@@ -570,12 +569,10 @@ export interface Properties {
  * using intersection types or inference wld cripple intellisense perf.
  * -------------------------------------------------------------------------
  * generated from the following snippet in console. KISS for now.
-
-  // copy(`
-  // interface TokenamiProperties extends ${properties.map(prop => `TokenProperties<'${prop}'>`).join(', ')} {
-  //   [customProperty: \`---\${string}\`]: string | number | undefined;
-  // }
-  // `)
+ * copy(`
+ *   interface TokenamiProperties extends ${properties.map(prop => `TokenProperties<'${prop}'>`).join(', ')} {
+ *   [customProperty: \`---\${string}\`]: string | number | undefined;
+ * }`)
  * -------------------------------------------------------------------------
  */
 
@@ -1054,7 +1051,7 @@ interface TokenamiProperties
     TokenProperties<'scroll-padding-inline'>,
     TokenProperties<'scroll-padding-inline-end'>,
     TokenProperties<'scroll-padding-inline-start'> {
-  [customProperty: `---${string}`]: string | number | undefined;
+  [customProperty: `---${string}`]: any;
 }
 
 type TokenamiPropertiesPick<P extends keyof Properties> = Pick<Properties, P> extends infer T

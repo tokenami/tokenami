@@ -383,13 +383,13 @@ function init(modules: { typescript: typeof tslib }) {
 
   function getTokenValueIndexFromTheme(
     tokenValue: TokenamiConfig.TokenValue,
-    theme: TokenamiConfig.Config['theme']
+    themeConfig: TokenamiConfig.Config['theme']
   ) {
-    const { modes, ...rootTheme } = theme;
+    const theme = Tokenami.getThemeFromConfig(themeConfig);
     const parts = TokenamiConfig.getTokenValueParts(tokenValue);
-    const modeKey = modes ? Object.keys(modes)[0] : null;
-    const modeTheme = modes && modeKey && (modes[modeKey] as TokenamiConfig.Theme);
-    const flattenedTheme = { ...rootTheme, ...modeTheme };
+    const modeKey = Object.keys(theme.modes)[0];
+    const modeTheme = modeKey && (theme.modes[modeKey] as TokenamiConfig.Theme);
+    const flattenedTheme = { ...theme.root, ...modeTheme };
     const tokenNames = Object.keys(flattenedTheme[parts.themeKey]!);
     return tokenNames.indexOf(parts.token);
   }

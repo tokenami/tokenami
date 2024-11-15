@@ -13,6 +13,7 @@ export default createConfig({
     border: {},
     color: {},
     ease: {},
+    font: {},
     'font-size': {},
     leading: {},
     'line-style': {},
