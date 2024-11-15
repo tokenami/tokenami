@@ -1,4 +1,4 @@
-![image](https://github.com/jjenzz/pretty-cache-header/assets/175330/18df3dab-ba82-4fd6-a74b-ec1c4aecc4ab)
+![image](https://github.com/user-attachments/assets/73712e13-2af9-46c4-a3df-48590cbb4c8a)
 
 <div align="center">
   <h3>CSS-in-JS Reinvented for Scalable, Typesafe Design Systems</h3>
@@ -201,7 +201,7 @@ The keys in your `responsive` and `theme` objects can be anything you wish. Thes
 
 Use the `modes` key to define multiple themes if desired.
 
-You can choose any names for your modes, but tokens that are shared across themes should be placed in the `root` object:
+You can choose any names for your modes. Tokens that are shared across themes should be placed alongisde your modes in the `root` object:
 
 ```ts
 module.exports = createConfig({
