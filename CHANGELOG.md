@@ -1,3 +1,48 @@
+# v0.0.73 (Fri Nov 15 2024)
+
+### Release Notes
+
+#### improve `tokenami.config` type safety ([#383](https://github.com/tokenami/tokenami/pull/383))
+
+any root tokens declared alongside `modes` in your theme object need to be moved inside a `root` object:
+
+```diff
+export default createConfig({
+  theme: {
+    modes: {
+      color: {
+        'slate-100': '#f1f5f9',
+        'slate-700': '#334155',
+        'sky-500': '#0ea5e9',
+      },
+    },
++   root: {
+      radii: {
+        rounded: '10px',
+        circle: '9999px',
+        none: 'none',
+      },
++   }
+  },
+});
+```
+
+---
+
+#### 💥 Breaking Change
+
+- improve `tokenami.config` type safety [#383](https://github.com/tokenami/tokenami/pull/383) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- fix ast parser error when compose blocks are commented out [#382](https://github.com/tokenami/tokenami/pull/382) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.72 (Sat Nov 09 2024)
 
 #### 🐛 Bug Fix
