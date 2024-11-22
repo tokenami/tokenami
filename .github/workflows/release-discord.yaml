@@ -3,16 +3,31 @@ name: release-discord
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   notify-discord:
     runs-on: ubuntu-latest
     steps:
+      - name: Prepare Mock Data for Manual Trigger
+        id: prepare_data
+        run: |
+          # Use GitHub event fields if they exist, otherwise set mock data
+          release_name="${{ github.event.release.name || 'Manual Test Release' }}"
+          release_body="${{ github.event.release.body || '### Features\n- Added new functionality.\n---\n#### Bug Fixes\n- Fixed a major bug.' }}"
+          release_url="${{ github.event.release.html_url || 'https://github.com/tokenami/tokenami/releases/tag/v0.0.73' }}"
+          release_tag="${{ github.event.release.tag_name || 'v0.0.73' }}"
+
+          echo "::set-output name=release_name::$release_name"
+          echo "::set-output name=release_body::$release_body"
+          echo "::set-output name=release_url::$release_url"
+          echo "::set-output name=release_tag::$release_tag"
+
       - name: Format Release Notes
         id: format_notes
         run: |
           # Get the release body and store it in a variable
-          release_body="${{ github.event.release.body }}"
+          release_body="${{ steps.prepare_data.outputs.release_body }}"
 
           # Replace ### with bold and underlined (__**text**__)
           release_body=$(echo "$release_body" | sed -E 's/^### (.*)$/__**\1**__/g')
@@ -37,7 +52,7 @@ jobs:
                 "embeds": [
                   {
                     "title": "🚀 New Release Published!",
-                    "description": "**[${{ github.event.release.name }}](${{ github.event.release.html_url }})**.\n\n${{ steps.format_notes.outputs.formatted_body }}\n\n**[View release note on GitHub](${{ github.event.release.html_url }})**",
+                    "description": "**[${{ steps.prepare_data.outputs.release_name }}](${{ steps.prepare_data.outputs.release_url }})**.\n\n${{ steps.format_notes.outputs.formatted_body }}\n\n**[View release note on GitHub](${{ steps.prepare_data.outputs.release_url }})**",
                     "color": 16760358
                   },
                 ],
