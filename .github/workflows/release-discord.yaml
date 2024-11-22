@@ -1,0 +1,45 @@
+name: release-discord
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Format Release Notes
+        id: format_notes
+        run: |
+          # Get the release body and store it in a variable
+          release_body="${{ github.event.release.body }}"
+
+          # Replace ### with bold and underlined (__**text**__)
+          release_body=$(echo "$release_body" | sed -E 's/^### (.*)$/__**\1**__/g')
+
+          # Replace #### with bold (**text**)
+          release_body=$(echo "$release_body" | sed -E 's/^#### (.*)$/**\1**/g')
+
+          # Replace --- with a longer line of dashes
+          release_body=$(echo "$release_body" | sed 's/^---$/──────────────────────────────────/g')
+
+          # Output the formatted release body
+          echo "::set-output name=formatted_body::$release_body"
+
+      - name: Notify Discord
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d '{
+                "username": "tokenami",
+                "avatar_url": "https://avatars.githubusercontent.com/u/140247736?s=400&u=db0a7326ac560800b4d6d78a18875d7c9f71311c&v=4",
+                "embeds": [
+                  {
+                    "title": "🚀 New Release Published!",
+                    "description": "**[${{ github.event.release.name }}](${{ github.event.release.html_url }})**.\n\n${{ steps.format_notes.outputs.formatted_body }}\n\n**[View release note on GitHub](${{ github.event.release.html_url }})**",
+                    "color": 16760358
+                  },
+                ],
+              }' \
+          "$WEBHOOK_URL"
