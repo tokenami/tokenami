@@ -1,3 +1,27 @@
+# v0.0.74 (Fri Nov 29 2024)
+
+### Release Notes
+
+#### add support for experimental CSS properties ([#389](https://github.com/tokenami/tokenami/pull/389))
+
+please move any custom properties defined in your `properties` config to the more explicit `customProperties` object in your theme.
+
+---
+
+#### 💥 Breaking Change
+
+- add support for experimental CSS properties [#389](https://github.com/tokenami/tokenami/pull/389) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- fix escaping override in consumer codebases [#390](https://github.com/tokenami/tokenami/pull/390) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.73 (Fri Nov 15 2024)
 
 ### Release Notes
