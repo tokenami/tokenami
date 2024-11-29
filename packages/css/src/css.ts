@@ -72,12 +72,15 @@ type CreateCssOptions = {
   escapeSpecialChars?: boolean;
 };
 
-function createCss(config: Pick<Tokenami.Config, 'aliases'>, options?: CreateCssOptions) {
-  (globalThis as any)[_TOKENAMI_CSS] = options || {};
-  const globalOptions: CreateCssOptions = (globalThis as any)[_TOKENAMI_CSS];
+function createCss(
+  config: Pick<Tokenami.Config, 'aliases'>,
+  options: CreateCssOptions = { escapeSpecialChars: true }
+) {
+  (globalThis as any)[_TOKENAMI_CSS] = options;
 
   const css: CSS = (baseStyles, ...overrides) => {
     let overriddenStyles = {} as TokenamiCSS;
+    const globalOptions = (globalThis as any)[_TOKENAMI_CSS];
     const cacheId = JSON.stringify({ baseStyles, overrides });
     const cached = cache.get(cacheId);
 
@@ -198,7 +201,7 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
 
 /* ---------------------------------------------------------------------------------------------- */
 
-const css = createCss({}, { escapeSpecialChars: true });
+const css = createCss({});
 
 export type { TokenamiCSS, CSS };
 export { createCss, css, convertToMediaStyles };
