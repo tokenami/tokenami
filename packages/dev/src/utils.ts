@@ -3,6 +3,7 @@ import createJiti from 'jiti';
 import { transform } from 'sucrase';
 import * as pathe from 'pathe';
 import * as fs from 'fs';
+import { supportedProperties } from './supports';
 
 const DEFAULT_PATHS = {
   js: './.tokenami/tokenami.config.js',
@@ -214,6 +215,19 @@ function getResponsivePropertyVariants(
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * getValidProperties
+ * -----------------------------------------------------------------------------------------------*/
+
+function getValidProperties(config: Tokenami.Config) {
+  return new Set([
+    ...supportedProperties,
+    ...Object.keys(config.properties || {}),
+    ...Object.keys(config.customProperties || {}),
+    ...Object.keys(config.aliases || {}),
+  ]);
+}
+
+/* -------------------------------------------------------------------------------------------------
  * unique
  * -----------------------------------------------------------------------------------------------*/
 
@@ -246,6 +260,7 @@ export {
   generateConfig,
   generateTypeDefs,
   generateCiTypeDefs,
+  getValidProperties,
   getThemeValuesByTokenValues,
   getThemeFromConfig,
   getThemeValuesByThemeMode,

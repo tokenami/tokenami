@@ -10,7 +10,8 @@ interface TokenamiFinalConfig extends Merge<DefaultConfig, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
 type AliasConfig = Omit<NonNullable<TokenamiFinalConfig['aliases']>, Tokenami.CSSProperty>;
-type PropertyConfig = NonNullable<TokenamiFinalConfig['properties']>;
+type PropertyConfig = NonNullable<TokenamiFinalConfig['properties']> &
+  NonNullable<TokenamiFinalConfig['customProperties']>;
 type SelectorKey = Extract<keyof NonNullable<TokenamiFinalConfig['selectors']>, string>;
 type ResponsiveKey = Extract<keyof NonNullable<TokenamiFinalConfig['responsive']>, string>;
 type ResponsiveSelectorKey = `${ResponsiveKey}_${SelectorKey}`;
@@ -71,20 +72,13 @@ type TokensByThemeKey = { [key: string]: never } & {
     : never;
 };
 
-/**
- * -------------------------------------------------------------------------
- * we purposefully list these manually for performance.
- * using inference here would cripple intellisense performance.
- * -------------------------------------------------------------------------
- * generated from the following snippet in console. KISS for now.
-
-  // copy(`
-  // export interface Properties {${properties.map(prop => `
-  //   '${prop}': TokenProperties<'${prop}'>;`).join(' ')}
-  // }
-  // `)
- * -------------------------------------------------------------------------
- */
+// -------------------------------------------------------------------------
+// we purposefully list these manually for performance.
+// using inference here would cripple intellisense performance.
+// -------------------------------------------------------------------------
+// generated from the following snippet in console. KISS for now.
+// copy(`export interface Properties {${properties.map(prop => `'${prop}': TokenProperties<'${prop}'>;`).join(' ')}}`)
+// -------------------------------------------------------------------------
 
 export interface Properties {
   all: TokenProperties<'all'>;
@@ -563,18 +557,13 @@ export interface Properties {
   'scroll-padding-inline-start': TokenProperties<'scroll-padding-inline-start'>;
 }
 
-/**
- * -------------------------------------------------------------------------
- * we purposefully use an interface and list these manually for performance.
- * using intersection types or inference wld cripple intellisense perf.
- * -------------------------------------------------------------------------
- * generated from the following snippet in console. KISS for now.
- * copy(`
- *   interface TokenamiProperties extends ${properties.map(prop => `TokenProperties<'${prop}'>`).join(', ')} {
- *   [customProperty: \`---\${string}\`]: string | number | undefined;
- * }`)
- * -------------------------------------------------------------------------
- */
+// -------------------------------------------------------------------------
+// we purposefully use an interface and list these manually for performance.
+// using intersection types or inference wld cripple intellisense perf.
+// -------------------------------------------------------------------------
+// generated from the following snippet in console. KISS for now.
+// copy(`interface TokenamiProperties extends ${properties.map(prop => `TokenProperties<'${prop}'>`).join(', ')} { [customProperty: \`---\${string}\`]: string | number | undefined; }`)
+// -------------------------------------------------------------------------
 
 interface TokenamiProperties
   extends TokenProperties<'all'>,

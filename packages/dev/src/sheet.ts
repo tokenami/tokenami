@@ -56,7 +56,6 @@ function createSheet(params: {
 
   const tokenProperties = params.tokens.properties;
   const tokenValues = params.tokens.values;
-  const configProperties = Object.keys(params.config.properties || {});
   const propertyConfigsByCSSProperty = getPropertyConfigs(tokenProperties, params.config);
   const allPropertyConfigs = Array.from(propertyConfigsByCSSProperty.values()).flat();
 
@@ -86,7 +85,7 @@ function createSheet(params: {
     }, 'revert-layer');
 
     configs.forEach((config) => {
-      const layerIndex = getAtomicLayerIndex(cssProperty, configProperties);
+      const layerIndex = getAtomicLayerIndex(cssProperty, params.config);
       const toggleKey = config.responsive || config.selector;
       const propertyPrefix = config.isCustom ? CUSTOM_PROP_PREFIX : '';
 
@@ -207,9 +206,7 @@ function getPropertyConfigs(
   config: Tokenami.Config
 ): Map<string, PropertyConfig[]> {
   let propertyConfigs: Map<string, PropertyConfig[]> = new Map();
-  const customProperties = Object.keys(config.properties || {}).filter((property) => {
-    return !Supports.supportedProperties.has(property as any);
-  });
+  const customProperties = Object.keys(config.customProperties || {});
 
   tokenProperties.forEach((tokenProperty) => {
     const parts = Tokenami.getTokenPropertyParts(tokenProperty, config);
@@ -238,8 +235,8 @@ function getPropertyConfigs(
 
 const SHORTHAND_TO_LONGHAND_ENTRIES = [...Tokenami.mapShorthandToLonghands.entries()];
 
-function getAtomicLayerIndex(cssProperty: string, configProperties: string[]): number {
-  const validProperties = new Set([...Supports.supportedProperties, ...configProperties]);
+function getAtomicLayerIndex(cssProperty: string, config: Tokenami.Config): number {
+  const validProperties = utils.getValidProperties(config);
   const isSupported = validProperties.has(cssProperty as any);
   const initialDepth = isSupported ? 1 : -1;
 
@@ -247,7 +244,7 @@ function getAtomicLayerIndex(cssProperty: string, configProperties: string[]): n
 
   return SHORTHAND_TO_LONGHAND_ENTRIES.reduce((depth, [shorthand, longhands]) => {
     const isLonghand = (longhands as string[]).includes(cssProperty);
-    return isLonghand ? depth + getAtomicLayerIndex(shorthand, configProperties) : depth;
+    return isLonghand ? depth + getAtomicLayerIndex(shorthand, config) : depth;
   }, initialDepth);
 }
 
@@ -278,7 +275,7 @@ function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenam
   const theme = utils.getThemeFromConfig(config.theme);
   const rootSelector = ':root';
   const gridStyles = `${rootSelector} { ${Tokenami.gridProperty()}: ${config.grid}; }`;
-  const rootStyles = getThemeStyles(rootSelector, tokenValues, theme.root, config.properties);
+  const rootStyles = getThemeStyles(rootSelector, tokenValues, theme.root, config);
   const themeToModes: Record<string, string[]> = {};
   const modeEntries = Object.entries(theme.modes || {});
 
@@ -291,7 +288,7 @@ function generateThemeTokens(tokenValues: Tokenami.TokenValue[], config: Tokenam
 
   const modeStyles = Object.entries(themeToModes).map(([theme, modes]) => {
     const selector = modes.map(config.themeSelector).join(', ');
-    return getThemeStyles(selector, tokenValues, JSON.parse(theme), config.properties);
+    return getThemeStyles(selector, tokenValues, JSON.parse(theme), config);
   });
 
   const themeTokens = [gridStyles, rootStyles, modeStyles.join(' ')];
@@ -306,10 +303,10 @@ const getThemeStyles = (
   selector: string | string[],
   tokenValues: Tokenami.TokenValue[],
   theme: Tokenami.Theme,
-  properties: Tokenami.Config['properties']
+  config: Tokenami.Config
 ) => {
   const themeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
-  const customPropertyThemeValues = getCustomPropertyThemeValues(themeValues, properties);
+  const customPropertyThemeValues = getCustomPropertyThemeValues(themeValues, config);
   const selectors = Array.isArray(selector) ? selector : [selector];
 
   for (const customKey of Object.keys(customPropertyThemeValues)) {
@@ -347,10 +344,10 @@ const getElementThemeStyles = (selector: string, themeValues: Record<string, str
 
 function getCustomPropertyThemeValues(
   themeValues: { [key: string]: string },
-  properties?: Tokenami.Config['properties']
+  config: Tokenami.Config
 ) {
   const entries = Object.entries(themeValues).flatMap(([key, value]) => {
-    const valueWithCustomPrefixes = getPrefixedCustomPropertyValues(value, properties);
+    const valueWithCustomPrefixes = getPrefixedCustomPropertyValues(value, config.customProperties);
     return valueWithCustomPrefixes ? [[key, valueWithCustomPrefixes] as const] : [];
   });
   return Object.fromEntries(entries);
@@ -364,7 +361,7 @@ const CUSTOM_PROP_REGEX = /\(--[^-][\w-]+/g;
 
 const getPrefixedCustomPropertyValues = (
   themeValue: string,
-  properties?: Tokenami.Config['properties']
+  customProperties?: Tokenami.Config['customProperties']
 ) => {
   const variables = themeValue.match(CUSTOM_PROP_REGEX);
   if (!variables) return null;
@@ -375,9 +372,8 @@ const getPrefixedCustomPropertyValues = (
     if (!tokenProperty.success) return m;
 
     const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
-    const isSupported = Supports.supportedProperties.has(parts.alias as any);
-    const isAlias = properties?.[parts.alias];
-    if (isSupported || !isAlias) return m;
+    const isCustom = Boolean(customProperties?.[parts.alias]);
+    if (!isCustom) return m;
 
     const tokenPrefix = Tokenami.tokenProperty('');
     const customPrefixTokenValue = tokenProperty.output.replace(tokenPrefix, CUSTOM_PROP_PREFIX);

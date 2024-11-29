@@ -26,12 +26,7 @@ function init(modules: { typescript: typeof tslib }) {
    * -----------------------------------------------------------------------------------------------*/
 
   function getAllProperties(config: TokenamiConfig.Config) {
-    const properties = new Set([
-      ...Tokenami.supportedProperties,
-      ...Object.keys(config.properties || {}),
-      ...Object.keys(config.aliases || {}),
-    ]);
-    return Array.from(properties);
+    return Array.from(Tokenami.getValidProperties(config));
   }
 
   /* -------------------------------------------------------------------------------------------------
@@ -404,16 +399,21 @@ function init(modules: { typescript: typeof tslib }) {
     if (!envFileContent) throw new Error('Cannot read tokenami.env.d.ts file');
 
     const properties = Object.keys(config.properties || {});
-    const customProperties = properties.flatMap((property) => {
-      const supported = Tokenami.supportedProperties.has(property as any);
-      return supported ? [] : [`TokenProperties<'${property}'>`];
+    const customProperties = Object.keys(config.customProperties || {});
+    const experimentalProperties = properties.flatMap((property) => {
+      if (Tokenami.supportedProperties.has(property as any)) return [];
+      return [property];
+    });
+
+    const customPropertyTypes = [...experimentalProperties, ...customProperties].map((property) => {
+      return [`TokenProperties<'${property}'>`];
     });
 
     const updatedEnvFileContent = !customProperties.length
       ? Tokenami.generateTypeDefs(configPath, '../stubs/tokenami.env.d.ts')
       : Tokenami.generateTypeDefs(configPath, '../stubs/tokenami.env-custom.d.ts').replace(
           'interface TokenamiProperties {',
-          `interface TokenamiProperties extends ${customProperties.join(', ')} {`
+          `interface TokenamiProperties extends ${customPropertyTypes.join(', ')} {`
         );
 
     ts.sys.writeFile(envFilePath, updatedEnvFileContent);

@@ -15,7 +15,8 @@ type Responsive = { [atRule: string]: string };
 type Selector = string | string[];
 type Selectors = { [name: string]: Selector };
 type Aliases = Record<string, CSSProperty[]>;
-type Properties = Partial<Record<CSSProperty | string, string[]>>;
+type Properties = Partial<Record<CSSProperty | (string & {}), string[]>>;
+type CustomProperties = Record<string, string[]>;
 
 type ExactTheme<T> = T extends ThemeModes
   ? { [K in keyof T]: K extends 'root' | 'modes' ? T[K] : never }
@@ -33,7 +34,11 @@ type ExactThemeModes<M> = M extends ThemeMode ? ThemeModes<UnionToIntersection<M
 
 type ExactProperties<P, T> = Partial<Record<keyof P, ExactThemeKey<T>[]>>;
 
-interface Config<T extends ThemeConfig = ThemeConfig, P extends Properties = Properties> {
+interface Config<
+  T extends ThemeConfig = ThemeConfig,
+  P extends Properties = Properties,
+  C extends CustomProperties = CustomProperties
+> {
   include: string[];
   exclude?: string[];
   grid?: string;
@@ -45,6 +50,7 @@ interface Config<T extends ThemeConfig = ThemeConfig, P extends Properties = Pro
   selectors?: Selectors;
   aliases?: Aliases;
   properties?: P & ExactProperties<P, T>;
+  customProperties?: C & ExactProperties<C, T>;
 }
 /* -------------------------------------------------------------------------------------------------
  * createConfig

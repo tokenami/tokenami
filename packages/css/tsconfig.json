@@ -5,6 +5,7 @@
     "baseUrl": ".",
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "outDir": "dist",
+    "target": "ES2022",
     "paths": {
       "@tokenami/config": ["../config/src"],
       "@tokenami/dev": ["../dev/src"]
