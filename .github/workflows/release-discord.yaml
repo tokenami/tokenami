@@ -2,7 +2,7 @@ name: release-discord
 
 on:
   release:
-    types: [published]
+    types: [created]
   workflow_dispatch:
 
 jobs:
@@ -31,8 +31,7 @@ jobs:
 
           formatted_body=$(echo "$release_body" | \
             sed -E 's/^### (.+)$/__**\1**__/g' | \
-            sed -E 's/^#### (.+)$/**\1**/g' | \
-            sed -E 's/^---$/──────────────────────────────────/g')
+            sed -E 's/^#### (.+)$/**\1**/g')
 
           # Convert back to a single line with \n for JSON compatibility
           formatted_body=$(echo "$formatted_body" | sed ':a;N;$!ba;s/\n/\\n/g')
