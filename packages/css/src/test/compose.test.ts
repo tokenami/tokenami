@@ -1,7 +1,7 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import { css } from '@tokenami/css';
 import { hasStyles, hasSomeStyles } from './utils';
-import { convertToMediaStyles } from '../css';
+import { _COMPOSE, convertToMediaStyles } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup
@@ -12,6 +12,7 @@ const baseStyles = Object.freeze({
   '--padding': '10px',
   '--md_padding': 2,
   '--border': '1px solid',
+  '--margin-left': 2,
 }) as {};
 
 const baseStylesOutput = Object.freeze({
@@ -38,6 +39,13 @@ const secondaryStyles = Object.freeze({
   '--font-family': 'serif',
 }) as {};
 
+const linkStyles = Object.freeze({
+  '--border': '5px solid',
+  '--border-color': 'red',
+  '--margin': 4,
+  '--text-decoration': 'none',
+}) as {};
+
 const styles = css.compose({
   button: {
     ...baseStyles,
@@ -46,6 +54,7 @@ const styles = css.compose({
       type: { primary: primaryStyles, secondary: secondaryStyles },
     },
   },
+  link: linkStyles,
 });
 
 /* -------------------------------------------------------------------------------------------------
@@ -54,6 +63,7 @@ const styles = css.compose({
 
 interface TestContext {
   button: typeof styles.button;
+  link: typeof styles.link;
   className: string;
   output: ReturnType<ReturnType<typeof styles.button>[1]>;
 }
@@ -61,17 +71,20 @@ interface TestContext {
 describe('css compose', () => {
   beforeEach<TestContext>((context) => {
     context.button = styles.button;
+    context.link = styles.link;
   });
 
   describe('when invoked without a config', () => {
     beforeEach<TestContext>((context) => {
       const [cn, style] = context.button();
+      const result = style();
+      const { [_COMPOSE]: _, ...styles } = result;
+      context.output = styles;
       context.className = cn();
-      context.output = style();
     });
 
     it<TestContext>('should create button class', (context) => {
-      expect(context.className).toEqual('button');
+      expect(context.className).toEqual('tk-button');
     });
 
     it<TestContext>('should output no styles', (context) => {
@@ -117,7 +130,7 @@ describe('css compose', () => {
     });
   });
 
-  describe('when invoked with overrides', () => {
+  describe('when invoked with style overrides', () => {
     beforeEach<TestContext>((context) => {
       const [, style] = context.button({ type: 'secondary' });
       context.output = style({ '--color': 'red' } as any, { '--border-color': 'red' } as any);
@@ -159,6 +172,30 @@ describe('css compose', () => {
         '--border': '1px dashed',
       };
       expect(hasStyles(context.output, expected)).toBe(true);
+    });
+  });
+
+  describe('when invoked with compose override', () => {
+    beforeEach<TestContext>((context) => {
+      const [buttonClassName, buttonStyle] = context.button();
+      const [linkClassName, linkStyle] = context.link();
+      const result = buttonStyle(linkStyle({ '--border-color': 'green' } as any));
+      const { [_COMPOSE]: _, ...styles } = result;
+      context.output = styles;
+      context.className = buttonClassName(linkClassName());
+    });
+
+    it<TestContext>('should chain classes', (context) => {
+      expect(context.className).toBe('tk-button tk-link');
+    });
+
+    it<TestContext>('should override longhands and base style', (context) => {
+      expect(context.output).toEqual({
+        '--border': '5px solid',
+        '--border-color': 'green',
+        '--margin-left': 'initial',
+        '--margin-left__calc': 'initial',
+      });
     });
   });
 });

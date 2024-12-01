@@ -16,7 +16,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, forwarde
       type="button"
       {...buttonProps}
       ref={forwardedRef}
-      className={cn()}
+      className={cn(props.className)}
       style={style(props.style)}
     >
       {children}

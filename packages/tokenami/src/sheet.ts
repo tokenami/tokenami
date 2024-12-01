@@ -65,7 +65,7 @@ function createSheet(params: {
   const composeBlocks = params.tokens.composeBlocks || {};
   const propertyConfigsByCSSProperty = getPropertyConfigs(tokenProperties, params.config);
   const allPropertyConfigs = Array.from(propertyConfigsByCSSProperty.values()).flat();
-  const styleSelector = createBaseSelector(Object.keys(composeBlocks));
+  const styleSelector = createBaseSelector(Object.keys(composeBlocks), params.config);
 
   const elemSelectors = utils.unique(
     allPropertyConfigs.map((config) => {
@@ -155,8 +155,9 @@ function createSheet(params: {
     const parsed = css(tokenamiProperties);
     for (const [property, value] of Object.entries(parsed)) {
       const atomicPair = `${property}: ${value};`;
+      const selector = Tokenami.getComposeSelector(block, params.config.composeSelector);
       styles.components[atomicPair] ??= new Set<string>();
-      styles.components[atomicPair]!.add(`.${block}`);
+      styles.components[atomicPair]!.add(selector);
     }
   }
 
@@ -195,9 +196,11 @@ function createSheet(params: {
  * createBaseSelector
  * -----------------------------------------------------------------------------------------------*/
 
-function createBaseSelector(blockNames: string[]) {
-  const classNames = blockNames.map((block) => `.${block}`);
-  return [...classNames, DEFAULT_SELECTOR];
+function createBaseSelector(blockNames: string[], config: Tokenami.Config) {
+  const selectors = blockNames.map((block) => {
+    return Tokenami.getComposeSelector(block, config.composeSelector);
+  });
+  return [...selectors, DEFAULT_SELECTOR];
 }
 
 /* -------------------------------------------------------------------------------------------------

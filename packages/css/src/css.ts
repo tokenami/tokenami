@@ -2,15 +2,17 @@ import type { TokenamiProperties, TokenamiFinalConfig } from 'tokenami';
 import * as Tokenami from '@tokenami/config';
 
 const _TOKENAMI_CSS = Symbol.for('@tokenami/css');
+const _COMPOSE = Symbol();
 
 // return type purposfully isn't `TokenamiProperties` bcos frameworks limit the `style`
 // types to `CSS.PropertiesHyphen` or `CSS.Properties` which doesn't include `--custom-properties`
-type TokenamiCSS = { [_: symbol]: 'TokenamiCSS' };
+type TokenamiCSS = { [_: symbol]: TokenamiProperties };
 type VariantsConfig = Record<string, Record<string, TokenamiProperties>>;
 type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
 type ReponsiveKey = Extract<keyof NonNullable<TokenamiFinalConfig['responsive']>, string>;
 type ResponsiveValue<T> = T extends string ? `${ReponsiveKey}_${T}` : never;
-type Override = TokenamiProperties | TokenamiCSS | false | undefined;
+type Styles = TokenamiProperties | TokenamiCSS;
+type Override = Styles | false | undefined;
 type Variants<C> = undefined extends C ? {} : { [V in keyof C]?: VariantValue<keyof C[V]> };
 type ResponsiveVariants<C> = undefined extends C
   ? {}
@@ -24,11 +26,10 @@ type GenerateCSS<V, R> = (
   selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>
 ) => StyleFns;
 
-type ComposeStyleConfig = {
-  [key: string]: TokenamiProperties & {
-    variants?: VariantsConfig;
-    responsiveVariants?: VariantsConfig;
-  };
+type ComposeStyleConfig = { [key: string]: ComposeStyle };
+type ComposeStyle = TokenamiProperties & {
+  variants?: VariantsConfig;
+  responsiveVariants?: VariantsConfig;
 };
 
 type StyleFns = [
@@ -36,7 +37,7 @@ type StyleFns = [
   style: (...overrides: Override[]) => TokenamiCSS
 ];
 
-const cache = {
+const lruCache = {
   limit: 1_500,
   cache: new Map(),
   get(key: string) {
@@ -64,7 +65,7 @@ type CreateCssOptions = {
   /**
    * When using arbitrary values, Tokenami will escape special characters. Some frameworks
    * automatically escape so this would result in double-escaping. In that case, switch this
-   * off to hand-off to your framework.
+   * off to hand over to your framework.
    *
    * @default true
    */
@@ -72,24 +73,35 @@ type CreateCssOptions = {
 };
 
 function createCss(
-  config: Pick<Tokenami.Config, 'aliases'>,
+  config: Pick<Tokenami.Config, 'aliases' | 'composeSelector'>,
   options: CreateCssOptions = { escapeSpecialChars: true }
 ) {
   (globalThis as any)[_TOKENAMI_CSS] = options;
 
-  function css(baseStyles: TokenamiProperties, ...overrides: Override[]): TokenamiCSS {
-    let overriddenStyles = {} as TokenamiCSS;
-    const globalOptions = (globalThis as any)[_TOKENAMI_CSS];
-    const cacheId = JSON.stringify({ baseStyles, overrides });
-    const cached = cache.get(cacheId);
+  function css(...allStyles: [Styles, ...Override[]]): TokenamiCSS {
+    const composedStyles = new Set();
+    const flattenedStyles = [];
 
+    for (const style of allStyles) {
+      if (!style) continue;
+      const { [_COMPOSE]: composed, ...override } = style as any;
+      composedStyles.add(composed);
+      flattenedStyles.push(composed, override);
+    }
+
+    const cacheId = JSON.stringify(flattenedStyles);
+    const cached = lruCache.get(cacheId);
     if (cached) return cached;
-    const allStyles = [baseStyles, ...overrides];
 
-    for (const originalStyles of allStyles) {
-      if (!originalStyles) continue;
+    const overriddenStyles: TokenamiProperties & TokenamiCSS = { [_COMPOSE]: {} };
+    const overriddenComposedStyles = overriddenStyles[_COMPOSE]!;
+    const globalOptions = (globalThis as any)[_TOKENAMI_CSS];
 
-      for (let [key, value] of Object.entries(originalStyles)) {
+    for (const styles of flattenedStyles) {
+      if (!styles) continue;
+      const isComposed = composedStyles.has(styles);
+
+      for (let [key, value] of Object.entries(styles)) {
         if (!key.startsWith('--')) {
           overriddenStyles[key as any] = value;
           continue;
@@ -107,35 +119,41 @@ function createCss(
           const calcToggle = calcProperty(parsedProperty);
 
           overrideLonghands(overriddenStyles, parsedProperty);
+
+          const target = isComposed
+            ? overriddenComposedStyles[parsedProperty as any]
+              ? overriddenStyles
+              : overriddenComposedStyles
+            : overriddenStyles;
+
           // this must happen each iteration so that each override applies to the
           // mutated css object from the previous override iteration
-          overriddenStyles[parsedProperty as any] = value;
+          target[parsedProperty as any] = value;
 
-          if (isNumber) {
-            // add grid toggle to enable grid calc for grid properties. it cannot
-            // be an empty string because some fws strip it (e.g. vite)
-            (overriddenStyles as any)[calcToggle] = '/*on*/';
-          } else {
-            // remove the toggle if it was added by a previous iteration.
-            delete (overriddenStyles as any)[calcToggle];
+          if (!isComposed) {
+            if (isNumber) {
+              overriddenStyles[calcToggle as any] = '/*on*/';
+            } else {
+              delete overriddenStyles[calcToggle as any];
+            }
           }
         }
       }
     }
 
-    cache.set(cacheId, overriddenStyles);
+    lruCache.set(cacheId, overriddenStyles);
     return overriddenStyles;
   }
 
   css.compose = <T extends ComposeStyleConfig>(configs: T): Compose<T> => {
     const result = {} as Compose<T>;
 
-    const generate = (block: string, styleConfig: T[keyof T], selectedVariants = {}) => {
-      const cacheId = JSON.stringify({ styleConfig, selectedVariants });
-      const cached = cache.get(cacheId);
+    const generate = (block: string, styleConfig: ComposeStyle, selectedVariants = {}) => {
+      const cacheId = JSON.stringify({ block, selectedVariants });
+      const cached = lruCache.get(cacheId);
       if (cached) return cached;
 
-      const { variants, responsiveVariants } = styleConfig;
+      const { variants, responsiveVariants, ...baseStyles } = styleConfig;
       let variantStyles: Override[] = [];
 
       for (const [key, variant] of Object.entries(selectedVariants)) {
@@ -149,16 +167,22 @@ function createCss(
         }
       }
 
-      const cn: StyleFns[0] = (...classNames) => [block, ...classNames].filter(Boolean).join(' ');
-      const style: StyleFns[1] = (...overrides) => css({}, ...variantStyles, ...overrides);
-      const result: StyleFns = [cn, style];
+      const cn: StyleFns[0] = (...classNames) => {
+        const selector = Tokenami.getComposeSelector(block, config.composeSelector);
+        const part = Tokenami.getBlockFromComposeSelector(selector, config.composeSelector);
+        return [part.selectorName, ...classNames].filter(Boolean).join(' ');
+      };
+      const style: StyleFns[1] = (...overrides) => {
+        return css({ [_COMPOSE]: baseStyles }, ...variantStyles, ...overrides);
+      };
 
-      cache.set(cacheId, result);
+      const result: StyleFns = [cn, style];
+      lruCache.set(cacheId, result);
       return result;
     };
 
-    for (const [key, styleConfig] of Object.entries(configs)) {
-      result[key as keyof T] = generate.bind(null, key, styleConfig as T[keyof T]);
+    for (const [block, styleConfig] of Object.entries(configs)) {
+      result[block as keyof T] = generate.bind(null, block, styleConfig);
     }
 
     return result;
@@ -171,17 +195,21 @@ function createCss(
  * overrideLonghands
  * -----------------------------------------------------------------------------------------------*/
 
-function overrideLonghands(style: Record<string, any>, tokenProperty: Tokenami.TokenProperty) {
+function overrideLonghands(style: Styles, tokenProperty: Tokenami.TokenProperty) {
   const parts = Tokenami.getTokenPropertySplit(tokenProperty);
-  const longhands: string[] = Tokenami.mapShorthandToLonghands.get(parts.alias as any) || [];
-  longhands.forEach((longhand) => {
+  const longhands = Tokenami.mapShorthandToLonghands.get(parts.alias as any) || [];
+  const cssObj = style as any;
+  for (const longhand of longhands) {
     const tokenPropertyLong = createLonghandProperty(tokenProperty, longhand);
-    if (style[tokenPropertyLong]) {
-      delete style[tokenPropertyLong];
-      delete style[calcProperty(tokenPropertyLong)];
-    }
-    overrideLonghands(style, tokenPropertyLong);
-  });
+    const calcProp = calcProperty(tokenPropertyLong);
+    const composedValue = cssObj[_COMPOSE]?.[tokenPropertyLong];
+    const value = composedValue ?? cssObj[tokenPropertyLong];
+    const isNumber = typeof value === 'number';
+
+    composedValue ? (cssObj[tokenPropertyLong] = 'initial') : delete cssObj[tokenPropertyLong];
+    if (isNumber) composedValue ? (cssObj[calcProp] = 'initial') : delete cssObj[calcProp];
+    overrideLonghands(cssObj, tokenPropertyLong);
+  }
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -219,4 +247,4 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
 const css = createCss({});
 
 export type { TokenamiCSS };
-export { createCss, css, convertToMediaStyles };
+export { createCss, css, convertToMediaStyles, _COMPOSE };

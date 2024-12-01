@@ -1,5 +1,5 @@
 import * as DS from '@tokenami/example-design-system';
-import { css } from '~/css';
+import { TokenamiStyle, css } from '~/css';
 
 export default function Index() {
   return (
@@ -105,9 +105,18 @@ export default function Index() {
   );
 }
 
-const QuoteImage = () => {
+const QuoteImage = (props: TokenamiStyle<React.ComponentProps<'img'>>) => {
   const [cn, style] = styles.quoteImage({ variant: 'circle', md_variant: 'fill' });
-  return <img className={cn()} style={style()} src="/me.jpg" alt="" width="400" height="400" />;
+  return (
+    <img
+      className={cn(props.className)}
+      style={style(props.style)}
+      src="/me.jpg"
+      alt=""
+      width="400"
+      height="400"
+    />
+  );
 };
 
 const styles = css.compose({

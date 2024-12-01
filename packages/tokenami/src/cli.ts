@@ -267,7 +267,7 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
     }
 
     if (fileContent.includes(sheet.LAYERS.COMPONENTS)) {
-      const sheetComposeBlocks = findSheetComposeBlocks(fileContent);
+      const sheetComposeBlocks = findSheetComposeBlocks(fileContent, config.composeSelector);
       composeBlocks = { ...composeBlocks, ...sheetComposeBlocks };
     }
   });
@@ -413,7 +413,10 @@ function findResponsiveVariantsBlocks(node: acorn.AnyNode): acorn.Property | nul
  * findSheetComposeBlocks
  * -----------------------------------------------------------------------------------------------*/
 
-function findSheetComposeBlocks(fileContents: string) {
+function findSheetComposeBlocks(
+  fileContents: string,
+  composeSelector: Tokenami.Config['composeSelector']
+) {
   const ast = csstree.parse(fileContents);
   let stylesObject: Record<string, TokenamiProperties> | undefined;
 
@@ -429,7 +432,8 @@ function findSheetComposeBlocks(fileContents: string) {
           visit: 'Rule',
           enter(ruleNode) {
             if (!ruleNode.prelude || !ruleNode.block) return;
-            const className = csstree.generate(ruleNode.prelude).replace('.', '').trim();
+            const selector = csstree.generate(ruleNode.prelude).trim();
+            const block = Tokenami.getBlockFromComposeSelector(selector, composeSelector);
             let styles: TokenamiProperties = {};
 
             csstree.walk(ruleNode.block, {
@@ -442,7 +446,7 @@ function findSheetComposeBlocks(fileContents: string) {
             });
 
             stylesObject ??= {};
-            stylesObject[className] = styles;
+            stylesObject[block.name] = styles;
           },
         });
       }

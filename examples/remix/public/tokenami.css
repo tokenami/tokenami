@@ -189,112 +189,93 @@
 
   :root {
     --_grid: .25rem;
+    --anim_pulse: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
+    --anim_wiggle: wiggle 1s ease-in-out infinite;
+    --font_mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --font_sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --leading_7: 1.75rem;
+    --leading_loose: 2;
+    --line_0: 0 solid;
+    --line_px: .0625rem solid;
+    --morph_all: all cubic-bezier(.4, 0, .2, 1) .15s;
+    --radii_3xl: 1.5rem;
+    --radii_full: 9999px;
+    --radii_lg: .5rem;
+    --radii_none: 0;
+    --radii_sm: .125rem;
+    --radii_xl: .75rem;
+    --size_auto: auto;
+    --size_full: 100%;
+    --text-size_4xl: 2.25rem;
+    --text-size_lg: 1.125rem;
+    --text-size_xl: 1.25rem;
+    --weight_medium: 500;
   }
 
-  :root .button {
-    & :root .quoteImage {
-      & :root [style] {
-        --anim_pulse: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
-        --anim_wiggle: wiggle 1s ease-in-out infinite;
-        --font_mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        --font_sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-        --leading_7: 1.75rem;
-        --leading_loose: 2;
-        --line_0: 0 solid;
-        --line_px: .0625rem solid;
-        --morph_all: all cubic-bezier(.4, 0, .2, 1) .15s;
-        --radii_3xl: 1.5rem;
-        --radii_full: 9999px;
-        --radii_lg: .5rem;
-        --radii_none: 0;
-        --radii_sm: .125rem;
-        --radii_xl: .75rem;
-        --size_auto: auto;
-        --size_full: 100%;
-        --text-size_4xl: 2.25rem;
-        --text-size_lg: 1.125rem;
-        --text-size_xl: 1.25rem;
-        --weight_medium: 500;
-      }
+  :root, :root .tk-button, :root .tk-quote-image, :root [style] {
+    --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
+    --text_xl: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1.25rem / 1.75rem var(--font-family);
+  }
+
+  :root, [data-theme="light"] {
+    --color_amber12: #4f3422;
+    --color_amber8: #e2a336;
+    --color_amber9: #ffc442;
+    --color_indigo10: #3358d4;
+    --color_indigo5: #d2deff;
+    --color_indigo6: #c1d0ff;
+    --color_red8: #eb8e90;
+    --color_violet10: #654dc4;
+    --color_violet11: #6550b9;
+    --color_violet9: #6e56cf;
+    --color_white: #fff;
+    --pet_favourite: "🐶";
+  }
+
+  @supports (color: color(display-p3 0 0 0)) {
+    :root, [data-theme="light"] {
+      --color_amber12: color(display-p3 .294 .208 .145);
+      --color_amber8: color(display-p3 .85 .65 .3);
+      --color_amber9: color(display-p3 1 .77 .26);
+      --color_indigo10: color(display-p3 .234 .343 .801);
+      --color_indigo5: color(display-p3 .831 .87 1);
+      --color_indigo6: color(display-p3 .767 .814 .995);
+      --color_red8: color(display-p3 .872 .575 .572);
+      --color_violet10: color(display-p3 .381 .306 .741);
+      --color_violet11: color(display-p3 .383 .317 .702);
+      --color_violet9: color(display-p3 .417 .341 .784);
+      --color_white: color(display-p3 1 1 1);
     }
   }
 
-  :root .button {
-    & :root .quoteImage {
-      & :root [style], & :root [style] [style] {
-        --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
-        --text_xl: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1.25rem / 1.75rem var(--font-family);
-      }
-    }
+  [data-theme="dark"] {
+    --color_amber12: #ffe7b3;
+    --color_amber8: #8f6424;
+    --color_amber9: #ffc442;
+    --color_indigo10: #5472e4;
+    --color_indigo5: #253974;
+    --color_indigo6: #304384;
+    --color_red8: #b54548;
+    --color_violet10: #7d66d9;
+    --color_violet11: #bba6ff;
+    --color_violet9: #6e56cf;
+    --color_white: #fff;
+    --pet_favourite: "🐱";
   }
 
-  :root, [data-theme="light"] .button {
-    & :root, & [data-theme="light"] .quoteImage {
-      & :root, & [data-theme="light"] [style] {
-        --color_amber12: #4f3422;
-        --color_amber8: #e2a336;
-        --color_amber9: #ffc442;
-        --color_indigo10: #3358d4;
-        --color_indigo5: #d2deff;
-        --color_indigo6: #c1d0ff;
-        --color_red8: #eb8e90;
-        --color_violet10: #654dc4;
-        --color_violet11: #6550b9;
-        --color_violet9: #6e56cf;
-        --color_white: #fff;
-        --pet_favourite: "🐶";
-      }
-
-      @supports (color: color(display-p3 0 0 0)) {
-        & :root, & [data-theme="light"] [style] {
-          --color_amber12: color(display-p3 .294 .208 .145);
-          --color_amber8: color(display-p3 .85 .65 .3);
-          --color_amber9: color(display-p3 1 .77 .26);
-          --color_indigo10: color(display-p3 .234 .343 .801);
-          --color_indigo5: color(display-p3 .831 .87 1);
-          --color_indigo6: color(display-p3 .767 .814 .995);
-          --color_red8: color(display-p3 .872 .575 .572);
-          --color_violet10: color(display-p3 .381 .306 .741);
-          --color_violet11: color(display-p3 .383 .317 .702);
-          --color_violet9: color(display-p3 .417 .341 .784);
-          --color_white: color(display-p3 1 1 1);
-        }
-      }
-    }
-  }
-
-  [data-theme="dark"] .button {
-    & [data-theme="dark"] .quoteImage {
-      & [data-theme="dark"] [style] {
-        --color_amber12: #ffe7b3;
-        --color_amber8: #8f6424;
-        --color_amber9: #ffc442;
-        --color_indigo10: #5472e4;
-        --color_indigo5: #253974;
-        --color_indigo6: #304384;
-        --color_red8: #b54548;
-        --color_violet10: #7d66d9;
-        --color_violet11: #bba6ff;
-        --color_violet9: #6e56cf;
-        --color_white: #fff;
-        --pet_favourite: "🐱";
-      }
-
-      @supports (color: color(display-p3 0 0 0)) {
-        & [data-theme="dark"] [style] {
-          --color_amber12: color(display-p3 .984 .909 .726);
-          --color_amber8: color(display-p3 .535 .399 .189);
-          --color_amber9: color(display-p3 1 .77 .26);
-          --color_indigo10: color(display-p3 .354 .445 .866);
-          --color_indigo5: color(display-p3 .163 .22 .439);
-          --color_indigo6: color(display-p3 .203 .262 .5);
-          --color_red8: color(display-p3 .659 .298 .297);
-          --color_violet10: color(display-p3 .477 .402 .823);
-          --color_violet11: color(display-p3 .72 .65 1);
-          --color_violet9: color(display-p3 .417 .341 .784);
-          --color_white: color(display-p3 1 1 1);
-        }
-      }
+  @supports (color: color(display-p3 0 0 0)) {
+    [data-theme="dark"] {
+      --color_amber12: color(display-p3 .984 .909 .726);
+      --color_amber8: color(display-p3 .535 .399 .189);
+      --color_amber9: color(display-p3 1 .77 .26);
+      --color_indigo10: color(display-p3 .354 .445 .866);
+      --color_indigo5: color(display-p3 .163 .22 .439);
+      --color_indigo6: color(display-p3 .203 .262 .5);
+      --color_red8: color(display-p3 .659 .298 .297);
+      --color_violet10: color(display-p3 .477 .402 .823);
+      --color_violet11: color(display-p3 .72 .65 1);
+      --color_violet9: color(display-p3 .417 .341 .784);
+      --color_white: color(display-p3 1 1 1);
     }
   }
 
@@ -315,8 +296,7 @@
     --\{\&\;focus\;hover\}: initial;
     --\{\&\;focus\;hover\}_background-color: initial;
     --border-block-end: initial;
-    --border-block-color: initial;
-    --border-inline-color: initial;
+    --border-color: initial;
     --border-radius: initial;
     --sm_border-radius: initial;
     --md_border-radius: initial;
@@ -434,7 +414,7 @@
 }
 
 @layer tk1 {
-  .button, .quoteImage, [style] {
+  .tk-button, .tk-quote-image, [style] {
     border-radius: var(--border-radius, revert-layer);
     transition: var(--transition, revert-layer);
     color: var(--color, revert-layer);
@@ -454,13 +434,14 @@
 }
 
 @layer tk2 {
-  .button, .quoteImage, [style] {
+  .tk-button, .tk-quote-image, [style] {
     font-family: var(--font-family, revert-layer);
     font-stretch: var(--font-stretch, revert-layer);
     font-style: var(--font-style, revert-layer);
     font-variant: var(--font-variant, revert-layer);
     font-weight: var(--font-weight, revert-layer);
     background-color: var(--background-color, revert-layer);
+    border-color: var(--border-color, revert-layer);
     background-size: var(--background-size, revert-layer);
     background-image: var(--background-image, revert-layer);
     flex-direction: var(--flex-direction, revert-layer);
@@ -474,7 +455,7 @@
 }
 
 @layer tk3 {
-  .button, .quoteImage, [style] {
+  .tk-button, .tk-quote-image, [style] {
     background-position-x: var(--_1k3at6j, var(--background-position-x, revert-layer));
     --_1k3at6j: var(--background-position-x__calc) calc(var(--background-position-x) * var(--_grid));
     background-position-y: var(--_1k3at6i, var(--background-position-y, revert-layer));
@@ -483,7 +464,7 @@
 }
 
 @layer tkl1 {
-  .button, .quoteImage, [style] {
+  .tk-button, .tk-quote-image, [style] {
     inline-size: var(--_g44f3h, var(--inline-size, revert-layer));
     --_g44f3h: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
     block-size: var(--_1ieen97, var(--block-size, revert-layer));
@@ -492,7 +473,7 @@
 }
 
 @layer tkl2 {
-  .button, .quoteImage, [style] {
+  .tk-button, .tk-quote-image, [style] {
     padding-inline: var(--_1od2e5r, var(--padding-inline, revert-layer));
     --_1od2e5r: var(--padding-inline__calc) calc(var(--padding-inline) * var(--_grid));
     padding-block: var(--_esg7el, var(--padding-block, revert-layer));
@@ -505,7 +486,7 @@
 }
 
 @layer tkl3 {
-  .button, .quoteImage, [style] {
+  .tk-button, .tk-quote-image, [style] {
     border-block-end: var(--border-block-end, revert-layer);
     --_1mbhke0: var(--padding-block-start__calc) calc(var(--padding-block-start) * var(--_grid));
     --_13f2miu: var(--margin-block-end__calc) calc(var(--margin-block-end) * var(--_grid));
@@ -516,15 +497,8 @@
   }
 }
 
-@layer tkl5 {
-  .button, .quoteImage, [style] {
-    border-block-color: var(--border-block-color, revert-layer);
-    border-inline-color: var(--border-inline-color, revert-layer);
-  }
-}
-
 @layer tks1 {
-  .button, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
+  .tk-button, .tk-quote-image, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
     border-radius: var(--_14pll2c, var(--_1ckstr7, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, var(--_117pkm7, revert-layer))))));
     --_14pll2c: var(--child-p) var(--child-p_border-radius);
     --_117pkm7: var(--sm) var(--sm_border-radius);
@@ -557,7 +531,7 @@
 }
 
 @layer tks2 {
-  .button, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
+  .tk-button, .tk-quote-image, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
     font-family: var(--_6j96ia, var(--_9d9ope, var(--_10sf9dp, var(--_1l5j3ql, var(--_1oveq08, revert-layer)))));
     --_1oveq08: var(--sm) var(--sm_font-family);
     --_1l5j3ql: var(--md) var(--md_font-family);
@@ -577,7 +551,7 @@
 }
 
 @layer tksl1 {
-  .button, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
+  .tk-button, .tk-quote-image, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
     inline-size: var(--_1s1v5hn, var(--_1c1c65v, var(--_19kqniq, var(--_lbmt5u, var(--_3gor0r, revert-layer)))));
     --_3gor0r: var(--sm) var(--_kbghma, var(--sm_inline-size));
     --_kbghma: var(--sm_inline-size__calc) calc(var(--sm_inline-size) * var(--_grid));
@@ -604,7 +578,7 @@
 }
 
 @layer tksl2 {
-  .button, .quoteImage, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
+  .tk-button, .tk-quote-image, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
     padding-inline: var(--_ok1ujc, revert-layer);
     --_ok1ujc: var(--child-p) var(--_hd7nnr, var(--child-p_padding-inline));
     --_hd7nnr: var(--child-p_padding-inline__calc) calc(var(--child-p_padding-inline) * var(--_grid));
@@ -612,12 +586,11 @@
 }
 
 @layer tkc {
-  .button {
+  .tk-button {
     --background-color: var(--color_violet9);
     --color: var(--color_white);
     --border-block-end: var(--line_px);
-    --border-block-color: var(--color_violet11);
-    --border-inline-color: var(--color_violet11);
+    --border-color: var(--color_violet11);
     --border-radius: var(--radii_lg);
     --inline-size: var(---, 180px);
     --block-size: 15;
@@ -628,7 +601,7 @@
     --\{\&\;focus\;hover\}_background-color: var(---, red);
   }
 
-  .quoteImage {
+  .tk-quote-image {
     --object-fit: cover;
   }
 }

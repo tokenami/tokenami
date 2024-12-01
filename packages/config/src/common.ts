@@ -212,6 +212,31 @@ function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']): st
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * getBlockClassSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function getComposeSelector(block: string, composeSelector?: Config['composeSelector']) {
+  if (composeSelector) return composeSelector(block);
+  return `.tk-${block.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getBlockFromComposeSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function getBlockFromComposeSelector(
+  selector: string,
+  composeSelector?: Config['composeSelector']
+) {
+  const blockSelector = getComposeSelector('tkblock', composeSelector);
+  const selectorName = selector.replace(/^\./, '');
+  const regexString = blockSelector.replace(/[.\[\]\-_]/g, '\\$&').replace(/tkblock/i, '(\\w+)');
+  const regex = new RegExp(`^${regexString}$`);
+  const name = selector.replace(regex, '$1');
+  return { name, selectorName };
+}
+
+/* -------------------------------------------------------------------------------------------------
  * parseProperty
  * -------------------------------------------------------------------------------------------------
  * escape special chars and replace colons with semi colons:
@@ -268,4 +293,6 @@ export {
   getTokenValueParts,
   getArbitrarySelector,
   getCSSPropertiesForAlias,
+  getComposeSelector,
+  getBlockFromComposeSelector,
 };
