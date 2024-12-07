@@ -1,4 +1,5 @@
 import { type Config } from './config';
+import hash from '@emotion/hash';
 
 /* -------------------------------------------------------------------------------------------------
  * GridProperty
@@ -212,28 +213,15 @@ function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']): st
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getBlockClassSelector
+ * generateClassName
  * -----------------------------------------------------------------------------------------------*/
 
-function getComposeSelector(block: string, composeSelector?: Config['composeSelector']) {
-  if (composeSelector) return composeSelector(block);
-  return `.tk-${block.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getBlockFromComposeSelector
- * -----------------------------------------------------------------------------------------------*/
-
-function getBlockFromComposeSelector(
-  selector: string,
-  composeSelector?: Config['composeSelector']
-) {
-  const blockSelector = getComposeSelector('tkblock', composeSelector);
-  const selectorName = selector.replace(/^\./, '');
-  const regexString = blockSelector.replace(/[.\[\]\-_]/g, '\\$&').replace(/tkblock/i, '(\\w+)');
-  const regex = new RegExp(`^${regexString}$`);
-  const name = selector.replace(regex, '$1');
-  return { name, selectorName };
+function generateClassName(properties: Record<string, any>) {
+  const entries = Object.entries(properties)
+    .map(([property, value]) => [property, String(value)] as const)
+    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+  const str = JSON.stringify(entries);
+  return `tk${hash(str)}`;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -293,6 +281,5 @@ export {
   getTokenValueParts,
   getArbitrarySelector,
   getCSSPropertiesForAlias,
-  getComposeSelector,
-  getBlockFromComposeSelector,
+  generateClassName,
 };

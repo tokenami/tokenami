@@ -1,6 +1,7 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import { createCss } from '@tokenami/css';
 import { hasStyles, hasSomeStyles } from './utils';
+import { _COMPOSE } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup
@@ -117,7 +118,8 @@ describe('css returned from createCss', () => {
     });
 
     it<TestContext>('should override correctly', (context) => {
-      expect(context.output).toStrictEqual({
+      const { [_COMPOSE]: _, ...output } = context.output as any;
+      expect(output).toStrictEqual({
         '--padding-left': 20,
         '--padding-right': 20,
         '--padding-left__calc': '/*on*/',

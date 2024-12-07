@@ -18,21 +18,14 @@ type ResponsiveVariants<C> = undefined extends C
   ? {}
   : { [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> } }[keyof C];
 
-type Compose<T extends ComposeStyleConfig> = {
-  [K in keyof T]: GenerateCSS<T[K]['variants'], T[K]['responsiveVariants']>;
+type ComposeCSS<V, R> = TokenamiProperties & {
+  variants?: V & VariantsConfig;
+  responsiveVariants?: R & VariantsConfig;
 };
 
 type GenerateCSS<V, R> = (
   selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>
-) => StyleFns;
-
-type ComposeStyleConfig = { [key: string]: ComposeStyle };
-type ComposeStyle = TokenamiProperties & {
-  variants?: VariantsConfig;
-  responsiveVariants?: VariantsConfig;
-};
-
-type StyleFns = [
+) => [
   cn: (...classNames: (string | undefined | null | false)[]) => string,
   style: (...overrides: Override[]) => TokenamiCSS
 ];
@@ -73,7 +66,7 @@ type CreateCssOptions = {
 };
 
 function createCss(
-  config: Pick<Tokenami.Config, 'aliases' | 'composeSelector'>,
+  config: Pick<Tokenami.Config, 'aliases'>,
   options: CreateCssOptions = { escapeSpecialChars: true }
 ) {
   (globalThis as any)[_TOKENAMI_CSS] = options;
@@ -93,7 +86,7 @@ function createCss(
     const cached = lruCache.get(cacheId);
     if (cached) return cached;
 
-    const overriddenStyles: TokenamiProperties & TokenamiCSS = { [_COMPOSE]: {} };
+    const overriddenStyles: any = { [_COMPOSE]: {} };
     const overriddenComposedStyles = overriddenStyles[_COMPOSE]!;
     const globalOptions = (globalThis as any)[_TOKENAMI_CSS];
 
@@ -121,7 +114,7 @@ function createCss(
           overrideLonghands(overriddenStyles, parsedProperty);
 
           const target = isComposed
-            ? overriddenComposedStyles[parsedProperty as any]
+            ? overriddenComposedStyles[parsedProperty]
               ? overriddenStyles
               : overriddenComposedStyles
             : overriddenStyles;
@@ -134,7 +127,7 @@ function createCss(
             if (isNumber) {
               overriddenStyles[calcToggle as any] = '/*on*/';
             } else {
-              delete overriddenStyles[calcToggle as any];
+              delete overriddenStyles[calcToggle];
             }
           }
         }
@@ -145,47 +138,40 @@ function createCss(
     return overriddenStyles;
   }
 
-  css.compose = <T extends ComposeStyleConfig>(configs: T): Compose<T> => {
-    const result = {} as Compose<T>;
+  css.compose = <V extends VariantsConfig | undefined, R extends VariantsConfig | undefined>(
+    styleConfig: ComposeCSS<V, R>
+  ): GenerateCSS<V, R> => {
+    const { variants, responsiveVariants, ...baseStyles } = styleConfig;
+    const className = Tokenami.generateClassName(baseStyles);
 
-    const generate = (block: string, styleConfig: ComposeStyle, selectedVariants = {}) => {
-      const cacheId = JSON.stringify({ block, selectedVariants });
+    return function generate(selectedVariants = {}) {
+      const cacheId = JSON.stringify({ styleConfig, selectedVariants });
       const cached = lruCache.get(cacheId);
       if (cached) return cached;
 
-      const { variants, responsiveVariants, ...baseStyles } = styleConfig;
-      let variantStyles: Override[] = [];
+      const variantEntries = Object.entries(selectedVariants);
+      let variantStyles: TokenamiProperties[] = [];
 
-      for (const [key, variant] of Object.entries(selectedVariants)) {
+      for (const [key, variant] of variantEntries) {
         if (!variant) continue;
         const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
         const responsive = responsiveVariants?.[type]?.[variant as any];
+        const variantValue = variants?.[type]?.[variant as any] ?? responsive;
         if (bp && responsive) {
           variantStyles.push(convertToMediaStyles(bp, responsive));
-        } else {
-          variantStyles.push(variants?.[type]?.[variant as any] ?? responsive);
+        } else if (variantValue) {
+          variantStyles.push(variantValue);
         }
       }
 
-      const cn: StyleFns[0] = (...classNames) => {
-        const selector = Tokenami.getComposeSelector(block, config.composeSelector);
-        const part = Tokenami.getBlockFromComposeSelector(selector, config.composeSelector);
-        return [part.selectorName, ...classNames].filter(Boolean).join(' ');
-      };
-      const style: StyleFns[1] = (...overrides) => {
-        return css({ [_COMPOSE]: baseStyles }, ...variantStyles, ...overrides);
-      };
+      const result: ReturnType<GenerateCSS<V, R>> = [
+        (...classNames) => [className, ...classNames].filter(Boolean).join(' '),
+        (...overrides) => css({ [_COMPOSE]: baseStyles }, ...variantStyles, ...overrides),
+      ];
 
-      const result: StyleFns = [cn, style];
       lruCache.set(cacheId, result);
       return result;
     };
-
-    for (const [block, styleConfig] of Object.entries(configs)) {
-      result[block as keyof T] = generate.bind(null, block, styleConfig);
-    }
-
-    return result;
   };
 
   return css;

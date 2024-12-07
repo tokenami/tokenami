@@ -44,7 +44,6 @@ interface Config<
   grid?: string;
   globalStyles?: Record<string, CSS.Properties>;
   keyframes?: { [name: string]: { [step: string]: CSS.Properties } };
-  composeSelector?: (part: string) => `.${string}`;
   themeSelector: (mode: string) => Selector;
   theme: T & ExactTheme<T> & ExactThemeModes<T['modes']>;
   responsive?: Responsive;

@@ -106,7 +106,7 @@ export default function Index() {
 }
 
 const QuoteImage = (props: TokenamiStyle<React.ComponentProps<'img'>>) => {
-  const [cn, style] = styles.quoteImage({ variant: 'circle', md_variant: 'fill' });
+  const [cn, style] = quoteImage({ variant: 'circle', md_variant: 'fill' });
   return (
     <img
       className={cn(props.className)}
@@ -119,22 +119,20 @@ const QuoteImage = (props: TokenamiStyle<React.ComponentProps<'img'>>) => {
   );
 };
 
-const styles = css.compose({
-  quoteImage: {
-    '--object-fit': 'cover',
+const quoteImage = css.compose({
+  '--object-fit': 'cover',
 
-    responsiveVariants: {
-      variant: {
-        circle: {
-          '--width': 24,
-          '--height': 24,
-          '--border-radius': 'var(--radii_full)',
-        },
-        fill: {
-          '--width': 'var(---,11rem)',
-          '--height': 'var(--size_auto)',
-          '--border-radius': 'var(--radii_none)',
-        },
+  responsiveVariants: {
+    variant: {
+      circle: {
+        '--width': 24,
+        '--height': 24,
+        '--border-radius': 'var(--radii_full)',
+      },
+      fill: {
+        '--width': 'var(---,11rem)',
+        '--height': 'var(--size_auto)',
+        '--border-radius': 'var(--radii_none)',
       },
     },
   },

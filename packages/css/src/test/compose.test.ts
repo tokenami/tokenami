@@ -1,5 +1,6 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import { css } from '@tokenami/css';
+import { generateClassName } from '@tokenami/config';
 import { hasStyles, hasSomeStyles } from './utils';
 import { _COMPOSE, convertToMediaStyles } from '../css';
 
@@ -46,32 +47,31 @@ const linkStyles = Object.freeze({
   '--text-decoration': 'none',
 }) as {};
 
-const styles = css.compose({
-  button: {
-    ...baseStyles,
-    responsiveVariants: {
-      disabled: { true: disabledStyles, false: enabledStyles },
-      type: { primary: primaryStyles, secondary: secondaryStyles },
-    },
+const button = css.compose({
+  ...baseStyles,
+  responsiveVariants: {
+    disabled: { true: disabledStyles, false: enabledStyles },
+    type: { primary: primaryStyles, secondary: secondaryStyles },
   },
-  link: linkStyles,
 });
+
+const link = css.compose(linkStyles);
 
 /* -------------------------------------------------------------------------------------------------
  * tests
  * -----------------------------------------------------------------------------------------------*/
 
 interface TestContext {
-  button: typeof styles.button;
-  link: typeof styles.link;
+  button: typeof button;
+  link: typeof link;
   className: string;
-  output: ReturnType<ReturnType<typeof styles.button>[1]>;
+  output: ReturnType<ReturnType<typeof button>[1]>;
 }
 
 describe('css compose', () => {
   beforeEach<TestContext>((context) => {
-    context.button = styles.button;
-    context.link = styles.link;
+    context.button = button;
+    context.link = link;
   });
 
   describe('when invoked without a config', () => {
@@ -84,7 +84,7 @@ describe('css compose', () => {
     });
 
     it<TestContext>('should create button class', (context) => {
-      expect(context.className).toEqual('tk-button');
+      expect(context.className).toEqual(generateClassName(baseStyles));
     });
 
     it<TestContext>('should output no styles', (context) => {
@@ -186,7 +186,9 @@ describe('css compose', () => {
     });
 
     it<TestContext>('should chain classes', (context) => {
-      expect(context.className).toBe('tk-button tk-link');
+      const buttonClassName = generateClassName(baseStyles);
+      const linkClassName = generateClassName(linkStyles);
+      expect(context.className).toBe(`${buttonClassName} ${linkClassName}`);
     });
 
     it<TestContext>('should override longhands and base style', (context) => {

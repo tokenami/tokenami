@@ -212,7 +212,7 @@
     --weight_medium: 500;
   }
 
-  :root, :root .tk-button, :root .tk-quote-image, :root [style] {
+  :root, :root .tk1d0gnz5, :root .tkvzhnr, :root [style] {
     --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
     --text_xl: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1.25rem / 1.75rem var(--font-family);
   }
@@ -296,7 +296,8 @@
     --\{\&\;focus\;hover\}: initial;
     --\{\&\;focus\;hover\}_background-color: initial;
     --border-block-end: initial;
-    --border-color: initial;
+    --border-block-color: initial;
+    --border-inline-color: initial;
     --border-radius: initial;
     --sm_border-radius: initial;
     --md_border-radius: initial;
@@ -414,7 +415,7 @@
 }
 
 @layer tk1 {
-  .tk-button, .tk-quote-image, [style] {
+  .tk1d0gnz5, .tkvzhnr, [style] {
     border-radius: var(--border-radius, revert-layer);
     transition: var(--transition, revert-layer);
     color: var(--color, revert-layer);
@@ -434,14 +435,13 @@
 }
 
 @layer tk2 {
-  .tk-button, .tk-quote-image, [style] {
+  .tk1d0gnz5, .tkvzhnr, [style] {
     font-family: var(--font-family, revert-layer);
     font-stretch: var(--font-stretch, revert-layer);
     font-style: var(--font-style, revert-layer);
     font-variant: var(--font-variant, revert-layer);
     font-weight: var(--font-weight, revert-layer);
     background-color: var(--background-color, revert-layer);
-    border-color: var(--border-color, revert-layer);
     background-size: var(--background-size, revert-layer);
     background-image: var(--background-image, revert-layer);
     flex-direction: var(--flex-direction, revert-layer);
@@ -455,7 +455,7 @@
 }
 
 @layer tk3 {
-  .tk-button, .tk-quote-image, [style] {
+  .tk1d0gnz5, .tkvzhnr, [style] {
     background-position-x: var(--_1k3at6j, var(--background-position-x, revert-layer));
     --_1k3at6j: var(--background-position-x__calc) calc(var(--background-position-x) * var(--_grid));
     background-position-y: var(--_1k3at6i, var(--background-position-y, revert-layer));
@@ -464,7 +464,7 @@
 }
 
 @layer tkl1 {
-  .tk-button, .tk-quote-image, [style] {
+  .tk1d0gnz5, .tkvzhnr, [style] {
     inline-size: var(--_g44f3h, var(--inline-size, revert-layer));
     --_g44f3h: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
     block-size: var(--_1ieen97, var(--block-size, revert-layer));
@@ -473,7 +473,7 @@
 }
 
 @layer tkl2 {
-  .tk-button, .tk-quote-image, [style] {
+  .tk1d0gnz5, .tkvzhnr, [style] {
     padding-inline: var(--_1od2e5r, var(--padding-inline, revert-layer));
     --_1od2e5r: var(--padding-inline__calc) calc(var(--padding-inline) * var(--_grid));
     padding-block: var(--_esg7el, var(--padding-block, revert-layer));
@@ -486,7 +486,7 @@
 }
 
 @layer tkl3 {
-  .tk-button, .tk-quote-image, [style] {
+  .tk1d0gnz5, .tkvzhnr, [style] {
     border-block-end: var(--border-block-end, revert-layer);
     --_1mbhke0: var(--padding-block-start__calc) calc(var(--padding-block-start) * var(--_grid));
     --_13f2miu: var(--margin-block-end__calc) calc(var(--margin-block-end) * var(--_grid));
@@ -497,8 +497,15 @@
   }
 }
 
+@layer tkl5 {
+  .tk1d0gnz5, .tkvzhnr, [style] {
+    border-block-color: var(--border-block-color, revert-layer);
+    border-inline-color: var(--border-inline-color, revert-layer);
+  }
+}
+
 @layer tks1 {
-  .tk-button, .tk-quote-image, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
+  .tk1d0gnz5, .tkvzhnr, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
     border-radius: var(--_14pll2c, var(--_1ckstr7, var(--_1hh3291, var(--_1aut28, var(--_176qpn4, var(--_117pkm7, revert-layer))))));
     --_14pll2c: var(--child-p) var(--child-p_border-radius);
     --_117pkm7: var(--sm) var(--sm_border-radius);
@@ -531,7 +538,7 @@
 }
 
 @layer tks2 {
-  .tk-button, .tk-quote-image, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
+  .tk1d0gnz5, .tkvzhnr, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
     font-family: var(--_6j96ia, var(--_9d9ope, var(--_10sf9dp, var(--_1l5j3ql, var(--_1oveq08, revert-layer)))));
     --_1oveq08: var(--sm) var(--sm_font-family);
     --_1l5j3ql: var(--md) var(--md_font-family);
@@ -551,7 +558,7 @@
 }
 
 @layer tksl1 {
-  .tk-button, .tk-quote-image, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
+  .tk1d0gnz5, .tkvzhnr, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
     inline-size: var(--_1s1v5hn, var(--_1c1c65v, var(--_19kqniq, var(--_lbmt5u, var(--_3gor0r, revert-layer)))));
     --_3gor0r: var(--sm) var(--_kbghma, var(--sm_inline-size));
     --_kbghma: var(--sm_inline-size__calc) calc(var(--sm_inline-size) * var(--_grid));
@@ -578,7 +585,7 @@
 }
 
 @layer tksl2 {
-  .tk-button, .tk-quote-image, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
+  .tk1d0gnz5, .tkvzhnr, [style], [style] > p, [style*="selection_"]::selection, [style] p, [style] .card, [style]:after {
     padding-inline: var(--_ok1ujc, revert-layer);
     --_ok1ujc: var(--child-p) var(--_hd7nnr, var(--child-p_padding-inline));
     --_hd7nnr: var(--child-p_padding-inline__calc) calc(var(--child-p_padding-inline) * var(--_grid));
@@ -586,11 +593,12 @@
 }
 
 @layer tkc {
-  .tk-button {
+  .tk1d0gnz5 {
     --background-color: var(--color_violet9);
     --color: var(--color_white);
     --border-block-end: var(--line_px);
-    --border-color: var(--color_violet11);
+    --border-block-color: var(--color_violet11);
+    --border-inline-color: var(--color_violet11);
     --border-radius: var(--radii_lg);
     --inline-size: var(---, 180px);
     --block-size: 15;
@@ -601,7 +609,7 @@
     --\{\&\;focus\;hover\}_background-color: var(---, red);
   }
 
-  .tk-quote-image {
+  .tkvzhnr {
     --object-fit: cover;
   }
 }

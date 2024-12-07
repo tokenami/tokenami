@@ -55,17 +55,17 @@ function createSheet(params: {
   tokens: {
     properties: Tokenami.TokenProperty[];
     values: Tokenami.TokenValue[];
-    composeBlocks: Record<string, TokenamiProperties> | undefined;
+    composeBlocks: Record<`.${string}`, TokenamiProperties>;
   };
 }) {
   if (!params.tokens.properties.length) return '';
 
   const tokenProperties = params.tokens.properties;
   const tokenValues = params.tokens.values;
-  const composeBlocks = params.tokens.composeBlocks || {};
+  const composeBlocks = params.tokens.composeBlocks;
   const propertyConfigsByCSSProperty = getPropertyConfigs(tokenProperties, params.config);
   const allPropertyConfigs = Array.from(propertyConfigsByCSSProperty.values()).flat();
-  const styleSelector = createBaseSelector(Object.keys(composeBlocks), params.config);
+  const styleSelector = [...Object.keys(composeBlocks), DEFAULT_SELECTOR];
 
   const elemSelectors = utils.unique(
     allPropertyConfigs.map((config) => {
@@ -151,11 +151,10 @@ function createSheet(params: {
 
   const css = createCss(params.config);
 
-  for (const [block, tokenamiProperties] of Object.entries(composeBlocks)) {
+  for (const [selector, tokenamiProperties] of Object.entries(composeBlocks)) {
     const parsed = css(tokenamiProperties);
     for (const [property, value] of Object.entries(parsed)) {
       const atomicPair = `${property}: ${value};`;
-      const selector = Tokenami.getComposeSelector(block, params.config.composeSelector);
       styles.components[atomicPair] ??= new Set<string>();
       styles.components[atomicPair]!.add(selector);
     }
@@ -190,17 +189,6 @@ function createSheet(params: {
     ${Array.from(styles.selectors).join(' ')}
     ${composeStyles.join(' ')}
   `;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * createBaseSelector
- * -----------------------------------------------------------------------------------------------*/
-
-function createBaseSelector(blockNames: string[], config: Tokenami.Config) {
-  const selectors = blockNames.map((block) => {
-    return Tokenami.getComposeSelector(block, config.composeSelector);
-  });
-  return [...selectors, DEFAULT_SELECTOR];
 }
 
 /* -------------------------------------------------------------------------------------------------
