@@ -38,8 +38,12 @@ const fluid = <P extends string, MinPx extends number, MaxPx extends number>(par
   ` as const;
 };
 
+const colorMixOpacity = <P extends string>(property: P) => {
+  return `color-mix(in var(--color-space, srgb), var(--${property}-color) calc(var(--${property}-percent) * 1%), transparent)` as const;
+};
+
 const colorMix = <P extends string, C extends string>(property: P, color: C) => {
-  return `color-mix(in var(--color-space, srgb), var(--${property}-color) calc(var(--${property}-opacity) * 100%), ${color})` as const;
+  return `color-mix(in var(--color-space, srgb), var(--${property}-color), ${color} calc(var(--${property}-percent) * 1%))` as const;
 };
 
 export default createConfig({
@@ -1005,55 +1009,89 @@ export default createConfig({
         loose: 2,
       },
       mix: {
-        transparent: colorMix('mix', 'transparent'),
+        opacity: colorMixOpacity('mix'),
+        tint: colorMix('mix', '#fff'),
+        shade: colorMix('mix', '#000'),
       },
       'mix-accent': {
-        transparent: colorMix('mix-accent', 'transparent'),
+        opacity: colorMixOpacity('mix-accent'),
+        tint: colorMix('mix-accent', '#fff'),
+        shade: colorMix('mix-accent', '#000'),
       },
       'mix-bg': {
-        transparent: colorMix('mix-bg', 'transparent'),
+        opacity: colorMixOpacity('mix-bg'),
+        tint: colorMix('mix-bg', '#fff'),
+        shade: colorMix('mix-bg', '#000'),
       },
       'mix-border': {
-        transparent: colorMix('mix-border', 'transparent'),
+        opacity: colorMixOpacity('mix-border'),
+        tint: colorMix('mix-border', '#fff'),
+        shade: colorMix('mix-border', '#000'),
       },
       'mix-border-top': {
-        transparent: colorMix('mix-border-top', 'transparent'),
+        opacity: colorMixOpacity('mix-border-top'),
+        tint: colorMix('mix-border-top', '#fff'),
+        shade: colorMix('mix-border-top', '#000'),
       },
       'mix-border-right': {
-        transparent: colorMix('mix-border-right', 'transparent'),
+        opacity: colorMixOpacity('mix-border-right'),
+        tint: colorMix('mix-border-right', '#fff'),
+        shade: colorMix('mix-border-right', '#000'),
       },
       'mix-border-bottom': {
-        transparent: colorMix('mix-border-bottom', 'transparent'),
+        opacity: colorMixOpacity('mix-border-bottom'),
+        tint: colorMix('mix-border-bottom', '#fff'),
+        shade: colorMix('mix-border-bottom', '#000'),
       },
       'mix-border-left': {
-        transparent: colorMix('mix-border-left', 'transparent'),
+        opacity: colorMixOpacity('mix-border-left'),
+        tint: colorMix('mix-border-left', '#fff'),
+        shade: colorMix('mix-border-left', '#000'),
       },
       'mix-border-x': {
-        transparent: colorMix('mix-border-x', 'transparent'),
+        opacity: colorMixOpacity('mix-border-x'),
+        tint: colorMix('mix-border-x', '#fff'),
+        shade: colorMix('mix-border-x', '#000'),
       },
       'mix-border-y': {
-        transparent: colorMix('mix-border-y', 'transparent'),
+        opacity: colorMixOpacity('mix-border-y'),
+        tint: colorMix('mix-border-y', '#fff'),
+        shade: colorMix('mix-border-y', '#000'),
       },
       'mix-caret': {
-        transparent: colorMix('mix-caret', 'transparent'),
+        opacity: colorMixOpacity('mix-caret'),
+        tint: colorMix('mix-caret', '#fff'),
+        shade: colorMix('mix-caret', '#000'),
       },
       'mix-column-rule': {
-        transparent: colorMix('mix-column-rule', 'transparent'),
+        opacity: colorMixOpacity('mix-column-rule'),
+        tint: colorMix('mix-column-rule', '#fff'),
+        shade: colorMix('mix-column-rule', '#000'),
       },
       'mix-fill': {
-        transparent: colorMix('mix-fill', 'transparent'),
+        opacity: colorMixOpacity('mix-fill'),
+        tint: colorMix('mix-fill', '#fff'),
+        shade: colorMix('mix-fill', '#000'),
       },
       'mix-outline': {
-        transparent: colorMix('mix-outline', 'transparent'),
+        opacity: colorMixOpacity('mix-outline'),
+        tint: colorMix('mix-outline', '#fff'),
+        shade: colorMix('mix-outline', '#000'),
       },
       'mix-stroke': {
-        transparent: colorMix('mix-stroke', 'transparent'),
+        opacity: colorMixOpacity('mix-stroke'),
+        tint: colorMix('mix-stroke', '#fff'),
+        shade: colorMix('mix-stroke', '#000'),
       },
       'mix-text-decoration': {
-        transparent: colorMix('mix-text-decoration', 'transparent'),
+        opacity: colorMixOpacity('mix-text-decoration'),
+        tint: colorMix('mix-text-decoration', '#fff'),
+        shade: colorMix('mix-text-decoration', '#000'),
       },
       'mix-shadow': {
-        transparent: colorMix('mix-shadow', 'transparent'),
+        opacity: colorMixOpacity('mix-shadow'),
+        tint: colorMix('mix-shadow', '#fff'),
+        shade: colorMix('mix-shadow', '#000'),
       },
       morph: {
         none: 'none',
@@ -1671,39 +1709,39 @@ export default createConfig({
     'gradient-via': ['color'],
     'gradient-via-stop': ['stop'],
     'mix-color': ['color'],
-    'mix-opacity': ['number'],
+    'mix-percent': ['number'],
     'mix-accent-color': ['color'],
-    'mix-accent-opacity': ['number'],
+    'mix-accent-percent': ['number'],
     'mix-bg-color': ['color'],
-    'mix-bg-opacity': ['number'],
+    'mix-bg-percent': ['number'],
     'mix-border-color': ['color'],
-    'mix-border-opacity': ['number'],
+    'mix-border-percent': ['number'],
     'mix-border-top-color': ['color'],
-    'mix-border-top-opacity': ['number'],
+    'mix-border-top-percent': ['number'],
     'mix-border-right-color': ['color'],
-    'mix-border-right-opacity': ['number'],
+    'mix-border-right-percent': ['number'],
     'mix-border-bottom-color': ['color'],
-    'mix-border-bottom-opacity': ['number'],
+    'mix-border-bottom-percent': ['number'],
     'mix-border-left-color': ['color'],
-    'mix-border-left-opacity': ['number'],
+    'mix-border-left-percent': ['number'],
     'mix-border-x-color': ['color'],
-    'mix-border-x-opacity': ['number'],
+    'mix-border-x-percent': ['number'],
     'mix-border-y-color': ['color'],
-    'mix-border-y-opacity': ['number'],
+    'mix-border-y-percent': ['number'],
     'mix-caret-color': ['color'],
-    'mix-caret-opacity': ['number'],
+    'mix-caret-percent': ['number'],
     'mix-column-rule-color': ['color'],
-    'mix-column-rule-opacity': ['number'],
+    'mix-column-rule-percent': ['number'],
     'mix-fill-color': ['color'],
-    'mix-fill-opacity': ['number'],
+    'mix-fill-percent': ['number'],
     'mix-outline-color': ['color'],
-    'mix-outline-opacity': ['number'],
+    'mix-outline-percent': ['number'],
     'mix-stroke-color': ['color'],
-    'mix-stroke-opacity': ['number'],
+    'mix-stroke-percent': ['number'],
     'mix-text-decoration-color': ['color'],
-    'mix-text-decoration-opacity': ['number'],
+    'mix-text-decoration-percent': ['number'],
     'mix-shadow-color': ['color'],
-    'mix-shadow-opacity': ['number'],
+    'mix-shadow-percent': ['number'],
     'shadow-color': ['color', 'mix-shadow'],
   },
 });
