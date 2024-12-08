@@ -1,18 +1,20 @@
 import { describe, beforeEach, it, expect } from 'vitest';
-import { css } from '../css';
+import { TokenamiCSS, _COMPOSE, css } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * tests
  * -----------------------------------------------------------------------------------------------*/
 
 interface TestContext {
-  output: {};
+  output: TokenamiCSS;
 }
 
 describe('css utility', () => {
   describe('when called with a grid value', () => {
     beforeEach<TestContext>((context) => {
-      context.output = css({ '--padding-left': 10 });
+      const result = css({ '--padding-left': 10 });
+      const { [_COMPOSE]: _, ...styles } = result;
+      context.output = styles;
     });
 
     it<TestContext>('should convert value to calc', (context) => {
@@ -22,7 +24,9 @@ describe('css utility', () => {
 
   describe('when called with a shorthand after a longhand in base styles', () => {
     beforeEach<TestContext>((context) => {
-      context.output = css({ '--padding-left': 10, '--padding': 20 });
+      const result = css({ '--padding-left': 10, '--padding': 20 });
+      const { [_COMPOSE]: _, ...styles } = result;
+      context.output = styles;
     });
 
     it<TestContext>('should keep the shorthand styles only', (context) => {
@@ -32,7 +36,9 @@ describe('css utility', () => {
 
   describe('when called with a non-numeric override', () => {
     beforeEach<TestContext>((context) => {
-      context.output = css({ '--padding': 20 }, { '--padding': 'var(---, 30px)' });
+      const result = css({ '--padding': 20 }, { '--padding': 'var(---, 30px)' });
+      const { [_COMPOSE]: _, ...styles } = result;
+      context.output = styles;
     });
 
     it<TestContext>('should remove calc toggle', (context) => {
