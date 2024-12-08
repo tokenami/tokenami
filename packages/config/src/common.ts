@@ -273,13 +273,13 @@ const decodeColon = (str: string) => str.replace(/;/g, ':');
 function* iterateAliasProperties(
   styles: Record<string, any>,
   config: Pick<Config, 'aliases'>
-): Generator<[string, any, boolean, string[]]> {
+): Generator<[string, any, { isCalc: boolean; cssProperties: string[] }]> {
   for (const [key, value] of Object.entries(styles)) {
     const tokenProperty = key as TokenProperty;
     const parts = getTokenPropertySplit(tokenProperty);
     const cssProperties = getCSSPropertiesForAlias(parts.alias, config.aliases);
     const isCalc = typeof value === 'number' && value !== 0;
-    yield [key, value, isCalc, cssProperties];
+    yield [key, value, { isCalc, cssProperties }];
   }
 }
 
@@ -291,7 +291,7 @@ function* iterateParsedProperties(
   tokenProperty: TokenProperty,
   cssProperties: string[],
   options?: Parameters<typeof parseProperty>[1]
-): Generator<[TokenProperty, string]> {
+): Generator<[TokenProperty, TokenProperty]> {
   for (const cssProperty of cssProperties) {
     const longProperty = createLonghandProperty(tokenProperty, cssProperty);
     const parsedProperty = parseProperty(longProperty, options);
@@ -303,7 +303,7 @@ function* iterateParsedProperties(
  * calcProperty
  * -----------------------------------------------------------------------------------------------*/
 
-const calcProperty = (property: string) => property + '__calc';
+const calcProperty = (property: string) => (property + '__calc') as TokenProperty;
 
 /* ---------------------------------------------------------------------------------------------- */
 

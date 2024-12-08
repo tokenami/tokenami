@@ -82,7 +82,7 @@ function createSheet(params: {
     toggles: {} as Record<string, Set<string>>,
   };
 
-  propertyConfigsByCSSProperty.forEach((configs, cssProperty) => {
+  for (const [cssProperty, configs] of propertyConfigsByCSSProperty) {
     const isLogical = Supports.supportedLogicalProperties.has(cssProperty as any);
     const isInheritable = Supports.inheritedProperties.has(cssProperty);
     // sort configs to ensure property value orders fallbacks correctly
@@ -93,7 +93,7 @@ function createSheet(params: {
       return `var(${hashedProperty}, ${fallback})`;
     }, 'revert-layer');
 
-    configs.forEach((config) => {
+    for (const config of configs) {
       const layerIndex = getAtomicLayerIndex(cssProperty, params.config);
       const toggleKey = config.responsive || config.selector;
       const propertyPrefix = config.isCustom ? CUSTOM_PROP_PREFIX : '';
@@ -146,18 +146,22 @@ function createSheet(params: {
           styles.atomic.add(`@layer ${layer} { ${styleSelector} { ${gridToggle} } }`);
         }
       }
-    });
-  });
+    }
+  }
 
   for (const [selector, tokenamiProperties] of Object.entries(composeBlocks)) {
     const aliasProperties = Tokenami.iterateAliasProperties(tokenamiProperties, params.config);
 
-    for (let [key, value, isCalc, cssProperties] of aliasProperties) {
+    for (let [key, value, propertyConfig] of aliasProperties) {
       const tokenProperty = key as Tokenami.TokenProperty;
-      const parsedProperties = Tokenami.iterateParsedProperties(tokenProperty, cssProperties);
+      const parsedProperties = Tokenami.iterateParsedProperties(
+        tokenProperty,
+        propertyConfig.cssProperties
+      );
 
       for (const [parsedProperty, calcToggle] of parsedProperties) {
-        const atomicPair = `${parsedProperty}: ${value};${isCalc ? `${calcToggle}: /**/;` : ''}`;
+        const atomicCalcPair = propertyConfig.isCalc ? `${calcToggle}: /**/;` : '';
+        const atomicPair = `${parsedProperty}: ${value};${atomicCalcPair}`;
         styles.components[atomicPair] ??= new Set<string>();
         styles.components[atomicPair]!.add(selector);
       }
