@@ -65,7 +65,6 @@
     "trie-search": "^2.0.0"
   },
   "peerDependencies": {
-    "@tokenami/css": ">= 0",
     "typescript": ">= 5"
   }
 }

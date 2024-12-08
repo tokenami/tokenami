@@ -1,7 +1,7 @@
 import * as Tokenami from '@tokenami/config';
-import { type TokenamiProperties, createCss } from '@tokenami/css';
 import { stringify } from '@stitches/stringify';
 import * as lightning from 'lightningcss';
+import { type TokenamiProperties } from './declarations';
 import * as utils from './utils';
 import * as Supports from './supports';
 import * as log from './log';
@@ -149,14 +149,18 @@ function createSheet(params: {
     });
   });
 
-  const css = createCss(params.config);
-
   for (const [selector, tokenamiProperties] of Object.entries(composeBlocks)) {
-    const parsed = css(tokenamiProperties);
-    for (const [property, value] of Object.entries(parsed)) {
-      const atomicPair = `${property}: ${value};`;
-      styles.components[atomicPair] ??= new Set<string>();
-      styles.components[atomicPair]!.add(selector);
+    const aliasProperties = Tokenami.iterateAliasProperties(tokenamiProperties, params.config);
+
+    for (let [key, value, isCalc, cssProperties] of aliasProperties) {
+      const tokenProperty = key as Tokenami.TokenProperty;
+      const parsedProperties = Tokenami.iterateParsedProperties(tokenProperty, cssProperties);
+
+      for (const [parsedProperty, calcToggle] of parsedProperties) {
+        const atomicPair = `${parsedProperty}: ${value};${isCalc ? `${calcToggle}: /**/;` : ''}`;
+        styles.components[atomicPair] ??= new Set<string>();
+        styles.components[atomicPair]!.add(selector);
+      }
     }
   }
 

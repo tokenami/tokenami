@@ -225,6 +225,16 @@ function generateClassName(properties: Record<string, any>) {
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * createLonghandProperty
+ * -----------------------------------------------------------------------------------------------*/
+
+function createLonghandProperty(tokenProperty: TokenProperty, cssProperty: string) {
+  const parts = getTokenPropertySplit(tokenProperty);
+  const aliasRegex = new RegExp(`${parts.alias}$`);
+  return tokenProperty.replace(aliasRegex, cssProperty) as TokenProperty;
+}
+
+/* -------------------------------------------------------------------------------------------------
  * parseProperty
  * -------------------------------------------------------------------------------------------------
  * escape special chars and replace colons with semi colons:
@@ -256,6 +266,45 @@ function stringifyProperty<T extends string>(property: T) {
 const encodeColon = (str: string) => str.replace(/:/g, ';');
 const decodeColon = (str: string) => str.replace(/;/g, ':');
 
+/* -------------------------------------------------------------------------------------------------
+ * iterateAliasProperties
+ * -----------------------------------------------------------------------------------------------*/
+
+function* iterateAliasProperties(
+  styles: Record<string, any>,
+  config: Pick<Config, 'aliases'>
+): Generator<[string, any, boolean, string[]]> {
+  for (const [key, value] of Object.entries(styles)) {
+    const tokenProperty = key as TokenProperty;
+    const parts = getTokenPropertySplit(tokenProperty);
+    const cssProperties = getCSSPropertiesForAlias(parts.alias, config.aliases);
+    const isCalc = typeof value === 'number' && value !== 0;
+    yield [key, value, isCalc, cssProperties];
+  }
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * iterateParsedProperties
+ * -----------------------------------------------------------------------------------------------*/
+
+function* iterateParsedProperties(
+  tokenProperty: TokenProperty,
+  cssProperties: string[],
+  options?: Parameters<typeof parseProperty>[1]
+): Generator<[TokenProperty, string]> {
+  for (const cssProperty of cssProperties) {
+    const longProperty = createLonghandProperty(tokenProperty, cssProperty);
+    const parsedProperty = parseProperty(longProperty, options);
+    yield [parsedProperty, calcProperty(parsedProperty)];
+  }
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * calcProperty
+ * -----------------------------------------------------------------------------------------------*/
+
+const calcProperty = (property: string) => property + '__calc';
+
 /* ---------------------------------------------------------------------------------------------- */
 
 export {
@@ -273,6 +322,8 @@ export {
   arbitraryValue,
   parsedTokenProperty,
   parsedVariantProperty,
+  createLonghandProperty,
+  calcProperty,
   parseProperty,
   stringifyProperty,
   getTokenPropertyName,
@@ -282,4 +333,6 @@ export {
   getArbitrarySelector,
   getCSSPropertiesForAlias,
   generateClassName,
+  iterateAliasProperties,
+  iterateParsedProperties,
 };

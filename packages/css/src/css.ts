@@ -93,24 +93,23 @@ function createCss(
     for (const styles of flattenedStyles) {
       if (!styles) continue;
       const isComposed = composedStyles.has(styles);
+      const aliasProperties = Tokenami.iterateAliasProperties(styles, config);
 
-      for (let [key, value] of Object.entries(styles)) {
+      for (let [key, value, isCalc, cssProperties] of aliasProperties) {
         if (!key.startsWith('--')) {
           overriddenStyles[key as any] = value;
           continue;
         }
 
         const tokenProperty = key as Tokenami.TokenProperty;
-        const parts = Tokenami.getTokenPropertySplit(tokenProperty);
-        const cssProperties = Tokenami.getCSSPropertiesForAlias(parts.alias, config.aliases);
-
         // most the time this will only be one property
-        for (const cssProperty of cssProperties) {
-          const longProperty = createLonghandProperty(tokenProperty, cssProperty);
-          const isNumber = typeof value === 'number' && value !== 0;
-          const parsedProperty = Tokenami.parseProperty(longProperty, globalOptions);
-          const calcToggle = calcProperty(parsedProperty);
+        const parsedProperties = Tokenami.iterateParsedProperties(
+          tokenProperty,
+          cssProperties,
+          globalOptions
+        );
 
+        for (const [parsedProperty, calcToggle] of parsedProperties) {
           overrideLonghands(overriddenStyles, parsedProperty);
 
           const target = isComposed
@@ -124,7 +123,7 @@ function createCss(
           target[parsedProperty as any] = value;
 
           if (!isComposed) {
-            if (isNumber) {
+            if (isCalc) {
               overriddenStyles[calcToggle as any] = '/*on*/';
             } else {
               delete overriddenStyles[calcToggle];
@@ -186,8 +185,8 @@ function overrideLonghands(style: Styles, tokenProperty: Tokenami.TokenProperty)
   const longhands = Tokenami.mapShorthandToLonghands.get(parts.alias as any) || [];
   const cssObj = style as any;
   for (const longhand of longhands) {
-    const tokenPropertyLong = createLonghandProperty(tokenProperty, longhand);
-    const calcProp = calcProperty(tokenPropertyLong);
+    const tokenPropertyLong = Tokenami.createLonghandProperty(tokenProperty, longhand);
+    const calcProp = Tokenami.calcProperty(tokenPropertyLong);
     const composedValue = cssObj[_COMPOSE]?.[tokenPropertyLong];
     const value = composedValue ?? cssObj[tokenPropertyLong];
     const isNumber = typeof value === 'number';
@@ -196,22 +195,6 @@ function overrideLonghands(style: Styles, tokenProperty: Tokenami.TokenProperty)
     if (isNumber) composedValue ? (cssObj[calcProp] = 'initial') : delete cssObj[calcProp];
     overrideLonghands(cssObj, tokenPropertyLong);
   }
-}
-
-/* -------------------------------------------------------------------------------------------------
- * calcProperty
- * -----------------------------------------------------------------------------------------------*/
-
-const calcProperty = (property: string) => property + '__calc';
-
-/* -------------------------------------------------------------------------------------------------
- * createLonghandProperty
- * -----------------------------------------------------------------------------------------------*/
-
-function createLonghandProperty(tokenProperty: Tokenami.TokenProperty, cssProperty: string) {
-  const parts = Tokenami.getTokenPropertySplit(tokenProperty);
-  const aliasRegex = new RegExp(`${parts.alias}$`);
-  return tokenProperty.replace(aliasRegex, cssProperty) as Tokenami.TokenProperty;
 }
 
 /* -------------------------------------------------------------------------------------------------

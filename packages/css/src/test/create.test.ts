@@ -1,7 +1,6 @@
 import { describe, beforeEach, it, expect } from 'vitest';
-import { createCss } from '@tokenami/css';
 import { hasStyles, hasSomeStyles } from './utils';
-import { _COMPOSE } from '../css';
+import { _COMPOSE, createCss } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup

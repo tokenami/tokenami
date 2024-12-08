@@ -1,8 +1,7 @@
 import { describe, beforeEach, it, expect } from 'vitest';
-import { css } from '@tokenami/css';
 import { generateClassName } from '@tokenami/config';
 import { hasStyles, hasSomeStyles } from './utils';
-import { _COMPOSE, convertToMediaStyles } from '../css';
+import { css, _COMPOSE, convertToMediaStyles } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup
