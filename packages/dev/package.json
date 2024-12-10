@@ -36,6 +36,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/css-tree": "^2.3.8",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.3.1",
     "tsup": "^7.0.0",
@@ -51,6 +52,7 @@
     "cac": "^6.7.14",
     "chalk": "^5.2.0",
     "chokidar": "^3.5.3",
+    "css-tree": "^3.0.0",
     "csstype": "^3.1.2",
     "fast-glob": "^3.2.12",
     "inquirer": "^9.2.12",
