@@ -187,7 +187,7 @@ export default createConfig({
     '::-webkit-inner-spin-button, ::-webkit-outer-spin-button': {
       height: 'auto',
     },
-    '::webkit-search-decoration': {
+    '::-webkit-search-decoration': {
       WebkitAppearance: 'none',
     },
     summary: {
