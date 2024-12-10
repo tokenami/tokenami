@@ -40,6 +40,8 @@ Use the fluid spacing and font size tokens to create responsive designs without 
 
 ### Spacing
 
+Use the `--fluid-<property-type>-clamp_<breakpoint-range>` toggle token to apply fluid spacing.
+
 The following example will apply `8px` (`0.5rem`) padding to your element at the smallest breakpoint, and `16px` (`1rem`) padding at the largest breakpoint.
 
 ```tsx
@@ -50,7 +52,7 @@ css({
 });
 ```
 
-You can adjust the breakpoints the fluid spacings apply to by changing the `--padding` clamp value:
+Adjust the breakpoints for fluid spacings by updating the breakpoint range:
 
 ```diff
 css({
@@ -104,6 +106,18 @@ css({
 ```
 
 The gradients respect the colour space set by the `--color-space` property.
+
+### Opacity, tint, and shade
+
+Use the `--mix-<property-type>-[tint|shade|opacity]` toggle tokens along with the `--mix-<property-type>-color` and `--mix-<property-type>-percent` custom properties to add opacity, tint or shade to your colours.
+
+```tsx
+css({
+  '--background-color': 'var(--mix-bg_opacity)',
+  '--mix-bg-color': 'var(--color_violet11)', // the colour to apply the opacity, tint or shade to
+  '--mix-bg-percent': 50, // bg will be 50% opacity
+});
+```
 
 ## Right-to-left support
 
