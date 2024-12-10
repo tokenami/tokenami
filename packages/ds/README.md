@@ -83,6 +83,14 @@ The design system uses [Radix UI P3 colours](https://www.radix-ui.com/colors) an
 
 A powerful feature of this palette is dark mode by default when applying the appropriate steps in the scale to each use case. Find out more about [how to use the Radix palette](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale) on their website.
 
+### Colour space
+
+Use the `--color-space` property to change the colour space for the colours in your application. It defaults to `srgb`.
+
+```tsx
+<body style={css({ '--color-space': 'oklch' })}></body>
+```
+
 ### Gradients
 
 Use the `--gradient_to-[t|r|b|l|tr|tl|br|bl]` tokens along with the `--gradient-from` and `--gradient-to` custom properties to apply gradients.
@@ -95,15 +103,7 @@ css({
 });
 ```
 
-The base gradients use the sRGB colour space to match the behaviour of design tools, but you can use the `--gradient_hd-to-[t|r|b|l|tr|tl|br|bl]` tokens to apply gradients using the OKLCH colour space for a more accurate representation of colour.
-
-```tsx
-css({
-  '--background-image': 'var(--gradient_hd-to-b)',
-  '--gradient-from': 'var(--color_crimson9)',
-  '--gradient-to': 'var(--color_green10)',
-});
-```
+The gradients respect the colour space set by the `--color-space` property.
 
 ## Right-to-left support
 
