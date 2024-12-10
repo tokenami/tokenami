@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.AUTO_PAT }}
+          token: ${{ secrets.AUTO_PAT_PROD }}
       - run: git fetch --unshallow --tags
       - uses: ./.github/actions/setup-repo
       - run: pnpm build
