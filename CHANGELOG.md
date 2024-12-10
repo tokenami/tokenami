@@ -1,3 +1,41 @@
+# v0.0.75 (Tue Dec 10 2024)
+
+### Release Notes
+
+#### [ds] replace alpha tokens with number type ([#396](https://github.com/tokenami/tokenami/pull/396))
+
+the `--opacity` property now only accepts number values so you aren't restricted to alpha token steps. if you were using the alpha tokens, update them with number values between `0` and `1`.
+
+#### [ds] add `color-space` property for configuring `srgb`, `oklch`, or `oklab` ([#394](https://github.com/tokenami/tokenami/pull/394))
+
+the `--gradient_hd-to-[t|r|b|l|tr|tl|br|bl]` tokens have been removed from the official design system in favour of setting the `--color-space` custom property on a root element.
+
+---
+
+#### 💥 Breaking Change
+
+- [ds] replace alpha tokens with number type [#396](https://github.com/tokenami/tokenami/pull/396) ([@jjenzz](https://github.com/jjenzz))
+- [ds] add `color-space` property for configuring `srgb`, `oklch`, or `oklab` [#394](https://github.com/tokenami/tokenami/pull/394) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🚀 Enhancement
+
+- [ds] add `mix-{}-color` and `mix-{}-percent` properties for color opacity, tint, and shade [#395](https://github.com/tokenami/tokenami/pull/395) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- [ds] fix `webkit-search-decoration` pseudo-element selector [#397](https://github.com/tokenami/tokenami/pull/397) ([@pawelblaszczyk5](https://github.com/pawelblaszczyk5))
+
+#### 🏠 Housekeeping
+
+- allow forked prs to run approved canary builds [#398](https://github.com/tokenami/tokenami/pull/398) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 2
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+- Paweł Błaszczyk ([@pawelblaszczyk5](https://github.com/pawelblaszczyk5))
+
+---
+
 # v0.0.74 (Fri Nov 29 2024)
 
 ### Release Notes
