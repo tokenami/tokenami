@@ -4,6 +4,15 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag'
+        required: true
+        type: string
+      release_body:
+        description: 'Release notes'
+        required: true
+        type: string
 
 jobs:
   notify-discord:
@@ -12,11 +21,10 @@ jobs:
       - name: Prepare Mock Data for Manual Trigger
         id: prepare_data
         run: |
-          # Use GitHub event fields if they exist, otherwise set mock data
-          release_name="${{ github.event.release.name || 'Manual Test Release' }}"
-          release_body="${{ github.event.release.body || '### Features\n\n- Added new functionality.\n\n---\n\n#### Bug Fixes\n\n- Fixed a major bug.' }}"
-          release_url="${{ github.event.release.html_url || 'https://github.com/tokenami/tokenami/releases/tag/v0.0.73' }}"
-          release_tag="${{ github.event.release.tag_name || 'v0.0.73' }}"
+          release_tag="${{ github.event.release.tag_name || inputs.tag_name }}"
+          release_name="${{ github.event.release.name || inputs.tag_name }}"
+          release_url="https://github.com/${{ github.repository }}/releases/tag/${release_tag}"
+          release_body="${{ github.event.release.body || inputs.release_body }}"
 
           echo "release_name=$release_name" >> $GITHUB_OUTPUT
           echo "release_body=$release_body" >> $GITHUB_OUTPUT
