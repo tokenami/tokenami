@@ -4,44 +4,56 @@ on:
   release:
     types: [published]
   workflow_dispatch:
-    inputs:
-      tag_name:
-        description: 'Release tag'
-        required: true
-        type: string
-      release_body:
-        description: 'Release notes'
-        required: true
-        type: string
 
 jobs:
   notify-discord:
     runs-on: ubuntu-latest
     steps:
-      - name: Prepare Mock Data for Manual Trigger
-        id: prepare_data
+      - name: Get Latest Release Info
+        id: release_info
         run: |
-          release_tag="${{ github.event.release.tag_name || inputs.tag_name }}"
-          release_name="${{ github.event.release.name || inputs.tag_name }}"
-          release_url="https://github.com/${{ github.repository }}/releases/tag/${release_tag}"
-          release_body="${{ github.event.release.body || inputs.release_body }}"
+          # Fetch latest release info using GitHub API
+          release_info=$(curl -s \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/latest")
 
-          echo "release_name=$release_name" >> $GITHUB_OUTPUT
-          echo "release_body=$release_body" >> $GITHUB_OUTPUT
-          echo "release_url=$release_url" >> $GITHUB_OUTPUT
-          echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
+          release_tag=$(echo "$release_info" | jq -r .tag_name)
+          release_name=$(echo "$release_info" | jq -r .name)
+          release_url=$(echo "$release_info" | jq -r .html_url)
+          release_body=$(echo "$release_info" | jq -r .body)
+
+          # For release event, use event data instead
+          if [ "${{ github.event_name }}" = "release" ]; then
+            release_tag="${{ github.event.release.tag_name }}"
+            release_name="${{ github.event.release.name }}"
+            release_url="${{ github.event.release.html_url }}"
+            release_body="${{ github.event.release.body }}"
+          fi
+
+          # Use delimiter syntax for multiline outputs
+          {
+            echo "release_name=$release_name"
+            echo "release_url=$release_url"
+            echo "release_tag=$release_tag"
+            echo "release_body<<EOF"
+            echo "$release_body"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - name: Format Release Notes
         id: format_notes
         run: |
-          # Replace \n with actual newlines for processing
-          release_body=$(echo "${{ steps.prepare_data.outputs.release_body }}" | sed 's/\\n/\n/g')
+          # Get release body from previous step and escape it
+          release_body=$(cat << 'EOF'
+          ${{ steps.release_info.outputs.release_body }}
+          EOF
+          )
 
           formatted_body=$(echo "$release_body" | \
             sed -E 's/^### (.+)$/__**\1**__/g' | \
             sed -E 's/^#### (.+)$/**\1**/g')
 
-          # Convert back to a single line with \n for JSON compatibility
+          # Convert newlines to \n for JSON compatibility
           formatted_body=$(echo "$formatted_body" | sed ':a;N;$!ba;s/\n/\\n/g')
 
           # Save formatted body to GITHUB_OUTPUT
@@ -51,16 +63,21 @@ jobs:
         env:
           WEBHOOK_URL: ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL }}
         run: |
+          payload=$(cat << 'EOF'
+          {
+            "username": "tokenami",
+            "avatar_url": "https://avatars.githubusercontent.com/u/140247736?s=400&u=db0a7326ac560800b4d6d78a18875d7c9f71311c&v=4",
+            "embeds": [
+              {
+                "title": "🚀 New Release Published!",
+                "description": "**[${{ steps.release_info.outputs.release_name }}](${{ steps.release_info.outputs.release_url }})**\n\n${{ steps.format_notes.outputs.formatted_body }}\n\n**[View release note on GitHub](${{ steps.release_info.outputs.release_url }})**",
+                "color": 16760358
+              }
+            ]
+          }
+          EOF
+          )
+
           curl -H "Content-Type: application/json" \
-          -d '{
-                "username": "tokenami",
-                "avatar_url": "https://avatars.githubusercontent.com/u/140247736?s=400&u=db0a7326ac560800b4d6d78a18875d7c9f71311c&v=4",
-                "embeds": [
-                  {
-                    "title": "🚀 New Release Published!",
-                    "description": "**[${{ steps.prepare_data.outputs.release_name }}](${{ steps.prepare_data.outputs.release_url }})**\n\n${{ steps.format_notes.outputs.formatted_body }}\n\n**[View release note on GitHub](${{ steps.prepare_data.outputs.release_url }})**",
-                    "color": 16760358
-                  }
-                ]
-              }' \
-          "$WEBHOOK_URL"
+            -d "$payload" \
+            "$WEBHOOK_URL"
