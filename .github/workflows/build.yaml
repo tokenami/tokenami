@@ -56,6 +56,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.AUTO_PAT }}
+          # checkout PR code instead of base branch
+          ref: ${{ github.event.pull_request.head.sha }}
       - run: git fetch --unshallow --tags
       - uses: ./.github/actions/setup-repo
       - run: pnpm release
