@@ -1,3 +1,2 @@
 export type * from './declarations';
-export * from './utils';
-export * from './supports';
+export { createTSPlugin as default } from './ts-plugin';
