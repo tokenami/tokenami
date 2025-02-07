@@ -60,4 +60,8 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - run: git fetch --unshallow --tags
       - uses: ./.github/actions/setup-repo
+        run: |
+          echo "registry=$REGISTRY_URL" > .npmrc
+          echo "//npm.pkg.github.com/:_authToken=$NODE_AUTH_TOKEN" >> .npmrc
+        run: git update-index --assume-unchanged .npmrc
       - run: pnpm release
