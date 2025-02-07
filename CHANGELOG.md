@@ -1,3 +1,30 @@
+# v0.0.76 (Fri Feb 07 2025)
+
+### Release Notes
+
+#### [dev] remove redundant `createConfig` export ([#401](https://github.com/tokenami/tokenami/pull/401))
+
+older versions of tokenami  (<= 0.0.7) depended on a `createConfig` export from `@tokenami/dev`. if you're upgrading from any of those versions, you'll need to import from `@tokenami/css` instead, as documented in more recent versions of the readme.
+
+---
+
+#### 💥 Breaking Change
+
+- [dev] remove redundant `createConfig` export [#401](https://github.com/tokenami/tokenami/pull/401) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- fix canary builds [#405](https://github.com/tokenami/tokenami/pull/405) ([@jjenzz](https://github.com/jjenzz))
+- use pr code for canary builds [#404](https://github.com/tokenami/tokenami/pull/404) ([@jjenzz](https://github.com/jjenzz))
+- update discord release workflow to use github api for manual release notifications [#403](https://github.com/tokenami/tokenami/pull/403) ([@jjenzz](https://github.com/jjenzz))
+- add workflow inputs for manual discord releases [#402](https://github.com/tokenami/tokenami/pull/402) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.75 (Tue Dec 10 2024)
 
 ### Release Notes
