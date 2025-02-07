@@ -72,9 +72,6 @@ importers:
       '@tokenami/dev':
         specifier: workspace:*
         version: link:../../packages/dev
-      '@tokenami/ts-plugin':
-        specifier: workspace:*
-        version: link:../../packages/ts-plugin
       '@vitejs/plugin-react-swc':
         specifier: ^3.6.0
         version: 3.7.0(vite@5.3.1)
@@ -127,9 +124,6 @@ importers:
       '@tokenami/dev':
         specifier: workspace:*
         version: link:../../packages/dev
-      '@tokenami/ts-plugin':
-        specifier: file:../../packages/ts-plugin
-        version: file:packages/ts-plugin(@tokenami/dev@packages+dev)
       '@types/react':
         specifier: ^18.0.35
         version: 18.3.3
@@ -207,6 +201,9 @@ importers:
       csstype:
         specifier: ^3.1.2
         version: 3.1.3
+      culori:
+        specifier: ^4.0.1
+        version: 4.0.1
       fast-glob:
         specifier: ^3.2.12
         version: 3.3.2
@@ -225,7 +222,13 @@ importers:
       sucrase:
         specifier: ^3.34.0
         version: 3.35.0
+      trie-search:
+        specifier: ^2.0.0
+        version: 2.2.0
     devDependencies:
+      '@types/culori':
+        specifier: ^2.1.0
+        version: 2.1.1
       '@types/inquirer':
         specifier: ^9.0.7
         version: 9.0.7
@@ -248,31 +251,6 @@ importers:
         specifier: workspace:*
         version: link:../config
     devDependencies:
-      tsup:
-        specifier: ^7.0.0
-        version: 7.3.0(typescript@5.4.5)
-      typescript:
-        specifier: ^5.1.3
-        version: 5.4.5
-
-  packages/ts-plugin:
-    dependencies:
-      '@tokenami/config':
-        specifier: workspace:*
-        version: link:../config
-      culori:
-        specifier: ^4.0.1
-        version: 4.0.1
-      trie-search:
-        specifier: ^2.0.0
-        version: 2.0.0
-    devDependencies:
-      '@tokenami/dev':
-        specifier: workspace:*
-        version: link:../dev
-      '@types/culori':
-        specifier: ^2.1.0
-        version: 2.1.0
       tsup:
         specifier: ^7.0.0
         version: 7.3.0(typescript@5.4.5)
@@ -3951,8 +3929,8 @@ packages:
   /@types/cookie@0.4.1:
     resolution: {integrity: sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q==}
 
-  /@types/culori@2.1.0:
-    resolution: {integrity: sha512-4uJT5CcC9Mi8mACkWShsPHqILMWL0OqoTsfoLJUGzN1mcipcepmmEdzU8b9L1KwyRNN3rnQO39ylI/2VR850zw==}
+  /@types/culori@2.1.1:
+    resolution: {integrity: sha512-NzLYD0vNHLxTdPp8+RlvGbR2NfOZkwxcYGFwxNtm+WH2NuUNV8785zv1h0sulFQ5aFQ9n/jNDUuJeo3Bh7+oFA==, tarball: https://registry.npmjs.org/@types/culori/-/culori-2.1.1.tgz}
     dev: true
 
   /@types/debug@4.1.12:
@@ -5159,6 +5137,10 @@ packages:
   /chardet@0.7.0:
     resolution: {integrity: sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==}
 
+  /charenc@0.0.2:
+    resolution: {integrity: sha512-yrLQ/yVUFXkzg7EDQsPieE/53+0RlaWTs+wBrvW36cyilJ2SaDWfl4Yj7MtLTXleV9uEKefbAGUPv2/iWSooRA==, tarball: https://registry.npmjs.org/charenc/-/charenc-0.0.2.tgz}
+    dev: false
+
   /check-error@1.0.3:
     resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
     dependencies:
@@ -5552,6 +5534,10 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
 
+  /crypt@0.0.2:
+    resolution: {integrity: sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==, tarball: https://registry.npmjs.org/crypt/-/crypt-0.0.2.tgz}
+    dev: false
+
   /css-what@6.1.0:
     resolution: {integrity: sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==}
     engines: {node: '>= 6'}
@@ -5567,8 +5553,9 @@ packages:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
 
   /culori@4.0.1:
-    resolution: {integrity: sha512-LSnjA6HuIUOlkfKVbzi2OlToZE8OjFi667JWN9qNymXVXzGDmvuP60SSgC+e92sd7B7158f7Fy3Mb6rXS5EDPw==}
+    resolution: {integrity: sha512-LSnjA6HuIUOlkfKVbzi2OlToZE8OjFi667JWN9qNymXVXzGDmvuP60SSgC+e92sd7B7158f7Fy3Mb6rXS5EDPw==, tarball: https://registry.npmjs.org/culori/-/culori-4.0.1.tgz}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dev: false
 
   /damerau-levenshtein@1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
@@ -7543,9 +7530,10 @@ packages:
     dev: true
 
   /hasharray@1.1.2:
-    resolution: {integrity: sha512-7w3idwaVXX9gL9LiTCBSNKRGTBcp2WI/kf13UYeZ9+trOGBHVYHei6qtMY6DVnwGOouVUSRg0+L2xf4Q2/CmzA==}
+    resolution: {integrity: sha512-7w3idwaVXX9gL9LiTCBSNKRGTBcp2WI/kf13UYeZ9+trOGBHVYHei6qtMY6DVnwGOouVUSRg0+L2xf4Q2/CmzA==, tarball: https://registry.npmjs.org/hasharray/-/hasharray-1.1.2.tgz}
     dependencies:
       jclass: 1.2.1
+    dev: false
 
   /hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
@@ -7940,6 +7928,10 @@ packages:
       has-tostringtag: 1.0.2
     dev: true
 
+  /is-buffer@1.1.6:
+    resolution: {integrity: sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==, tarball: https://registry.npmjs.org/is-buffer/-/is-buffer-1.1.6.tgz}
+    dev: false
+
   /is-buffer@2.0.5:
     resolution: {integrity: sha512-i2R6zNFDwgEHJyQUtJEk0XFi1i0dPFn/oqjK3/vPCcDeJvW5NQ83V8QbicfF1SupOaB0h8ntgBC2YiE7dfyctQ==}
     engines: {node: '>=4'}
@@ -8281,8 +8273,9 @@ packages:
     dev: true
 
   /jclass@1.2.1:
-    resolution: {integrity: sha512-mRx8uv1qJLOtxbRf3IWOQIH2ro7VIPn6ZkhbTcUJvJEslLzYA7BSATXDi/GR1yKYV9DASsjTZL+0YJPdqSMznw==}
+    resolution: {integrity: sha512-mRx8uv1qJLOtxbRf3IWOQIH2ro7VIPn6ZkhbTcUJvJEslLzYA7BSATXDi/GR1yKYV9DASsjTZL+0YJPdqSMznw==, tarball: https://registry.npmjs.org/jclass/-/jclass-1.2.1.tgz}
     engines: {node: '>= 0.6'}
+    dev: false
 
   /jest-diff@29.7.0:
     resolution: {integrity: sha512-LMIgiIrhigmPrs03JHpxUh2yISK3vLFPkAodPeo0+BuF7wA2FoQbkEg1u8gBYBThncu7e1oEDUfIXVuTqLRUjw==}
@@ -8918,6 +8911,14 @@ packages:
     resolution: {integrity: sha512-WWC0ZuMzCyDHYCasEGs4IPvLyTGftYwh6wIEOULOF0HXcqZlhwRzrK0w2VUlxWA98xnvb/jszw4ZSkJ6ADpM6Q==}
     engines: {node: '>=0.10.0'}
     dev: true
+
+  /md5@2.3.0:
+    resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==, tarball: https://registry.npmjs.org/md5/-/md5-2.3.0.tgz}
+    dependencies:
+      charenc: 0.0.2
+      crypt: 0.0.2
+      is-buffer: 1.1.6
+    dev: false
 
   /mdast-util-definitions@5.1.2:
     resolution: {integrity: sha512-8SVPMuHqlPME/z3gqVwWY4zVXn8lqKv/pAhC57FuJ40ImXyBpmO5ukh98zB2v7Blql2FiHjHv9LVztSIqjY+MA==}
@@ -12038,10 +12039,12 @@ packages:
     hasBin: true
     dev: true
 
-  /trie-search@2.0.0:
-    resolution: {integrity: sha512-AJMlAQ/6E5+K45SAOqzeqr0qXWqSREclp3mAWss0PvB9ifBL+QXn2LeZBgUBUifjj5ZtTpo4uKplqUnt9VZcdQ==}
+  /trie-search@2.2.0:
+    resolution: {integrity: sha512-kvksu0z8rBRBr+7hvnyl2tvcpiqak80ozA+qYK+guuY1KtV85/s85ubLEjDU2TFflsNBGaYe8PLvvrdg6+sgCQ==, tarball: https://registry.npmjs.org/trie-search/-/trie-search-2.2.0.tgz}
     dependencies:
       hasharray: 1.1.2
+      md5: 2.3.0
+    dev: false
 
   /trim-newlines@3.0.1:
     resolution: {integrity: sha512-c1PTsA3tYrIsLGkJkzHF+w9F2EyxfXGo4UyJc4pFL++FMjnq0HJS69T3M7d//gKrFKwy429bouPescbjecU+Zw==}
@@ -13144,17 +13147,4 @@ packages:
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
-    dev: true
-
-  file:packages/ts-plugin(@tokenami/dev@packages+dev):
-    resolution: {directory: packages/ts-plugin, type: directory}
-    id: file:packages/ts-plugin
-    name: '@tokenami/ts-plugin'
-    peerDependencies:
-      '@tokenami/dev': '>= 0'
-    dependencies:
-      '@tokenami/config': link:packages/config
-      '@tokenami/dev': link:packages/dev
-      culori: 4.0.1
-      trie-search: 2.0.0
     dev: true

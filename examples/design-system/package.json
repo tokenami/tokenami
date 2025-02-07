@@ -28,7 +28,6 @@
     "@storylite/storylite": "^0.14.0",
     "@storylite/vite-plugin": "^0.14.0",
     "@tokenami/dev": "workspace:*",
-    "@tokenami/ts-plugin": "workspace:*",
     "@vitejs/plugin-react-swc": "^3.6.0",
     "tsup": "^7.0.0",
     "typescript": "^5.1.3",
