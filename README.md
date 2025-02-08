@@ -118,7 +118,7 @@ Tokenami offers a CLI tool for generating static styles, a [~2kb](https://bundle
 Install using your package manager of choice. For example:
 
 ```sh
-npm install -D @tokenami/dev && npm install @tokenami/css
+npm install -D tokenami && npm install @tokenami/css
 ```
 
 And then initialise your tokenami project:
@@ -135,7 +135,7 @@ Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.jso
 {
   "include": [".tokenami/tokenami.env.d.ts", "src"],
   "compilerOptions": {
-    "plugins": [{ "name": "@tokenami/dev" }]
+    "plugins": [{ "name": "tokenami" }]
   }
 }
 ```
@@ -170,7 +170,7 @@ function Page() {
 
 Tokenami relies on your theme to provide design system constraints. There isn't a predefined theme so you must add your own to the `.tokenami/tokenami.config`.
 
-> [!Note]
+> [!Tip]
 > If you'd prefer to use a pre-built theme, you can use the [offical design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) and [skip this section](#user-content-styling).
 
 ```ts
