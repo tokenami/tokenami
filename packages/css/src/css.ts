@@ -1,4 +1,4 @@
-import type { TokenamiProperties, TokenamiFinalConfig } from '@tokenami/dev';
+import type { TokenamiProperties, TokenamiFinalConfig } from 'tokenami';
 import * as Tokenami from '@tokenami/config';
 
 const _TOKENAMI_CSS = Symbol.for('@tokenami/css');
@@ -21,7 +21,7 @@ type ComposeCSS<V, R> = TokenamiProperties & {
   responsiveVariants?: R & VariantsConfig;
 };
 
-interface CSS {
+interface StyleFn {
   // return type is purposfully `{}` to support `style` attribute type for different frameworks.
   // returning `TokenamiProperties` is not enough here bcos that type can create circular refs
   // in frameworks like SolidJS that use `CSS.PropertiesHyphen` as style attr type. i'm unsure
@@ -78,7 +78,7 @@ function createCss(
 ) {
   (globalThis as any)[_TOKENAMI_CSS] = options;
 
-  const css: CSS = (baseStyles, ...overrides) => {
+  const css: StyleFn = (baseStyles, ...overrides) => {
     let overriddenStyles = {} as TokenamiCSS;
     const globalOptions = (globalThis as any)[_TOKENAMI_CSS];
     const cacheId = JSON.stringify({ baseStyles, overrides });
@@ -203,5 +203,5 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
 
 const css = createCss({});
 
-export type { TokenamiCSS, CSS };
+export type { TokenamiCSS, StyleFn as CSS };
 export { createCss, css, convertToMediaStyles };

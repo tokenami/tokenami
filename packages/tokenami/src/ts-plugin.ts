@@ -396,7 +396,9 @@ function createTSPlugin(modules: { typescript: typeof tslib }) {
 
   function updateEnvFile(configPath: string, config: TokenamiConfig.Config) {
     const envFilePath = utils.getTypeDefsPath(configPath);
+    const ciEnvFilePath = utils.getCiTypeDefsPath(configPath);
     const envFileContent = ts.sys.readFile(envFilePath, 'utf-8');
+
     if (!envFileContent) throw new Error('Cannot read tokenami.env.d.ts file');
 
     const properties = Object.keys(config.properties || {});
@@ -420,6 +422,10 @@ function createTSPlugin(modules: { typescript: typeof tslib }) {
           );
 
     ts.sys.writeFile(envFilePath, updatedEnvFileContent);
+
+    if (ts.sys.readFile(ciEnvFilePath, 'utf-8')) {
+      ts.sys.writeFile(ciEnvFilePath, utils.generateCiTypeDefs(configPath));
+    }
   }
 
   /* -----------------------------------------------------------------------------------------------

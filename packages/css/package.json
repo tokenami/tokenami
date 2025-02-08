@@ -37,13 +37,13 @@
     "@tokenami/config": "workspace:*"
   },
   "devDependencies": {
-    "@tokenami/dev": "workspace:*",
+    "tokenami": "workspace:*",
     "tsup": "^7.0.0",
     "typescript": "^5.1.3",
     "vitest": "^0.34.6"
   },
   "peerDependencies": {
-    "@tokenami/dev": ">= 0",
+    "tokenami": ">= 0",
     "typescript": ">= 5"
   }
 }
