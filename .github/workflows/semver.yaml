@@ -16,4 +16,4 @@ jobs:
           mode: minimum
           count: 1
           token: ${{ secrets.GITHUB_TOKEN }}
-          labels: 'patch, minor, major, docs, chore, performance, skip-release'
+          labels: 'changelog: breaking, changelog: enhancement, changelog: bug, changelog: docs, changelog: chore, changelog: performance, skip-release'

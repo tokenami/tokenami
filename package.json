@@ -68,58 +68,58 @@
     ],
     "labels": [
       {
+        "name": "changelog: breaking",
+        "changelogTitle": "💥 Breaking Change",
+        "description": "Add breaking change to changelog when merged",
+        "releaseType": "major",
+        "color": "#C5000B"
+      },
+      {
+        "name": "changelog: enhancement",
+        "changelogTitle": "🚀 Enhancement",
+        "description": "Add enhancement to changelog when merged",
+        "releaseType": "minor",
+        "color": "#F1A60E"
+      },
+      {
+        "name": "changelog: bug",
+        "changelogTitle": "🐛 Bug Fix",
+        "description": "Add bug fix to changelog when merged",
+        "releaseType": "patch",
+        "color": "#870048"
+      },
+      {
+        "name": "changelog: chore",
+        "changelogTitle": "🏠 Housekeeping",
+        "description": "Add chore to changelog when merged, no versioning required",
+        "releaseType": "none",
+        "color": "#696969"
+      },
+      {
+        "name": "changelog: docs",
+        "changelogTitle": "📝 Documentation",
+        "description": "Add docs to changelog when merged, no versioning required",
+        "releaseType": "none",
+        "color": "#cfd3d7"
+      },
+      {
+        "name": "changelog: performance",
+        "changelogTitle": "🏎 Performance",
+        "description": "Add performance improvement to changelog when merged",
+        "releaseType": "patch",
+        "color": "#f4b2d8"
+      },
+      {
         "name": "alpha",
         "description": "Graduate to the next left 0 digit",
         "releaseType": "major",
         "color": "#5D7DF9"
       },
       {
-        "name": "major",
-        "changelogTitle": "💥 Breaking Change",
-        "description": "Increment the major version when merged",
-        "releaseType": "major",
-        "color": "#C5000B"
-      },
-      {
-        "name": "minor",
-        "changelogTitle": "🚀 Enhancement",
-        "description": "Increment the minor version when merged",
-        "releaseType": "minor",
-        "color": "#F1A60E"
-      },
-      {
-        "name": "patch",
-        "changelogTitle": "🐛 Bug Fix",
-        "description": "Increment the patch version when merged",
-        "releaseType": "patch",
-        "color": "#870048"
-      },
-      {
         "name": "skip-release",
         "description": "Preserve the current version when merged",
         "releaseType": "skip",
         "color": "#bf5416"
-      },
-      {
-        "name": "chore",
-        "changelogTitle": "🏠 Housekeeping",
-        "description": "Internal maintenance, no versioning required",
-        "releaseType": "none",
-        "color": "#696969"
-      },
-      {
-        "name": "docs",
-        "changelogTitle": "📝 Documentation",
-        "description": "Docs changes, no versioning required",
-        "releaseType": "none",
-        "color": "#cfd3d7"
-      },
-      {
-        "name": "performance",
-        "changelogTitle": "🏎 Performance",
-        "description": "Improve performance of an existing feature",
-        "releaseType": "patch",
-        "color": "#f4b2d8"
       }
     ]
   }
