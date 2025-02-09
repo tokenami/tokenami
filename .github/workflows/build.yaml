@@ -1,7 +1,7 @@
 name: build
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
@@ -51,18 +51,12 @@ jobs:
       packages: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      REGISTRY_URL: 'https://npm.pkg.github.com'
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_CANARY }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN_CANARY }}
     steps:
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.AUTO_PAT }}
-          # checkout PR code instead of base branch
-          ref: ${{ github.event.pull_request.head.sha }}
       - run: git fetch --unshallow --tags
       - uses: ./.github/actions/setup-repo
-      - run: |
-          echo "registry=$REGISTRY_URL" > .npmrc
-          echo "//npm.pkg.github.com/:_authToken=$NODE_AUTH_TOKEN" >> .npmrc
-      - run: git update-index --assume-unchanged .npmrc
       - run: pnpm release
