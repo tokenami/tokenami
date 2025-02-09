@@ -1,5 +1,5 @@
 {
-  "name": "tokenami",
+  "name": "@tokenami/monorepo",
   "private": true,
   "license": "MIT",
   "author": {
@@ -7,7 +7,7 @@
     "email": "175330+jjenzz@users.noreply.github.com"
   },
   "scripts": {
-    "prepare": "pnpm build",
+    "postinstall": "pnpm build",
     "dev:ds": "turbo run storylite --filter=@tokenami/example-design-system",
     "dev:remix": "turbo watch dev --filter=@tokenami/example-remix...",
     "build": "turbo run build --filter=@tokenami/example-design-system...",

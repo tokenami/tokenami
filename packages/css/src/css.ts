@@ -1,4 +1,4 @@
-import type { TokenamiProperties, TokenamiFinalConfig } from '@tokenami/dev';
+import type { TokenamiProperties, TokenamiFinalConfig } from 'tokenami';
 import * as Tokenami from '@tokenami/config';
 
 const _TOKENAMI_CSS = Symbol.for('@tokenami/css');

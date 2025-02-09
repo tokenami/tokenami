@@ -1,8 +1,9 @@
-import tslib from 'typescript/lib/tsserverlibrary';
+import type tslib from 'typescript/lib/tsserverlibrary';
 import TrieSearch from 'trie-search';
 import * as culori from 'culori';
 import * as TokenamiConfig from '@tokenami/config';
-import * as Tokenami from '@tokenami/dev';
+import * as utils from './utils';
+import * as supports from './supports';
 
 const INVALID_PROPERTY_ERROR_CODE = 2353;
 const INVALID_VALUE_ERROR_CODE = 2322;
@@ -17,7 +18,7 @@ type EntryConfigItem = {
 
 type CompletionEntry = Omit<tslib.CompletionEntry, 'kindModifiers'> & { kindModifiers: string };
 
-function init(modules: { typescript: typeof tslib }) {
+function createTSPlugin(modules: { typescript: typeof tslib }) {
   const ts = modules.typescript;
   let entryConfigMap = new Map<string, EntryConfigItem>();
 
@@ -26,7 +27,7 @@ function init(modules: { typescript: typeof tslib }) {
    * -----------------------------------------------------------------------------------------------*/
 
   function getAllProperties(config: TokenamiConfig.Config) {
-    return Array.from(Tokenami.getValidProperties(config));
+    return Array.from(utils.getValidProperties(config));
   }
 
   /* -------------------------------------------------------------------------------------------------
@@ -211,8 +212,8 @@ function init(modules: { typescript: typeof tslib }) {
    * -----------------------------------------------------------------------------------------------*/
 
   const createPropertyEntry = (name: string, sortText = getSortText(name)): CompletionEntry => {
-    const kind = tslib.ScriptElementKind.memberVariableElement;
-    const kindModifiers = tslib.ScriptElementKindModifier.optionalModifier;
+    const kind = ts.ScriptElementKind.memberVariableElement;
+    const kindModifiers = ts.ScriptElementKindModifier.optionalModifier;
     return { name, kind, kindModifiers, sortText, insertText: name };
   };
 
@@ -358,7 +359,7 @@ function init(modules: { typescript: typeof tslib }) {
     if (!property.success) return entry;
 
     const parts = TokenamiConfig.getTokenValueParts(property.output);
-    const modeValues = Tokenami.getThemeValuesByThemeMode(property.output, config.theme);
+    const modeValues = utils.getThemeValuesByThemeMode(property.output, config.theme);
     if (!Object.entries(modeValues).length) return entry;
 
     const name = `$${parts.token}`;
@@ -380,7 +381,7 @@ function init(modules: { typescript: typeof tslib }) {
     tokenValue: TokenamiConfig.TokenValue,
     themeConfig: TokenamiConfig.Config['theme']
   ) {
-    const theme = Tokenami.getThemeFromConfig(themeConfig);
+    const theme = utils.getThemeFromConfig(themeConfig);
     const parts = TokenamiConfig.getTokenValueParts(tokenValue);
     const modeKey = Object.keys(theme.modes)[0];
     const modeTheme = modeKey && (theme.modes[modeKey] as TokenamiConfig.Theme);
@@ -394,14 +395,16 @@ function init(modules: { typescript: typeof tslib }) {
    * -----------------------------------------------------------------------------------------------*/
 
   function updateEnvFile(configPath: string, config: TokenamiConfig.Config) {
-    const envFilePath = Tokenami.getTypeDefsPath(configPath);
+    const envFilePath = utils.getTypeDefsPath(configPath);
+    const ciEnvFilePath = utils.getCiTypeDefsPath(configPath);
     const envFileContent = ts.sys.readFile(envFilePath, 'utf-8');
+
     if (!envFileContent) throw new Error('Cannot read tokenami.env.d.ts file');
 
     const properties = Object.keys(config.properties || {});
     const customProperties = Object.keys(config.customProperties || {});
     const experimentalProperties = properties.flatMap((property) => {
-      if (Tokenami.supportedProperties.has(property as any)) return [];
+      if (supports.supportedProperties.has(property as any)) return [];
       return [property];
     });
 
@@ -410,13 +413,19 @@ function init(modules: { typescript: typeof tslib }) {
     });
 
     const updatedEnvFileContent = !customProperties.length
-      ? Tokenami.generateTypeDefs(configPath, '../stubs/tokenami.env.d.ts')
-      : Tokenami.generateTypeDefs(configPath, '../stubs/tokenami.env-custom.d.ts').replace(
-          'interface TokenamiProperties {',
-          `interface TokenamiProperties extends ${customPropertyTypes.join(', ')} {`
-        );
+      ? utils.generateTypeDefs(configPath, '../stubs/tokenami.env.d.ts')
+      : utils
+          .generateTypeDefs(configPath, '../stubs/tokenami.env-custom.d.ts')
+          .replace(
+            'interface TokenamiProperties {',
+            `interface TokenamiProperties extends ${customPropertyTypes.join(', ')} {`
+          );
 
     ts.sys.writeFile(envFilePath, updatedEnvFileContent);
+
+    if (ts.sys.readFile(ciEnvFilePath, 'utf-8')) {
+      ts.sys.writeFile(ciEnvFilePath, utils.generateCiTypeDefs(configPath));
+    }
   }
 
   /* -----------------------------------------------------------------------------------------------
@@ -434,7 +443,7 @@ function init(modules: { typescript: typeof tslib }) {
 
     const logger = info.project.projectService.logger;
     const cwd = info.project.getCurrentDirectory();
-    const configPath = Tokenami.getConfigPath(cwd, info.config.configPath);
+    const configPath = utils.getConfigPath(cwd, info.config.configPath);
     const configExists = ts.sys.fileExists(configPath);
 
     if (!configExists) {
@@ -442,7 +451,7 @@ function init(modules: { typescript: typeof tslib }) {
       return proxy;
     }
 
-    let config = Tokenami.getConfigAtPath(configPath);
+    let config = utils.getConfigAtPath(configPath);
     // pre-compute variant entries to improve performance
     let selectorCompletions = createSelectorTrie(config);
     let selectorSnippetCompletions = createSelectorSnippetTrie(config);
@@ -460,7 +469,7 @@ function init(modules: { typescript: typeof tslib }) {
       if (eventKind === modules.typescript.FileWatcherEventKind.Changed) {
         logger.info(`Tokenami:: Config changed at ${configPath}`);
         try {
-          config = Tokenami.getReloadedConfigAtPath(configPath);
+          config = utils.getReloadedConfigAtPath(configPath);
           info.project.refreshDiagnostics();
           selectorCompletions = createSelectorTrie(config);
           selectorSnippetCompletions = createSelectorSnippetTrie(config);
@@ -592,7 +601,7 @@ function init(modules: { typescript: typeof tslib }) {
       if (!sourceFile) return original;
 
       const node = findNodeAtPosition(sourceFile, start);
-      if (!node?.parent || !tslib.isPropertyAssignment(node.parent)) return original;
+      if (!node?.parent || !ts.isPropertyAssignment(node.parent)) return original;
 
       const assignment = node.parent;
       const valueSpan = createTextSpanFromNode(assignment.initializer);
@@ -750,7 +759,7 @@ function init(modules: { typescript: typeof tslib }) {
       const propertyParts = TokenamiConfig.getTokenPropertyParts(tokenProperty.output, config);
       if (!propertyParts && variants.length) return;
 
-      const modeValues = Tokenami.getThemeValuesByThemeMode(tokenValue.output, config.theme);
+      const modeValues = utils.getThemeValuesByThemeMode(tokenValue.output, config.theme);
       const text = isColorThemeEntry(modeValues)
         ? createColorTokenDescription(modeValues)
         : createTokenDescription(modeValues);
@@ -839,4 +848,4 @@ function isColorThemeEntry(modeValues: Record<string, string>) {
   }
 }
 
-export = init;
+export { createTSPlugin };
