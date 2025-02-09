@@ -1,3 +1,29 @@
+# v0.0.77 (Sun Feb 09 2025)
+
+### Release Notes
+
+#### move ts-plugin and dev package into new `tokenami` package ([#400](https://github.com/tokenami/tokenami/pull/400))
+
+the `@tokenami/dev` and `@tokenami/ts-plugin` packages have been deprecated and merged into a new `tokenami` package. please install `tokenami` instead and update your `tsconfig.json` plugin name to "tokenami".
+
+---
+
+#### 💥 Breaking Change
+
+- move ts-plugin and dev package into new `tokenami` package [#400](https://github.com/tokenami/tokenami/pull/400) ([@jjenzz](https://github.com/jjenzz))
+- fix canary builds [#405](https://github.com/tokenami/tokenami/pull/405) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- publish canary releases to npm registry [#407](https://github.com/tokenami/tokenami/pull/407) ([@jjenzz](https://github.com/jjenzz))
+- update labels to represent changes in changelog [#406](https://github.com/tokenami/tokenami/pull/406) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.76 (Fri Feb 07 2025)
 
 ### Release Notes
