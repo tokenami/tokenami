@@ -658,12 +658,12 @@ With this configuration, passing `var(--container_half)` to a `content` property
 
 ### Map custom properties to theme
 
-Tokenami allows custom properties in the `properties` config. This helps to create a configurable design system. For example, you can create `--gradient-from` and `--gradient-to` properties that accept color tokens to make reusable gradients:
+Tokenami allows custom properties in the `customProperties` config. This helps to create a configurable design system. For example, you can create `--gradient-from` and `--gradient-to` properties that accept color tokens to make reusable gradients:
 
 ```tsx
 module.exports = createConfig({
   // ...
-  properties: {
+  customProperties: {
     // ...
     'gradient-from': ['color'],
     'gradient-to': ['color'],
