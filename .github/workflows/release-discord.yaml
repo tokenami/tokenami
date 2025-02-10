@@ -43,40 +43,54 @@ jobs:
       - name: Format Release Notes
         id: format_notes
         run: |
-          # Get release body from previous step and escape it
+          # Get release body and format headers
           release_body=$(cat << 'EOF'
           ${{ steps.release_info.outputs.release_body }}
           EOF
           )
 
+          # Format headers and normalize line endings
           formatted_body=$(echo "$release_body" | \
             sed -E 's/^### (.+)$/__**\1**__/g' | \
             sed -E 's/^#### (.+)$/**\1**/g')
 
-          # Convert newlines to \n for JSON compatibility
-          formatted_body=$(echo "$formatted_body" | sed ':a;N;$!ba;s/\n/\\n/g')
-
-          # Save formatted body to GITHUB_OUTPUT
-          echo "formatted_body=$formatted_body" >> $GITHUB_OUTPUT
+          # Save formatted body to GITHUB_OUTPUT using heredoc syntax
+          {
+            echo "formatted_body<<EOF"
+            echo "$formatted_body"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - name: Notify Discord
         env:
           WEBHOOK_URL: ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL }}
         run: |
-          payload=$(cat << 'EOF'
-          {
-            "username": "tokenami",
-            "avatar_url": "https://avatars.githubusercontent.com/u/140247736?s=400&u=db0a7326ac560800b4d6d78a18875d7c9f71311c&v=4",
-            "embeds": [
-              {
-                "title": "🚀 New Release Published!",
-                "description": "**[${{ steps.release_info.outputs.release_name }}](${{ steps.release_info.outputs.release_url }})**\n\n${{ steps.format_notes.outputs.formatted_body }}\n\n**[View release note on GitHub](${{ steps.release_info.outputs.release_url }})**",
-                "color": 16760358
-              }
-            ]
-          }
-          EOF
+          # Create the description with actual newlines
+          description=$(cat << 'ENDDESC'
+          **[${{ steps.release_info.outputs.release_name }}](${{ steps.release_info.outputs.release_url }})**
+
+          ${{ steps.format_notes.outputs.formatted_body }}
+
+          **[View release note on GitHub](${{ steps.release_info.outputs.release_url }})**
+          ENDDESC
           )
+
+          # Use jq to create the payload and normalize line endings in the JSON string
+          payload=$(jq -n \
+            --arg desc "$description" \
+            '{
+              username: "tokenami",
+              avatar_url: "https://avatars.githubusercontent.com/u/140247736?s=400&u=db0a7326ac560800b4d6d78a18875d7c9f71311c&v=4",
+              embeds: [{
+                title: "🚀 New Release Published!",
+                description: ($desc | gsub("\\r\\n"; "\n") | gsub("\\r"; "")),
+                color: 16760358
+              }]
+            }')
+
+          # Debug: Print the payload
+          echo "Debug - Generated payload:"
+          echo "$payload" | jq '.'
 
           curl -H "Content-Type: application/json" \
             -d "$payload" \
