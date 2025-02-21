@@ -217,11 +217,8 @@ function getCSSPropertiesForAlias(alias: string, aliases: Config['aliases']): st
  * -----------------------------------------------------------------------------------------------*/
 
 function generateClassName(properties: Record<string, any>) {
-  const entries = Object.entries(properties)
-    .map(([property, value]) => [property, String(value)] as const)
-    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
-  const str = JSON.stringify(entries);
-  return `tk-${hash(str)}`;
+  const entries = Object.entries(properties).sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+  return `tk-${hash(String(entries))}`;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -271,10 +268,10 @@ const decodeColon = (str: string) => str.replace(/;/g, ':');
  * -----------------------------------------------------------------------------------------------*/
 
 function* iterateAliasProperties(
-  styles: Record<string, any>,
+  styleEntries: [key: string, value: any][],
   config: Pick<Config, 'aliases'>
 ): Generator<[string, any, { isCalc: boolean; cssProperties: string[] }]> {
-  for (const [key, value] of Object.entries(styles)) {
+  for (const [key, value] of styleEntries) {
     const tokenProperty = key as TokenProperty;
     const parts = getTokenPropertySplit(tokenProperty);
     const cssProperties = getCSSPropertiesForAlias(parts.alias, config.aliases);

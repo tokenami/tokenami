@@ -290,17 +290,13 @@ function matchBaseComposeBlocks(ast: acorn.AnyNode): Record<`.${string}`, Tokena
 
     for (const tokenProperty of node.properties) {
       if (
-        tokenProperty.type !== 'Property' ||
-        tokenProperty.key.type !== 'Literal' ||
-        tokenProperty.value.type !== 'Literal'
+        tokenProperty.type === 'Property' &&
+        tokenProperty.key.type === 'Literal' &&
+        tokenProperty.value.type === 'Literal'
       ) {
-        continue;
+        styles ??= {};
+        styles[tokenProperty.key.value as any] = tokenProperty.value.value as any;
       }
-
-      const property = tokenProperty.key.value;
-      const value = tokenProperty.value.value;
-      styles ??= {};
-      styles[property as any] = value as any;
     }
 
     if (styles) {

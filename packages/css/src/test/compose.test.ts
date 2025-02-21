@@ -54,7 +54,24 @@ const button = css.compose({
   },
 });
 
-const link = css.compose(linkStyles);
+const link = css.compose({
+  ...linkStyles,
+  variants: {
+    disabled: {
+      true: { '--opacity': '0.5' } as {},
+      false: { '--opacity': '1' } as {},
+    },
+  },
+});
+
+const buttonIncludes = css.compose({
+  includes: [link, css({ '--color': 'red' } as {})],
+  ...baseStyles,
+  variants: {
+    disabled: { true: disabledStyles, false: enabledStyles },
+    type: { primary: primaryStyles, secondary: secondaryStyles },
+  },
+});
 
 /* -------------------------------------------------------------------------------------------------
  * tests
@@ -63,6 +80,7 @@ const link = css.compose(linkStyles);
 interface TestContext {
   button: typeof button;
   link: typeof link;
+  buttonIncludes: typeof buttonIncludes;
   className: string;
   output: ReturnType<ReturnType<typeof button>[1]>;
 }
@@ -71,6 +89,7 @@ describe('css compose', () => {
   beforeEach<TestContext>((context) => {
     context.button = button;
     context.link = link;
+    context.buttonIncludes = buttonIncludes;
   });
 
   describe('when invoked without a config', () => {
@@ -178,7 +197,10 @@ describe('css compose', () => {
     beforeEach<TestContext>((context) => {
       const [buttonClassName, buttonStyle] = context.button();
       const [linkClassName, linkStyle] = context.link();
-      const result = buttonStyle(linkStyle({ '--border-color': 'green' } as any));
+      const result = buttonStyle(
+        css({ '--color': 'red' } as any),
+        linkStyle(css({ '--border-color': 'green' } as any))
+      );
       const { [_COMPOSE]: _, ...styles } = result;
       context.output = styles;
       context.className = buttonClassName(linkClassName());
@@ -192,10 +214,36 @@ describe('css compose', () => {
 
     it<TestContext>('should override longhands and base style', (context) => {
       expect(context.output).toEqual({
+        '--color': 'red',
         '--border': '5px solid',
         '--border-color': 'green',
         '--margin-left': 'initial',
         '--margin-left__calc': 'initial',
+      });
+    });
+  });
+
+  describe('when providing includes', () => {
+    beforeEach<TestContext>((context) => {
+      const [cn, style] = context.buttonIncludes({ disabled: true });
+      const { [_COMPOSE]: composed, ...styles } = style();
+      context.output = styles;
+      context.className = cn();
+    });
+
+    it<TestContext>('should chain classes', (context) => {
+      const buttonClassName = generateClassName(baseStyles);
+      const linkClassName = generateClassName(linkStyles);
+      expect(context.className).toBe(`${linkClassName} ${buttonClassName}`);
+    });
+
+    it<TestContext>('should compose includes', (context) => {
+      expect(context.output).toEqual({
+        '--opacity': '0.5', // inline because it's a link variant
+        '--color': 'red', // inline because it's a css util include
+        '--border': '1px solid', // inline because it overrides link base style
+        '--border-color': 'initial', // inline because it overrides link base style
+        '--font-weight': 'normal', // inline because it's a button variant
       });
     });
   });

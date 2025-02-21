@@ -154,7 +154,10 @@ function createSheet(params: {
   }
 
   for (const [selector, tokenamiProperties] of Object.entries(composeBlocks)) {
-    const aliasProperties = Tokenami.iterateAliasProperties(tokenamiProperties, params.config);
+    const aliasProperties = Tokenami.iterateAliasProperties(
+      Object.entries(tokenamiProperties),
+      params.config
+    );
 
     for (let [key, value, propertyConfig] of aliasProperties) {
       const tokenProperty = key as Tokenami.TokenProperty;
