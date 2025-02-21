@@ -47,6 +47,10 @@ function generate(params: Parameters<typeof createSheet>[0]) {
   }
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * createSheet
+ * -----------------------------------------------------------------------------------------------*/
+
 function createSheet(params: {
   output: string;
   config: Tokenami.Config;
@@ -57,7 +61,7 @@ function createSheet(params: {
     values: Tokenami.TokenValue[];
     composeBlocks: Record<`.${string}`, TokenamiProperties>;
   };
-}) {
+}): string {
   if (!params.tokens.properties.length) return '';
 
   const tokenProperties = params.tokens.properties;
@@ -98,7 +102,7 @@ function createSheet(params: {
       const toggleKey = config.responsive || config.selector;
       const propertyPrefix = config.isCustom ? CUSTOM_PROP_PREFIX : '';
 
-      if (layerIndex === -1) return;
+      if (layerIndex === -1) continue;
 
       if (config.variant && toggleKey) {
         const responsive = getResponsiveSelectorFromConfig(config.responsive, params.config);
@@ -154,12 +158,11 @@ function createSheet(params: {
 
     for (let [key, value, propertyConfig] of aliasProperties) {
       const tokenProperty = key as Tokenami.TokenProperty;
-      const parsedProperties = Tokenami.iterateParsedProperties(
-        tokenProperty,
-        propertyConfig.cssProperties
-      );
 
-      for (const [parsedProperty, calcToggle] of parsedProperties) {
+      for (const cssProperty of propertyConfig.cssProperties) {
+        const longProperty = Tokenami.createLonghandProperty(tokenProperty, cssProperty);
+        const parsedProperty = Tokenami.parseProperty(longProperty);
+        const calcToggle = Tokenami.calcProperty(parsedProperty);
         const atomicCalcPair = propertyConfig.isCalc ? `${calcToggle}: /**/;` : '';
         const atomicPair = `${parsedProperty}: ${value};${atomicCalcPair}`;
         styles.components[atomicPair] ??= new Set<string>();

@@ -53,6 +53,7 @@ function createCss(
   function css(...allStyles: [TokenamiProperties, ...Override[]]): TokenamiCSS {
     const cacheId = JSON.stringify(allStyles);
     const cached = lruCache.get(cacheId);
+    const opts = (globalThis as any)[_TOKENAMI_CSS];
     if (cached) return cached;
 
     const overriddenStyles: TokenamiCSSResult = { [_COMPOSE]: {} };
@@ -70,14 +71,11 @@ function createCss(
           continue;
         }
 
-        // this will mostly only be one property
-        const parsedProperties = Tokenami.iterateParsedProperties(
-          tokenProperty.output,
-          propertyConfig.cssProperties,
-          (globalThis as any)[_TOKENAMI_CSS]
-        );
-
-        for (const [parsedProperty, calcToggle] of parsedProperties) {
+        // this will most liket be one property only
+        for (const cssProperty of propertyConfig.cssProperties) {
+          const longProperty = Tokenami.createLonghandProperty(tokenProperty.output, cssProperty);
+          const parsedProperty = Tokenami.parseProperty(longProperty, opts);
+          const calcToggle = Tokenami.calcProperty(parsedProperty);
           overrideLonghands(overriddenStyles, parsedProperty);
 
           const target = __composed
@@ -187,7 +185,7 @@ const lruCache = {
  * -----------------------------------------------------------------------------------------------*/
 
 function cn(...classNames: ClassName[]) {
-  return [...classNames].filter(Boolean).join(' ');
+  return classNames.filter(Boolean).join(' ');
 }
 
 /* -------------------------------------------------------------------------------------------------

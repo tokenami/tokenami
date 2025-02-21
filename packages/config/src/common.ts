@@ -221,7 +221,7 @@ function generateClassName(properties: Record<string, any>) {
     .map(([property, value]) => [property, String(value)] as const)
     .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
   const str = JSON.stringify(entries);
-  return `tk${hash(str)}`;
+  return `tk-${hash(str)}`;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -284,22 +284,6 @@ function* iterateAliasProperties(
 }
 
 /* -------------------------------------------------------------------------------------------------
- * iterateParsedProperties
- * -----------------------------------------------------------------------------------------------*/
-
-function* iterateParsedProperties(
-  tokenProperty: TokenProperty,
-  cssProperties: string[],
-  options?: Parameters<typeof parseProperty>[1]
-): Generator<[TokenProperty, TokenProperty]> {
-  for (const cssProperty of cssProperties) {
-    const longProperty = createLonghandProperty(tokenProperty, cssProperty);
-    const parsedProperty = parseProperty(longProperty, options);
-    yield [parsedProperty, calcProperty(parsedProperty)];
-  }
-}
-
-/* -------------------------------------------------------------------------------------------------
  * calcProperty
  * -----------------------------------------------------------------------------------------------*/
 
@@ -334,5 +318,4 @@ export {
   getCSSPropertiesForAlias,
   generateClassName,
   iterateAliasProperties,
-  iterateParsedProperties,
 };

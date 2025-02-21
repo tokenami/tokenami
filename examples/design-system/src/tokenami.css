@@ -139,7 +139,7 @@
     height: auto;
   }
 
-  ::webkit-search-decoration {
+  ::-webkit-search-decoration {
     -webkit-appearance: none;
   }
 
@@ -190,7 +190,7 @@
     --radii_lg: .5rem;
   }
 
-  :root, :root .tk1d0gnz5, :root [style] {
+  :root, :root .tk-1d0gnz5, :root [style] {
     --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
     --text_xl: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1.25rem / 1.75rem var(--font-family);
   }
@@ -290,7 +290,7 @@
 }
 
 @layer tk1 {
-  .tk1d0gnz5, [style] {
+  .tk-1d0gnz5, [style] {
     color: var(--color, revert-layer);
     border-radius: var(--border-radius, revert-layer);
     transition: var(--transition, revert-layer);
@@ -299,14 +299,14 @@
 }
 
 @layer tk2 {
-  .tk1d0gnz5, [style] {
+  .tk-1d0gnz5, [style] {
     background-color: var(--background-color, revert-layer);
     font-family: var(--font-family, revert-layer);
   }
 }
 
 @layer tkl1 {
-  .tk1d0gnz5, [style] {
+  .tk-1d0gnz5, [style] {
     inline-size: var(--_g44f3h, var(--inline-size, revert-layer));
     --_g44f3h: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
     block-size: var(--_1ieen97, var(--block-size, revert-layer));
@@ -315,20 +315,20 @@
 }
 
 @layer tkl3 {
-  .tk1d0gnz5, [style] {
+  .tk-1d0gnz5, [style] {
     border-block-end: var(--border-block-end, revert-layer);
   }
 }
 
 @layer tkl5 {
-  .tk1d0gnz5, [style] {
+  .tk-1d0gnz5, [style] {
     border-block-color: var(--border-block-color, revert-layer);
     border-inline-color: var(--border-inline-color, revert-layer);
   }
 }
 
 @layer tks1 {
-  .tk1d0gnz5, [style] {
+  .tk-1d0gnz5, [style] {
     animation: var(--_1upk2ho, revert-layer);
     --_1upk2ho: var(--hover) var(--hover_animation);
     font: var(--_1gipe25, var(--_mhgvlt, var(--_10ti6tm, var(--_104t2cq, var(--_qp58in, revert-layer)))));
@@ -341,7 +341,7 @@
 }
 
 @layer tks2 {
-  .tk1d0gnz5, [style] {
+  .tk-1d0gnz5, [style] {
     background-color: var(--_1r7lnia, var(--_4dvc60, revert-layer));
     --_4dvc60: var(--hover) var(--hover_background-color);
     --_1r7lnia: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
@@ -355,7 +355,7 @@
 }
 
 @layer tkc {
-  .tk1d0gnz5 {
+  .tk-1d0gnz5 {
     --background-color: var(--color_violet9);
     --color: var(--color_white);
     --border-block-end: var(--line_px);
