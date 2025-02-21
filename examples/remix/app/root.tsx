@@ -1,11 +1,9 @@
 import * as React from 'react';
-import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
-import { type LinksFunction } from '@remix-run/node';
+import * as Remix from '@remix-run/react';
 import * as DS from '@tokenami/example-design-system';
-import styles from '~/../public/tokenami.css';
 import { css } from '~/css';
 
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
+import './tokenami.css';
 
 export default function App() {
   const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
@@ -14,8 +12,8 @@ export default function App() {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <Meta />
-        <Links />
+        <Remix.Meta />
+        <Remix.Links />
       </head>
       <body
         data-theme={theme}
@@ -40,10 +38,9 @@ export default function App() {
         <DS.Button onClick={() => setTheme((theme) => (theme === 'light' ? 'dark' : 'light'))}>
           Switch theme
         </DS.Button>
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
+        <Remix.Outlet />
+        <Remix.ScrollRestoration />
+        <Remix.Scripts />
       </body>
     </html>
   );

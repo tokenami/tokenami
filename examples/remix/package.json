@@ -1,48 +1,37 @@
 {
   "name": "@tokenami/example-remix",
-  "version": "0.0.77",
   "private": true,
   "sideEffects": false,
+  "type": "module",
   "scripts": {
-    "build": "tokenami --minify && remix build",
+    "build": "tokenami --minify && remix vite:build",
     "dev": "pnpm run \"/dev:/\"",
-    "dev:app": "remix dev",
-    "dev:css": "tokenami --watch",
-    "start": "remix-serve build",
-    "typecheck": "tokenami check && tsc --noEmit",
-    "lint": "eslint ."
+    "dev:app": "remix vite:dev",
+    "dev:css": "tokenami --output ./app/tokenami.css --watch",
+    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+    "start": "remix-serve ./build/server/index.js",
+    "typecheck": "tokenami check && tsc --noEmit"
   },
   "dependencies": {
-    "@remix-run/css-bundle": "^1.17.1",
-    "@remix-run/node": "^1.17.1",
-    "@remix-run/react": "^1.17.1",
-    "@remix-run/serve": "^1.17.1",
+    "@remix-run/node": "^2.15.3",
+    "@remix-run/react": "^2.15.3",
+    "@remix-run/serve": "^2.15.3",
     "@tokenami/css": "workspace:*",
-    "@tokenami/example-design-system": "workspace:*",
-    "isbot": "^3.6.8",
+    "@tokenami/example-design-system": "workspace:^",
+    "isbot": "^4.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@remix-run/dev": "^1.17.1",
-    "@remix-run/eslint-config": "^1.17.1",
-    "@types/react": "^18.0.35",
-    "@types/react-dom": "^18.0.11",
-    "eslint": "^8.57.0",
+    "@remix-run/dev": "^2.15.3",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
     "tokenami": "workspace:*",
-    "typescript": "^5.1.3"
+    "typescript": "^5.1.3",
+    "vite": "^5.1.0",
+    "vite-tsconfig-paths": "^4.2.1"
   },
-  "eslintIgnore": [
-    "/node_modules",
-    "/build",
-    "/public/build"
-  ],
-  "browserslist": {
-    "production": [
-      "Chrome >= 90"
-    ],
-    "development": [
-      "Chrome >= 120"
-    ]
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

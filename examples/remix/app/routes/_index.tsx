@@ -119,8 +119,18 @@ const QuoteImage = (props: TokenamiStyle<React.ComponentProps<'img'>>) => {
   );
 };
 
+const test = css.compose({
+  '--border': 'var(--line_8)',
+  '--border-color': 'var(--color_red10)',
+});
+
+const util = css({ '--border-width': 'var(--line-size_4)' });
+
 const quoteImage = css.compose({
+  includes: [test, util],
+
   '--object-fit': 'cover',
+  '--border-color': 'var(--color_iris10)',
 
   responsiveVariants: {
     variant: {
