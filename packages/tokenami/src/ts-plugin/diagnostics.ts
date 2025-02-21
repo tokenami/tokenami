@@ -41,6 +41,8 @@ class TokenamiDiagnostics {
     if (
       ts.isCallExpression(node) &&
       ts.isPropertyAccessExpression(node.expression) &&
+      ts.isIdentifier(node.expression.expression) &&
+      node.expression.expression.text === 'css' &&
       node.expression.name.text === 'compose' &&
       node.arguments[0] &&
       ts.isObjectLiteralExpression(node.arguments[0])
@@ -55,24 +57,6 @@ class TokenamiDiagnostics {
       const propertyDiagnostics = this.#validateTokenamiProperty(property.output, node, sourceFile);
       return propertyDiagnostics ?? [];
     }
-  }
-
-  #validateComposeConfig(config: ts.ObjectLiteralExpression, sourceFile: ts.SourceFile) {
-    const diagnostics: ts.Diagnostic[] = [];
-
-    for (const prop of config.properties) {
-      if (!ts.isSpreadAssignment(prop)) continue;
-      diagnostics.push({
-        file: sourceFile,
-        start: prop.getStart(),
-        length: prop.getWidth(),
-        messageText: `Spreading in css.compose() is not supported. Compose styles must be statically extractable.`,
-        category: ts.DiagnosticCategory.Error,
-        code: ERROR_CODES.UNEXPECTED_SPREAD_IN_COMPOSE,
-      });
-    }
-
-    return diagnostics;
   }
 
   #validateTokenamiProperty(
@@ -102,6 +86,41 @@ class TokenamiDiagnostics {
         code: ERROR_CODES.INVALID_PROPERTY,
       },
     ];
+  }
+
+  #validateComposeConfig(config: ts.ObjectLiteralExpression, sourceFile: ts.SourceFile) {
+    let diagnostics: ts.Diagnostic[] = [];
+    const diagnostic = {
+      file: sourceFile,
+      messageText: `Compose styles must be statically extractable. Use 'includes' to reuse shared styles.`,
+      category: ts.DiagnosticCategory.Error,
+      code: ERROR_CODES.EXPECT_EXTRACTABLE_COMPOSE,
+    };
+
+    for (const prop of config.properties) {
+      if (ts.isSpreadAssignment(prop)) {
+        const start = prop.getStart();
+        const length = prop.getWidth();
+        diagnostics.push({ ...diagnostic, start, length });
+        continue;
+      }
+
+      if (!ts.isPropertyAssignment(prop)) continue;
+      const key = prop.name;
+      const value = prop.initializer;
+
+      if (!ts.isStringLiteral(key) && !ts.isIdentifier(key)) {
+        diagnostics.push({ ...diagnostic, start: key.getStart(), length: key.getWidth() });
+      }
+
+      if (ts.isObjectLiteralExpression(value)) {
+        diagnostics.push(...this.#validateComposeConfig(value, sourceFile));
+      } else if (!ts.isStringLiteral(value) && !ts.isNumericLiteral(value)) {
+        diagnostics.push({ ...diagnostic, start: value.getStart(), length: value.getWidth() });
+      }
+    }
+
+    return diagnostics;
   }
 
   #shouldSuppressDiagnosticForNode(node: ts.Node, sourceFile: ts.SourceFile) {
