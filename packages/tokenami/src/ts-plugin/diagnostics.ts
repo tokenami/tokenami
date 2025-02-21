@@ -36,14 +36,43 @@ class TokenamiDiagnostics {
 
   #processNode(node: ts.Node, sourceFile: ts.SourceFile) {
     const isDiagnosticPrevented = this.#shouldSuppressDiagnosticForNode(node, sourceFile);
-    if (isDiagnosticPrevented || !ts.isPropertyAssignment(node)) return;
+    if (isDiagnosticPrevented) return;
 
-    const nodeProperty = ts.isStringLiteral(node.name) ? node.name.text : null;
-    const property = TokenamiConfig.TokenProperty.safeParse(nodeProperty);
-    if (!property.success) return;
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      node.expression.name.text === 'compose' &&
+      node.arguments[0] &&
+      ts.isObjectLiteralExpression(node.arguments[0])
+    ) {
+      return this.#validateComposeConfig(node.arguments[0], sourceFile);
+    }
 
-    const propertyDiagnostics = this.#validateTokenamiProperty(property.output, node, sourceFile);
-    return propertyDiagnostics ?? [];
+    if (ts.isPropertyAssignment(node)) {
+      const nodeProperty = ts.isStringLiteral(node.name) ? node.name.text : null;
+      const property = TokenamiConfig.TokenProperty.safeParse(nodeProperty);
+      if (!property.success) return;
+      const propertyDiagnostics = this.#validateTokenamiProperty(property.output, node, sourceFile);
+      return propertyDiagnostics ?? [];
+    }
+  }
+
+  #validateComposeConfig(config: ts.ObjectLiteralExpression, sourceFile: ts.SourceFile) {
+    const diagnostics: ts.Diagnostic[] = [];
+
+    for (const prop of config.properties) {
+      if (!ts.isSpreadAssignment(prop)) continue;
+      diagnostics.push({
+        file: sourceFile,
+        start: prop.getStart(),
+        length: prop.getWidth(),
+        messageText: `Spreading in css.compose() is not supported. Compose styles must be statically extractable.`,
+        category: ts.DiagnosticCategory.Error,
+        code: ERROR_CODES.UNEXPECTED_SPREAD_IN_COMPOSE,
+      });
+    }
+
+    return diagnostics;
   }
 
   #validateTokenamiProperty(
