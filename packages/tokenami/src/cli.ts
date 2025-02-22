@@ -253,13 +253,13 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
   entries.forEach((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
     const tokens = matchTokens(fileContent, config.theme);
-    const composeBlocksContents = fileContent.match(COMPOSE_BLOCKS_REGEX)?.join(' ');
+    const composeBlocksContents = fileContent.match(COMPOSE_BLOCKS_REGEX) ?? [];
 
     tokenProperties = [...tokenProperties, ...tokens.properties];
     tokenValues = [...tokenValues, ...tokens.values];
 
-    if (composeBlocksContents) {
-      const ast = acorn.parse(composeBlocksContents, { ecmaVersion: 'latest' });
+    for (const composeBlock of composeBlocksContents) {
+      const ast = acorn.parse(composeBlock, { ecmaVersion: 'latest' });
       const responsiveProperties = matchResponsiveComposeVariants(ast, config);
       const composeBlockStyles = matchBaseComposeBlocks(ast);
       tokenProperties = [...tokenProperties, ...responsiveProperties];
