@@ -66,22 +66,15 @@ function createSheet(params: {
 
   const tokenProperties = params.tokens.properties;
   const tokenValues = params.tokens.values;
-  const composeBlocks = params.tokens.composeBlocks;
+  const composeBlocks = parseComposeBlocks(params.tokens.composeBlocks, params.config);
   const propertyConfigsByCSSProperty = getPropertyConfigs(tokenProperties, params.config);
   const allPropertyConfigs = Array.from(propertyConfigsByCSSProperty.values()).flat();
-  const styleSelector = [...Object.keys(composeBlocks), DEFAULT_SELECTOR];
-
-  const elemSelectors = utils.unique(
-    allPropertyConfigs.map((config) => {
-      const selectors = getSelectorsFromConfig(config.selector, params.config);
-      return selectors.find(isElementSelector) || styleSelector;
-    })
-  );
+  const baseSelectors = getPropertyBaseSelectors(composeBlocks, allPropertyConfigs, params.config);
 
   const styles = {
     reset: new Set<string>(),
-    atomic: new Set<string>(),
-    selectors: new Set<string>(),
+    atomic: {} as Record<string, Set<string>>,
+    selectors: {} as Record<string, Set<string>>,
     components: {} as Record<string, Set<string>>,
     toggles: {} as Record<string, Set<string>>,
   };
@@ -89,6 +82,7 @@ function createSheet(params: {
   for (const [cssProperty, configs] of propertyConfigsByCSSProperty) {
     const isLogical = Supports.supportedLogicalProperties.has(cssProperty as any);
     const isInheritable = Supports.inheritedProperties.has(cssProperty);
+
     // sort configs to ensure property value orders fallbacks correctly
     const sortedConfigs = [...configs].sort((a, b) => a.order - b.order);
     const variants = sortedConfigs.flatMap((config) => (config.variant ? [config.variant] : []));
@@ -97,22 +91,20 @@ function createSheet(params: {
       return `var(${hashedProperty}, ${fallback})`;
     }, 'revert-layer');
 
-    for (const config of configs) {
+    for (const prop of configs) {
       const layerIndex = getAtomicLayerIndex(cssProperty, params.config);
-      const toggleKey = config.responsive || config.selector;
-      const propertyPrefix = config.isCustom ? CUSTOM_PROP_PREFIX : '';
+      const toggleKey = prop.responsive || prop.selector;
+      const propertyPrefix = prop.isCustom ? CUSTOM_PROP_PREFIX : '';
 
       if (layerIndex === -1) continue;
 
-      if (config.variant && toggleKey) {
-        const responsive = getResponsiveSelectorFromConfig(config.responsive, params.config);
-        const selectors = getSelectorsFromConfig(config.selector, params.config);
-        const hasCombinator = selectors.some(isCombinatorSelector);
-        const responsiveSelectors = [responsive, ...selectors].filter(Boolean) as string[];
-        const hashedProperty = hashVariantProperty(config.variant, cssProperty);
-        const variantProperty = Tokenami.parsedVariantProperty(config.variant, cssProperty);
-        const basePropertyValue = getBasePropertyValue(variantProperty, config, false);
-        const toggleProperty = Tokenami.parsedTokenProperty(config.variant);
+      if (prop.variant && toggleKey) {
+        const responsive = getResponsiveSelectorFromConfig(prop.responsive, params.config);
+        const selectorConfig = getPropertyConfigSelector(prop.selector, params.config);
+        const hasCombinator = selectorConfig.some(isCombinatorSelector);
+        const hashedProperty = hashVariantProperty(prop.variant, cssProperty);
+        const basePropertyValue = getBasePropertyValue(prop.tokenProperty, prop, false);
+        const toggleProperty = Tokenami.parsedTokenProperty(prop.variant);
         const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) ${basePropertyValue};`;
         const layer = `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerIndex}`;
         // revert-layer doesn't work for custom properties in Safari so we explicitly set the fallback
@@ -120,57 +112,59 @@ function createSheet(params: {
         const customPropertyFallback = `var(${Tokenami.tokenProperty(cssProperty)})`;
         const customPropertyValue = variantValue.replace('revert-layer', customPropertyFallback);
         const declaration = `${propertyPrefix}${cssProperty}: ${
-          config.isCustom ? customPropertyValue : variantValue
+          prop.isCustom ? customPropertyValue : variantValue
         };`;
 
-        const toggle = responsiveSelectors.reduceRight(
-          (declaration, selector) => `${selector} { ${declaration} }`,
-          `${toggleProperty}: ;`
+        styles.reset.add(`${toggleProperty}: initial;`);
+        if (!isInheritable && !hasCombinator) styles.reset.add(`${prop.tokenProperty}: initial;`);
+
+        styles.selectors[layer] ??= new Set<string>();
+        styles.selectors[layer]!.add(declaration);
+        styles.selectors[layer]!.add(toggleDeclaration);
+
+        if (prop.isGrid) {
+          const gridToggle = getGridPropertyToggle(prop.tokenProperty);
+          styles.selectors[layer]!.add(gridToggle);
+        }
+
+        const selectors = getPropertySelectors(
+          composeBlocks,
+          prop.selector,
+          prop.tokenProperty,
+          params.config
         );
 
-        styles.reset.add(`${toggleProperty}: initial;`);
-        if (!isInheritable && !hasCombinator) styles.reset.add(`${variantProperty}: initial;`);
-        styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${declaration} } }`);
-        styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${toggleDeclaration} } }`);
-        styles.toggles[toggleKey] ??= new Set<string>();
-        styles.toggles[toggleKey]!.add(toggle);
-        if (config.isGrid) {
-          const gridToggle = getGridPropertyToggle(variantProperty);
-          styles.selectors.add(`@layer ${layer} { ${elemSelectors} { ${gridToggle} } }`);
+        for (const selector of selectors) {
+          const responsiveSelectors = [responsive, ...selector].filter(Boolean) as string[];
+          const toggle = responsiveSelectors.reduceRight(
+            (declaration, selector) => `${selector} { ${declaration} }`,
+            `${toggleProperty}: ;`
+          );
+          styles.toggles[toggleKey] ??= new Set<string>();
+          styles.toggles[toggleKey]!.add(toggle);
         }
       } else {
-        const propertyValue = getBasePropertyValue(config.tokenProperty, config);
-        const declaration = `${styleSelector} { ${propertyPrefix}${cssProperty}: ${propertyValue}; }`;
+        const propertyValue = getBasePropertyValue(prop.tokenProperty, prop);
+        const declaration = `${propertyPrefix}${cssProperty}: ${propertyValue};`;
         const layer = `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerIndex}`;
 
-        if (!isInheritable) styles.reset.add(`${config.tokenProperty}: initial;`);
-        styles.atomic.add(`@layer ${layer} { ${declaration} }`);
-        if (config.isGrid) {
-          const gridToggle = getGridPropertyToggle(config.tokenProperty);
-          styles.atomic.add(`@layer ${layer} { ${styleSelector} { ${gridToggle} } }`);
+        if (!isInheritable) styles.reset.add(`${prop.tokenProperty}: initial;`);
+        styles.atomic[layer] ??= new Set<string>();
+        styles.atomic[layer]!.add(declaration);
+
+        if (prop.isGrid) {
+          const gridToggle = getGridPropertyToggle(prop.tokenProperty);
+          styles.atomic[layer]!.add(gridToggle);
         }
       }
     }
   }
 
   for (const [selector, tokenamiProperties] of Object.entries(composeBlocks)) {
-    const aliasProperties = Tokenami.iterateAliasProperties(
-      Object.entries(tokenamiProperties),
-      params.config
-    );
-
-    for (let [key, value, propertyConfig] of aliasProperties) {
-      const tokenProperty = key as Tokenami.TokenProperty;
-
-      for (const cssProperty of propertyConfig.cssProperties) {
-        const longProperty = Tokenami.createLonghandProperty(tokenProperty, cssProperty);
-        const parsedProperty = Tokenami.parseProperty(longProperty);
-        const calcToggle = Tokenami.calcProperty(parsedProperty);
-        const atomicCalcPair = propertyConfig.isCalc ? `${calcToggle}: /**/;` : '';
-        const atomicPair = `${parsedProperty}: ${value};${atomicCalcPair}`;
-        styles.components[atomicPair] ??= new Set<string>();
-        styles.components[atomicPair]!.add(selector);
-      }
+    for (let [key, value] of Object.entries(tokenamiProperties)) {
+      const atomicPair = `${key}: ${value};`;
+      styles.components[atomicPair] ??= new Set<string>();
+      styles.components[atomicPair]!.add(selector);
     }
   }
 
@@ -185,7 +179,7 @@ function createSheet(params: {
 
     @layer tkb {
       ${generateKeyframeRules(tokenValues, params.config)}
-      ${generateThemeTokens(tokenValues, styleSelector, params.config)}
+      ${generateThemeTokens(tokenValues, baseSelectors, params.config)}
       * { ${Array.from(styles.reset).join(' ')} }
 
       ${Object.values(styles.toggles)
@@ -198,11 +192,100 @@ function createSheet(params: {
     ${generatePlaceholderLayers(LAYERS.SELECTORS)}
     ${generatePlaceholderLayers(LAYERS.SELECTORS_LOGICAL)}
     ${generatePlaceholderLayers(LAYERS.COMPONENTS)}
+    ${generateLayerStyles(styles.atomic, baseSelectors)}
+    ${generateLayerStyles(styles.selectors, baseSelectors)}
 
-    ${Array.from(styles.atomic).join(' ')}
-    ${Array.from(styles.selectors).join(' ')}
     ${composeStyles.join(' ')}
   `;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * parseComposeBlocks
+ * -----------------------------------------------------------------------------------------------*/
+
+function parseComposeBlocks(
+  composeBlocks: Record<`.${string}`, TokenamiProperties>,
+  config: Tokenami.Config
+) {
+  let parsedComposeBlocks: Record<`.${string}`, TokenamiProperties> = {};
+
+  for (const [selector, tokenamiProperties] of Object.entries(composeBlocks)) {
+    const entries = Object.entries(tokenamiProperties);
+    const aliasProperties = Tokenami.iterateAliasProperties(entries, config);
+    let styles: TokenamiProperties = {};
+
+    for (let [key, value, propertyConfig] of aliasProperties) {
+      const tokenProperty = key as Tokenami.TokenProperty;
+
+      for (const cssProperty of propertyConfig.cssProperties) {
+        const longProperty = Tokenami.createLonghandProperty(tokenProperty, cssProperty);
+        const parsedProperty = Tokenami.parseProperty(longProperty);
+        const calcToggle = Tokenami.calcProperty(parsedProperty);
+
+        styles[parsedProperty] = value;
+        if (propertyConfig.isCalc) (styles as any)[calcToggle] = '/**/';
+      }
+    }
+
+    parsedComposeBlocks[selector as any] = styles;
+  }
+
+  return parsedComposeBlocks;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getPropertyBaseSelectors
+ * -----------------------------------------------------------------------------------------------*/
+
+function getPropertyBaseSelectors(
+  composeBlocks: Record<`.${string}`, TokenamiProperties>,
+  propertyConfigs: PropertyConfig[],
+  config: Tokenami.Config
+): string[] {
+  let basePropertySelectors: string[] = [];
+
+  for (const prop of propertyConfigs) {
+    const selectorConfig = getPropertyConfigSelector(prop.selector, config);
+    const baseSelectors = getBaseSelectors(composeBlocks, prop.tokenProperty);
+    const elemSelector = selectorConfig.find(isElementSelector);
+    if (!elemSelector) {
+      basePropertySelectors.push(...baseSelectors);
+    } else {
+      const parsedSelectors = getParsedSelectors(prop.selector, [elemSelector], baseSelectors);
+      basePropertySelectors.push(...parsedSelectors.flat());
+    }
+  }
+
+  return utils.unique(basePropertySelectors);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getPropertySelectors
+ * -----------------------------------------------------------------------------------------------*/
+
+function getPropertySelectors(
+  composeBlocks: Record<`.${string}`, TokenamiProperties>,
+  propertySelector: PropertyConfig['selector'],
+  property: Tokenami.TokenProperty,
+  config: Tokenami.Config
+): string[][] {
+  const selectorConfig = getPropertyConfigSelector(propertySelector, config);
+  const baseSelectors = getBaseSelectors(composeBlocks, property);
+  return getParsedSelectors(propertySelector, selectorConfig, baseSelectors);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getBaseSelectors
+ * -----------------------------------------------------------------------------------------------*/
+
+function getBaseSelectors(
+  composeBlocks: Record<`.${string}`, TokenamiProperties>,
+  property: Tokenami.TokenProperty
+): string[] {
+  const composeSelectors = Object.entries(composeBlocks).flatMap(([selector, styles]) => {
+    return styles[property] ? [selector] : [];
+  });
+  return [DEFAULT_SELECTOR, ...composeSelectors];
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -237,6 +320,17 @@ function generatePlaceholderLayers(prefix: string) {
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * generateLayerStyles
+ * -----------------------------------------------------------------------------------------------*/
+
+function generateLayerStyles(styles: Record<string, Set<string>>, baseSelectors: string[]) {
+  const layerStyles = Object.entries(styles).map(([layer, declarations]) => {
+    return `@layer ${layer} { ${baseSelectors} { ${Array.from(declarations).join(' ')} } }`;
+  });
+  return layerStyles.join(' ');
+}
+
+/* -------------------------------------------------------------------------------------------------
  * getPropertyConfigs
  * -----------------------------------------------------------------------------------------------*/
 
@@ -247,23 +341,25 @@ function getPropertyConfigs(
   let propertyConfigs: Map<string, PropertyConfig[]> = new Map();
   const customProperties = Object.keys(config.customProperties || {});
 
-  tokenProperties.forEach((tokenProperty) => {
-    const parts = Tokenami.getTokenPropertyParts(tokenProperty, config);
-    if (!parts) return;
+  for (const property of tokenProperties) {
+    const parts = Tokenami.getTokenPropertyParts(property, config);
+    if (!parts) continue;
+
     const properties = Tokenami.getCSSPropertiesForAlias(parts.alias, config.aliases);
     const responsiveOrder = parts.responsive ? 1 : 0;
     const selectorOrder = parts.selector ? 2 : 0;
     const order = responsiveOrder + selectorOrder;
 
-    properties.forEach((cssProperty) => {
-      const tokenProperty = Tokenami.parsedTokenProperty(cssProperty);
+    for (const cssProperty of properties) {
+      const longhandProperty = Tokenami.createLonghandProperty(property, cssProperty);
+      const tokenProperty = Tokenami.parseProperty(longhandProperty);
       const currentConfigs = propertyConfigs.get(cssProperty as any) || [];
       const isCustom = customProperties.includes(cssProperty);
       const isGrid = config.properties?.[cssProperty]?.includes('grid') ?? false;
       const nextConfig = { ...parts, tokenProperty, order, isCustom, isGrid };
       propertyConfigs.set(cssProperty, [...currentConfigs, nextConfig]);
-    });
-  });
+    }
+  }
 
   return propertyConfigs;
 }
@@ -435,45 +531,27 @@ const getPrefixedCustomPropertyValues = (
 };
 
 /* -------------------------------------------------------------------------------------------------
- * hash
- * -----------------------------------------------------------------------------------------------*/
-
-function hash(str: string) {
-  let hash = 0;
-  for (let i = 0, len = str.length; i < len; i++) {
-    let chr = str.charCodeAt(i);
-    hash = (hash << 5) - hash + chr;
-    hash |= 0;
-  }
-  return Math.abs(hash).toString(32);
-}
-
-/* -------------------------------------------------------------------------------------------------
  * hashVariantProperty
  * -----------------------------------------------------------------------------------------------*/
 
 function hashVariantProperty(variant: string, property: string) {
-  return `--_${hash(variant + property)}`;
+  return `--_${Tokenami.hash(variant + property)}`;
 }
 
 /* -------------------------------------------------------------------------------------------------
  * isElementSelector
  * -----------------------------------------------------------------------------------------------*/
 
-const PSEUDO_REGEX = /::/;
-
 function isElementSelector(selector = '') {
-  return isCombinatorSelector(selector) || PSEUDO_REGEX.test(selector);
+  return isCombinatorSelector(selector) || /::/.test(selector) || selector === '&';
 }
 
 /* -------------------------------------------------------------------------------------------------
  * isCombinatorSelector
  * -----------------------------------------------------------------------------------------------*/
 
-const COMBINATOR_REGEX = /(.+)\s\[style|style\]\s(.+)/;
-
 function isCombinatorSelector(selector = '') {
-  return COMBINATOR_REGEX.test(selector);
+  return /(.+)\s\&|&\s(.+)/.test(selector);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -488,30 +566,41 @@ function getResponsiveSelectorFromConfig(
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getSelectorsFromConfig
+ * getPropertyConfigSelector
  * -----------------------------------------------------------------------------------------------*/
 
-function getSelectorsFromConfig(
+function getPropertyConfigSelector(
   propertySelector: PropertyConfig['selector'],
   tokenamiConfig: Tokenami.Config
-) {
+): string[] {
   const arbitrarySelector = Tokenami.getArbitrarySelector(propertySelector);
   const configSelector = propertySelector && tokenamiConfig.selectors?.[propertySelector];
   const selector = arbitrarySelector?.replace(/_/g, ' ') || configSelector;
-  const selectors = selector ? (Array.isArray(selector) ? selector : [selector]) : ['&'];
-  const isSelectionVariant = selectors.includes('&::selection');
+  return selector ? (Array.isArray(selector) ? selector : [selector]) : ['&'];
+}
 
-  if (selectors.toString().indexOf('&') === -1) {
-    throw new Error(`Selector '${selector}' must include '&'`);
+/* -------------------------------------------------------------------------------------------------
+ * getParsedSelectors
+ * -----------------------------------------------------------------------------------------------*/
+
+function getParsedSelectors(
+  propertySelector: PropertyConfig['selector'],
+  selectorConfig: string[],
+  elementSelectors: string[]
+): string[][] {
+  if (selectorConfig.toString().indexOf('&') === -1) {
+    throw new Error(`Selector '${propertySelector}' must include '&'`);
   }
 
-  return selectors.map((selector) => {
+  const isSelectionVariant = selectorConfig.includes('&::selection');
+  return elementSelectors.map((elementSelector) => {
     // revert-layer for ::selection doesn't work: https://codepen.io/jjenzz/pen/LYvOydB
     // we use a substring selector for now to ensure selection styles aren't inadvertently
     // removed. we can use container style queries to improve this when support improves
     // https://codepen.io/jjenzz/pen/BaEmRpg
-    const tkSelector = isSelectionVariant ? `[style*="${propertySelector}_"]` : DEFAULT_SELECTOR;
-    return selector.replace(/&/g, tkSelector);
+    const isSelectionSelector = isSelectionVariant && elementSelector === DEFAULT_SELECTOR;
+    const tkSelector = isSelectionSelector ? `[style*="${propertySelector}_"]` : elementSelector;
+    return selectorConfig.map((selector) => selector.replace(/&/g, tkSelector));
   });
 }
 

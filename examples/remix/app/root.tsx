@@ -3,8 +3,7 @@ import * as Remix from '@remix-run/react';
 import * as DS from '@tokenami/example-design-system';
 import { css } from '~/css';
 
-import './tokenami.css';
-
+export const links = () => [{ rel: 'stylesheet', href: '/tokenami.css' }];
 export default function App() {
   const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
   return (

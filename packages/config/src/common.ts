@@ -315,4 +315,5 @@ export {
   getCSSPropertiesForAlias,
   generateClassName,
   iterateAliasProperties,
+  hash,
 };

@@ -218,11 +218,16 @@ function overrideLonghands(style: TokenamiCSSResult, tokenProperty: Tokenami.Tok
     const tokenPropertyLong = Tokenami.createLonghandProperty(tokenProperty, longhand);
     const calcProp = Tokenami.calcProperty(tokenPropertyLong);
     const composedValue = style[_COMPOSE]?.[tokenPropertyLong];
-    const value = composedValue ?? style[tokenPropertyLong];
-    const isNumber = typeof value === 'number';
 
-    composedValue ? (style[tokenPropertyLong] = 'initial') : delete style[tokenPropertyLong];
-    if (isNumber) composedValue ? (style[calcProp] = 'initial') : delete style[calcProp];
+    if (composedValue) {
+      const value = composedValue ?? style[tokenPropertyLong];
+      if (typeof value === 'number') style[calcProp] = 'initial';
+      style[tokenPropertyLong] = 'initial';
+    } else {
+      delete style[tokenPropertyLong];
+      delete style[calcProp];
+    }
+
     overrideLonghands(style, tokenPropertyLong);
   }
 }
@@ -243,7 +248,6 @@ function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiP
 
 /* ---------------------------------------------------------------------------------------------- */
 
-const css = createCss({});
-
+export const css = createCss({});
 export type { TokenamiCSS };
-export { createCss, css, convertToMediaStyles, _COMPOSE };
+export { createCss, convertToMediaStyles, _COMPOSE };

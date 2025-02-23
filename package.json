@@ -34,8 +34,11 @@
   "packageManager": "pnpm@8.15.8",
   "engines": {
     "pnpm": ">= 8",
-    "node": ">= 18"
+    "node": ">= 20"
   },
+  "browserslist": [
+    "supports css-cascade-layers"
+  ],
   "prettier": {
     "singleQuote": true,
     "printWidth": 100

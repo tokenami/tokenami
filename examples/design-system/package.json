@@ -46,5 +46,8 @@
     "@types/react-dom": {
       "optional": true
     }
-  }
+  },
+  "browserslist": [
+    "supports css-cascade-layers"
+  ]
 }

@@ -125,7 +125,8 @@ const run = () => {
       const startTime = startTimer();
       const minify = flags.minify;
       const configPath = utils.getConfigPath(cwd, flags.config);
-      const browsers = browserslist(null, { env: process.env.NODE_ENV || 'development' });
+      const browsersConfig = browserslist(null, { env: process.env.NODE_ENV || 'development' });
+      const browsers = browsersConfig.length ? browsersConfig : ['supports css-cascade-layers'];
       const targets = browserslistToTargets(browsers);
 
       let config: Writeable<Tokenami.Config> = utils.getConfigAtPath(configPath);
