@@ -1,4 +1,4 @@
-import ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript/lib/tsserverlibrary.js';
 import * as culori from 'culori';
 import * as TokenamiConfig from '@tokenami/config';
 import * as tokenami from '../utils';
@@ -12,6 +12,28 @@ import { TrieCompletions } from './trie';
 type ModeValues = Record<string, string>;
 
 /* -------------------------------------------------------------------------------------------------
+ * createTSPlugin
+ * -----------------------------------------------------------------------------------------------*/
+
+const createTSPlugin = (mod: { typescript: typeof ts }) => ({
+  create(info: ts.server.PluginCreateInfo) {
+    const logger = new LanguageServiceLogger(info);
+    const cwd = info.project.getCurrentDirectory();
+    const configPath = tokenami.getConfigPath(cwd, info.config.configPath);
+    const configExists = mod.typescript.sys.fileExists(configPath);
+
+    if (!configExists) {
+      logger.log(`Config not found at ${configPath}`);
+      return info.languageService;
+    }
+
+    const ctx = { ts: mod.typescript, info, logger };
+    const plugin = new TokenamiPlugin(configPath, ctx);
+    return createServiceProxy(info.languageService, plugin);
+  },
+});
+
+/* -------------------------------------------------------------------------------------------------
  * TokenamiPlugin
  * -----------------------------------------------------------------------------------------------*/
 
@@ -19,7 +41,6 @@ type TokenamiPluginContext = {
   ts: typeof ts;
   info: ts.server.PluginCreateInfo;
   logger: LanguageServiceLogger;
-  checker: ts.TypeChecker;
 };
 
 class TokenamiPlugin {
@@ -49,12 +70,15 @@ class TokenamiPlugin {
     this.#ctx.ts.sys.watchFile?.(configPath, (_fileName, eventKind) => {
       if (eventKind !== this.#ctx.ts.FileWatcherEventKind.Changed) return;
       try {
-        this.#ctx.logger.log(`Config changed at ${configPath}`);
-        this.#config = tokenami.getReloadedConfigAtPath(configPath);
-        this.#trieCompletions = new TrieCompletions(this.#config);
-        this.#quotedTrieCompletions = new TrieCompletions(this.#config, (name) => `"${name}"`);
+        const reloadedConfig = tokenami.getConfigAtPath(configPath, { cache: false });
+        updateEnvFile(configPath, reloadedConfig);
+
+        this.#ctx.logger.log(`Config changed at ${configPath}}`);
+        this.#trieCompletions = new TrieCompletions(reloadedConfig);
+        this.#quotedTrieCompletions = new TrieCompletions(reloadedConfig, (name) => `"${name}"`);
+        this.#diagnostics = new TokenamiDiagnostics(reloadedConfig, this.#ctx);
         this.#ctx.info.project.refreshDiagnostics();
-        updateEnvFile(configPath, this.#config);
+        this.#config = reloadedConfig;
       } catch (e) {
         this.#ctx.logger.error(`Error processing config at ${configPath}: ${e}`);
       }
@@ -99,6 +123,7 @@ class TokenamiPlugin {
       const needsQuotes = !input.startsWith('"') && !input.startsWith("'");
       const trie = needsQuotes ? this.#quotedTrieCompletions : this.#trieCompletions;
       const values = trie.valueSearch(getUnquotedString(input));
+
       original.entries = original.entries.flatMap((entry) => {
         const result = values.find((result) => {
           const name = getUnquotedString(result.insertText ?? result.name);
@@ -234,12 +259,7 @@ class TokenamiPlugin {
       {
         description: `Use ${arbitraryText} to mark as arbitrary`,
         fixName: 'replaceWithArbitrary',
-        changes: [
-          {
-            fileName,
-            textChanges: [{ span: valueSpan, newText: arbitraryText }],
-          },
-        ],
+        changes: [{ fileName, textChanges: [{ span: valueSpan, newText: arbitraryText }] }],
       },
     ];
   }
@@ -450,28 +470,27 @@ function convertToRgb(fill: string, mode?: string) {
 
 /* ---------------------------------------------------------------------------------------------- */
 
-const createTSPlugin = (mod: { typescript: typeof ts }) => ({
-  create(info: ts.server.PluginCreateInfo) {
-    const logger = new LanguageServiceLogger(info);
-    const cwd = info.project.getCurrentDirectory();
-    const configPath = tokenami.getConfigPath(cwd, info.config.configPath);
-    const configExists = mod.typescript.sys.fileExists(configPath);
-    const checker = info.languageService.getProgram()?.getTypeChecker();
+const createServiceProxy = (
+  service: ts.LanguageService,
+  plugin: TokenamiPlugin
+): ts.LanguageService => {
+  const proxy = Object.create(null) as ts.LanguageService;
 
-    if (!configExists) {
-      logger.log(`Config not found at ${configPath}`);
-      return info.languageService;
-    }
+  for (const key of Object.keys(service) as Array<keyof ts.LanguageService>) {
+    const originalMethod = service[key]!;
 
-    if (!checker) {
-      logger.error(`Error getting type checker`);
-      return info.languageService;
-    }
+    proxy[key] = (...args: unknown[]) => {
+      if (key in plugin) {
+        return (plugin[key as keyof TokenamiPlugin] as Function).apply(plugin, args);
+      }
+      // from the ts plugin docs:
+      // @ts-expect-error - JS runtime trickery which is tricky to type tersely
+      return originalMethod.apply(service, args);
+    };
+  }
 
-    const ctx = { ts: mod.typescript, info, logger, checker };
-    return new TokenamiPlugin(configPath, ctx);
-  },
-});
+  return proxy;
+};
 
 /* ---------------------------------------------------------------------------------------------- */
 

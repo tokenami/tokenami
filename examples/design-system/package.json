@@ -18,7 +18,7 @@
     "storylite": "pnpm run \"/storylite:/\"",
     "storylite:app": "vite --port=7007 --host=0.0.0.0",
     "storylite:css": "tokenami --output ./src/tokenami.css --watch",
-    "typecheck": "tsc --noEmit --project tsconfig.ci.json"
+    "typecheck": "tokenami check && tsc --noEmit"
   },
   "dependencies": {
     "@tokenami/css": "workspace:*",

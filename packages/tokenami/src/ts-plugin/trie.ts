@@ -1,4 +1,4 @@
-import ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript/lib/tsserverlibrary.js';
 import TrieSearch from 'trie-search';
 import * as TokenamiConfig from '@tokenami/config';
 import * as tokenami from '../utils';
@@ -20,43 +20,64 @@ type SelectorCompletionEntry = ts.CompletionEntry & {
 
 class TrieCompletions {
   #config: TokenamiConfig.Config;
-  #base: TrieSearch<ts.CompletionEntry>;
-  #baseCompletions: ts.CompletionEntry[];
-  #selectors: TrieSearch<SelectorCompletionEntry>;
-  #selectorSnippets: TrieSearch<SelectorCompletionEntry>;
-  #selectorSnippetsCompletions: SelectorCompletionEntry[];
-  #responsiveSelectors: TrieSearch<SelectorCompletionEntry>;
-  #responsiveSelectorSnippets: TrieSearch<SelectorCompletionEntry>;
-  #values: TrieSearch<ValueCompletionEntry>;
-  #valueCompletions: ValueCompletionEntry[];
   #insertFormatter: (name: string) => string;
+
+  // lazily instantiate these to avoid unnecessary memory usage
+  #_base?: TrieSearch<ts.CompletionEntry>;
+  #_baseCompletions?: ts.CompletionEntry[];
+  #_selectors?: TrieSearch<SelectorCompletionEntry>;
+  #_selectorSnippets?: TrieSearch<SelectorCompletionEntry>;
+  #_selectorSnippetsCompletions?: SelectorCompletionEntry[];
+  #_responsiveSelectors?: TrieSearch<SelectorCompletionEntry>;
+  #_responsiveSelectorSnippets?: TrieSearch<SelectorCompletionEntry>;
+  #_values?: TrieSearch<ValueCompletionEntry>;
+  #_valueCompletions?: ValueCompletionEntry[];
 
   constructor(config: TokenamiConfig.Config, insertFormatter = (name: string) => name) {
     this.#config = config;
     this.#insertFormatter = insertFormatter;
+  }
 
-    const baseCompletions = this.#getBaseCompletions();
-    this.#base = this.#createCompletionEntriesTrie(baseCompletions);
-    this.#baseCompletions = baseCompletions;
+  get #base() {
+    return (this.#_base ??= this.#createCompletionEntriesTrie(this.#baseCompletions));
+  }
 
-    const selectorCompletions = this.#getSelectorCompletions();
-    this.#selectors = this.#createCompletionEntriesTrie(selectorCompletions);
+  get #selectors() {
+    return (this.#_selectors ??= this.#createCompletionEntriesTrie(this.#getSelectorCompletions()));
+  }
 
-    const selectorSnippetCompletions = this.#getSelectorSnippetCompletions();
-    this.#selectorSnippets = this.#createCompletionEntriesTrie(selectorSnippetCompletions);
-    this.#selectorSnippetsCompletions = selectorSnippetCompletions;
+  get #selectorSnippets() {
+    return (this.#_selectorSnippets ??= this.#createCompletionEntriesTrie(
+      this.#selectorSnippetsCompletions
+    ));
+  }
 
-    const responsiveSelectorCompletions = this.#getResponsiveSelectorCompletions();
-    this.#responsiveSelectors = this.#createCompletionEntriesTrie(responsiveSelectorCompletions);
+  get #responsiveSelectors() {
+    return (this.#_responsiveSelectors ??= this.#createCompletionEntriesTrie(
+      this.#getResponsiveSelectorCompletions()
+    ));
+  }
 
-    const responsiveSelectorSnippetCompletions = this.#getResponsiveSelectorSnippetCompletions();
-    this.#responsiveSelectorSnippets = this.#createCompletionEntriesTrie(
-      responsiveSelectorSnippetCompletions
-    );
+  get #responsiveSelectorSnippets() {
+    return (this.#_responsiveSelectorSnippets ??= this.#createCompletionEntriesTrie(
+      this.#getResponsiveSelectorSnippetCompletions()
+    ));
+  }
 
-    const valueCompletions = this.#getValueCompletions();
-    this.#values = this.#createCompletionEntriesTrie(valueCompletions);
-    this.#valueCompletions = valueCompletions;
+  get #values() {
+    return (this.#_values ??= this.#createCompletionEntriesTrie(this.#valueCompletions));
+  }
+
+  get #baseCompletions() {
+    return (this.#_baseCompletions ??= this.#getBaseCompletions());
+  }
+
+  get #selectorSnippetsCompletions() {
+    return (this.#_selectorSnippetsCompletions ??= this.#getSelectorSnippetCompletions());
+  }
+
+  get #valueCompletions() {
+    return (this.#_valueCompletions ??= this.#getValueCompletions());
   }
 
   propertySearch(search: string) {
@@ -109,7 +130,7 @@ class TrieCompletions {
     const properties = this.#getAllProperties();
     return properties.map((property) => {
       const name = TokenamiConfig.tokenProperty(property);
-      return this.#createPropertyEntry(name);
+      return this.#createPropertyEntry(name, getSortText(`$${name}`));
     });
   }
 

@@ -1,4 +1,4 @@
-import ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript/lib/tsserverlibrary.js';
 
 /* -------------------------------------------------------------------------------------------------
  * LanguageServiceLogger

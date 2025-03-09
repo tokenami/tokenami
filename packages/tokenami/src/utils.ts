@@ -27,29 +27,16 @@ function getConfigPath(cwd: string, path?: string, type?: ProjectType) {
  * getConfigAtPath
  * -----------------------------------------------------------------------------------------------*/
 
-function getConfigAtPath(path: string): Tokenami.Config {
-  const config = (function () {
+function getConfigAtPath(
+  path: string,
+  opts: { cache: boolean } = { cache: true }
+): Tokenami.Config {
+  const config = (() => {
     try {
+      if (!opts.cache) delete require.cache[require.resolve(path)];
       return require(path);
     } catch {
-      return lazyJiti()(path);
-    }
-  })();
-
-  return mergedConfigs(config.default ?? config);
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getReloadedConfigAtPath
- * -----------------------------------------------------------------------------------------------*/
-
-function getReloadedConfigAtPath(path: string): Tokenami.Config {
-  const config = (function () {
-    try {
-      delete require.cache[require.resolve(path)];
-      return require(path);
-    } catch {
-      return lazyJiti({ cache: false })(path);
+      return lazyJiti({ cache: opts.cache })(path);
     }
   })();
 
@@ -270,7 +257,6 @@ export {
   mergedConfigs,
   getConfigPath,
   getConfigAtPath,
-  getReloadedConfigAtPath,
   getTypeDefsPath,
   getCiTypeDefsPath,
   generateConfig,
