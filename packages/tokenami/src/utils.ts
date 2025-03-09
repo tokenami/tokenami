@@ -228,6 +228,22 @@ function getValidProperties(config: Tokenami.Config) {
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * getValidValues
+ * -----------------------------------------------------------------------------------------------*/
+
+function getValidValues(config: Tokenami.Config) {
+  const configTheme = getThemeFromConfig(config.theme);
+  // pluck first mode because modes should have the same keys
+  const mode = Object.values(configTheme.modes)[0];
+  const themes = [...(mode ? [mode] : []), configTheme.root];
+  return themes.flatMap((theme) => {
+    return Object.entries(theme).flatMap(([themeKey, values]) => {
+      return Object.keys(values).map((token) => [themeKey, token] as const);
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------------------------------
  * unique
  * -----------------------------------------------------------------------------------------------*/
 
@@ -261,6 +277,7 @@ export {
   generateTypeDefs,
   generateCiTypeDefs,
   getValidProperties,
+  getValidValues,
   getThemeValuesByTokenValues,
   getThemeFromConfig,
   getThemeValuesByThemeMode,
