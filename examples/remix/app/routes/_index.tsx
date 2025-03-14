@@ -106,11 +106,11 @@ export default function Index() {
 }
 
 const QuoteImage = (props: TokenamiStyle<React.ComponentProps<'img'>>) => {
-  const [cn, style] = quoteImage({ variant: 'circle', md_variant: 'fill' });
+  const [cn, css] = quoteImage({ variant: 'circle', md_variant: 'fill' });
   return (
     <img
       className={cn(props.className)}
-      style={style(props.style)}
+      style={css(props.style)}
       src="/me.jpg"
       alt=""
       width="400"
