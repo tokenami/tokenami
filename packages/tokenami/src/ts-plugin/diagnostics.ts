@@ -54,8 +54,7 @@ class TokenamiDiagnostics {
       const nodeProperty = ts.isStringLiteral(node.name) ? node.name.text : null;
       const property = TokenamiConfig.TokenProperty.safeParse(nodeProperty);
       if (!property.success) return;
-      const propertyDiagnostics = this.#validateTokenamiProperty(property.output, node, sourceFile);
-      return propertyDiagnostics ?? [];
+      return this.#validateTokenamiProperty(property.output, node, sourceFile);
     }
   }
 
@@ -81,15 +80,17 @@ class TokenamiDiagnostics {
         file: sourceFile,
         start: node.getStart(sourceFile),
         length: node.name.getWidth(sourceFile),
-        messageText: `Selector '${selector}' is not a valid selector from your Tokenami config.${arbSuffix}`,
+        messageText: `Selector '${selector}' does not exist in the Tokenami config.${arbSuffix}`,
         category: ts.DiagnosticCategory.Error,
         code: ERROR_CODES.INVALID_PROPERTY,
       },
     ];
   }
 
-  #validateComposeConfig(config: ts.ObjectLiteralExpression, sourceFile: ts.SourceFile) {
-    let diagnostics: ts.Diagnostic[] = [];
+  #validateComposeConfig(
+    config: ts.ObjectLiteralExpression,
+    sourceFile: ts.SourceFile
+  ): ts.Diagnostic[] | undefined {
     const diagnostic = {
       file: sourceFile,
       messageText: `Compose styles must be statically extractable. Use 'includes' to reuse shared styles.`,
@@ -101,34 +102,32 @@ class TokenamiDiagnostics {
       if (ts.isSpreadAssignment(prop)) {
         const start = prop.getStart(sourceFile);
         const length = prop.getWidth(sourceFile);
-        diagnostics.push({ ...diagnostic, start, length });
-        continue;
+        return [{ ...diagnostic, start, length }];
       }
 
       if (!ts.isPropertyAssignment(prop)) continue;
+
       const key = prop.name;
       const value = prop.initializer;
 
-      if (!ts.isStringLiteral(key) && !ts.isIdentifier(key)) {
-        diagnostics.push({
-          ...diagnostic,
-          start: key.getStart(sourceFile),
-          length: key.getWidth(sourceFile),
-        });
+      if (ts.isComputedPropertyName(key)) {
+        const start = key.getStart(sourceFile);
+        const length = key.getWidth(sourceFile);
+        return [{ ...diagnostic, start, length }];
       }
 
       if (ts.isObjectLiteralExpression(value)) {
-        diagnostics.push(...this.#validateComposeConfig(value, sourceFile));
-      } else if (!ts.isStringLiteral(value) && !ts.isNumericLiteral(value)) {
-        diagnostics.push({
-          ...diagnostic,
-          start: value.getStart(sourceFile),
-          length: value.getWidth(sourceFile),
-        });
+        return this.#validateComposeConfig(value, sourceFile);
+      } else if (
+        !ts.isIdentifier(key) &&
+        !ts.isStringLiteral(value) &&
+        !ts.isNumericLiteral(value)
+      ) {
+        const start = value.getStart(sourceFile);
+        const length = value.getWidth(sourceFile);
+        return [{ ...diagnostic, start, length }];
       }
     }
-
-    return diagnostics;
   }
 
   #shouldSuppressDiagnosticForNode(node: ts.Node, sourceFile: ts.SourceFile) {
