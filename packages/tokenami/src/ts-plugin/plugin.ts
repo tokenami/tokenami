@@ -271,7 +271,6 @@ class TokenamiPlugin {
 
 function updateEnvFile(configPath: string, config: TokenamiConfig.Config) {
   const envFilePath = tokenami.getTypeDefsPath(configPath);
-  const ciEnvFilePath = tokenami.getCiTypeDefsPath(configPath);
   const envFileContent = ts.sys.readFile(envFilePath, 'utf-8');
 
   if (!envFileContent) throw new Error('Cannot read tokenami.env.d.ts file');
@@ -297,10 +296,6 @@ function updateEnvFile(configPath: string, config: TokenamiConfig.Config) {
         );
 
   ts.sys.writeFile(envFilePath, updatedEnvFileContent);
-
-  if (ts.sys.readFile(ciEnvFilePath, 'utf-8')) {
-    ts.sys.writeFile(ciEnvFilePath, tokenami.generateCiTypeDefs(configPath));
-  }
 }
 
 /* -----------------------------------------------------------------------------------------------

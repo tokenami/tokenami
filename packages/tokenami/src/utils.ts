@@ -64,15 +64,6 @@ function getTypeDefsPath(configPath: string) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getCiTypeDefsPath
- * -----------------------------------------------------------------------------------------------*/
-
-function getCiTypeDefsPath(configPath: string) {
-  const dirname = pathe.dirname(configPath);
-  return `${dirname}/tokenami.env.ci.d.ts`;
-}
-
-/* -------------------------------------------------------------------------------------------------
  * getThemeValuesByTokenValues
  * -----------------------------------------------------------------------------------------------*/
 
@@ -180,14 +171,6 @@ function generateTypeDefs(configPath: string, stubPath = '../stubs/tokenami.env.
 }
 
 /* -------------------------------------------------------------------------------------------------
- * generateCiTypeDefs
- * -----------------------------------------------------------------------------------------------*/
-
-function generateCiTypeDefs(configPath: string) {
-  return generateTypeDefs(configPath, '../stubs/tokenami.env.ci.d.ts');
-}
-
-/* -------------------------------------------------------------------------------------------------
  * getResponsivePropertyVariants
  * -----------------------------------------------------------------------------------------------*/
 
@@ -258,10 +241,8 @@ export {
   getConfigPath,
   getConfigAtPath,
   getTypeDefsPath,
-  getCiTypeDefsPath,
   generateConfig,
   generateTypeDefs,
-  generateCiTypeDefs,
   getValidProperties,
   getValidValues,
   getThemeValuesByTokenValues,
