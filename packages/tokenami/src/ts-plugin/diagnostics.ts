@@ -99,8 +99,8 @@ class TokenamiDiagnostics {
 
     for (const prop of config.properties) {
       if (ts.isSpreadAssignment(prop)) {
-        const start = prop.getStart();
-        const length = prop.getWidth();
+        const start = prop.getStart(sourceFile);
+        const length = prop.getWidth(sourceFile);
         diagnostics.push({ ...diagnostic, start, length });
         continue;
       }
@@ -110,13 +110,21 @@ class TokenamiDiagnostics {
       const value = prop.initializer;
 
       if (!ts.isStringLiteral(key) && !ts.isIdentifier(key)) {
-        diagnostics.push({ ...diagnostic, start: key.getStart(), length: key.getWidth() });
+        diagnostics.push({
+          ...diagnostic,
+          start: key.getStart(sourceFile),
+          length: key.getWidth(sourceFile),
+        });
       }
 
       if (ts.isObjectLiteralExpression(value)) {
         diagnostics.push(...this.#validateComposeConfig(value, sourceFile));
       } else if (!ts.isStringLiteral(value) && !ts.isNumericLiteral(value)) {
-        diagnostics.push({ ...diagnostic, start: value.getStart(), length: value.getWidth() });
+        diagnostics.push({
+          ...diagnostic,
+          start: value.getStart(sourceFile),
+          length: value.getWidth(sourceFile),
+        });
       }
     }
 
