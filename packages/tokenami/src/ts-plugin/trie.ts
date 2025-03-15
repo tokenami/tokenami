@@ -33,6 +33,9 @@ class TrieCompletions {
   #_values?: TrieSearch<ValueCompletionEntry>;
   #_valueCompletions?: ValueCompletionEntry[];
 
+  #arbSelectors: Record<string, TrieSearch<SelectorCompletionEntry>> = {};
+  #arbResponsiveSelectors: Record<string, TrieSearch<SelectorCompletionEntry>> = {};
+
   constructor(config: TokenamiConfig.Config, insertFormatter = (name: string) => name) {
     this.#config = config;
     this.#insertFormatter = insertFormatter;
@@ -97,9 +100,9 @@ class TrieCompletions {
     const parts = TokenamiConfig.getTokenPropertySplit(search as any);
 
     if (!parts.variants.length) return this.#selectorSnippets.search(input);
-    if (parts.variants.length > 1) return this.#responsiveSelectors.search(input);
+    if (parts.variants.length > 1) return this.#responsiveSelectorsSearch(input, parts.variants);
 
-    const selectors = this.#selectors.search(input);
+    const selectors = this.#selectorsSearch(input, parts.variants);
     const snippets = this.#responsiveSelectorSnippets.search(input);
     return [...selectors, ...snippets];
   }
@@ -107,11 +110,39 @@ class TrieCompletions {
   valueSearch(search: string) {
     const input = this.#createTrieInput(search);
 
+    // we kill these to avoid having lots of tries in memory
+    this.#arbSelectors = {};
+    this.#arbResponsiveSelectors = {};
+
     if (input.length > 0) {
       return this.#values.search(input);
     } else {
       return this.#valueCompletions;
     }
+  }
+
+  #selectorsSearch(input: string, variants: string[]) {
+    const [_, arbSelector] = input.match(/\{(.*)\}/) ?? [];
+    if (!arbSelector) return this.#selectors.search(input);
+
+    const key = String(variants);
+    this.#arbSelectors[key] ??= this.#createCompletionEntriesTrie(
+      this.#getSelectorCompletions(arbSelector)
+    );
+
+    return this.#arbSelectors[key]!.search(input);
+  }
+
+  #responsiveSelectorsSearch(input: string, variants: string[]) {
+    const [_, arbSelector] = input.match(/\{(.*)\}/) ?? [];
+    if (!arbSelector) return this.#responsiveSelectors.search(input);
+
+    const key = String(variants);
+    this.#arbResponsiveSelectors[key] ??= this.#createCompletionEntriesTrie(
+      this.#getResponsiveSelectorCompletions(arbSelector)
+    );
+
+    return this.#arbResponsiveSelectors[key]!.search(input);
   }
 
   #createTrieInput(search: string) {
@@ -134,8 +165,8 @@ class TrieCompletions {
     });
   }
 
-  #getSelectorCompletions(): SelectorCompletionEntry[] {
-    const entries = this.#getSelectorEntries().concat(this.#getResponsiveEntries());
+  #getSelectorCompletions(arbSelector?: string): SelectorCompletionEntry[] {
+    const entries = this.#getSelectorEntries(arbSelector).concat(this.#getResponsiveEntries());
     const properties = this.#getAllProperties();
     return properties.flatMap((property) => {
       const create = this.#createVariantPropertyEntry(property);
@@ -149,8 +180,8 @@ class TrieCompletions {
     return entries.map(create);
   }
 
-  #getResponsiveSelectorCompletions(): SelectorCompletionEntry[] {
-    const entries = this.#getResponsiveSelectorEntries();
+  #getResponsiveSelectorCompletions(arbSelector?: string): SelectorCompletionEntry[] {
+    const entries = this.#getResponsiveSelectorEntries(arbSelector);
     const properties = this.#getAllProperties();
     return properties.flatMap((property) => {
       const create = this.#createVariantPropertyEntry(property);
@@ -188,8 +219,8 @@ class TrieCompletions {
     return Object.entries(this.#config.responsive || {});
   }
 
-  #getResponsiveSelectorEntries() {
-    const selectorEntries = this.#getSelectorEntries();
+  #getResponsiveSelectorEntries(arbSelector?: string) {
+    const selectorEntries = this.#getSelectorEntries(arbSelector);
     const responsiveEntries = this.#getResponsiveEntries();
     const responsiveSelectorEntries = responsiveEntries.flatMap(
       ([responsiveSelector, responsiveValue]) => {
@@ -203,9 +234,9 @@ class TrieCompletions {
     return responsiveSelectorEntries;
   }
 
-  #getSelectorEntries() {
+  #getSelectorEntries(arbSelector = '') {
     const configSelectorEntries = Object.entries(this.#config.selectors || {});
-    return configSelectorEntries.concat([['{}', '']]);
+    return configSelectorEntries.concat([[`{${arbSelector}}`, '']]);
   }
 
   #getAllProperties() {

@@ -47,15 +47,15 @@ class TokenamiPlugin {
   #diagnostics: TokenamiDiagnostics;
   #config: TokenamiConfig.Config;
   #ctx: TokenamiPluginContext;
-  #trieCompletions: TrieCompletions;
-  #quotedTrieCompletions: TrieCompletions;
+  #completions: TrieCompletions;
+  #quotedCompletions: TrieCompletions;
 
   constructor(configPath: string, context: TokenamiPluginContext) {
     this.#config = tokenami.getConfigAtPath(configPath);
     this.#ctx = context;
     this.#diagnostics = new TokenamiDiagnostics(this.#config, this.#ctx);
-    this.#trieCompletions = new TrieCompletions(this.#config);
-    this.#quotedTrieCompletions = new TrieCompletions(this.#config, (name) => `"${name}"`);
+    this.#completions = new TrieCompletions(this.#config);
+    this.#quotedCompletions = new TrieCompletions(this.#config, (name) => `"${name}"`);
     this.#ctx.logger.log(`Watching config at ${configPath}`);
     this.#watchConfig(configPath);
 
@@ -74,8 +74,8 @@ class TokenamiPlugin {
         updateEnvFile(configPath, reloadedConfig);
 
         this.#ctx.logger.log(`Config changed at ${configPath}}`);
-        this.#trieCompletions = new TrieCompletions(reloadedConfig);
-        this.#quotedTrieCompletions = new TrieCompletions(reloadedConfig, (name) => `"${name}"`);
+        this.#completions = new TrieCompletions(reloadedConfig);
+        this.#quotedCompletions = new TrieCompletions(reloadedConfig, (name) => `"${name}"`);
         this.#diagnostics = new TokenamiDiagnostics(reloadedConfig, this.#ctx);
         this.#ctx.info.project.refreshDiagnostics();
         this.#config = reloadedConfig;
@@ -121,7 +121,7 @@ class TokenamiPlugin {
     if (isTokenValueEntries) {
       const input = getValueAtPosition(node, position);
       const needsQuotes = !input.startsWith('"') && !input.startsWith("'");
-      const trie = needsQuotes ? this.#quotedTrieCompletions : this.#trieCompletions;
+      const trie = needsQuotes ? this.#quotedCompletions : this.#completions;
       const values = trie.valueSearch(getUnquotedString(input));
 
       original.entries = original.entries.flatMap((entry) => {
@@ -134,7 +134,7 @@ class TokenamiPlugin {
     } else if (isTokenPropertyEntries) {
       const input = getPropertyAtPosition(node, position);
       const needsQuotes = !input.startsWith('"') && !input.startsWith("'");
-      const trie = needsQuotes ? this.#quotedTrieCompletions : this.#trieCompletions;
+      const trie = needsQuotes ? this.#quotedCompletions : this.#completions;
       original.entries = trie.propertySearch(getUnquotedString(input));
       return { ...original, isIncomplete: true };
     }
@@ -165,7 +165,7 @@ class TokenamiPlugin {
     const search = getUnquotedString(entryName);
 
     if (isTokenamiProperty) {
-      const [entry] = this.#trieCompletions.variantSearch(search);
+      const [entry] = this.#completions.variantSearch(search);
       return entry ? createEntryDetails(original, entry, String(entry.details.selector)) : original;
     }
 
@@ -179,7 +179,7 @@ class TokenamiPlugin {
     const isTokenamiValue = TokenamiConfig.TokenProperty.safeParse(parentProperty).success;
     if (!isTokenamiValue) return original;
 
-    const [entry] = this.#trieCompletions.valueSearch(search);
+    const [entry] = this.#completions.valueSearch(search);
     if (!entry) return original;
 
     const themeEntries = Object.entries(entry.details.modeValues);
