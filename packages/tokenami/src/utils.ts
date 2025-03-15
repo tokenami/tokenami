@@ -27,29 +27,16 @@ function getConfigPath(cwd: string, path?: string, type?: ProjectType) {
  * getConfigAtPath
  * -----------------------------------------------------------------------------------------------*/
 
-function getConfigAtPath(path: string): Tokenami.Config {
-  const config = (function () {
+function getConfigAtPath(
+  path: string,
+  opts: { cache: boolean } = { cache: true }
+): Tokenami.Config {
+  const config = (() => {
     try {
+      if (!opts.cache) delete require.cache[require.resolve(path)];
       return require(path);
     } catch {
-      return lazyJiti()(path);
-    }
-  })();
-
-  return mergedConfigs(config.default ?? config);
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getReloadedConfigAtPath
- * -----------------------------------------------------------------------------------------------*/
-
-function getReloadedConfigAtPath(path: string): Tokenami.Config {
-  const config = (function () {
-    try {
-      delete require.cache[require.resolve(path)];
-      return require(path);
-    } catch {
-      return lazyJiti({ cache: false })(path);
+      return lazyJiti({ cache: opts.cache })(path);
     }
   })();
 
@@ -74,15 +61,6 @@ function getConfigDefaultPath(cwd: string, type?: ProjectType) {
 function getTypeDefsPath(configPath: string) {
   const dirname = pathe.dirname(configPath);
   return `${dirname}/tokenami.env.d.ts`;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getCiTypeDefsPath
- * -----------------------------------------------------------------------------------------------*/
-
-function getCiTypeDefsPath(configPath: string) {
-  const dirname = pathe.dirname(configPath);
-  return `${dirname}/tokenami.env.ci.d.ts`;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -193,14 +171,6 @@ function generateTypeDefs(configPath: string, stubPath = '../stubs/tokenami.env.
 }
 
 /* -------------------------------------------------------------------------------------------------
- * generateCiTypeDefs
- * -----------------------------------------------------------------------------------------------*/
-
-function generateCiTypeDefs(configPath: string) {
-  return generateTypeDefs(configPath, '../stubs/tokenami.env.ci.d.ts');
-}
-
-/* -------------------------------------------------------------------------------------------------
  * getResponsivePropertyVariants
  * -----------------------------------------------------------------------------------------------*/
 
@@ -225,6 +195,22 @@ function getValidProperties(config: Tokenami.Config) {
     ...Object.keys(config.customProperties || {}),
     ...Object.keys(config.aliases || {}),
   ]);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getValidValues
+ * -----------------------------------------------------------------------------------------------*/
+
+function getValidValues(config: Tokenami.Config) {
+  const configTheme = getThemeFromConfig(config.theme);
+  // pluck first mode because modes should have the same keys
+  const mode = Object.values(configTheme.modes)[0];
+  const themes = [...(mode ? [mode] : []), configTheme.root];
+  return themes.flatMap((theme) => {
+    return Object.entries(theme).flatMap(([themeKey, values]) => {
+      return Object.keys(values).map((token) => [themeKey, token] as const);
+    });
+  });
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -254,13 +240,11 @@ export {
   mergedConfigs,
   getConfigPath,
   getConfigAtPath,
-  getReloadedConfigAtPath,
   getTypeDefsPath,
-  getCiTypeDefsPath,
   generateConfig,
   generateTypeDefs,
-  generateCiTypeDefs,
   getValidProperties,
+  getValidValues,
   getThemeValuesByTokenValues,
   getThemeFromConfig,
   getThemeValuesByThemeMode,

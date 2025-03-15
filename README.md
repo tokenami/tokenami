@@ -476,22 +476,11 @@ You can then use the component as usual, overriding styles as needed. Since the 
 
 ### Continuous Integration
 
-To improve performance during development, Tokenami widens its types and uses the TypeScript plugin for completions. Using `tsc` in the command line defaults to these widened types so it will not highlight errors for your properties or tokens. To get accurate types for CI, do the following:
+Tokenami uses widened types for better performance during development. When you run `tsc` in the command line, it uses these widened types and won't show custom tokenami errors for invalid properties or tokens. For accurate type checking in CI, run both commands:
 
-- Create a file named `tsconfig.ci.json` or `jsconfig.ci.json`. It should extend your original config and include the CI-specific Tokenami types
-
-  ```json
-  {
-    "extends": "./tsconfig.json",
-    "include": [".tokenami/tokenami.env.ci.d.ts", "src"]
-  }
-  ```
-
-- Use `tsc` with your new configuration
-
-  ```sh
-  tsc --noEmit --project tsconfig.ci.json
-  ```
+```sh
+tokenami check && tsc --noEmit
+```
 
 ## Design systems
 

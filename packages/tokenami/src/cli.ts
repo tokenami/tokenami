@@ -1,3 +1,4 @@
+import ts from 'typescript/lib/tsserverlibrary.js';
 import * as Tokenami from '@tokenami/config';
 import browserslist from 'browserslist';
 import { browserslistToTargets } from 'lightningcss';
@@ -13,6 +14,7 @@ import * as utils from './utils';
 import * as acorn from 'acorn';
 import * as acornWalk from 'acorn-walk';
 import pkgJson from './../package.json';
+import { TokenamiDiagnostics } from './ts-plugin';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -42,29 +44,73 @@ const run = () => {
     .command('init')
     .option('-c, --config [path]', 'Path to a custom config file')
     .action(async (_, flags) => {
-      const tsconfigPath = pathe.join(cwd, 'tsconfig.json');
-      const jsconfigPath = pathe.join(cwd, 'jsconfig.json');
-      const hasTsConfig = fs.existsSync(tsconfigPath);
-      const hasJsConfig = fs.existsSync(jsconfigPath);
-      const hasProjectConfig = hasTsConfig || hasJsConfig;
+      const projectConfig = getProjectConfig(cwd);
 
-      if (hasProjectConfig) questions.shift();
+      if (projectConfig) questions.shift();
 
       const answers = await inquirer.prompt(questions);
-      const type = hasTsConfig ? 'ts' : hasJsConfig ? 'js' : answers.type;
-      const extensions = type === 'ts' ? 'ts,tsx' : 'js,jsx';
+      const type = projectConfig?.type ?? answers.type;
+      const extensions = projectConfig?.type === 'ts' ? 'ts,tsx' : 'js,jsx';
       const include = `'${answers.folder}/**/*.{${extensions}}'`;
       const configPath = utils.getConfigPath(cwd, flags?.config, type);
       const outDir = pathe.dirname(configPath);
       const initialConfig = utils.generateConfig(include, configPath);
-      const ciTypeDefs = utils.generateCiTypeDefs(configPath);
       const typeDefs = utils.generateTypeDefs(configPath);
 
       fs.mkdirSync(outDir, { recursive: true });
       fs.writeFileSync(configPath, initialConfig, { flag: 'w' });
       fs.writeFileSync(utils.getTypeDefsPath(configPath), typeDefs, { flag: 'w' });
-      fs.writeFileSync(utils.getCiTypeDefsPath(configPath), ciTypeDefs, { flag: 'w' });
       log.debug(`Project successfully configured in './tokenami'`);
+    });
+
+  cli
+    .command('check')
+    .option('-c, --config [path]', 'Path to a custom config file')
+    .action((_, flags) => {
+      const projectConfig = getProjectConfig(cwd);
+      let hasErrors = false;
+
+      if (!projectConfig) {
+        log.error('Could not find a valid tsconfig.json.');
+      }
+
+      if (projectConfig.error) {
+        log.error(`Error reading tsconfig.json: ${projectConfig.error.messageText}`);
+      }
+
+      const parsedConfig = ts.parseJsonConfigFileContent(
+        projectConfig.config,
+        ts.sys,
+        process.cwd()
+      );
+      const program = ts.createProgram({
+        rootNames: parsedConfig.fileNames,
+        options: parsedConfig.options,
+      });
+
+      const configPath = utils.getConfigPath(cwd, flags?.config, projectConfig.type);
+      const config: Writeable<Tokenami.Config> = utils.getConfigAtPath(configPath);
+      const plugin = new TokenamiDiagnostics(config);
+      const formatHost: ts.FormatDiagnosticsHost = {
+        getCanonicalFileName: (path) => path,
+        getCurrentDirectory: ts.sys.getCurrentDirectory,
+        getNewLine: () => ts.sys.newLine,
+      };
+
+      for (const sourceFile of program.getSourceFiles()) {
+        if (sourceFile.isDeclarationFile || sourceFile.fileName.includes('node_modules')) {
+          continue;
+        }
+
+        const diagnostics = plugin.getSemanticDiagnostics(sourceFile);
+        if (diagnostics.length > 0) {
+          console.log(ts.formatDiagnosticsWithColorAndContext(diagnostics, formatHost));
+          process.exit(1);
+        }
+      }
+
+      if (hasErrors) process.exit(1);
+      process.exit(0);
     });
 
   cli
@@ -100,7 +146,7 @@ const run = () => {
 
         configWatcher.on('all', async (_, file) => {
           try {
-            config = utils.getReloadedConfigAtPath(configPath);
+            config = utils.getConfigAtPath(configPath, { cache: false });
             config.include = flags.files || config.include;
             regenerateStylesheet(file, config);
           } catch (e) {
@@ -123,6 +169,29 @@ const run = () => {
   cli.version(pkgJson.version);
   cli.parse();
 };
+
+/* -------------------------------------------------------------------------------------------------
+ * getProjectConfig
+ * -----------------------------------------------------------------------------------------------*/
+
+function getProjectConfig(cwd: string) {
+  const tsconfigPath = ts.findConfigFile(cwd, ts.sys.fileExists, 'tsconfig.json');
+
+  if (tsconfigPath) {
+    const config = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
+    if (config.error) return null;
+    return { type: 'ts', ...config } as const;
+  }
+
+  const jsconfigPath = ts.findConfigFile(cwd, ts.sys.fileExists, 'jsconfig.json');
+  if (jsconfigPath) {
+    const config = ts.readConfigFile(jsconfigPath, ts.sys.readFile);
+    if (config.error) return null;
+    return { type: 'js', ...config } as const;
+  }
+
+  return null;
+}
 
 /* -------------------------------------------------------------------------------------------------
  * generateStyles
