@@ -1,3 +1,15 @@
+# v0.0.80 (Sat Mar 15 2025)
+
+#### 🐛 Bug Fix
+
+- fix missing base selectors [#418](https://github.com/tokenami/tokenami/pull/418) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.79 (Sat Mar 15 2025)
 
 #### 🚀 Enhancement
