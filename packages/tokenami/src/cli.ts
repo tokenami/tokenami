@@ -222,7 +222,7 @@ function matchTokens(content: string, theme: Tokenami.Config['theme']) {
 // - [\s\S]*? non-greedily captures everything within the braces, including line breaks
 // - the m (multiline) flag allows ^ to match the start of each line, not just the start
 //   of the file contents
-const COMPOSE_BLOCKS_REGEX = /^.*css\.compose\(\{[\s\S]*?\}\);/gm;
+const COMPOSE_BLOCKS_REGEX = /(const|let|var)\s+(\w+)\s*=\s*css\.compose\(\{[\s\S]*?\}\)/gm;
 
 function matchResponsiveComposeVariants(fileContent: string, config: Tokenami.Config) {
   const composeBlocks = fileContent.match(COMPOSE_BLOCKS_REGEX);
@@ -230,7 +230,7 @@ function matchResponsiveComposeVariants(fileContent: string, config: Tokenami.Co
   const responsiveBlocks = composeBlocks.filter((block) => block.match('responsiveVariants'));
 
   return responsiveBlocks.flatMap((block) => {
-    const ast = acorn.parse(block, { ecmaVersion: 2020 });
+    const ast = acorn.parse(block, { ecmaVersion: 'latest' });
     const responsiveVariants = findResponsiveVariants(ast);
     const tokens = matchTokens(JSON.stringify(responsiveVariants), config.theme);
     return tokens.properties.flatMap((tokenProperty) => {
