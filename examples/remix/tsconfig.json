@@ -1,20 +1,34 @@
 {
-  "extends": "../../tsconfig.json",
-  "include": ["remix.env.d.ts", ".tokenami/tokenami.env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/.server/**/*.ts",
+    "**/.server/**/*.tsx",
+    "**/.client/**/*.ts",
+    "**/.client/**/*.tsx",
+    ".tokenami/tokenami.env.d.ts"
+  ],
   "compilerOptions": {
-    "baseUrl": ".",
-    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "plugins": [{ "name": "tokenami" }],
-    "jsx": "react-jsx",
-    "lib": ["DOM", "DOM.Iterable", "ES2019"],
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "types": ["@remix-run/node", "vite/client"],
+    "isolatedModules": true,
     "esModuleInterop": true,
-    "target": "ES2019",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "target": "ES2022",
+    "strict": true,
     "allowJs": true,
-    "checkJs": true,
-    // Remix takes care of building everything in `remix build`.
-    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"]
-    }
+    },
+
+    // Vite takes care of building everything, not tsc.
+    "noEmit": true
   }
 }

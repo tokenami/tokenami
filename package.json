@@ -9,7 +9,7 @@
   "scripts": {
     "postinstall": "pnpm build",
     "dev:ds": "turbo run storylite --filter=@tokenami/example-design-system",
-    "dev:remix": "turbo watch dev --filter=@tokenami/example-remix...",
+    "dev:remix": "turbo watch dev --filter=@tokenami/example-remix",
     "build": "turbo run build --filter=@tokenami/example-design-system...",
     "clean": "pnpm exec rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules .turbo dist",
     "typecheck": "turbo run typecheck",
@@ -34,8 +34,11 @@
   "packageManager": "pnpm@8.15.8",
   "engines": {
     "pnpm": ">= 8",
-    "node": ">= 18"
+    "node": ">= 20"
   },
+  "browserslist": [
+    "supports css-cascade-layers"
+  ],
   "prettier": {
     "singleQuote": true,
     "printWidth": 100

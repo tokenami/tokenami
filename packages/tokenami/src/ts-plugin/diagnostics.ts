@@ -36,14 +36,26 @@ class TokenamiDiagnostics {
 
   #processNode(node: ts.Node, sourceFile: ts.SourceFile) {
     const isDiagnosticPrevented = this.#shouldSuppressDiagnosticForNode(node, sourceFile);
-    if (isDiagnosticPrevented || !ts.isPropertyAssignment(node)) return;
+    if (isDiagnosticPrevented) return;
 
-    const nodeProperty = ts.isStringLiteral(node.name) ? node.name.text : null;
-    const property = TokenamiConfig.TokenProperty.safeParse(nodeProperty);
-    if (!property.success) return;
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      ts.isIdentifier(node.expression.expression) &&
+      node.expression.expression.text === 'css' &&
+      node.expression.name.text === 'compose' &&
+      node.arguments[0] &&
+      ts.isObjectLiteralExpression(node.arguments[0])
+    ) {
+      return this.#validateComposeConfig(node.arguments[0], sourceFile);
+    }
 
-    const propertyDiagnostics = this.#validateTokenamiProperty(property.output, node, sourceFile);
-    return propertyDiagnostics ?? [];
+    if (ts.isPropertyAssignment(node)) {
+      const nodeProperty = ts.isStringLiteral(node.name) ? node.name.text : null;
+      const property = TokenamiConfig.TokenProperty.safeParse(nodeProperty);
+      if (!property.success) return;
+      return this.#validateTokenamiProperty(property.output, node, sourceFile);
+    }
   }
 
   #validateTokenamiProperty(
@@ -68,11 +80,54 @@ class TokenamiDiagnostics {
         file: sourceFile,
         start: node.getStart(sourceFile),
         length: node.name.getWidth(sourceFile),
-        messageText: `Selector '${selector}' is not a valid selector from your Tokenami config.${arbSuffix}`,
+        messageText: `Selector '${selector}' does not exist in the Tokenami config.${arbSuffix}`,
         category: ts.DiagnosticCategory.Error,
         code: ERROR_CODES.INVALID_PROPERTY,
       },
     ];
+  }
+
+  #validateComposeConfig(
+    config: ts.ObjectLiteralExpression,
+    sourceFile: ts.SourceFile
+  ): ts.Diagnostic[] | undefined {
+    const diagnostic = {
+      file: sourceFile,
+      messageText: `Compose styles must be statically extractable. Use 'includes' to reuse shared styles.`,
+      category: ts.DiagnosticCategory.Error,
+      code: ERROR_CODES.EXPECT_EXTRACTABLE_COMPOSE,
+    };
+
+    for (const prop of config.properties) {
+      if (ts.isSpreadAssignment(prop)) {
+        const start = prop.getStart(sourceFile);
+        const length = prop.getWidth(sourceFile);
+        return [{ ...diagnostic, start, length }];
+      }
+
+      if (!ts.isPropertyAssignment(prop)) continue;
+
+      const key = prop.name;
+      const value = prop.initializer;
+
+      if (ts.isComputedPropertyName(key)) {
+        const start = key.getStart(sourceFile);
+        const length = key.getWidth(sourceFile);
+        return [{ ...diagnostic, start, length }];
+      }
+
+      if (ts.isObjectLiteralExpression(value)) {
+        return this.#validateComposeConfig(value, sourceFile);
+      } else if (
+        !ts.isIdentifier(key) &&
+        !ts.isStringLiteral(value) &&
+        !ts.isNumericLiteral(value)
+      ) {
+        const start = value.getStart(sourceFile);
+        const length = value.getWidth(sourceFile);
+        return [{ ...diagnostic, start, length }];
+      }
+    }
   }
 
   #shouldSuppressDiagnosticForNode(node: ts.Node, sourceFile: ts.SourceFile) {

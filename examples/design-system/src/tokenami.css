@@ -29,9 +29,9 @@
   }
 
   hr {
+    height: 0;
     color: inherit;
     border-top-width: 1px;
-    height: 0;
   }
 
   abbr:where([title]) {
@@ -110,12 +110,10 @@
   }
 
   button, input:where([type="button"]), input:where([type="reset"]), input:where([type="submit"]) {
-    -webkit-appearance: button;
     appearance: button;
   }
 
   ::file-selector-button {
-    -webkit-appearance: button;
     appearance: button;
   }
 
@@ -139,7 +137,7 @@
     height: auto;
   }
 
-  ::webkit-search-decoration {
+  ::-webkit-search-decoration {
     -webkit-appearance: none;
   }
 
@@ -170,7 +168,7 @@
   }
 }
 
-@layer tokenami {
+@layer tkb {
   @keyframes wiggle {
     0%, 100% {
       transform: rotate(-3deg);
@@ -190,7 +188,7 @@
     --radii_lg: .5rem;
   }
 
-  :root, :root [style] {
+  :root, :root [style], :root .tk-1ddz3jq {
     --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
     --text_xl: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1.25rem / 1.75rem var(--font-family);
   }
@@ -248,78 +246,13 @@
     --xxl: initial;
   }
 
-  @layer tk1 {
-    [style] {
-      color: var(--color, revert-layer);
-      border-radius: var(--border-radius, revert-layer);
-      transition: var(--transition, revert-layer);
-      font: var(--font, revert-layer);
-    }
-  }
-
-  @layer tk2 {
-    [style] {
-      background-color: var(--background-color, revert-layer);
-      font-family: var(--font-family, revert-layer);
-    }
-  }
-
-  @layer tkl1 {
-    [style] {
-      inline-size: var(--_g44f3h, var(--inline-size, revert-layer));
-      --_g44f3h: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
-      block-size: var(--_1ieen97, var(--block-size, revert-layer));
-      --_1ieen97: var(--block-size__calc) calc(var(--block-size) * var(--_grid));
-    }
-  }
-
-  @layer tkl3 {
-    [style] {
-      border-block-end: var(--border-block-end, revert-layer);
-    }
-  }
-
-  @layer tkl5 {
-    [style] {
-      border-block-color: var(--border-block-color, revert-layer);
-      border-inline-color: var(--border-inline-color, revert-layer);
-    }
-  }
-
-  @layer tks1 {
-    [style] {
-      animation: var(--_1upk2ho, revert-layer);
-      --_1upk2ho: var(--hover) var(--hover_animation);
-      font: var(--_1gipe25, var(--_mhgvlt, var(--_10ti6tm, var(--_104t2cq, var(--_qp58in, revert-layer)))));
-      --_qp58in: var(--sm) var(--sm_font);
-      --_104t2cq: var(--md) var(--md_font);
-      --_10ti6tm: var(--lg) var(--lg_font);
-      --_mhgvlt: var(--xl) var(--xl_font);
-      --_1gipe25: var(--xxl) var(--xxl_font);
-    }
-  }
-
-  @layer tks2 {
-    [style] {
-      background-color: var(--_1r7lnia, var(--_4dvc60, revert-layer));
-      --_4dvc60: var(--hover) var(--hover_background-color);
-      --_1r7lnia: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
-      font-family: var(--_6j96ia, var(--_9d9ope, var(--_10sf9dp, var(--_1l5j3ql, var(--_1oveq08, revert-layer)))));
-      --_1oveq08: var(--sm) var(--sm_font-family);
-      --_1l5j3ql: var(--md) var(--md_font-family);
-      --_10sf9dp: var(--lg) var(--lg_font-family);
-      --_9d9ope: var(--xl) var(--xl_font-family);
-      --_6j96ia: var(--xxl) var(--xxl_font-family);
-    }
-  }
-
   @media (hover: hover) and (pointer: fine) {
-    [style]:not(:disabled):hover {
+    [style]:not(:disabled):hover, .tk-1ddz3jq:not(:disabled):hover {
       --hover: ;
     }
   }
 
-  [style]:focus:hover {
+  [style]:focus:hover, .tk-1ddz3jq:focus:hover {
     --\{\&\;focus\;hover\}: ;
   }
 
@@ -351,5 +284,88 @@
     [style] {
       --xxl: ;
     }
+  }
+}
+
+@layer tk1 {
+  [style], .tk-1ddz3jq {
+    color: var(--color, revert-layer);
+    border-radius: var(--border-radius, revert-layer);
+    transition: var(--transition, revert-layer);
+    font: var(--font, revert-layer);
+  }
+}
+
+@layer tk2 {
+  [style], .tk-1ddz3jq {
+    background-color: var(--background-color, revert-layer);
+    font-family: var(--font-family, revert-layer);
+  }
+}
+
+@layer tkl1 {
+  [style], .tk-1ddz3jq {
+    inline-size: var(--_a9n10r, var(--inline-size, revert-layer));
+    --_a9n10r: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
+    block-size: var(--_19kaxgm, var(--block-size, revert-layer));
+    --_19kaxgm: var(--block-size__calc) calc(var(--block-size) * var(--_grid));
+  }
+}
+
+@layer tkl3 {
+  [style], .tk-1ddz3jq {
+    border-block-end: var(--border-block-end, revert-layer);
+  }
+}
+
+@layer tkl5 {
+  [style], .tk-1ddz3jq {
+    border-block-color: var(--border-block-color, revert-layer);
+    border-inline-color: var(--border-inline-color, revert-layer);
+  }
+}
+
+@layer tks1 {
+  [style], .tk-1ddz3jq {
+    animation: var(--_xgpg9b, revert-layer);
+    --_xgpg9b: var(--hover) var(--hover_animation);
+    font: var(--_ka2h5d, var(--_m8xn1c, var(--_5lcl0m, var(--_18nhvf0, var(--_1xfj32v, revert-layer)))));
+    --_1xfj32v: var(--sm) var(--sm_font);
+    --_18nhvf0: var(--md) var(--md_font);
+    --_5lcl0m: var(--lg) var(--lg_font);
+    --_m8xn1c: var(--xl) var(--xl_font);
+    --_ka2h5d: var(--xxl) var(--xxl_font);
+  }
+}
+
+@layer tks2 {
+  [style], .tk-1ddz3jq {
+    background-color: var(--_aoiy32, var(--_1gqxh9p, revert-layer));
+    --_1gqxh9p: var(--hover) var(--hover_background-color);
+    --_aoiy32: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
+    font-family: var(--_1afn4yr, var(--_1sjr7ev, var(--_1710xfo, var(--_48u3vv, var(--_dcd1z4, revert-layer)))));
+    --_dcd1z4: var(--sm) var(--sm_font-family);
+    --_48u3vv: var(--md) var(--md_font-family);
+    --_1710xfo: var(--lg) var(--lg_font-family);
+    --_1sjr7ev: var(--xl) var(--xl_font-family);
+    --_1afn4yr: var(--xxl) var(--xxl_font-family);
+  }
+}
+
+@layer tkc {
+  .tk-1ddz3jq {
+    --background-color: var(--color_violet9);
+    --color: var(--color_white);
+    --border-block-end: var(--line_px);
+    --border-block-color: var(--color_violet11);
+    --border-inline-color: var(--color_violet11);
+    --border-radius: var(--radii_lg);
+    --inline-size: var(---, 180px);
+    --block-size: 15;
+    --block-size__calc: ;
+    --transition: var(--morph_all);
+    --hover_background-color: var(--color_violet10);
+    --hover_animation: var(--anim_wiggle);
+    --\{\&\;focus\;hover\}_background-color: var(---, red);
   }
 }

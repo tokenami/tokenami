@@ -8,13 +8,15 @@ import inquirer from 'inquirer';
 import * as fs from 'fs';
 import * as chokidar from 'chokidar';
 import * as pathe from 'pathe';
+import * as acorn from 'acorn';
+import * as acornWalk from 'acorn-walk';
+import * as csstree from 'css-tree';
 import * as sheet from './sheet';
 import * as log from './log';
 import * as utils from './utils';
-import * as acorn from 'acorn';
-import * as acornWalk from 'acorn-walk';
 import pkgJson from './../package.json';
 import { TokenamiDiagnostics } from './ts-plugin';
+import { type TokenamiProperties } from './declarations';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -123,7 +125,8 @@ const run = () => {
       const startTime = startTimer();
       const minify = flags.minify;
       const configPath = utils.getConfigPath(cwd, flags.config);
-      const browsers = browserslist(null, { env: process.env.NODE_ENV || 'development' });
+      const browsersConfig = browserslist(null, { env: process.env.NODE_ENV || 'development' });
+      const browsers = browsersConfig.length ? browsersConfig : ['supports css-cascade-layers'];
       const targets = browserslistToTargets(browsers);
 
       let config: Writeable<Tokenami.Config> = utils.getConfigAtPath(configPath);
@@ -228,9 +231,16 @@ function watch(cwd: string, include: readonly string[], exclude?: readonly strin
  * findUsedTokens
  * -----------------------------------------------------------------------------------------------*/
 
+// - ^.* captures any characters from the start of the line up until css.compose
+// - [\s\S]*? non-greedily captures everything within the braces, including line breaks
+// - the m (multiline) flag allows ^ to match the start of each line, not just the start
+//   of the file contents
+const COMPOSE_BLOCKS_REGEX = /(const|let|var)\s+(\w+)\s*=\s*css\.compose\(\{[\s\S]*?\}\)/gm;
+
 interface UsedTokens {
   properties: Tokenami.TokenProperty[];
   values: Tokenami.TokenValue[];
+  composeBlocks: Record<`.${string}`, TokenamiProperties>;
 }
 
 async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<UsedTokens> {
@@ -239,14 +249,64 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
   const entries = await glob(include, { cwd, onlyFiles: true, stats: false, ignore: exclude });
   let tokenProperties: Tokenami.TokenProperty[] = [];
   let tokenValues: Tokenami.TokenValue[] = [];
+  let composeBlocks: Record<`.${string}`, TokenamiProperties> = {};
+
   entries.forEach((entry) => {
     const fileContent = fs.readFileSync(entry, 'utf8');
     const tokens = matchTokens(fileContent, config.theme);
-    const responsiveProperties = matchResponsiveComposeVariants(fileContent, config);
-    tokenProperties = [...tokenProperties, ...tokens.properties, ...responsiveProperties];
+    const composeBlocksContents = fileContent.match(COMPOSE_BLOCKS_REGEX) ?? [];
+
+    tokenProperties = [...tokenProperties, ...tokens.properties];
     tokenValues = [...tokenValues, ...tokens.values];
+
+    for (const composeBlock of composeBlocksContents) {
+      const ast = acorn.parse(composeBlock, { ecmaVersion: 'latest' });
+      const responsiveProperties = matchResponsiveComposeVariants(ast, config);
+      const composeBlockStyles = matchBaseComposeBlocks(ast);
+      tokenProperties = [...tokenProperties, ...responsiveProperties];
+      composeBlocks = { ...composeBlocks, ...composeBlockStyles };
+    }
+
+    if (fileContent.includes(sheet.LAYERS.COMPONENTS)) {
+      const sheetComposeBlocks = findSheetComposeBlocks(fileContent);
+      composeBlocks = { ...composeBlocks, ...sheetComposeBlocks };
+    }
   });
-  return { properties: tokenProperties, values: tokenValues };
+
+  return { properties: tokenProperties, values: tokenValues, composeBlocks };
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * matchBaseComposeBlocks
+ * -----------------------------------------------------------------------------------------------*/
+
+function matchBaseComposeBlocks(ast: acorn.AnyNode): Record<`.${string}`, TokenamiProperties> {
+  const composeBlocks = findComposeBlocks(ast);
+  let result: Record<`.${string}`, TokenamiProperties> = {};
+
+  if (!composeBlocks) return result;
+
+  for (const node of composeBlocks) {
+    let styles: TokenamiProperties | undefined;
+
+    for (const tokenProperty of node.properties) {
+      if (
+        tokenProperty.type === 'Property' &&
+        tokenProperty.key.type === 'Literal' &&
+        tokenProperty.value.type === 'Literal'
+      ) {
+        styles ??= {};
+        styles[tokenProperty.key.value as any] = tokenProperty.value.value as any;
+      }
+    }
+
+    if (styles) {
+      const className = Tokenami.generateClassName(styles);
+      result[`.${className}`] = styles;
+    }
+  }
+
+  return result;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -287,32 +347,45 @@ function matchTokens(content: string, theme: Tokenami.Config['theme']) {
  * matchResponsiveComposeVariants
  * -----------------------------------------------------------------------------------------------*/
 
-// - ^.* captures any characters from the start of the line up until css.compose
-// - [\s\S]*? non-greedily captures everything within the braces, including line breaks
-// - the m (multiline) flag allows ^ to match the start of each line, not just the start
-//   of the file contents
-const COMPOSE_BLOCKS_REGEX = /(const|let|var)\s+(\w+)\s*=\s*css\.compose\(\{[\s\S]*?\}\)/gm;
-
-function matchResponsiveComposeVariants(fileContent: string, config: Tokenami.Config) {
-  const composeBlocks = fileContent.match(COMPOSE_BLOCKS_REGEX);
-  if (!composeBlocks) return [];
-  const responsiveBlocks = composeBlocks.filter((block) => block.match('responsiveVariants'));
-
-  return responsiveBlocks.flatMap((block) => {
-    const ast = acorn.parse(block, { ecmaVersion: 'latest' });
-    const responsiveVariants = findResponsiveVariants(ast);
-    const tokens = matchTokens(JSON.stringify(responsiveVariants), config.theme);
-    return tokens.properties.flatMap((tokenProperty) => {
-      return utils.getResponsivePropertyVariants(tokenProperty, config.responsive);
-    });
+function matchResponsiveComposeVariants(ast: acorn.AnyNode, config: Tokenami.Config) {
+  const responsiveVariants = findResponsiveVariantsBlocks(ast);
+  const tokens = matchTokens(JSON.stringify(responsiveVariants), config.theme);
+  return tokens.properties.flatMap((tokenProperty) => {
+    return utils.getResponsivePropertyVariants(tokenProperty, config.responsive);
   });
 }
 
 /* -------------------------------------------------------------------------------------------------
- * findResponsiveVariants
+ * findComposeBlocks
  * -----------------------------------------------------------------------------------------------*/
 
-function findResponsiveVariants(node: acorn.AnyNode): acorn.ObjectExpression | null {
+function findComposeBlocks(node: acorn.AnyNode): acorn.ObjectExpression[] | undefined {
+  let result: acorn.ObjectExpression[] | undefined;
+
+  acornWalk.simple(node, {
+    CallExpression(node) {
+      if (
+        node.callee.type === 'MemberExpression' &&
+        node.callee.object.type === 'Identifier' &&
+        node.callee.object.name === 'css' &&
+        node.callee.property.type === 'Identifier' &&
+        node.callee.property.name === 'compose' &&
+        node.arguments?.[0]?.type === 'ObjectExpression'
+      ) {
+        result ??= [];
+        result.push(node.arguments[0]);
+      }
+    },
+  });
+
+  return result;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * findResponsiveVariantsBlocks
+ * -----------------------------------------------------------------------------------------------*/
+
+function findResponsiveVariantsBlocks(node: acorn.AnyNode): acorn.Property | null {
   let responsiveVariantsNode = null;
 
   acornWalk.simple(node, {
@@ -324,6 +397,50 @@ function findResponsiveVariants(node: acorn.AnyNode): acorn.ObjectExpression | n
   });
 
   return responsiveVariantsNode;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * findSheetComposeBlocks
+ * -----------------------------------------------------------------------------------------------*/
+
+function findSheetComposeBlocks(fileContents: string) {
+  const ast = csstree.parse(fileContents);
+  let stylesObject: Record<`.${string}`, TokenamiProperties> | undefined;
+
+  csstree.walk(ast, {
+    visit: 'Atrule',
+    enter(node) {
+      if (
+        node.name === 'layer' &&
+        node.prelude &&
+        csstree.generate(node.prelude) === sheet.LAYERS.COMPONENTS
+      ) {
+        csstree.walk(node, {
+          visit: 'Rule',
+          enter(ruleNode) {
+            if (!ruleNode.prelude || !ruleNode.block) return;
+            const selector = csstree.generate(ruleNode.prelude).trim();
+            let styles: TokenamiProperties = {};
+
+            csstree.walk(ruleNode.block, {
+              visit: 'Declaration',
+              enter(declNode) {
+                const escapedProperty = declNode.property.trim();
+                const property = Tokenami.stringifyProperty(escapedProperty);
+                const value = csstree.generate(declNode.value).trim();
+                styles[property as any] = value as any;
+              },
+            });
+
+            stylesObject ??= {};
+            stylesObject[selector as `.${string}`] = styles;
+          },
+        });
+      }
+    },
+  });
+
+  return stylesObject;
 }
 
 /* -------------------------------------------------------------------------------------------------

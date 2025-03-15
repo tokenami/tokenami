@@ -1,5 +1,5 @@
 import * as DS from '@tokenami/example-design-system';
-import { css } from '~/css';
+import { TokenamiStyle, css } from '~/css';
 
 export default function Index() {
   return (
@@ -22,13 +22,7 @@ export default function Index() {
           '--md_after_content': 'var(---, "🐠")',
         })}
       >
-        <img
-          style={quoteImage({ variant: 'circle', md_variant: 'fill' })}
-          src="/me.jpg"
-          alt=""
-          width="400"
-          height="400"
-        />
+        <QuoteImage />
         <div style={css({ '--pt': 4, '--md_p': 8 })}>
           <blockquote style={css({ '--m': 0 })}>
             <p
@@ -111,8 +105,32 @@ export default function Index() {
   );
 }
 
+const QuoteImage = (props: TokenamiStyle<React.ComponentProps<'img'>>) => {
+  const [cn, css] = quoteImage({ variant: 'circle', md_variant: 'fill' });
+  return (
+    <img
+      className={cn(props.className)}
+      style={css(props.style)}
+      src="/me.jpg"
+      alt=""
+      width="400"
+      height="400"
+    />
+  );
+};
+
+const test = css.compose({
+  '--border': 'var(--line_8)',
+  '--border-color': 'var(--color_red10)',
+});
+
+const util = css({ '--border-width': 'var(--line-size_4)' });
+
 const quoteImage = css.compose({
+  includes: [test, util],
+
   '--object-fit': 'cover',
+  '--border-color': 'var(--color_iris10)',
 
   responsiveVariants: {
     variant: {

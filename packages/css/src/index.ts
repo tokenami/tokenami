@@ -1,5 +1,5 @@
-import type { TokenamiProperties } from 'tokenami';
-import type { TokenamiCSS } from './css';
+import { type TokenamiProperties } from 'tokenami';
+import { type TokenamiCSS } from './css';
 
 export type TokenamiStyle<P> = Omit<P, 'style'> & {
   style?: (TokenamiProperties | TokenamiCSS) & ('style' extends keyof P ? P['style'] : {});
@@ -11,4 +11,4 @@ export type Variants<T extends (...args: any) => any> = Parameters<T>[0] extends
 
 export type { TokenamiProperties } from 'tokenami';
 export { type Config, createConfig } from '@tokenami/config';
-export { type TokenamiCSS, type CSS, createCss, css } from './css';
+export { type TokenamiCSS, createCss } from './css';

@@ -8,4 +8,5 @@ export default defineConfig({
   clean: true,
   shims: true,
   dts: true,
+  noExternal: ['trie-search'],
 });
