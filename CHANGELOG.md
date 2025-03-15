@@ -1,3 +1,19 @@
+# v0.0.79 (Sat Mar 15 2025)
+
+#### 🚀 Enhancement
+
+- remove redundant rules in stylesheet for `::selection` selectors [#416](https://github.com/tokenami/tokenami/pull/416) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- fix arbitrary selector suggestions [#417](https://github.com/tokenami/tokenami/pull/417) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.78 (Sat Mar 15 2025)
 
 ### Release Notes
