@@ -434,25 +434,7 @@
 }
 
 @layer tk1 {
-  [style], .tk-1ddz3jq, [style] > p, [style] p, [style] .card, .tk-erz9s7, .tk-rychtn, [style]:after {
-    border-radius: var(--border-radius, revert-layer);
-    transition: var(--transition, revert-layer);
-    color: var(--color, revert-layer);
-    font: var(--font, revert-layer);
-    min-height: var(--_lmglzt, var(--min-height, revert-layer));
-    --_lmglzt: var(--min-height__calc) calc(var(--min-height) * var(--_grid));
-    display: var(--display, revert-layer);
-    text-align: var(--text-align, revert-layer);
-    overflow: var(--overflow, revert-layer);
-    margin: var(--_1ty9hq, var(--margin, revert-layer));
-    --_1ty9hq: var(--margin__calc) calc(var(--margin) * var(--_grid));
-    padding: var(--_443yf1, var(--padding, revert-layer));
-    --_443yf1: var(--padding__calc) calc(var(--padding) * var(--_grid));
-    border: var(--border, revert-layer);
-    object-fit: var(--object-fit, revert-layer);
-  }
-
-  [style*="selection_"]::selection {
+  [style], .tk-1ddz3jq {
     border-radius: var(--border-radius, revert-layer);
     transition: var(--transition, revert-layer);
     color: var(--color, revert-layer);
@@ -472,25 +454,7 @@
 }
 
 @layer tk2 {
-  [style], .tk-1ddz3jq, [style] > p, [style] p, [style] .card, .tk-erz9s7, .tk-rychtn, [style]:after {
-    font-family: var(--font-family, revert-layer);
-    font-stretch: var(--font-stretch, revert-layer);
-    font-style: var(--font-style, revert-layer);
-    font-variant: var(--font-variant, revert-layer);
-    font-weight: var(--font-weight, revert-layer);
-    background-color: var(--background-color, revert-layer);
-    background-size: var(--background-size, revert-layer);
-    background-image: var(--background-image, revert-layer);
-    flex-direction: var(--flex-direction, revert-layer);
-    align-items: var(--align-items, revert-layer);
-    justify-content: var(--justify-content, revert-layer);
-    line-height: var(--line-height, revert-layer);
-    font-size: var(--font-size, revert-layer);
-    border-start-start-radius: var(--border-start-start-radius, revert-layer);
-    border-start-end-radius: var(--border-start-end-radius, revert-layer);
-  }
-
-  [style*="selection_"]::selection {
+  [style], .tk-1ddz3jq {
     font-family: var(--font-family, revert-layer);
     font-stretch: var(--font-stretch, revert-layer);
     font-style: var(--font-style, revert-layer);
@@ -510,14 +474,7 @@
 }
 
 @layer tk3 {
-  [style], .tk-1ddz3jq, [style] > p, [style] p, [style] .card, .tk-erz9s7, .tk-rychtn, [style]:after {
-    background-position-x: var(--_j8nb15, var(--background-position-x, revert-layer));
-    --_j8nb15: var(--background-position-x__calc) calc(var(--background-position-x) * var(--_grid));
-    background-position-y: var(--_15wunjl, var(--background-position-y, revert-layer));
-    --_15wunjl: var(--background-position-y__calc) calc(var(--background-position-y) * var(--_grid));
-  }
-
-  [style*="selection_"]::selection {
+  [style], .tk-1ddz3jq {
     background-position-x: var(--_j8nb15, var(--background-position-x, revert-layer));
     --_j8nb15: var(--background-position-x__calc) calc(var(--background-position-x) * var(--_grid));
     background-position-y: var(--_15wunjl, var(--background-position-y, revert-layer));
@@ -526,14 +483,7 @@
 }
 
 @layer tkl1 {
-  [style], .tk-1ddz3jq, [style] > p, [style] p, [style] .card, .tk-erz9s7, .tk-rychtn, [style]:after {
-    inline-size: var(--_a9n10r, var(--inline-size, revert-layer));
-    --_a9n10r: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
-    block-size: var(--_19kaxgm, var(--block-size, revert-layer));
-    --_19kaxgm: var(--block-size__calc) calc(var(--block-size) * var(--_grid));
-  }
-
-  [style*="selection_"]::selection {
+  [style], .tk-1ddz3jq {
     inline-size: var(--_a9n10r, var(--inline-size, revert-layer));
     --_a9n10r: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
     block-size: var(--_19kaxgm, var(--block-size, revert-layer));
@@ -542,18 +492,7 @@
 }
 
 @layer tkl2 {
-  [style], .tk-1ddz3jq, [style] > p, [style] p, [style] .card, .tk-erz9s7, .tk-rychtn, [style]:after {
-    padding-inline: var(--_twrjq1, var(--padding-inline, revert-layer));
-    --_twrjq1: var(--padding-inline__calc) calc(var(--padding-inline) * var(--_grid));
-    padding-block: var(--_11by1jg, var(--padding-block, revert-layer));
-    --_11by1jg: var(--padding-block__calc) calc(var(--padding-block) * var(--_grid));
-    margin-inline: var(--_2243e5, var(--margin-inline, revert-layer));
-    --_2243e5: var(--margin-inline__calc) calc(var(--margin-inline) * var(--_grid));
-    margin-block: var(--_1rd6zpk, var(--margin-block, revert-layer));
-    --_1rd6zpk: var(--margin-block__calc) calc(var(--margin-block) * var(--_grid));
-  }
-
-  [style*="selection_"]::selection {
+  [style], .tk-1ddz3jq {
     padding-inline: var(--_twrjq1, var(--padding-inline, revert-layer));
     --_twrjq1: var(--padding-inline__calc) calc(var(--padding-inline) * var(--_grid));
     padding-block: var(--_11by1jg, var(--padding-block, revert-layer));
@@ -566,17 +505,7 @@
 }
 
 @layer tkl3 {
-  [style], .tk-1ddz3jq, [style] > p, [style] p, [style] .card, .tk-erz9s7, .tk-rychtn, [style]:after {
-    border-block-end: var(--border-block-end, revert-layer);
-    --_193cv1f: var(--padding-block-start__calc) calc(var(--padding-block-start) * var(--_grid));
-    --_rq4yuw: var(--margin-block-end__calc) calc(var(--margin-block-end) * var(--_grid));
-    --_sn3kh4: var(--margin-inline-start__calc) calc(var(--margin-inline-start) * var(--_grid));
-    margin-block-end: var(--_rq4yuw, var(--margin-block-end, revert-layer));
-    margin-inline-start: var(--_sn3kh4, var(--margin-inline-start, revert-layer));
-    padding-block-start: var(--_193cv1f, var(--padding-block-start, revert-layer));
-  }
-
-  [style*="selection_"]::selection {
+  [style], .tk-1ddz3jq {
     border-block-end: var(--border-block-end, revert-layer);
     --_193cv1f: var(--padding-block-start__calc) calc(var(--padding-block-start) * var(--_grid));
     --_rq4yuw: var(--margin-block-end__calc) calc(var(--margin-block-end) * var(--_grid));
@@ -588,14 +517,7 @@
 }
 
 @layer tkl5 {
-  [style], .tk-1ddz3jq, [style] > p, [style] p, [style] .card, .tk-erz9s7, .tk-rychtn, [style]:after {
-    border-block-color: var(--border-block-color, revert-layer);
-    border-inline-color: var(--border-inline-color, revert-layer);
-    border-block-width: var(--border-block-width, revert-layer);
-    border-inline-width: var(--border-inline-width, revert-layer);
-  }
-
-  [style*="selection_"]::selection {
+  [style], .tk-1ddz3jq {
     border-block-color: var(--border-block-color, revert-layer);
     border-inline-color: var(--border-inline-color, revert-layer);
     border-block-width: var(--border-block-width, revert-layer);
@@ -615,7 +537,6 @@
     animation: var(--_xgpg9b, revert-layer);
     --_xgpg9b: var(--hover) var(--hover_animation);
     color: var(--_ez0gpl, var(--_xksefa, revert-layer));
-    --_xksefa: var(--selection) var(--selection_color);
     --_ez0gpl: var(--hover) var(--hover_color);
     font: var(--_ka2h5d, var(--_m8xn1c, var(--_5lcl0m, var(--_18nhvf0, var(--_1xfj32v, revert-layer)))));
     --_1xfj32v: var(--sm) var(--sm_font);
@@ -636,34 +557,8 @@
   }
 
   [style*="selection_"]::selection {
-    border-radius: var(--_d4svsr, var(--_117fin6, var(--_1lggj5, var(--_rz7plq, var(--_1u7yt41, var(--_1uzw11x, revert-layer))))));
-    --_d4svsr: var(--child-p) var(--child-p_border-radius);
-    --_1uzw11x: var(--sm) var(--sm_border-radius);
-    --_1u7yt41: var(--md) var(--md_border-radius);
-    --_rz7plq: var(--lg) var(--lg_border-radius);
-    --_1lggj5: var(--xl) var(--xl_border-radius);
-    --_117fin6: var(--xxl) var(--xxl_border-radius);
-    animation: var(--_xgpg9b, revert-layer);
-    --_xgpg9b: var(--hover) var(--hover_animation);
     color: var(--_ez0gpl, var(--_xksefa, revert-layer));
     --_xksefa: var(--selection) var(--selection_color);
-    --_ez0gpl: var(--hover) var(--hover_color);
-    font: var(--_ka2h5d, var(--_m8xn1c, var(--_5lcl0m, var(--_18nhvf0, var(--_1xfj32v, revert-layer)))));
-    --_1xfj32v: var(--sm) var(--sm_font);
-    --_18nhvf0: var(--md) var(--md_font);
-    --_5lcl0m: var(--lg) var(--lg_font);
-    --_m8xn1c: var(--xl) var(--xl_font);
-    --_ka2h5d: var(--xxl) var(--xxl_font);
-    display: var(--_1loixh8, revert-layer);
-    --_1loixh8: var(--md) var(--md_display);
-    text-align: var(--_18hd4n5, revert-layer);
-    --_18hd4n5: var(--md) var(--md_text-align);
-    padding: var(--_1432d1p, revert-layer);
-    --_1432d1p: var(--md) var(--_6cxmw0, var(--md_padding));
-    --_6cxmw0: var(--md_padding__calc) calc(var(--md_padding) * var(--_grid));
-    content: var(--_1swegf4, var(--_d9agn9, revert-layer));
-    --_d9agn9: var(--after) var(--after_content);
-    --_1swegf4: var(--md_after) var(--md_after_content);
   }
 }
 
@@ -678,7 +573,6 @@
     background-color: var(--_aoiy32, var(--_134znwc, var(--_nf2ooy, var(--_9t0pqg, var(--_163r6xx, var(--_1gqxh9p, revert-layer))))));
     --_1gqxh9p: var(--hover) var(--hover_background-color);
     --_163r6xx: var(--child-p) var(--child-p_background-color);
-    --_9t0pqg: var(--selection) var(--selection_background-color);
     --_nf2ooy: var(--prose-p) var(--prose-p_background-color);
     --_134znwc: var(--prose-card) var(--prose-card_background-color);
     --_aoiy32: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
@@ -687,21 +581,8 @@
   }
 
   [style*="selection_"]::selection {
-    font-family: var(--_1afn4yr, var(--_1sjr7ev, var(--_1710xfo, var(--_48u3vv, var(--_dcd1z4, revert-layer)))));
-    --_dcd1z4: var(--sm) var(--sm_font-family);
-    --_48u3vv: var(--md) var(--md_font-family);
-    --_1710xfo: var(--lg) var(--lg_font-family);
-    --_1sjr7ev: var(--xl) var(--xl_font-family);
-    --_1afn4yr: var(--xxl) var(--xxl_font-family);
     background-color: var(--_aoiy32, var(--_134znwc, var(--_nf2ooy, var(--_9t0pqg, var(--_163r6xx, var(--_1gqxh9p, revert-layer))))));
-    --_1gqxh9p: var(--hover) var(--hover_background-color);
-    --_163r6xx: var(--child-p) var(--child-p_background-color);
     --_9t0pqg: var(--selection) var(--selection_background-color);
-    --_nf2ooy: var(--prose-p) var(--prose-p_background-color);
-    --_134znwc: var(--prose-card) var(--prose-card_background-color);
-    --_aoiy32: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
-    font-size: var(--_axuivf, revert-layer);
-    --_axuivf: var(--xxl) var(--xxl_font-size);
   }
 }
 
@@ -730,41 +611,10 @@
     --_1x4i1t1: var(--xxl) var(--_10llkw4, var(--xxl_block-size));
     --_10llkw4: var(--xxl_block-size__calc) calc(var(--xxl_block-size) * var(--_grid));
   }
-
-  [style*="selection_"]::selection {
-    inline-size: var(--_16b7m0x, var(--_qp7e3l, var(--_7u3zlp, var(--_1imu60m, var(--_m0lyz7, revert-layer)))));
-    --_m0lyz7: var(--sm) var(--_1guwk2j, var(--sm_inline-size));
-    --_1guwk2j: var(--sm_inline-size__calc) calc(var(--sm_inline-size) * var(--_grid));
-    --_1imu60m: var(--md) var(--_1q1n7d5, var(--md_inline-size));
-    --_1q1n7d5: var(--md_inline-size__calc) calc(var(--md_inline-size) * var(--_grid));
-    --_7u3zlp: var(--lg) var(--_8v4x7n, var(--lg_inline-size));
-    --_8v4x7n: var(--lg_inline-size__calc) calc(var(--lg_inline-size) * var(--_grid));
-    --_qp7e3l: var(--xl) var(--_lo58cg, var(--xl_inline-size));
-    --_lo58cg: var(--xl_inline-size__calc) calc(var(--xl_inline-size) * var(--_grid));
-    --_16b7m0x: var(--xxl) var(--_14yrv33, var(--xxl_inline-size));
-    --_14yrv33: var(--xxl_inline-size__calc) calc(var(--xxl_inline-size) * var(--_grid));
-    block-size: var(--_1x4i1t1, var(--_jibyp, var(--_131pits, var(--_qqcymk, var(--_1gmoxa2, revert-layer)))));
-    --_1gmoxa2: var(--sm) var(--_1441hym, var(--sm_block-size));
-    --_1441hym: var(--sm_block-size__calc) calc(var(--sm_block-size) * var(--_grid));
-    --_qqcymk: var(--md) var(--_he48ex, var(--md_block-size));
-    --_he48ex: var(--md_block-size__calc) calc(var(--md_block-size) * var(--_grid));
-    --_131pits: var(--lg) var(--_pn0jbf, var(--lg_block-size));
-    --_pn0jbf: var(--lg_block-size__calc) calc(var(--lg_block-size) * var(--_grid));
-    --_jibyp: var(--xl) var(--_13a1hsi, var(--xl_block-size));
-    --_13a1hsi: var(--xl_block-size__calc) calc(var(--xl_block-size) * var(--_grid));
-    --_1x4i1t1: var(--xxl) var(--_10llkw4, var(--xxl_block-size));
-    --_10llkw4: var(--xxl_block-size__calc) calc(var(--xxl_block-size) * var(--_grid));
-  }
 }
 
 @layer tksl2 {
   [style], .tk-1ddz3jq, [style] > p, [style] p, [style] .card, .tk-erz9s7, .tk-rychtn, [style]:after {
-    padding-inline: var(--_1wrhsdd, revert-layer);
-    --_1wrhsdd: var(--child-p) var(--_152jnev, var(--child-p_padding-inline));
-    --_152jnev: var(--child-p_padding-inline__calc) calc(var(--child-p_padding-inline) * var(--_grid));
-  }
-
-  [style*="selection_"]::selection {
     padding-inline: var(--_1wrhsdd, revert-layer);
     --_1wrhsdd: var(--child-p) var(--_152jnev, var(--child-p_padding-inline));
     --_152jnev: var(--child-p_padding-inline__calc) calc(var(--child-p_padding-inline) * var(--_grid));
