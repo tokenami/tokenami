@@ -1,3 +1,62 @@
+# v0.0.78 (Sat Mar 15 2025)
+
+### Release Notes
+
+#### move compose styles to stylesheet and generate class names ([#391](https://github.com/tokenami/tokenami/pull/391))
+
+styles in compose blocks are now extracted into your stylesheet for reuse, reducing redundancy in HTML by replacing repetitive component styles with a class name. as a result, the `css.compose` return type has been updated:
+
+```tsx
+const Button = ({ size = 'small', ...props }) => {
+  const [cn, css] = button({ size });
+  return <button {...props} className={cn(props.className)} style={css(props.style)} />;
+};
+
+const button = css.compose({
+  '--color': 'var(--color_white)',
+
+  variants: {
+    size: {
+      small: { '--padding': 2 },
+      large: { '--padding': 3 },
+    },
+  },
+});
+```
+
+#### remove `tokenami.ev.ci.d.ts` requirement in favour of running `tokenami check` during CI ([#413](https://github.com/tokenami/tokenami/pull/413))
+
+if your project is set up for continuous integration, remove the `.tokenami/tokenami.env.ci.d.ts` and `tsconfig.ci.json` files, and add `tokenami check` to your typechecking step to validate tokenami properties instead. 
+
+```sh
+tokenami check && tsc --noEmit
+```
+
+---
+
+#### 💥 Breaking Change
+
+- move compose styles to stylesheet and generate class names [#391](https://github.com/tokenami/tokenami/pull/391) ([@jjenzz](https://github.com/jjenzz))
+- remove `tokenami.ev.ci.d.ts` requirement in favour of running `tokenami check` during CI [#413](https://github.com/tokenami/tokenami/pull/413) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- fix ast parsing for compose blocks [#410](https://github.com/tokenami/tokenami/pull/410) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- fix discord notification json error [#408](https://github.com/tokenami/tokenami/pull/408) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- update docs for custom properties [#409](https://github.com/tokenami/tokenami/pull/409) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.77 (Sun Feb 09 2025)
 
 ### Release Notes
