@@ -216,7 +216,7 @@
     --weight_medium: 500;
   }
 
-  :root, :root [style], :root .tk-1ddz3jq, :root [style] > p, :root [style] p, :root [style] .card, :root .tk-erz9s7, :root .tk-rychtn, :root [style]:after {
+  :root, :root [style], :root .tk-1ddz3jq, :root .tk-erz9s7, :root .tk-rychtn, :root [style] > p, :root [style] p, :root [style] .card, :root [style]:after {
     --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
     --text_xl: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1.25rem / 1.75rem var(--font-family);
   }
@@ -434,7 +434,7 @@
 }
 
 @layer tk1 {
-  [style], .tk-1ddz3jq {
+  [style], .tk-1ddz3jq, .tk-erz9s7, .tk-rychtn {
     border-radius: var(--border-radius, revert-layer);
     transition: var(--transition, revert-layer);
     color: var(--color, revert-layer);
@@ -454,7 +454,7 @@
 }
 
 @layer tk2 {
-  [style], .tk-1ddz3jq {
+  [style], .tk-1ddz3jq, .tk-erz9s7, .tk-rychtn {
     font-family: var(--font-family, revert-layer);
     font-stretch: var(--font-stretch, revert-layer);
     font-style: var(--font-style, revert-layer);
@@ -474,7 +474,7 @@
 }
 
 @layer tk3 {
-  [style], .tk-1ddz3jq {
+  [style], .tk-1ddz3jq, .tk-erz9s7, .tk-rychtn {
     background-position-x: var(--_j8nb15, var(--background-position-x, revert-layer));
     --_j8nb15: var(--background-position-x__calc) calc(var(--background-position-x) * var(--_grid));
     background-position-y: var(--_15wunjl, var(--background-position-y, revert-layer));
@@ -483,7 +483,7 @@
 }
 
 @layer tkl1 {
-  [style], .tk-1ddz3jq {
+  [style], .tk-1ddz3jq, .tk-erz9s7, .tk-rychtn {
     inline-size: var(--_a9n10r, var(--inline-size, revert-layer));
     --_a9n10r: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
     block-size: var(--_19kaxgm, var(--block-size, revert-layer));
@@ -492,7 +492,7 @@
 }
 
 @layer tkl2 {
-  [style], .tk-1ddz3jq {
+  [style], .tk-1ddz3jq, .tk-erz9s7, .tk-rychtn {
     padding-inline: var(--_twrjq1, var(--padding-inline, revert-layer));
     --_twrjq1: var(--padding-inline__calc) calc(var(--padding-inline) * var(--_grid));
     padding-block: var(--_11by1jg, var(--padding-block, revert-layer));
@@ -505,7 +505,7 @@
 }
 
 @layer tkl3 {
-  [style], .tk-1ddz3jq {
+  [style], .tk-1ddz3jq, .tk-erz9s7, .tk-rychtn {
     border-block-end: var(--border-block-end, revert-layer);
     --_193cv1f: var(--padding-block-start__calc) calc(var(--padding-block-start) * var(--_grid));
     --_rq4yuw: var(--margin-block-end__calc) calc(var(--margin-block-end) * var(--_grid));
@@ -517,7 +517,7 @@
 }
 
 @layer tkl5 {
-  [style], .tk-1ddz3jq {
+  [style], .tk-1ddz3jq, .tk-erz9s7, .tk-rychtn {
     border-block-color: var(--border-block-color, revert-layer);
     border-inline-color: var(--border-inline-color, revert-layer);
     border-block-width: var(--border-block-width, revert-layer);

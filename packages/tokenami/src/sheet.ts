@@ -261,10 +261,12 @@ function getPropertyBaseSelectors(
     const selectorConfig = getPropertyConfigSelector(prop.selector, config);
     const baseSelectors = getBaseSelectors(composeBlocks, prop.tokenProperty);
     const elemSelector = selectorConfig.find(isElementSelector);
+
     if (!elemSelector) {
       selfSelectors.push(...baseSelectors);
     } else {
       const parsedSelectors = getParsedSelectors(prop.selector, [elemSelector], baseSelectors);
+      if (elemSelector === '&') selfSelectors.push(...parsedSelectors.flat());
       elemSelectors.push(...parsedSelectors.flat());
     }
   }
