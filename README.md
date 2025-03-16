@@ -12,76 +12,80 @@
 </div>
 
 > [!Warning]
-> This is a pre-alpha version of tokenami so there will be bugs, breaking changes, and missing features. Please check the [existing issues](https://github.com/tokenami/tokenami/issues) for planned features/known bugs before creating new ones.
+> Tokenami is still in early development. You might find bugs or missing features. Before reporting issues, please check our [existing issues](https://github.com/tokenami/tokenami/issues) first.
 
-## Demo
+## Try it out
 
-If you prefer to get stuck straight in, give the [vite starter](https://github.com/tokenami/tokenami-vite) a try and remember to choose the workspace version of TypeScript.
+Jump right in with our [vite starter](https://github.com/tokenami/tokenami-vite). Remember to use the workspace version of TypeScript.
 
 ## Contents
 
-- [Why another CSS library?](#user-content-why-another-css-library)
-- [Getting started](#user-content-getting-started)
+- [Why Tokenami?](#user-content-why-tokenami)
+- [Quick start](#user-content-quick-start)
   - [Installation](#user-content-installation)
-  - [Configure TypeScript](#user-content-configure-typescript)
-  - [Start CLI watch script](#user-content-start-the-cli-watch-script)
-  - [Use Tokenami](#user-content-use-tokenami)
+  - [Basic setup](#user-content-basic-setup)
 - [Core concepts](#user-content-core-concepts)
   - [Theming](#user-content-theming)
-  - [Styling](#user-content-styling)
-  - [Responsive styles](#user-content-responsive-styles)
-  - [Global styles](#user-content-global-styles)
-  - [Animation](#user-content-animation)
-- [CSS utility](#user-content-css-utility)
-  - [Usage](#user-content-usage)
-  - [Overrides](#user-content-overrides)
-- [CSS compose](#user-content-css-compose)
-  - [Variants](#user-content-css-compose)
-  - [Responsive variants](#user-responsive-variants)
-  - [Extending compose styles with `includes`](#user-content-extending-compose-styles-with-includes)
-- [TypeScript](#user-content-typescript)
-  - [Variants](#user-content-variants-1)
-  - [TokenamiStyle](#user-content-tokenami-style)
-  - [Continuous Integration](#user-content-continuous-integration)
+  - [Grid values](#user-content-grid-values)
+  - [Arbitrary selectors](#user-content-arbitrary-selectors)
+  - [Arbitrary values](#user-content-arbitrary-values)
+- [Styling](#user-content-styling)
+  - [CSS utility](#user-content-css-utility)
+  - [CSS compose](#user-content-css-compose)
+    - [Variants](#user-content-variants)
+    - [Responsive variants](#user-content-responsive-variants)
+    - [Extending styles](#user-content-extending-styles)
 - [Design systems](#user-content-design-systems)
-  - [Official design system](#user-content-official-design-system)
-- [Advanced](#user-content-advanced)
-  - [Selectors](#user-content-selectors)
-  - [Aliases](#user-content-aliases)
-  - [Map properties to theme](#user-content-map-properties-to-theme)
-  - [Map custom properties to theme](#user-content-map-custom-properties-to-theme)
-  - [Browserslist](#user-content-browserslist)
-- [Support](#user-content-support)
+  - [Using the official system](#user-content-using-the-official-system)
+  - [Building your own system](#user-content-building-your-own-system)
+  - [Global styles](#user-content-global-styles)
+  - [Breakpoints](#user-content-breakpoints)
+  - [Animation](#user-content-animation)
+- [Advanced usage](#user-content-advanced-usage)
+  - [Custom selectors](#user-content-custom-selectors)
+  - [Property aliases](#user-content-property-aliases)
+  - [Theming properties](#user-content-theming-properties)
+  - [Custom properties](#user-content-custom-properties)
+- [TypeScript integration](#user-content-typescript-integration)
+  - [Utility types](#user-content-utility-types)
+  - [CI setup](#user-content-ci-setup)
+- [Troubleshooting](#user-content-troubleshooting)
   - [Why the double-dash prefix?](#user-content-why-the-double-dash-prefix)
-  - [VSCode intellisense configuration](#user-content-vscode-intellisense-configuration)
-  - [Supported frameworks](#user-content-supported-frameworks)
-  - [Supported browsers](#user-content-supported-browsers)
-  - [HMR not working as expected in Remix](#user-content-hmr-not-working-as-expected-in-remix)
-- [Contributors](#user-contributors)
-- [Credits](#user-content-credits)
+  - [VSCode setup](#user-content-vscode-setup)
+  - [Framework support](#user-content-framework-support)
+  - [Browser support](#user-content-browser-support)
+  - [Browserslist](#user-content-browserslist)
+- [Community](#user-content-community)
+  - [Contributing](#user-content-contributing)
+  - [Contributors](#user-content-contributors)
+  - [Credits](#user-content-credits)
 
-## Why another CSS library?
+## Why Tokenami?
 
-CSS-in-JS solutions that rely on style injection [were no longer recommended by the React team](https://github.com/reactwg/react-18/discussions/110), and instead they suggested:
+The React team [no longer recommends](https://github.com/reactwg/react-18/discussions/110) CSS-in-JS solutions that inject styles. Instead, they suggest:
 
-> Our preferred solution is to use [`<link rel="stylesheet">`](https://github.com/reactwg/react-18/discussions/108) for statically extracted styles and plain inline styles for dynamic values. E.g. `<div style={{...}}>`
+> [...] use [`<link rel="stylesheet">`](https://github.com/reactwg/react-18/discussions/108) for static styles and plain inline styles for dynamic values. E.g. `<div style={{...}}>`
 
-In other words—_write CSS like we used to_. But what about the benefits that CSS-in-JS gave us?
+In other words—write CSS like we used to. But what about the benefits CSS-in-JS gave us? Some CSS-in-JS tools extract static styles into `.css` files, but they often need [bundler setup](https://vanilla-extract.style/documentation/integrations/next/) and have [build-time limitations](https://panda-css.com/docs/guides/dynamic-styling).
 
-There are CSS-in-JS solutions that extract static rules from your template files into external `.css` files, however, these approaches often require [bundler integration](https://vanilla-extract.style/documentation/integrations/next/) and come with [build-time limitations](https://panda-css.com/docs/guides/dynamic-styling).
+Developers use these tools despite the learning curve because they want:
 
-The learning curve can be intimidating but developers invest regardless so they can have type errors and intellisense for their design system tokens as well as style deduping, critical path CSS, scoping, and composition.
+- Type checking and suggestions for design system tokens
+- Style deduplication
+- Critical path CSS
+- Style scoping
+- Composition without specificity conflicts
 
 <details>
 <summary>Read more</summary>
 <br/>
 
-Tailwind CSS adopts a different strategy to achieve these goals:
+Tailwind CSS adopts a different strategy:
 
-- We can style inline to prototype quickly
-- Editor extensions for intellisense based on your theme
-- Statically generated styles with a simple CLI script, no bundler integration
 - Atomic CSS so styles have a cap on how large they can grow
+- Statically generated styles with a simple CLI script, no bundler integration needed
+- Quick prototyping with inline styles
+- Editor tools suggest classes from your theme
 
 On the flip side:
 
@@ -94,43 +98,42 @@ On the flip side:
 
 ### Introducing Tokenami
 
-Tokenami aims to improve some of these areas by using CSS variables instead of CSS properties in the `style` attribute, and bringing all necessary tools under one roof. It features:
+Tokenami aims to improve some of these areas by using atomic CSS variables instead of atomic classes, and bringing all necessary tools under one roof. It features:
 
 - Simple naming convention—convert any CSS property to a CSS variable (e.g. `padding` becomes `--padding`)
-- Smaller stylesheet made possible by atomic CSS variables
-- Config file for defining your theme
+- Smaller stylesheet using atomic CSS variables (e.g. one `padding: var(--padding)` rule vs. many `.p-1`, `.p-2` classes)
+- Config file for providing design system constraints
 - Feature-rich intellisense when authoring styles
-- A tiny `css` utility with variants, and responsive variants support
-- Seamless composition across component boundaries using the `css` utility
-- Runtime style support (e.g. `style={css({ '--color': props.color })}`)
+- Tiny `css` utility for variant support and composition without specificity conflicts
+- Dynamic style support (e.g. `style={css({ '--color': props.color })}`)
 - Aliasable properties (e.g. `style={css({ '--p': 4 })}` for padding)
 - Custom selector support enabling descendant selectors
 - Improved debugging experience in dev tools (coming soon)
-- Statically generated styles
-- No bundler integration
+- Static style generation
+- No bundler integration needed
 </details>
 
-## Getting started
+## Quick start
 
 Tokenami offers a CLI tool for generating static styles, a [~2.5kb](https://bundlephobia.com/package/@tokenami/css) CSS utility for authoring your styles, and a TypeScript plugin to enhance the developer experience.
 
 ### Installation
 
-Install using your package manager of choice. For example:
+Install using your package manager of choice:
 
 ```sh
 npm install -D tokenami && npm install @tokenami/css
 ```
 
-And then initialise your tokenami project:
+Then initialise your project:
 
 ```sh
 npx tokenami init
 ```
 
-### Configure TypeScript
+### Basic setup
 
-Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.json`.
+#### 1. Add Tokenami to your TypeScript config (`tsconfig.json` or `jsconfig.json`):
 
 ```json
 {
@@ -141,21 +144,15 @@ Add Tokenami to `include` and `plugins` in your `tsconfig.json` or `jsconfig.jso
 }
 ```
 
-Ensure your editor is configured to use the project's TypeScript version. Instructions can be found in your editor's documentation, such as [VSCode's guide](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript). VSCode users should also [enable `editor.quickSuggestions` for strings](#user-content-vscode-intellisense-configuration).
-
-### Start the CLI watch script
-
-Run the CLI tool to scan your template files for tokenami properties and build your CSS. This would usually exist as a script in your `package.json`.
+#### 2. Run the CLI script to watch files and build your CSS:
 
 ```sh
 npx tokenami --output ./public/styles.css --watch
 ```
 
-Make sure to adjust the output path to your desired location for styles. It will use `./public/tokenami.css` by default if omitted.
+You can change where the CSS file is generated by changing the `--output` flag. By default, it uses `./public/tokenami.css`.
 
-### Use Tokenami
-
-Reference your output CSS file in the `<head>` of your document, and start styling inline with Tokenami properties:
+#### 3. Reference the CSS file in the `<head>` of your document, and start styling with Tokenami properties:
 
 ```tsx
 import { css } from '@tokenami/css';
@@ -165,22 +162,28 @@ function Page() {
 }
 ```
 
+> [!Note]
+> Make sure your editor uses the workspace version of TypeScript. Check your editor's docs, like [VSCode's guide](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript). VSCode users should also [enable suggestions for strings](#user-content-vscode-setup).
+
 ## Core concepts
+
+Tokenami is built around a few key ideas that make styling easy to remember and maintain:
+
+- Turn any CSS property into a variable by adding `--` (e.g. `--padding`)
+- Use `---` (triple dash) for custom CSS variables
+- Add selectors with underscores (e.g. `--hover_padding`)
+- Add breakpoints the same way (e.g. `--md_padding`)
+- Combine selectors and breakpoints (e.g. `--md_hover_padding`)
 
 ### Theming
 
-Tokenami relies on your theme to provide design system constraints. There isn't a predefined theme so you must add your own to the `.tokenami/tokenami.config`.
-
 > [!Tip]
-> If you'd prefer to use a pre-built theme, you can use the [offical design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) and [skip this section](#user-content-styling).
+> Want to skip theme setup? Use our [official design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) which comes with dark mode, fluid typography, RTL support, and more. Jump to [using the official system](#user-content-using-the-official-system).
+
+Tokenami relies on your theme to provide design system constraints. Create one in `.tokenami/tokenami.config`:
 
 ```ts
 module.exports = createConfig({
-  // ...
-  responsive: {
-    medium: '@media (min-width: 700px)',
-    large: '@media (min-width: 1024px)',
-  },
   theme: {
     color: {
       'slate-100': '#f1f5f9',
@@ -196,13 +199,11 @@ module.exports = createConfig({
 });
 ```
 
-The keys in your `responsive` and `theme` objects can be anything you wish. These keys will be used to name your tokens (more on this later).
+Name your theme groups and tokens however you like. These names become part of your CSS variables.
 
 #### Multiple themes
 
-Use the `modes` key to define multiple themes if desired.
-
-You can choose any names for your modes. Tokens that are shared across themes should be placed alongisde your modes in the `root` object:
+Use the `modes` key to define multiple themes. Choose any names for your modes. Tokens that are shared across themes should be placed in a `root` object:
 
 ```ts
 module.exports = createConfig({
@@ -232,40 +233,30 @@ module.exports = createConfig({
 });
 ```
 
-By default this will apply the CSS variables to `.theme-${mode}` classes. Add the classes to an element on your page to apply the relevant theme.
+This creates `.theme-light` and `.theme-dark` classes. Add them to your page to switch themes.
 
-#### Custom theme selector
-
-To customise the theme selector, update the `themeSelector` config.
+Customise the theme selector using the `themeSelector` config:
 
 ```ts
 module.exports = createConfig({
-  themeSelector: (mode) => (mode === 'root' ? ':root' : `.theme-${mode}`),
+  themeSelector: (mode) => (mode === 'root' ? ':root' : `[data-theme=${mode}]`),
 });
 ```
 
-### Styling
+### Grid values
 
-With your theme set up, there are only a few rules to remember:
+Tokenami uses a grid system for spacing. When you pass a number to properties like padding and margin, it multiplies that number by your grid value. For example, with a grid of `4px`, using `--padding: 2` adds `8px` of padding.
 
-1. A Tokenami **property** is any CSS property prefixed with double dash, e.g. `--font-size` ([why?](#user-content-why-the-double-dash-prefix)). Use `---` (triple dash) to add custom CSS variables to an element.
-1. A Tokenami **token** is any theme key followed by a value identifier, and separated by an underscore. For example, a `color` object in theme with a `red-100` entry maps to `var(--color_red-100)`.
-1. Properties can include selectors like media queries, pseudo-classes, and pseudo-elements separated with an underscore. For instance, `--hover_background-color`, `--md_hover_background-color`.
-
-#### Grid values
-
-Tokenami uses a grid value for spacing. Properties like padding and margin are multiples of this when passed a numeric value. For example, with a grid set to `4px`, using `--padding: 2` adds `8px` of padding to your element.
-
-By default, Tokenami sets the grid to `0.25rem` but you can override it:
+By default, the grid is set to `0.25rem`. You can change it in your config:
 
 ```ts
 module.exports = createConfig({
-  // ...
   grid: '10px',
+  // ... rest of your config
 });
 ```
 
-#### Arbitrary selectors
+### Arbitrary selectors
 
 Use arbitrary selectors to prototype quickly:
 
@@ -282,47 +273,226 @@ Use arbitrary selectors to prototype quickly:
 
 They can be used to style the **current element, and its descendants** only.
 
-#### Arbitrary values
+### Arbitrary values
 
-You can avoid TypeScript errors for one-off inline values by using a triple dash fallback. For instance, `--padding: var(---, 20px)` prevents errors and sets padding to `20px`.
+You can avoid TypeScript errors for one-off inline values by using a triple-dash fallback.
 
-Tokenami intentionally adds friction to the developer experience here. This is to encourage sticking to your theme guidelines and to help you quickly spot values in your code that don't.
+```tsx
+<div style={css({ '--padding': 'var(---, 20px)' })} />
+```
 
-### Responsive styles
+This prevents TypeScript errors and sets padding to `20px`. Tokenami intentionally adds friction to the developer experience here. This is to encourage sticking to your theme guidelines and to help you quickly spot values in your code that don't.
 
-Define responsive rules in the `responsive` object in your config. This can include `@container` queries:
+## Styling
 
-```ts
-module.exports = createConfig({
-  // ...
-  responsive: {
-    medium: '@media (min-width: 1024px)',
-    'medium-self': '@container (min-width: 400px)',
+### CSS utility
+
+The `css` utility is used to author your styles and helps avoid style conflicts or specificity issues. Use `css` for inline styles.
+
+#### Usage
+
+Pass your base styles as the first parameter, then any overrides:
+
+```tsx
+function Button(props) {
+  return (
+    <button
+      {...props}
+      style={css(
+        { '--padding': 4 }, // Base styles
+        props.style // Overrides
+      )}
+    />
+  );
+}
+```
+
+#### Overrides
+
+Add conditional styles as extra parameters. The last override wins:
+
+```tsx
+function Button(props) {
+  const disabled = props.disabled && {
+    '--opacity': 0.5,
+    '--pointer-events': 'none',
+  };
+
+  return (
+    <button
+      {...props}
+      style={css(
+        { '--padding': 4 }, // Base styles
+        disabled, // Conditional styles
+        props.style // Props override
+      )}
+    />
+  );
+}
+```
+
+### CSS compose
+
+The `css.compose` API helps you build reusable components with variants. Styles in the compose block are extracted into your stylesheet and replaced with a class name to reduce repetition in your markup.
+
+Here's a basic example:
+
+```tsx
+const button = css.compose({
+  '--background': 'var(--color_primary)',
+  '--hover_background': 'var(--color_primary-dark)',
+
+  variants: {
+    size: {
+      small: { '--padding': 2 },
+      large: { '--padding': 6 },
+    },
+  },
+});
+
+function Button({ size = 'small', ...props }) {
+  const [cn, css] = button({ size });
+  return <button {...props} className={cn(props.className)} style={css(props.style)} />;
+}
+```
+
+#### Variants
+
+The `variants` object lets you define different style variations. Each variant can modify any property:
+
+```tsx
+const card = css.compose({
+  '--border-radius': 'var(--radii_rounded)',
+  '--color': 'var(--color_white)',
+  '--font-size': 'var(--text-size_sm)',
+
+  variants: {
+    color: {
+      blue: { '--background-color': 'var(--color_blue)' },
+      green: { '--background-color': 'var(--color_green)' },
+    },
+    size: {
+      small: { '--padding': 2 },
+      large: { '--padding': 6 },
+    },
   },
 });
 ```
 
-Use by following the [property spec](#user-content-styling):
+Use multiple variants together:
 
 ```tsx
-<div style={css({ '--medium_padding': 4 })} />
+function Card(props) {
+  const [cn, css] = card({ color: 'blue', size: 'large' });
+  return <div {...props} className={cn(props.className)} style={css(props.style)} />;
+}
 ```
 
-Responsive rules can also be combined with [selectors](#user-content-selectors):
+Variants are treated as overrides, so appear inline:
+
+```html
+<button class="tk-abc" style="--background-color: var(--color_blue); --padding: 6;">
+  click me
+</button>
+```
+
+#### Responsive variants
+
+Want to swap variants at different breakpoints? Use the `responsiveVariants` key instead of `variants`:
 
 ```tsx
-<div style={css({ '--medium_hover_padding': 4 })} />
+const button = css.compose({
+  '--padding': 4,
+
+  responsiveVariants: {
+    size: {
+      small: { '--padding': 2 },
+      large: { '--padding': 6 },
+    },
+  },
+});
+
+function Button(props) {
+  const [cn, css] = button({
+    size: 'small', // Default size
+    medium_size: 'large', // Large at medium breakpoint
+  });
+  return <button {...props} className={cn(props.className)} style={css(props.style)} />;
+}
 ```
 
-For documentation on responsive variants, refer to the [CSS compose](#user-content-css-compose) section.
+#### Extending styles
+
+Use `includes` to combine styles from multiple components or `css` utilities. Conflicting styles (e.g. `--background`) are moved inline to ensure correct overrides:
+
+```tsx
+// Reusable focus styles (will appear inline)
+const focusable = css({
+  '--focus_outline': 'var(--outline_sm)',
+  '--outline-offset': 'var(--outline-offset_sm)',
+});
+
+// Base button styles (will be extracted into stylesheet)
+const button = css.compose({
+  '--background': 'var(--color_primary)',
+  '--color': 'var(--color_white)',
+  '--padding': 4,
+});
+
+// New button that includes both
+const tomatoButton = css.compose({
+  includes: [button, focusable],
+  '--background': 'var(--color_tomato)',
+});
+```
+
+Output:
+
+```html
+<button
+  class="tk-abc"
+  style="--focus_outline: var(--outline_sm); --outline-offset: var(--outline-offset_sm); --background: var(--color_tomato);"
+>
+  click me
+</button>
+```
+
+## Design systems
+
+Design systems help teams build consistent interfaces. Tokenami makes it easy to create and use design systems, whether you're building your own or using our official one.
+
+### Using the official system
+
+Our [official design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) comes with:
+
+- Global reset based on [Preflight from Tailwind](https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/preflight.css)
+- [Radix UI colors](https://www.radix-ui.com/colors) with automatic dark mode
+- [Fluid spacing and font sizes](https://utopia.fyi/) for Breakpoints
+- Right-to-left support built in
+- Short aliases for common properties (e.g. `--p` for padding)
+
+Follow the `@tokenami/ds` docs to [get started](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md).
+
+### Building your own system
+
+Want to create your own portable design system? Create a shared tokenami config and stylesheet package that projects can consume:
+
+```tsx
+import designSystemConfig from '@acme/design-system';
+import { createConfig } from '@tokenami/css';
+
+export default createConfig({
+  ...designSystemConfig,
+  include: ['./app/**/*.{ts,tsx}', 'node_modules/@acme/design-system/tokenami.css'],
+});
+```
 
 ### Global styles
 
-Tokenami supports global styles in your `tokenami.config`. It can be useful for including them as part of a design system.
+Provide global styles in your config to include them as part of your design system.
 
 ```ts
 module.exports = createConfig({
-  // ...
   globalStyles: {
     '*, *::before, *::after': {
       boxSizing: 'border-box',
@@ -337,13 +507,39 @@ module.exports = createConfig({
 });
 ```
 
+### Breakpoints
+
+Define your breakpoints in the `responsive` config:
+
+```ts
+module.exports = createConfig({
+  responsive: {
+    md: '@media (min-width: 700px)',
+    lg: '@media (min-width: 1024px)',
+    'md-self': '@container (min-width: 400px)', // Container queries work too!
+  },
+});
+```
+
+Use them by adding the breakpoint name before any property:
+
+```tsx
+<div
+  style={css({
+    '--padding': 2, // Base padding
+    '--md_padding': 4, // Padding at medium breakpoint
+    '--lg_padding': 6, // Padding at large breakpoint
+    '--md-self_padding': 8, // Padding when container is medium
+  })}
+/>
+```
+
 ### Animation
 
 Add keyframes to your config and reference them in your theme:
 
 ```ts
 module.exports = createConfig({
-  // ...
   keyframes: {
     wiggle: {
       '0%, 100%': { transform: 'rotate(-3deg)' },
@@ -358,286 +554,44 @@ module.exports = createConfig({
 });
 ```
 
-Use by following the [token spec](#user-content-styling):
+Apply the animation to an element:
 
 ```tsx
 <div style={css({ '--animation': 'var(--anim_wiggle)' })} />
 ```
 
-## CSS utility
+## Advanced usage
 
-Tokenami provides a CSS utility to author your styles and correctly merge them across component boundaries.
+Tokenami has some advanced features that can help you build more powerful design systems.
 
-### Usage
+### Custom selectors
 
-The `css` utility accepts your base styles as the first parameter, and then any number of overrides as additional parameters.
-
-```tsx
-function Button({ size, style, ...props }) {
-  return <button {...props} style={css({ '--padding': 4 }, props.style)} />;
-}
-```
-
-In the above example we're passing `props.style` as an override to ensure composed styles will merge correctly across component boundaries.
-
-### Overrides
-
-Overrides can be applied conditionally and last override wins. They are applied as additional parameters to the `css` utility.
-
-```tsx
-function Button({ style, ...props }) {
-  const disabled = props.disabled && { '--opacity': 0.5 };
-  return <button {...props} style={css({ '--p': 4 }, disabled, style)} />;
-}
-```
-
-## CSS compose
-
-Use the `css.compose` API to author styles for your reusable components, with optional variants. Styles in the `compose` block are statically extracted into your stylesheet and replaced with a class name.
-
-```tsx
-const button = css.compose({
-  '--padding': 4,
-
-  variants: {
-    size: {
-      small: { '--padding': 2 },
-      large: { '--padding': 6 },
-    },
-  },
-});
-
-function Button({ size, ...props }) {
-  const [cn, css] = button({ size });
-  return <button {...props} className={cn(props.className)} style={css(props.style)} />;
-}
-```
-
-The `cn` function is a utility for combining class names. It is configured to chain your classes with the class names generated by Tokenami and will omit any falsey values.
-
-### Responsive variants
-
-Responsive variants allow you to prefix the variant name with a responsive key from your configuration. For example, the following button will apply the large `size` variant at the medium breakpoint:
-
-```tsx
-function Button(props) {
-  const [cn, css] = button({ medium_size: 'large' });
-  return <button {...props} className={cn(props.className)} style={css(props.style)} />;
-}
-```
-
-To enable it, rename the `variants` property to `responsiveVariants`. This will generate the atomic CSS for the responsive variants regardless of whether they're used, so it is purposefully opt-in to allow greater control.
-
-```diff
-const button = css.compose({
-  '--padding': 4,
-
--  variants: {
-+  responsiveVariants: {
-    size: {
-      small: { '--padding': 2 },
-      large: { '--padding': 6 },
-    },
-  },
-});
-```
-
-### Extending compose styles with `includes`
-
-Use `includes` to combine styles from multiple `css.compose` components, or `css` utilities:
-
-```tsx
-// Basic focus styles that can be reused
-const focusable = css({
-  '--focus_outline': 'var(--outline_sm)',
-  '--outline-offset': 'var(--outline-offset_sm)',
-});
-
-// Base button styles
-const button = css.compose({
-  '--background-color': 'var(--color_primary)',
-  '--font-size': 'var(--text-size_xl)',
-  '--padding': 4,
-});
-
-// New button that includes both styles
-const tomatoButton = css.compose({
-  includes: [button, focusable],
-  '--background-color': 'var(--color_tomato)',
-  '--border': 'var(--border_sm)',
-});
-
-function TomatoButton({ size, ...props }) {
-  const [cn, css] = tomatoButton();
-  return <button {...props} className={cn(props.className)} style={css(props.style)} />;
-}
-```
-
-This adds both of the generated `css.compose` class names to the element. Any conflicting styles (like `background-color`) move to the `style` attribute to ensure proper overrides. Regular `css` utility styles always end up in the `style` attribute.
-
-```html
-<button
-  class="tk-erz9s7 tk-rychtn"
-  style="--background-color: var(--color_tomato); --focus_outline: var(--outline_sm); --outline-offset: var(--outline-offset_sm);"
->
-  boop
-</button>
-```
-
-Tokenami will keep your styles atomic, so, if you have many components using the same key+value pairs, the classes will be chained in the stylesheet:
-
-```css
-.tk-abc,
-.tk-def {
-  --padding: 4;
-}
-
-.tk-abc,
-.tk-def,
-.tk-ghi {
-  --border: var(--border_sm);
-}
-
-.tk-abc {
-  --margin: 6;
-}
-
-.tk-ghi {
-  --font-size: var(--text-size_xl);
-}
-```
-
-## TypeScript
-
-### Variants
-
-Use the `Variants` type to extend your component prop types:
-
-```tsx
-import { type Variants } from '@tokenami/css';
-
-type ButtonElementProps = React.ComponentPropsWithoutRef<'button'>;
-interface ButtonProps extends ButtonElementProps, Variants<typeof button> {}
-```
-
-### TokenamiStyle
-
-The `TokenamiStyle` type allows you to extend the `style` prop of your component with Tokenami-specific properties.
-
-```tsx
-import { type TokenamiStyle, css } from '@tokenami/css';
-
-interface ButtonProps extends TokenamiStyle<React.ComponentProps<'button'>> {}
-
-function Button(props: ButtonProps) {
-  return <button {...props} style={css({}, props.style)} />;
-}
-```
-
-You can then use the component as usual, overriding styles as needed. Since the component is already typed and integrates the `css` utility internally, you no longer need to use the utility to apply styles:
-
-```tsx
-<Button style={{ '--padding': 4 }} />
-```
-
-### Continuous Integration
-
-Tokenami uses widened types for better performance during development. When you run `tsc` in the command line, it uses these widened types and won't show custom tokenami errors for invalid properties or tokens. For accurate type checking in CI, run both commands:
-
-```sh
-tokenami check && tsc --noEmit
-```
-
-## Design systems
-
-Integrating a design system built with Tokenami is straightforward. Include its `tokenami.config.js` file and corresponding stylesheet (where applicable) in your project:
-
-```tsx
-import designSystemConfig from '@acme/design-system';
-import { createConfig } from '@tokenami/css';
-
-export default createConfig({
-  ...designSystemConfig,
-  include: ['./app/**/*.{ts,tsx}', 'node_modules/@acme/design-system/tokenami.css'],
-});
-```
-
-Tokenami will automatically generate styles and merge them correctly across component boundaries.
-
-**Note**: It is only necessary to include the design system stylesheet if the design system provides components that you'd like to use in your project.
-
-### Official design system
-
-Tokenami has an [official design system package](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) you can use as a starting point for your project.
-
-It features:
-
-- Global reset based on [Preflight from Tailwind](https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/preflight.css)
-- [Radix UI colours](https://www.radix-ui.com/colors) enabling dark mode by default
-- [Fluid spacing and font sizes](https://utopia.fyi/) for responsive design
-- Right-to-left support out of the box (`padding-left` becomes `padding-inline-start` etc.)
-- Custom aliases for common properties, such as `--p` for `padding` and `--px` for `padding-left` and `padding-right`
-
-Follow the package docs to [get started](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md).
-
-## Advanced
-
-### Selectors
-
-Tokenami provides some [common default selectors](https://github.com/tokenami/tokenami/blob/main/packages/dev/stubs/tokenami.config.ts#L27) in your project for you, but you can define your own or override the defaults.
-
-Use the ampersand (`&`) to specify where the current element's selector should be injected:
+Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/tokenami/stubs/tokenami.config.ts#L28) are built in, but you can add your own. Use the ampersand (`&`) to mark where the current element's selector should be injected:
 
 ```ts
-const { createConfig } = require('@tokenami/css');
-
 module.exports = createConfig({
-  // ...
   selectors: {
-    //...
     'parent-hover': '.parent:hover > &',
-  },
-});
-```
-
-Use by following the [property spec](#user-content-styling):
-
-```tsx
-<div className="parent">
-  <img src="..." alt="" />
-  <button style={css({ '--parent-hover_font-weight': 'bold' })} />
-</div>
-```
-
-Selectors can also be combined with [responsive rules](#user-content-responsive-styles):
-
-```tsx
-<button style={css({ '--medium_parent-hover_font-weight': 'bold' })} />
-```
-
-#### Nested selectors
-
-Use an array value for custom selectors to generate nested rules:
-
-```tsx
-module.exports = createConfig({
-  // ...
-  selectors: {
-    // ...
+    // Nested selectors work too
     hover: ['@media (hover: hover) and (pointer: fine)', '&:hover'],
   },
 });
 ```
 
-This example will apply hover styles for users with a precise pointing device, such as a mouse, when `--hover_{property}` is used.
+Use them in your components:
 
-### Aliases
+```tsx
+<div className="parent">
+  <img src="..." alt="" />
+  <button style={css({ '--parent-hover_color': 'var(--color_primary)' })} />
+</div>
+```
 
-Aliases allow you to create shorthand names for properties. When using custom aliases, the `css` utility must be configured to ensure aliased properties are merged correctly across component boundaries.
+### Property aliases
 
-#### Configure utility
+Aliases allow you to create shorthand names for properties. When using custom aliases, the `css` utility must be configured to ensure conflicts are resolved correctly across component boundaries.
 
-Create a file in your project to configure the utility. You can name this file however you like, e.g. `css.ts`:
+#### 1. Create a file in your project to configure the utility. You can name this file however you like:
 
 ```ts
 // css.ts
@@ -647,43 +601,35 @@ import config from '../.tokenami/tokenami.config';
 export const css = createCss(config);
 ```
 
-Use the `css` utility exported from the file you created and it will handle aliases correctly.
-
-#### Create aliases
-
-The configuration expects the name of your new alias followed by an array of properties it maps to.
+#### 2. Configure the aliases in your config file:
 
 ```ts
 module.exports = createConfig({
-  // ...
   aliases: {
     p: ['padding'],
-    px: ['padding-left', 'padding-right'],
-    py: ['padding-top', 'padding-bottom'],
-    pt: ['padding-top'],
-    pr: ['padding-right'],
-    pb: ['padding-bottom'],
-    pl: ['padding-left'],
+    px: ['padding-inline'],
+    py: ['padding-block'],
     size: ['width', 'height'],
   },
 });
 ```
 
-With the above config, `px` is shorthand for `padding-left` and `padding-right`. This allows the `css` utility to apply padding on the left and right when `--px` is used.
+#### 3. Use the aliases:
 
-### Map properties to theme
+```tsx
+<div style={css({ '--p': 4, '--px': 2, '--size': '100%' })} />
+```
 
-Tokenami provides sensible defaults to restrict which values can be passed to properties based on your theme. For instance, `--border-color` will only accept tokens from your `color` object in theme, `--padding` allows multiples of your grid, and `--height` expects tokens from a `size` key or multiples of your grid.
+### Theming properties
 
-You can customise [the default configuration](https://github.com/tokenami/tokenami/blob/main/packages/dev/stubs/tokenami.config.ts#L42) generated in your project by updating the `properties` object:
+Tokenami maps your properties to some [default theme keys](https://github.com/tokenami/tokenami/blob/main/packages/tokenami/stubs/tokenami.config.ts#L43) out of the box. For example, `--border-color` accepts tokens from your `color` theme object, while `--padding` works with your grid system. You can customise these mappings in the `properties` key:
 
 ```ts
-const { createConfig } = require('@tokenami/css');
-
 module.exports = createConfig({
   theme: {
     container: {
       half: '50%',
+      full: '100%',
     },
     pet: {
       cat: '"🐱"',
@@ -691,7 +637,6 @@ module.exports = createConfig({
     },
   },
   properties: {
-    // ...
     width: ['grid', 'container'],
     height: ['grid', 'container'],
     content: ['pet'],
@@ -704,85 +649,118 @@ With this configuration, passing `var(--container_half)` to a `content` property
 ```tsx
 <div
   style={css({
-    '--width': 75 /*  300px with a 4px grid */,
-    '--height': 'var(--container_half)',
-    '--after_content': 'var(--pet_cat)',
+    '--width': 'var(--container_half)', // Works ✅
+    '--content': 'var(--pet_cat)', // Works ✅
+    '--content': 'var(--container_half)', // Error ❌
   })}
 />
 ```
 
-### Map custom properties to theme
+### Custom properties
 
-Tokenami allows custom properties in the `customProperties` config. This helps to create a configurable design system. For example, you can create `--gradient-from` and `--gradient-to` properties that accept color tokens to make reusable gradients:
+Create your own properties for design system features. For example, make gradient properties that use your color tokens by adding them to the `customProperties` key:
 
-```tsx
-module.exports = createConfig({
-  // ...
-  customProperties: {
-    // ...
-    'gradient-from': ['color'],
-    'gradient-to': ['color'],
-  },
-});
-```
-
-And use the properties in your theme:
-
-```tsx
+```ts
 module.exports = createConfig({
   theme: {
     color: {
       primary: '#f1f5f9',
       secondary: '#334155',
     },
-    surface: {
-      'radial-gradient':
-        'radial-gradient(circle at top, var(--gradient-from), var(--gradient-to) 80%)',
+    gradient: {
+      // use your custom properties to configure the gradient
+      radial: 'radial-gradient(circle at top, var(--gradient-from), var(--gradient-to) 80%)',
     },
   },
-  // ...
+  properties: {
+    'background-image': ['gradient'],
+  },
+  customProperties: {
+    'gradient-from': ['color'],
+    'gradient-to': ['color'],
+  },
 });
 ```
 
-Now you can set different gradient stops when applying the gradient, and intellisense will suggest colours from your theme.
+Then use them as follows:
 
 ```tsx
 <div
   style={css({
+    '--background-image': 'var(--gradient_radial)',
     '--gradient-from': 'var(--color_primary)',
     '--gradient-to': 'var(--color_secondary)',
-    '--background': 'var(--surface_radial-gradient)',
   })}
 />
 ```
 
-### Browserslist
+## TypeScript integration
 
-You can use [browserslist](https://browsersl.ist/) to add autoprefixing to your CSS properties in the generated CSS file. However, Tokenami currently doesn't support vendor-prefixed **values**, which is being tracked in [this issue](https://github.com/tokenami/tokenami/issues/103).
+### Utility types
 
-> [!Important]
-> Tokenami does not support browsers below the listed [supported browser versions](#user-content-supported-browsers). We recommend using `"browserslist": ["supports css-cascade-layers"]` if you're unsure.
+#### Variants
 
-## Support
+Use the `Variants` type to extend your component props with the available variants:
 
-Before raising a bug, please double-check that it isn't [already in my todo list](https://github.com/tokenami/tokenami/issues). Some common pitfalls are listed below. If you need additional support or encounter any issues, please don't hesitate to join the [Tokenami discord server](https://discord.gg/CAU4HNR4XK).
+```tsx
+import { type Variants } from '@tokenami/css';
+
+type ButtonElementProps = React.ComponentPropsWithoutRef<'button'>;
+interface ButtonProps extends ButtonElementProps, Variants<typeof button> {}
+```
+
+#### TokenamiStyle
+
+For components using the `css` utility, use `TokenamiStyle` to type its style prop:
+
+```tsx
+import { type TokenamiStyle, css } from '@tokenami/css';
+
+interface ButtonProps extends TokenamiStyle<React.ComponentProps<'button'>> {}
+
+function Button(props: ButtonProps) {
+  return <button {...props} style={css({}, props.style)} />;
+}
+```
+
+Now you can pass tokenami properties directly with proper type checking:
+
+```tsx
+<Button style={{ '--padding': 4 }} />
+```
+
+### CI setup
+
+Tokenami uses widened types during development for better performance. When you run `tsc` in the command line, it uses these widened types and won't show custom Tokenami errors.
+
+For accurate type checking in CI, run both commands:
+
+```sh
+tokenami check && tsc --noEmit
+```
+
+## Troubleshooting
+
+Common questions and how to solve them. If you need additional support or encounter any issues, please don't hesitate to join the [discord server](https://discord.gg/CAU4HNR4XK).
 
 ### Why the double-dash prefix?
 
-To minimise runtime style calculations, Tokenami directly applies your styles to the `style` attribute. Since the `style` attribute doesn't support media queries or pseudo-selectors, Tokenami uses CSS variables to enable them, and simplifies the learning curve by making all properties CSS variables.
+Tokenami applies your styles directly to the `style` attribute for better performance. Since the `style` attribute doesn't support media queries or pseudo-selectors, we use CSS variables to enable them. Making everything a CSS variable simplifies the learning curve.
 
-> [!Note]
-> Don't worry about the extra characters! Simply type `bord` (without quotes), and Tokenami's Intellisense will automatically complete it for you, including hyphens and quotes.
+> [!Tip]
+> Don't worry about typing extra dashes! Just type `bord` and Tokenami's intellisense will help autocomplete it in the right format.
 
-Additionally, CSS properties applied to the `style` attribute have highest specificity making them hard to override. By using CSS variables instead, you can easily override Tokeanami's styles by adding a stylesheet after Tokenami's to your document.
+Using CSS variables has another benefit—they have lower specificity than CSS properties in the `style` attribute. This means you can easily override Tokenami's styles by adding a stylesheet after Tokenami's if necessary.
 
-### VSCode intellisense configuration
+### VSCode setup
 
-By default, VSCode will not trigger intellisense for strings which can hinder the developer experience if you've chosen an incomplete suggestion from the suggestion list. To fix this, add the following to your `.vscode/settings.json`:
+VSCode won't suggest completions for partial strings by default. This can make it harder to use Tokenami's suggestions. To fix this, add to your `.vscode/settings.json`:
 
 ```json
-"editor.quickSuggestions": {
-  "strings": true
+{
+  "editor.quickSuggestions": {
+    "strings": true
+  }
 }
 ```
 
@@ -790,29 +768,48 @@ By default, VSCode will not trigger intellisense for strings which can hinder th
 | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | ![CleanShot 2024-09-08 at 14 10 10](https://github.com/user-attachments/assets/9b99edb4-dec0-402e-99c9-671525332ccf) | ![CleanShot 2024-09-08 at 14 09 43](https://github.com/user-attachments/assets/ad2ed719-c2ca-4929-902d-5fdf5142468b) |
 
-### Supported frameworks
+### Framework support
 
-Tokenami is in early stages of development and currently only supports applications built using React (NextJS, Remix, etc.), Vue, or SolidJS.
+Tokenami currently works with:
 
-### Supported browsers
+- React (including Next.js and Remix)
+- Vue
+- SolidJS
 
-Tokenami relies on [cascade layers](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Cascade_layers) so only supports [browsers with `@layer` support](https://caniuse.com/?search=%40layer).
+We're still in early development and plan to support more frameworks in the future.
+
+### Browser support
+
+Tokenami relies on [cascade layers](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Cascade_layers), so it works in browsers that support `@layer`:
 
 | <img src="https://github.com/tokenami/tokenami/assets/175330/8588dacd-a77f-44ee-9111-cea6601ebc35" alt="Edge" width="24px" height="24px" /><br/>Edge | <img src="https://github.com/tokenami/tokenami/assets/175330/b2b38574-5290-44ba-bb28-87e139f8efb8" alt="Firefox" width="24px" height="24px" /><br/>Firefox | <img src="https://github.com/tokenami/tokenami/assets/175330/ae970301-390d-426e-9ea7-974267917df6" alt="Chrome" width="24px" height="24px" /><br/>Chrome | <img src="https://github.com/tokenami/tokenami/assets/175330/16c7374c-a466-4fbe-9459-44c3b30bb688" alt="Safari" width="24px" height="24px" /><br/>Safari | <img src="https://github.com/tokenami/tokenami/assets/175330/16c7374c-a466-4fbe-9459-44c3b30bb688" alt="iOS Safari" width="24px" height="24px" /><br/>iOS Safari | <img src="https://github.com/tokenami/tokenami/assets/175330/e9eaad5e-ef39-4423-ad4b-2e61c0bcc873" alt="Opera" width="24px" height="24px" /><br/>Opera |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 99+                                                                                                                                                  | 97+                                                                                                                                                        | 99+                                                                                                                                                      | 15.4+                                                                                                                                                    | 15.4+                                                                                                                                                            | 86+                                                                                                                                                    |
 
-## Contributors
+### Browserslist
+
+You can use [browserslist](https://browsersl.ist/) to add autoprefixing to your CSS properties in the generated CSS file. However, Tokenami currently doesn't support vendor-prefixed **values**, which is being tracked in [this issue](https://github.com/tokenami/tokenami/issues/103).
+
+> [!Important]
+> Tokenami does not support browsers below the listed [supported browser versions](#user-content-browser-support). We recommend using `"browserslist": ["supports css-cascade-layers"]` if you're unsure.
+
+## Community
+
+### Contributing
+
+Before raising a bug, please check if it's [already in our todo list](https://github.com/tokenami/tokenami/issues). Need help? Join our [Discord server](https://discord.gg/CAU4HNR4XK).
+
+### Contributors
 
 - Paweł Błaszczyk ([@pawelblaszczyk\_](https://twitter.com/pawelblaszczyk_))
 
-## Credits
+### Credits
 
 A big thanks to:
 
-- [Tailwind CSS](https://tailwindcss.com/) for inspiring most of the features in Tokenami
+- [Tailwind V3](https://tailwindcss.com/) for inspiring many of Tokenami's features
 - [Stitches](https://stitches.dev/) for variants and responsive variants inspiration
 - [CSS Hooks](https://css-hooks.com/) for custom selectors inspiration
 - [Lightning CSS](https://lightningcss.dev/) for generating the Tokenami stylesheet
 
-Please do take the time to check these projects out if you feel Tokenami isn't quite right for you.
+Please do check out these projects if Tokenami isn't quite what you're looking for.
