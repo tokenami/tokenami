@@ -9,14 +9,11 @@
   <img src="https://github.com/tokenami/tokenami/assets/175330/8cdfcdf8-05da-4096-8e0b-5645e1b329e5" alt="React support" width="40" />
   <img src="https://github.com/tokenami/tokenami/assets/175330/141f3cda-905c-4789-be1e-15bbe6f7f77e" alt="Vue support" width="40" />
   <img src="https://github.com/tokenami/tokenami/assets/175330/0669ee2e-d02e-4c6e-b75b-8760e9b4cfb4" alt="SolidJS support" width="40" />
+
 </div>
 
 > [!Warning]
 > Tokenami is still in early development. You might find bugs or missing features. Before reporting issues, please check our [existing issues](https://github.com/tokenami/tokenami/issues) first.
-
-## Try it out
-
-Jump right in with our [vite starter](https://github.com/tokenami/tokenami-vite). Remember to use the workspace version of TypeScript.
 
 ## Contents
 
@@ -68,6 +65,10 @@ The React team [no longer recommends](https://github.com/reactwg/react-18/discus
 
 In other words—write CSS like we used to. But what about the benefits CSS-in-JS gave us? Some CSS-in-JS tools extract static styles into `.css` files, but they often need [bundler setup](https://vanilla-extract.style/documentation/integrations/next/) and have [build-time limitations](https://panda-css.com/docs/guides/dynamic-styling).
 
+<details>
+<summary>Read more</summary>
+<br/>
+
 Developers use these tools despite the learning curve because they want:
 
 - Type checking and suggestions for design system tokens
@@ -75,10 +76,6 @@ Developers use these tools despite the learning curve because they want:
 - Critical path CSS
 - Style scoping
 - Composition without specificity conflicts
-
-<details>
-<summary>Read more</summary>
-<br/>
 
 Tailwind CSS adopts a different strategy:
 
@@ -113,9 +110,13 @@ Tokenami aims to improve some of these areas by using atomic CSS variables inste
 - No bundler integration needed
 </details>
 
+| Tokenami DX                                                                               | HTML output                                                                                |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| ![Input](https://github.com/user-attachments/assets/2a675b7e-5415-4b8c-b801-6735a504bf47) | ![Output](https://github.com/user-attachments/assets/3537d155-22f5-4f98-afff-ee05b092972d) |
+
 ## Quick start
 
-Tokenami offers a CLI tool for generating static styles, a [~2.5kb](https://bundlephobia.com/package/@tokenami/css) CSS utility for authoring your styles, and a TypeScript plugin to enhance the developer experience.
+Jump right in with our [vite starter](https://github.com/tokenami/tokenami-vite), or configure your own project. Tokenami offers a CLI tool for generating static styles, a [~2.5kb](https://bundlephobia.com/package/@tokenami/css) CSS utility for authoring your styles, and a TypeScript plugin to enhance the developer experience.
 
 ### Installation
 
@@ -287,7 +288,7 @@ This prevents TypeScript errors and sets padding to `20px`. Tokenami intentional
 
 ### CSS utility
 
-The `css` utility is used to author your styles and helps avoid style conflicts or specificity issues. Use `css` for inline styles.
+The `css` utility is used to author your styles and helps with overrides and avoiding specificity issues. Use `css` for inline styles.
 
 #### Usage
 
@@ -807,7 +808,7 @@ Before raising a bug, please check if it's [already in our todo list](https://gi
 
 A big thanks to:
 
-- [Tailwind V3](https://tailwindcss.com/) for inspiring many of Tokenami's features
+- [Tailwind V3](https://v3.tailwindcss.com/) for inspiring many of Tokenami's features
 - [Stitches](https://stitches.dev/) for variants and responsive variants inspiration
 - [CSS Hooks](https://css-hooks.com/) for custom selectors inspiration
 - [Lightning CSS](https://lightningcss.dev/) for generating the Tokenami stylesheet
