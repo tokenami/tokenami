@@ -2,27 +2,15 @@ import type * as CSS from 'csstype';
 import type * as Tokenami from '@tokenami/config';
 
 type Merge<A, B> = B extends never ? A : Omit<A, keyof B> & B;
-type DefaultConfig = Tokenami.Config & { CI: false };
 
 // consumer will override this interface
 interface TokenamiConfig {}
-interface TokenamiFinalConfig extends Merge<DefaultConfig, TokenamiConfig> {}
+interface TokenamiFinalConfig extends Merge<Tokenami.Config, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
 type AliasConfig = Omit<NonNullable<TokenamiFinalConfig['aliases']>, Tokenami.CSSProperty>;
 type PropertyConfig = NonNullable<TokenamiFinalConfig['properties']> &
   NonNullable<TokenamiFinalConfig['customProperties']>;
-type SelectorKey = Extract<keyof NonNullable<TokenamiFinalConfig['selectors']>, string>;
-type ResponsiveKey = Extract<keyof NonNullable<TokenamiFinalConfig['responsive']>, string>;
-type ResponsiveSelectorKey = `${ResponsiveKey}_${SelectorKey}`;
-type ResponsiveArbitrarySelectorKey = `${ResponsiveKey}_{${string}}`;
-type ArbitrarySelectorKey = `{${string}}`;
-type VariantKey =
-  | ResponsiveKey
-  | SelectorKey
-  | ResponsiveSelectorKey
-  | ArbitrarySelectorKey
-  | ResponsiveArbitrarySelectorKey;
 
 type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T>
   ? T & ThemeConfig['root']
@@ -48,9 +36,7 @@ type AliasedProperty<P> = {
 
 type VariantProperty<P extends string> =
   | Tokenami.TokenProperty<P>
-  | (TokenamiFinalConfig['CI'] extends true
-      ? Tokenami.VariantProperty<P, VariantKey>
-      : Tokenami.VariantProperty<P, string>);
+  | Tokenami.VariantProperty<P, string>;
 
 type TokenValue<P> = P extends string
   ? P extends keyof PropertyConfig
