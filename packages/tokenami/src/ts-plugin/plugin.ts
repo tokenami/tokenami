@@ -192,7 +192,7 @@ class TokenamiPlugin {
       return createEntryDetails(original, entry, `${rgb}\n\n${colorDescription}`);
     } else {
       const description = createTokenDescription(entry.details.modeValues);
-      return createEntryDetails(original, entry, `${firstValue}\n\n${description}`);
+      return createEntryDetails(original, entry, description);
     }
   }
 
