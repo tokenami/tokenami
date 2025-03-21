@@ -171,20 +171,6 @@ function generateTypeDefs(configPath: string, stubPath = '../stubs/tokenami.env.
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getResponsivePropertyVariants
- * -----------------------------------------------------------------------------------------------*/
-
-function getResponsivePropertyVariants(
-  tokenProperty: Tokenami.TokenProperty,
-  responsive: Tokenami.Config['responsive']
-): Tokenami.VariantProperty[] {
-  return Object.keys(responsive || {}).map((query) => {
-    const name = Tokenami.getTokenPropertyName(tokenProperty);
-    return Tokenami.variantProperty(query, name);
-  });
-}
-
-/* -------------------------------------------------------------------------------------------------
  * getValidProperties
  * -----------------------------------------------------------------------------------------------*/
 
@@ -248,6 +234,5 @@ export {
   getThemeValuesByTokenValues,
   getThemeFromConfig,
   getThemeValuesByThemeMode,
-  getResponsivePropertyVariants,
   unique,
 };

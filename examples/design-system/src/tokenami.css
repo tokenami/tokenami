@@ -239,11 +239,6 @@
     --block-size: initial;
     --transition: initial;
     --hover_animation: initial;
-    --sm: initial;
-    --md: initial;
-    --lg: initial;
-    --xl: initial;
-    --xxl: initial;
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -254,36 +249,6 @@
 
   [style]:focus:hover, .tk-1ddz3jq:focus:hover {
     --\{\&\;focus\;hover\}: ;
-  }
-
-  @media (min-width: 40rem) {
-    [style] {
-      --sm: ;
-    }
-  }
-
-  @media (min-width: 48rem) {
-    [style] {
-      --md: ;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    [style] {
-      --lg: ;
-    }
-  }
-
-  @media (min-width: 80rem) {
-    [style] {
-      --xl: ;
-    }
-  }
-
-  @media (min-width: 96rem) {
-    [style] {
-      --xxl: ;
-    }
   }
 }
 
@@ -329,12 +294,6 @@
   [style], .tk-1ddz3jq {
     animation: var(--_xgpg9b, revert-layer);
     --_xgpg9b: var(--hover) var(--hover_animation);
-    font: var(--_ka2h5d, var(--_m8xn1c, var(--_5lcl0m, var(--_18nhvf0, var(--_1xfj32v, revert-layer)))));
-    --_1xfj32v: var(--sm) var(--sm_font);
-    --_18nhvf0: var(--md) var(--md_font);
-    --_5lcl0m: var(--lg) var(--lg_font);
-    --_m8xn1c: var(--xl) var(--xl_font);
-    --_ka2h5d: var(--xxl) var(--xxl_font);
   }
 }
 
@@ -343,12 +302,6 @@
     background-color: var(--_aoiy32, var(--_1gqxh9p, revert-layer));
     --_1gqxh9p: var(--hover) var(--hover_background-color);
     --_aoiy32: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
-    font-family: var(--_1afn4yr, var(--_1sjr7ev, var(--_1710xfo, var(--_48u3vv, var(--_dcd1z4, revert-layer)))));
-    --_dcd1z4: var(--sm) var(--sm_font-family);
-    --_48u3vv: var(--md) var(--md_font-family);
-    --_1710xfo: var(--lg) var(--lg_font-family);
-    --_1sjr7ev: var(--xl) var(--xl_font-family);
-    --_1afn4yr: var(--xxl) var(--xxl_font-family);
   }
 }
 

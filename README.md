@@ -32,7 +32,6 @@
   - [CSS utility](#user-content-css-utility)
   - [CSS compose](#user-content-css-compose)
     - [Variants](#user-content-variants)
-    - [Responsive variants](#user-content-responsive-variants)
     - [Extending styles](#user-content-extending-styles)
 - [Design systems](#user-content-design-systems)
   - [Using the official system](#user-content-using-the-official-system)
@@ -395,31 +394,6 @@ Variants are treated like overrides, so appear inline:
 
 ```html
 <div class="tk-abc" style="--background-color: var(--color_blue); --padding: 6;">boop</div>
-```
-
-#### Responsive variants
-
-Want to swap variants at different breakpoints? Use the `responsiveVariants` key instead of `variants`:
-
-```tsx
-const button = css.compose({
-  '--padding': 4,
-
-  responsiveVariants: {
-    size: {
-      small: { '--padding': 2 },
-      large: { '--padding': 6 },
-    },
-  },
-});
-
-function Button(props) {
-  const [cn, css] = button({
-    size: 'small', // Default size
-    medium_size: 'large', // Large at medium breakpoint
-  });
-  return <button {...props} className={cn(props.className)} style={css(props.style)} />;
-}
 ```
 
 #### Extending styles
@@ -817,7 +791,7 @@ Before raising a bug, please check if it's [already in our todo list](https://gi
 A big thanks to:
 
 - [Tailwind V3](https://v3.tailwindcss.com/) for inspiring many of Tokenami's features
-- [Stitches](https://stitches.dev/) for variants and responsive variants inspiration
+- [Stitches](https://stitches.dev/) for variants inspiration
 - [CSS Hooks](https://css-hooks.com/) for custom selectors inspiration
 - [Lightning CSS](https://lightningcss.dev/) for generating the Tokenami stylesheet
 

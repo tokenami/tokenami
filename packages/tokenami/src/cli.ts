@@ -261,9 +261,7 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
 
     for (const composeBlock of composeBlocksContents) {
       const ast = acorn.parse(composeBlock, { ecmaVersion: 'latest' });
-      const responsiveProperties = matchResponsiveComposeVariants(ast, config);
       const composeBlockStyles = matchBaseComposeBlocks(ast);
-      tokenProperties = [...tokenProperties, ...responsiveProperties];
       composeBlocks = { ...composeBlocks, ...composeBlockStyles };
     }
 
@@ -344,18 +342,6 @@ function matchTokens(content: string, theme: Tokenami.Config['theme']) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * matchResponsiveComposeVariants
- * -----------------------------------------------------------------------------------------------*/
-
-function matchResponsiveComposeVariants(ast: acorn.AnyNode, config: Tokenami.Config) {
-  const responsiveVariants = findResponsiveVariantsBlocks(ast);
-  const tokens = matchTokens(JSON.stringify(responsiveVariants), config.theme);
-  return tokens.properties.flatMap((tokenProperty) => {
-    return utils.getResponsivePropertyVariants(tokenProperty, config.responsive);
-  });
-}
-
-/* -------------------------------------------------------------------------------------------------
  * findComposeBlocks
  * -----------------------------------------------------------------------------------------------*/
 
@@ -379,24 +365,6 @@ function findComposeBlocks(node: acorn.AnyNode): acorn.ObjectExpression[] | unde
   });
 
   return result;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * findResponsiveVariantsBlocks
- * -----------------------------------------------------------------------------------------------*/
-
-function findResponsiveVariantsBlocks(node: acorn.AnyNode): acorn.Property | null {
-  let responsiveVariantsNode = null;
-
-  acornWalk.simple(node, {
-    Property(node) {
-      if (node.key.type === 'Identifier' && node.key.name === 'responsiveVariants') {
-        responsiveVariantsNode = node;
-      }
-    },
-  });
-
-  return responsiveVariantsNode;
 }
 
 /* -------------------------------------------------------------------------------------------------

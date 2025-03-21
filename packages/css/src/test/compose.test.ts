@@ -1,7 +1,7 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import { generateClassName } from '@tokenami/config';
 import { hasStyles, hasSomeStyles } from './utils';
-import { css, _COMPOSE, convertToMediaStyles } from '../css';
+import { css, _COMPOSE } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup
@@ -48,7 +48,7 @@ const linkStyles = Object.freeze({
 
 const button = css.compose({
   ...baseStyles,
-  responsiveVariants: {
+  variants: {
     disabled: { true: disabledStyles, false: enabledStyles },
     type: { primary: primaryStyles, secondary: secondaryStyles },
   },
@@ -126,25 +126,6 @@ describe('css compose', () => {
 
     it<TestContext>('should not include other variant styles', (context) => {
       expect(hasStyles(context.output, disabledStyles)).toBe(false);
-    });
-  });
-
-  describe('when invoked with a responsive variant', () => {
-    beforeEach<TestContext>((context) => {
-      const [, style] = context.button({ md_type: 'secondary' });
-      context.output = style();
-    });
-
-    it<TestContext>('should not include base styles', (context) => {
-      expect(hasStyles(context.output, baseStylesOutput)).toBe(false);
-    });
-
-    it<TestContext>('should not include other variant styles', (context) => {
-      expect(hasStyles(context.output, primaryStyles)).toBe(false);
-    });
-
-    it<TestContext>('should include responsive variant styles', (context) => {
-      expect(hasStyles(context.output, convertToMediaStyles('md', secondaryStyles))).toBe(true);
     });
   });
 
