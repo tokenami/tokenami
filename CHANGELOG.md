@@ -1,3 +1,37 @@
+# v0.0.81 (Fri Mar 21 2025)
+
+### Release Notes
+
+#### remove responsive variants api ([#427](https://github.com/tokenami/tokenami/pull/427))
+
+the `responsiveVariants` api in `css.compose` has been removed to reduce the size and runtime overhead of the `css` utility. please update to use `variants` instead. while cumbersome, you can implement `responsiveVariants` manually (see [ticket](https://github.com/tokenami/tokenami/issues/419)).
+
+---
+
+#### 💥 Breaking Change
+
+- remove responsive variants api [#427](https://github.com/tokenami/tokenami/pull/427) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🚀 Enhancement
+
+- improve intellisense details in zed [#425](https://github.com/tokenami/tokenami/pull/425) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- fix missing default css export [#424](https://github.com/tokenami/tokenami/pull/424) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- docs improvements and supports section updates [#426](https://github.com/tokenami/tokenami/pull/426) ([@jjenzz](https://github.com/jjenzz))
+- add dx images to readme [#421](https://github.com/tokenami/tokenami/pull/421) ([@jjenzz](https://github.com/jjenzz))
+- reorganise documentation [#420](https://github.com/tokenami/tokenami/pull/420) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.80 (Sat Mar 15 2025)
 
 #### 🐛 Bug Fix
