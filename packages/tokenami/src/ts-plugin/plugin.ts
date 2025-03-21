@@ -389,7 +389,12 @@ function getUnquotedString(name: string) {
  * -------------------------------------------------------------------------------------------*/
 
 function createColorTokenDescription(modeValues: ModeValues) {
-  return createDescription(modeValues, (mode, value) => [createSquare(value, mode), mode, value]);
+  const entries = Object.entries(modeValues);
+  const rows = entries.map(([mode, value]) => {
+    const swatch = createSquare(value, mode);
+    return `${swatch}&nbsp;&nbsp;${mode}&nbsp;&nbsp;&nbsp;&nbsp;${value}`;
+  });
+  return rows.join('\n\n');
 }
 
 /* ---------------------------------------------------------------------------------------------
@@ -397,20 +402,8 @@ function createColorTokenDescription(modeValues: ModeValues) {
  * -------------------------------------------------------------------------------------------*/
 
 function createTokenDescription(modeValues: ModeValues) {
-  return createDescription(modeValues, (mode, value) => [mode, value]);
-}
-
-/* ---------------------------------------------------------------------------------------------
- * createDescription
- * -------------------------------------------------------------------------------------------*/
-
-function createDescription(
-  modeValues: ModeValues,
-  builder: (mode: string, value: string) => string[]
-) {
   const entries = Object.entries(modeValues);
-  const rows = entries.map(([mode, value]) => createRow(builder(mode, value)));
-  return rows.join(`\n\n`);
+  return entries.map(([mode, value]) => `${mode}&nbsp;&nbsp;&nbsp;&nbsp;${value}`).join('\n\n');
 }
 
 /* ---------------------------------------------------------------------------------------------
@@ -420,15 +413,7 @@ function createDescription(
 function createSquare(color: string, mode?: string) {
   const fill = convertToRgb(replaceCssVarsWithFallback(color), mode);
   const svg = `<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" x="0" y="0" fill="${fill}" /></svg>`;
-  return `![Image](data:image/svg+xml;base64,${btoa(svg)})`;
-}
-
-/* ---------------------------------------------------------------------------------------------
- * createRow
- * -------------------------------------------------------------------------------------------*/
-
-function createRow(row: string[]) {
-  return row.join(createSquare('transparent') + createSquare('transparent'));
+  return `![](data:image/svg+xml;base64,${btoa(svg)})`;
 }
 
 /* ---------------------------------------------------------------------------------------------
