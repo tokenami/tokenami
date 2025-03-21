@@ -1,4 +1,4 @@
-import type { TokenamiProperties, TokenamiFinalConfig } from 'tokenami';
+import type { TokenamiProperties } from 'tokenami';
 import * as Tokenami from '@tokenami/config';
 
 const _TOKENAMI_CSS = Symbol.for('@tokenami/css');
@@ -10,23 +10,17 @@ type TokenamiCSS = { [_: symbol]: TokenamiProperties };
 type TokenamiCSSResult = Record<string, any> & { [_COMPOSE]: Record<Tokenami.TokenProperty, any> };
 type VariantsConfig = Record<string, Record<string, TokenamiProperties>>;
 type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
-type ReponsiveKey = Extract<keyof NonNullable<TokenamiFinalConfig['responsive']>, string>;
-type ResponsiveValue<T> = T extends string ? `${ReponsiveKey}_${T}` : never;
 type Override = TokenamiProperties | TokenamiCSS | false | undefined;
 type ClassName = string | undefined | null | false;
 type Variants<C> = undefined extends C ? {} : { [V in keyof C]?: VariantValue<keyof C[V]> };
-type ResponsiveVariants<C> = undefined extends C
-  ? {}
-  : { [V in keyof C]: { [M in ResponsiveValue<V>]?: VariantValue<keyof C[V]> } }[keyof C];
 
 type TokenamiComposeInput<V, R> = TokenamiProperties & {
-  includes?: (TokenamiComposeResult<any, any> | TokenamiCSS)[];
+  includes?: (TokenamiComposeResult<any> | TokenamiCSS)[];
   variants?: V & VariantsConfig;
-  responsiveVariants?: R & VariantsConfig;
 };
 
-type TokenamiComposeResult<V, R> = (
-  selectedVariants?: Variants<V> & Variants<R> & ResponsiveVariants<R>
+type TokenamiComposeResult<V> = (
+  selectedVariants?: Variants<V>
 ) => [cn: (...classNames: ClassName[]) => string, style: (...overrides: Override[]) => TokenamiCSS];
 
 /* -------------------------------------------------------------------------------------------------
@@ -103,8 +97,8 @@ function createCss(
 
   css.compose = <V extends VariantsConfig | undefined, R extends VariantsConfig | undefined>(
     styleConfig: TokenamiComposeInput<V, R>
-  ): TokenamiComposeResult<V, R> => {
-    const { includes = [], variants, responsiveVariants, ...baseStyles } = styleConfig;
+  ): TokenamiComposeResult<V> => {
+    const { includes = [], variants, ...baseStyles } = styleConfig;
     const className = Tokenami.generateClassName(baseStyles);
 
     return function generate(selectedVariants = {}) {
@@ -112,7 +106,7 @@ function createCss(
       const cached = lruCache.get(cacheId);
       if (cached) return cached;
 
-      const variantEntries = Object.entries(selectedVariants);
+      const selectedVariantsEntries = Object.entries(selectedVariants);
       let variantStyles: TokenamiProperties[] = [];
       let includeStyles: TokenamiCSS[] = [];
       let includeClassNames: string[] = [];
@@ -127,20 +121,12 @@ function createCss(
         }
       }
 
-      for (const [key, variant] of variantEntries) {
-        if (!variant) continue;
-        const [type, bp] = key.split('_').reverse() as [keyof VariantsConfig, string?];
-        const responsive = responsiveVariants?.[type]?.[variant as any];
-        const variantValue = variants?.[type]?.[variant as any] ?? responsive;
-
-        if (bp && responsive) {
-          variantStyles.push(convertToMediaStyles(bp, responsive));
-        } else if (variantValue) {
-          variantStyles.push(variantValue);
-        }
+      for (const [key, variant] of selectedVariantsEntries) {
+        const variantValue = variants?.[key]?.[variant as any];
+        if (variantValue) variantStyles.push(variantValue);
       }
 
-      const result: ReturnType<TokenamiComposeResult<V, R>> = [
+      const result: ReturnType<TokenamiComposeResult<V>> = [
         cn.bind(null, ...includeClassNames, className),
         (...overrides) => {
           const styles = { [_COMPOSE]: baseStyles } as any;
@@ -232,22 +218,8 @@ function overrideLonghands(style: TokenamiCSSResult, tokenProperty: Tokenami.Tok
   }
 }
 
-/* -------------------------------------------------------------------------------------------------
- * convertToMediaStyles
- * -----------------------------------------------------------------------------------------------*/
-
-function convertToMediaStyles(bp: string, styles: TokenamiProperties): TokenamiProperties {
-  const updatedEntries = Object.entries(styles).map(([property, value]) => {
-    const tokenPrefix = Tokenami.tokenProperty('');
-    const bpPrefix = Tokenami.parsedVariantProperty(bp, '');
-    const bpProperty = property.replace(tokenPrefix, bpPrefix);
-    return [bpProperty, value];
-  });
-  return Object.fromEntries(updatedEntries);
-}
-
 /* ---------------------------------------------------------------------------------------------- */
 
 export const css = createCss({});
 export type { TokenamiCSS };
-export { createCss, convertToMediaStyles, _COMPOSE };
+export { createCss, _COMPOSE };

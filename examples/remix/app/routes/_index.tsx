@@ -13,6 +13,7 @@ export default function Index() {
           '--m': 10,
           '--px': 8,
           '--py': 8,
+          '--justify-items': 'center',
           '--md_display': 'flex',
           '--md_p': 0,
           '--md_text-align': 'left',
@@ -132,17 +133,19 @@ const quoteImage = css.compose({
   '--object-fit': 'cover',
   '--border-color': 'var(--color_iris10)',
 
-  responsiveVariants: {
+  variants: {
     variant: {
       circle: {
         '--width': 24,
         '--height': 24,
         '--border-radius': 'var(--radii_full)',
       },
+    },
+    md_variant: {
       fill: {
-        '--width': 'var(---,11rem)',
-        '--height': 'var(--size_auto)',
-        '--border-radius': 'var(--radii_none)',
+        '--md_width': 'var(---,11rem)',
+        '--md_height': 'var(--size_auto)',
+        '--md_border-radius': 'var(--radii_none)',
       },
     },
   },
