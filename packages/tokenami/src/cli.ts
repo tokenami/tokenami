@@ -70,7 +70,6 @@ const run = () => {
     .option('-c, --config [path]', 'Path to a custom config file')
     .action((_, flags) => {
       const projectConfig = getProjectConfig(cwd);
-      let hasErrors = false;
 
       if (!projectConfig) {
         log.error('Could not find a valid tsconfig.json.');
@@ -111,7 +110,6 @@ const run = () => {
         }
       }
 
-      if (hasErrors) process.exit(1);
       process.exit(0);
     });
 
