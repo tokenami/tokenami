@@ -6,7 +6,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "repository": "https://github.com/tokenami/tokenami",
+  "repository": "tokenami/tokenami",
   "sideEffects": false,
   "publishConfig": {
     "access": "public"
@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "tokenami": "workspace:*",
-    "tsup": "^7.0.0",
+    "tsup": "^8.4.0",
     "typescript": "^5.1.3",
     "vitest": "^0.34.6"
   },
