@@ -19,15 +19,15 @@
     "release": "auto shipit"
   },
   "devDependencies": {
-    "@auto-it/magic-zero": "^11.1.6",
-    "@size-limit/esbuild": "^11.1.2",
-    "@size-limit/esbuild-why": "^11.1.2",
-    "@size-limit/preset-small-lib": "^11.1.2",
+    "@auto-it/magic-zero": "^11.3.0",
+    "@size-limit/esbuild": "^11.2.0",
+    "@size-limit/esbuild-why": "^11.2.0",
+    "@size-limit/preset-small-lib": "^11.2.0",
     "@types/node": "^20.3.1",
-    "auto": "^11.1.6",
-    "lerna": "^8.1.2",
+    "auto": "^11.3.0",
+    "lerna": "^8.2.1",
     "prettier": "^2.8.8",
-    "size-limit": "^11.1.2",
+    "size-limit": "^11.2.0",
     "turbo": "latest",
     "typescript": "^5.1.3"
   },
