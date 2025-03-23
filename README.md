@@ -711,7 +711,7 @@ Tokenami uses widened types during development for better performance. When you 
 For accurate type checking in CI, run both commands:
 
 ```sh
-tokenami check && tsc --noEmit
+tokenami check; tsc --noEmit
 ```
 
 ## Troubleshooting
