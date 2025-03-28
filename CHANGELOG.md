@@ -1,3 +1,24 @@
+# v0.0.82 (Fri Mar 28 2025)
+
+#### 🐛 Bug Fix
+
+- remove symbol keys to fix RSC support [#431](https://github.com/tokenami/tokenami/pull/431) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- update monorepo dependencies [#429](https://github.com/tokenami/tokenami/pull/429) ([@jjenzz](https://github.com/jjenzz))
+- remove redundant CI declarations [#428](https://github.com/tokenami/tokenami/pull/428) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- update ci command to run sequentially regardless of errors [#430](https://github.com/tokenami/tokenami/pull/430) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.81 (Fri Mar 21 2025)
 
 ### Release Notes
