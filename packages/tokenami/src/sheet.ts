@@ -107,7 +107,7 @@ function createSheet(params: {
       if (prop.variant && toggleKey) {
         const responsive = getResponsiveSelectorFromConfig(prop.responsive, params.config);
         const selectorConfig = getPropertyConfigSelector(prop.selector, params.config);
-        const hasCombinator = selectorConfig.some(isCombinatorSelector);
+        const hasChildSelector = selectorConfig.some(isChildSelector);
         const hashedProperty = hashVariantProperty(prop.variant, cssProperty);
         const basePropertyValue = getBasePropertyValue(prop.tokenProperty, prop, false);
         const toggleProperty = Tokenami.parsedTokenProperty(prop.variant);
@@ -121,7 +121,9 @@ function createSheet(params: {
         const declaration = `${propertyPrefix}${cssProperty}: ${declarationValue};`;
 
         styles.reset.add(`${toggleProperty}: initial;`);
-        if (!isInheritable && !hasCombinator) styles.reset.add(`${prop.tokenProperty}: initial;`);
+        if (!isInheritable && !hasChildSelector) {
+          styles.reset.add(`${prop.tokenProperty}: initial;`);
+        }
 
         if (selectorConfig.includes(`&${SELECTION_PSEUDO}`)) {
           styles.selectorsSelection[layer] ??= new Set<string>();
@@ -569,7 +571,15 @@ function isElementSelector(selector = '') {
  * -----------------------------------------------------------------------------------------------*/
 
 function isCombinatorSelector(selector = '') {
-  return /(.+)\s\&|&\s(.+)/.test(selector);
+  return isChildSelector(selector) || /(.+)\s\&/.test(selector);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * isChildSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function isChildSelector(selector = '') {
+  return /&\s(.+)/.test(selector);
 }
 
 /* -------------------------------------------------------------------------------------------------
