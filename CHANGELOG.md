@@ -1,3 +1,15 @@
+# v0.0.84 (Fri Mar 28 2025)
+
+#### 🐛 Bug Fix
+
+- fix descendant selectors [#433](https://github.com/tokenami/tokenami/pull/433) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.83 (Fri Mar 28 2025)
 
 #### 🐛 Bug Fix
