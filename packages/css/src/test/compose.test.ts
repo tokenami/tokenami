@@ -1,7 +1,7 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import { generateClassName } from '@tokenami/config';
 import { hasStyles, hasSomeStyles } from './utils';
-import { css, _COMPOSE } from '../css';
+import { css } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * setup
@@ -95,9 +95,7 @@ describe('css compose', () => {
   describe('when invoked without a config', () => {
     beforeEach<TestContext>((context) => {
       const [cn, style] = context.button();
-      const result = style();
-      const { [_COMPOSE]: _, ...styles } = result;
-      context.output = styles;
+      context.output = style();
       context.className = cn();
     });
 
@@ -178,12 +176,10 @@ describe('css compose', () => {
     beforeEach<TestContext>((context) => {
       const [buttonClassName, buttonStyle] = context.button();
       const [linkClassName, linkStyle] = context.link();
-      const result = buttonStyle(
+      context.output = buttonStyle(
         css({ '--color': 'red' } as any),
         linkStyle(css({ '--border-color': 'green' } as any))
       );
-      const { [_COMPOSE]: _, ...styles } = result;
-      context.output = styles;
       context.className = buttonClassName(linkClassName());
     });
 
@@ -202,13 +198,16 @@ describe('css compose', () => {
         '--margin-left__calc': 'initial',
       });
     });
+
+    it<TestContext>('should be serializable', (context) => {
+      expect(isPlainSerializableObject(context.output)).toBe(true);
+    });
   });
 
   describe('when providing includes', () => {
     beforeEach<TestContext>((context) => {
       const [cn, style] = context.buttonIncludes({ disabled: true });
-      const { [_COMPOSE]: composed, ...styles } = style();
-      context.output = styles;
+      context.output = style();
       context.className = cn();
     });
 
@@ -229,3 +228,28 @@ describe('css compose', () => {
     });
   });
 });
+
+function isPlainSerializableObject(obj: any): boolean {
+  try {
+    if (obj === null || typeof obj !== 'object') return false;
+
+    const hasSymbolKeys = Object.getOwnPropertySymbols(obj).length > 0;
+    if (hasSymbolKeys) return false;
+
+    for (const key of Object.keys(obj)) {
+      const value = obj[key];
+
+      if (typeof value === 'function') return false;
+      if (typeof value === 'symbol') return false;
+      if (typeof value === 'undefined') return false;
+      if (typeof value === 'object' && value !== null) {
+        if (!isPlainSerializableObject(value)) return false;
+      }
+    }
+
+    JSON.stringify(obj);
+    return true;
+  } catch {
+    return false;
+  }
+}
