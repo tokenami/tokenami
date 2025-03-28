@@ -1,3 +1,15 @@
+# v0.0.83 (Fri Mar 28 2025)
+
+#### 🐛 Bug Fix
+
+- fix ts plugin details for theme values [#432](https://github.com/tokenami/tokenami/pull/432) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.82 (Fri Mar 28 2025)
 
 #### 🐛 Bug Fix
