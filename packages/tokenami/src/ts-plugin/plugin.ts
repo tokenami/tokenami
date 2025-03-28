@@ -97,7 +97,7 @@ class TokenamiPlugin {
   getCompletionsAtPosition = (
     fileName: string,
     position: number,
-    options: ts.GetCompletionsAtPositionOptions
+    options?: ts.GetCompletionsAtPositionOptions
   ) => {
     const original = this.#ctx.info.languageService.getCompletionsAtPosition(
       fileName,
@@ -151,7 +151,6 @@ class TokenamiPlugin {
     preferences: ts.UserPreferences,
     data: ts.CompletionEntryData
   ) {
-    const isTokenamiProperty = TokenamiConfig.TokenProperty.safeParse(entryName).success;
     const original = this.#ctx.info.languageService.getCompletionEntryDetails(
       fileName,
       position,
@@ -162,36 +161,25 @@ class TokenamiPlugin {
       data
     );
 
-    const search = getUnquotedString(entryName);
+    const completions = this.getCompletionsAtPosition(fileName, position);
+    const entry = completions?.entries.find((entry) => entry.name === entryName);
+    const selector = (entry as any).details?.selector;
+    const modeValues: ModeValues = (entry as any).details?.modeValues;
 
-    if (isTokenamiProperty) {
-      const [entry] = this.#completions.variantSearch(search);
-      return entry ? createEntryDetails(original, entry, String(entry.details.selector)) : original;
-    }
-
-    const sourceFile = this.#ctx.info.languageService.getProgram()?.getSourceFile(fileName);
-    if (!sourceFile) return original;
-
-    const node = findNodeAtPosition(sourceFile, position);
-    if (!node || !ts.isPropertyAssignment(node.parent)) return original;
-
-    const parentProperty = node.parent.name.getText();
-    const isTokenamiValue = TokenamiConfig.TokenProperty.safeParse(parentProperty).success;
-    if (!isTokenamiValue) return original;
-
-    const [entry] = this.#completions.valueSearch(search);
     if (!entry) return original;
+    if (selector) return createEntryDetails(original, entry, selector);
+    if (!modeValues) return original;
 
-    const themeEntries = Object.entries(entry.details.modeValues);
+    const themeEntries = Object.entries(modeValues);
     const [mode, firstValue] = themeEntries[0] || [];
     if (!firstValue) return original;
 
-    if (isColorThemeEntry(entry.details.modeValues)) {
-      const colorDescription = createColorTokenDescription(entry.details.modeValues);
+    if (isColorThemeEntry(modeValues)) {
+      const colorDescription = createColorTokenDescription(modeValues);
       const rgb = convertToRgb(replaceCssVarsWithFallback(firstValue), mode);
       return createEntryDetails(original, entry, `${rgb}\n\n${colorDescription}`);
     } else {
-      const description = createTokenDescription(entry.details.modeValues);
+      const description = createTokenDescription(modeValues);
       return createEntryDetails(original, entry, description);
     }
   }
