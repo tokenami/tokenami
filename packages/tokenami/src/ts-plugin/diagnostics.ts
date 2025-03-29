@@ -121,7 +121,12 @@ class TokenamiDiagnostics {
       } else if (
         !ts.isIdentifier(key) &&
         !ts.isStringLiteral(value) &&
-        !ts.isNumericLiteral(value)
+        !ts.isNumericLiteral(value) &&
+        !(
+          ts.isPrefixUnaryExpression(value) &&
+          value.operator === ts.SyntaxKind.MinusToken &&
+          ts.isNumericLiteral(value.operand)
+        )
       ) {
         const start = value.getStart(sourceFile);
         const length = value.getWidth(sourceFile);
