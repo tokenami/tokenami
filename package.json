@@ -10,6 +10,7 @@
     "postinstall": "pnpm build",
     "dev:ds": "turbo run storylite --filter=@tokenami/example-design-system",
     "dev:remix": "turbo watch dev --filter=@tokenami/example-remix",
+    "dev:nextjs": "turbo watch dev --filter=@tokenami/example-nextjs",
     "build": "turbo run build --filter=@tokenami/example-design-system...",
     "clean": "pnpm exec rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules .turbo dist",
     "typecheck": "turbo run typecheck",
