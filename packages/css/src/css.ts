@@ -135,8 +135,7 @@ function createCss(
         (...overrides) => {
           const styles = {};
           composeStylesMap.set(styles, baseStyles);
-          const base: Override = css(styles, ...variantStyles, ...overrides);
-          return css.apply(null, [...includeStyles, base] as any);
+          return css.apply(null, [...includeStyles, styles, ...variantStyles, ...overrides] as any);
         },
       ];
 
