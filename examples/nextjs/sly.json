@@ -1,0 +1,11 @@
+{
+  "$schema": "https://sly-cli.fly.dev/registry/config.json",
+  "libraries": [
+    {
+      "name": "remixicon",
+      "directory": "./svg-icons",
+      "postinstall": ["pnpm", "icons:build"],
+      "transformers": []
+    }
+  ]
+}

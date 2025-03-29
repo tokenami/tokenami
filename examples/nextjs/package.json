@@ -1,0 +1,33 @@
+{
+  "name": "nextjs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm run \"/dev:/\"",
+    "dev:app": "next dev",
+    "dev:css": "tokenami --output ./src/app/tokenami.css --watch",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "icons:add": "pnpx @sly-cli/sly add remixicon",
+    "icons:build": "icons build -i ./svg-icons -o ./src/components/icons --optimize"
+  },
+  "dependencies": {
+    "@base-ui-components/react": "1.0.0-alpha.7",
+    "@radix-ui/react-slot": "^1.1.2",
+    "@sly-cli/sly": "^2.1.1",
+    "@tokenami/css": "workspace:*",
+    "@tokenami/ds": "workspace:*",
+    "next": "15.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "svg-icons-cli": "^0.0.8",
+    "tokenami": "workspace:*",
+    "typescript": "^5"
+  }
+}
