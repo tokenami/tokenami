@@ -1,3 +1,20 @@
+# v0.0.85 (Sat Mar 29 2025)
+
+#### 🐛 Bug Fix
+
+- bypass compose cache when there are different overrides [#435](https://github.com/tokenami/tokenami/pull/435) ([@jjenzz](https://github.com/jjenzz))
+- allow minus numbers as values in compose blocks [#434](https://github.com/tokenami/tokenami/pull/434) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- beginnings of a spotify-style example app with nextjs [#436](https://github.com/tokenami/tokenami/pull/436) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.84 (Fri Mar 28 2025)
 
 #### 🐛 Bug Fix
