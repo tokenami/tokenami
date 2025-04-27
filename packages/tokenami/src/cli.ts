@@ -233,7 +233,7 @@ function watch(cwd: string, include: readonly string[], exclude?: readonly strin
 // - [\s\S]*? non-greedily captures everything within the braces, including line breaks
 // - the m (multiline) flag allows ^ to match the start of each line, not just the start
 //   of the file contents
-const COMPOSE_BLOCKS_REGEX = /(const|let|var)\s+(\w+)\s*=\s*css\.compose\(\{[\s\S]*?\}\)/gm;
+const COMPOSE_BLOCKS_REGEX = /(const|let|var)\s+(.+)\s*=\s*css\.compose\(\{[\s\S]*?\}\)/gm;
 
 interface UsedTokens {
   properties: Tokenami.TokenProperty[];
