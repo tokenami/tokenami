@@ -5,6 +5,10 @@ interface CSSProperties<TLength = (string & {}) | 0, TTime = string & {}>
   extends CSS.StandardPropertiesHyphen<TLength, TTime>,
     CSS.SvgPropertiesHyphen<TLength, TTime> {}
 
+interface CSSPropertiesWithVendor<TLength = (string & {}) | 0, TTime = string & {}>
+  extends CSSProperties<TLength, TTime>,
+    CSS.VendorPropertiesHyphen<TLength, TTime> {}
+
 type CSSProperty = keyof CSSProperties;
 
 type Theme = { [themeKey: string]: { [themeToken: string]: string | number } };
@@ -14,7 +18,7 @@ type ThemeConfig = Theme | ThemeModes;
 type Responsive = { [atRule: string]: string };
 type Selector = string | string[];
 type Selectors = { [name: string]: Selector };
-type Aliases = Record<string, CSSProperty[]>;
+type Aliases = Record<string, (keyof CSSPropertiesWithVendor)[]>;
 type Properties = Partial<Record<CSSProperty | (string & {}), string[]>>;
 type CustomProperties = Record<string, string[]>;
 
