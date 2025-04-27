@@ -1,7 +1,8 @@
 {
-  "name": "nextjs",
+  "name": "@tokenami/example-nextjs",
   "version": "0.0.85",
   "private": true,
+  "sideEffects": false,
   "scripts": {
     "dev": "pnpm run \"/dev:/\"",
     "dev:app": "next dev",
