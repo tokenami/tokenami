@@ -1,3 +1,27 @@
+# v0.0.86 (Sun Apr 27 2025)
+
+#### 🚀 Enhancement
+
+- reduce duplication in stylesheet for unchainable pseudo-selectors [#445](https://github.com/tokenami/tokenami/pull/445) ([@jjenzz](https://github.com/jjenzz))
+- allow vendor prefixed properties in alias config [#446](https://github.com/tokenami/tokenami/pull/446) ([@jjenzz](https://github.com/jjenzz))
+- expose a `TokenValue` utility type for getting union of CSS vars from theme keys [#443](https://github.com/tokenami/tokenami/pull/443) ([@jjenzz](https://github.com/jjenzz))
+- [ds] add grid mappings to `--gradient-[from|to|via]-stop` custom properties [#441](https://github.com/tokenami/tokenami/pull/441) ([@jjenzz](https://github.com/jjenzz))
+- allow `grid` mappings for custom properties [#439](https://github.com/tokenami/tokenami/pull/439) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- add nextjs example project dev script [#444](https://github.com/tokenami/tokenami/pull/444) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- add playlist tracks to spotify-like nextjs app demo [#447](https://github.com/tokenami/tokenami/pull/447) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.85 (Sat Mar 29 2025)
 
 #### 🐛 Bug Fix
