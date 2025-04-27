@@ -1,6 +1,6 @@
 import { css } from './css';
 
-export const srOnly = css({
+const [srOnly] = css.compose({
   '--position': 'absolute',
   '--size': 'var(--size_px)',
   '--margin': 'var(---, -1px)',
@@ -9,4 +9,6 @@ export const srOnly = css({
   '--white-space': 'nowrap',
   '--border-width': 'var(--line-size_0)',
   '--p': 0,
-});
+})();
+
+export { srOnly };

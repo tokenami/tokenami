@@ -11,6 +11,7 @@ import * as mockLibrary from '@/mock/library';
 import * as SelectableList from '@/components/selectable-list';
 import * as TitleCard from '@/components/title-card';
 import * as Button from '@/components/button';
+import * as ButtonGroup from '@/components/button-group';
 import * as cssUtil from '@/css/utils';
 
 import './tokenami.css';
@@ -31,34 +32,19 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [bodyCn] = body();
+  const [headerCn] = header();
+  const [contentCn] = content();
+  const [footerCn] = footer();
+
   return (
     <html lang="en" data-theme="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable}`}
-        style={css({
-          '--dark_background-color': 'var(--color_black)',
-          '--light_background-color': 'var(--color_white)',
-          '--height': 'var(--size_screen-h)',
-          '--display': 'flex',
-          '--flex-direction': 'column',
-          '--color': 'var(--color_gray12)',
-          '--font-weight': 'var(--weight_extralight)',
-          '--gap': 1.5,
-          '--p': 1.5,
-        })}
-      >
-        <header
-          style={css({
-            '--display': 'flex',
-            '--align-items': 'center',
-            '--justify-content': 'center',
-          })}
-        >
+      <body className={bodyCn(`${geistSans.variable} ${geistMono.variable}`)}>
+        <header className={headerCn()}>
           <div
             style={css({
               '--display': 'flex',
-              '--align-items': 'center',
-              '--justify-content': 'center',
+              '--place-content': 'center',
               '--gap': 1,
             })}
           >
@@ -69,14 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
 
-        <div
-          style={css({
-            '--flex': 'var(--flex_auto)',
-            '--display': 'flex',
-            '--min-height': 0,
-            '--gap': 1.5,
-          })}
-        >
+        <div className={contentCn()}>
           <Frame
             asChild
             style={{
@@ -97,7 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div
                   style={css({
                     '--display': 'flex',
-                    '--align-items': 'center',
+                    '--align-content': 'center',
                     '--justify-content': 'space-between',
                     '--gap': 1,
                   })}
@@ -117,12 +96,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </Button.Root>
                 </div>
 
-                <div style={css({ '--display': 'flex', '--gap': 1.5, '--overflow-x': 'auto' })}>
-                  <Button.Root>Playlists</Button.Root>
-                  <Button.Root>Podcasts</Button.Root>
-                  <Button.Root>Artists</Button.Root>
-                  <Button.Root>Albums</Button.Root>
-                </div>
+                <ButtonGroup.Root>
+                  <ButtonGroup.Button>Playlists</ButtonGroup.Button>
+                  <ButtonGroup.Button>Podcasts</ButtonGroup.Button>
+                  <ButtonGroup.Button>Artists</ButtonGroup.Button>
+                  <ButtonGroup.Button>Albums</ButtonGroup.Button>
+                </ButtonGroup.Root>
 
                 <div
                   style={css({
@@ -151,7 +130,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       title={item.title}
                       type={item.type}
                       author={item.author}
-                      color={item.color}
+                      color={mockLibrary.colors[item.colorIndex]}
                     />
                   </SelectableList.Item>
                 ))}
@@ -159,10 +138,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </aside>
           </Frame>
 
-          {children}
+          <main style={css({ '--flex': 'var(--flex_1)', '--min-width': 0 })}>{children}</main>
         </div>
 
-        <footer style={css({ '--px': 4, '--py': 2 })}>
+        <footer className={footerCn()}>
           <TitleCard.Root>
             <TitleCard.Graphic color="var(--color_crimson9)" />
             <TitleCard.Content>
@@ -186,7 +165,7 @@ interface LibraryCardProps {
   title: string;
   type: string;
   author: string;
-  color?: React.ComponentProps<typeof TitleCard.Graphic>['color'];
+  color: React.ComponentProps<typeof TitleCard.Graphic>['color'];
 }
 
 const LibraryCard = ({ title, type, author, color }: LibraryCardProps) => {
@@ -202,9 +181,9 @@ const LibraryCard = ({ title, type, author, color }: LibraryCardProps) => {
         </TitleCard.Title>
         <TitleCard.Description asChild>
           <dl>
-            <dt style={cssUtil.srOnly}>Type</dt>
+            <dt className={cssUtil.srOnly()}>Type</dt>
             <dd>{type}</dd>
-            <dt style={cssUtil.srOnly}>Author</dt>
+            <dt className={cssUtil.srOnly()}>Author</dt>
             <dd>{author}</dd>
           </dl>
         </TitleCard.Description>
@@ -212,3 +191,34 @@ const LibraryCard = ({ title, type, author, color }: LibraryCardProps) => {
     </TitleCard.Root>
   );
 };
+
+/* ---------------------------------------------------------------------------------------------- */
+
+const body = css.compose({
+  '--dark_background-color': 'var(--color_black)',
+  '--light_background-color': 'var(--color_white)',
+  '--height': 'var(--size_screen-h)',
+  '--display': 'flex',
+  '--flex-direction': 'column',
+  '--color': 'var(--color_gray12)',
+  '--font-weight': 'var(--weight_extralight)',
+  '--gap': 1.5,
+  '--p': 1.5,
+});
+
+const header = css.compose({
+  '--display': 'flex',
+  '--place-content': 'center',
+});
+
+const content = css.compose({
+  '--flex': 'var(--flex_auto)',
+  '--display': 'flex',
+  '--min-height': 0,
+  '--gap': 1.5,
+});
+
+const footer = css.compose({
+  '--px': 4,
+  '--py': 2,
+});

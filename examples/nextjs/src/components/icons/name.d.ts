@@ -5,5 +5,6 @@
 	| "archive-stack-line"
 	| "home-5-line"
 	| "play-large-fill"
-	| "search-line";
+	| "search-line"
+	| "time-line";
   

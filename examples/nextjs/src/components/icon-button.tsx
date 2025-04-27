@@ -19,7 +19,7 @@ function IconButton({ size, icon, ...props }: IconButtonProps) {
   return (
     <button type="button" {...props} className={cn(props.className)} style={css(props.style)}>
       <Icon name={icon} size={size} />
-      <span style={cssUtil.srOnly}>{props.children}</span>
+      <span className={cssUtil.srOnly()}>{props.children}</span>
     </button>
   );
 }

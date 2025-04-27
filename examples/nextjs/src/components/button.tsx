@@ -33,6 +33,7 @@ const ButtonIcon = (props: ButtonIconProps) => {
 /* ---------------------------------------------------------------------------------------------- */
 
 const button = css.compose({
+  '--white-space': 'nowrap',
   '--display': 'flex',
   '--align-items': 'center',
   '--justify-content': 'center',

@@ -30,7 +30,7 @@ const cover = css.compose({
 
   variants: {
     size: {
-      sm: { '--size': 8 },
+      sm: { '--size': 9 },
       md: { '--size': 11 },
       lg: { '--size': 13 },
       xl: { '--size': 20 },
