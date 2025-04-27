@@ -9,7 +9,7 @@ import * as log from './log';
 const UNUSED_LAYERS_REGEX = /[\n\s]*@layer[^;{]+;/g;
 const DEFAULT_SELECTOR = '[style]';
 const CUSTOM_PROP_PREFIX = '--_';
-const SELECTION_PSEUDO = '::selection';
+const SELECTOR_TAG = '<selector>';
 
 const LAYERS = {
   BASE: 'tk',
@@ -70,17 +70,15 @@ function createSheet(params: {
   const tokenValues = params.tokens.values;
   const composeBlocks = parseComposeBlocks(params.tokens.composeBlocks, params.config);
   const propertyConfigsByCSSProperty = getPropertyConfigs(tokenProperties, params.config);
-  const allPropertyConfigs = Array.from(propertyConfigsByCSSProperty.values()).flat();
-  const selectors = getPropertyBaseSelectors(composeBlocks, allPropertyConfigs, params.config);
-  const selectorsNotSelection = selectors.elem.filter((s) => !s.includes(SELECTION_PSEUDO));
-  const selectorsSelection = selectors.elem.filter((s) => s.includes(SELECTION_PSEUDO));
-  const allSelectors = utils.unique([...selectors.self, ...selectors.elem]);
+  const propertyConfigs = Array.from(propertyConfigsByCSSProperty.values()).flat();
+  const selectors = propertyConfigs.flatMap((prop) => {
+    return getPropertyBaseSelectors(composeBlocks, prop, params.config);
+  });
 
   const styles = {
     reset: new Set<string>(),
     atomic: {} as Record<string, Set<string>>,
     selectors: {} as Record<string, Set<string>>,
-    selectorsSelection: {} as Record<string, Set<string>>,
     components: {} as Record<string, Set<string>>,
     toggles: {} as Record<string, Set<string>>,
   };
@@ -101,6 +99,8 @@ function createSheet(params: {
       const layerIndex = getAtomicLayerIndex(cssProperty, params.config);
       const toggleKey = prop.responsive || prop.selector;
       const propertyPrefix = prop.isCustom ? CUSTOM_PROP_PREFIX : '';
+      const baseSelectors = getPropertyBaseSelectors(composeBlocks, prop, params.config);
+      const gridToggle = prop.isGrid ? getGridPropertyToggle(prop.tokenProperty) : '';
 
       if (layerIndex === -1) continue;
 
@@ -125,19 +125,14 @@ function createSheet(params: {
           styles.reset.add(`${prop.tokenProperty}: initial;`);
         }
 
-        if (selectorConfig.includes(`&${SELECTION_PSEUDO}`)) {
-          styles.selectorsSelection[layer] ??= new Set<string>();
-          styles.selectorsSelection[layer]!.add(declaration);
-          styles.selectorsSelection[layer]!.add(toggleDeclaration);
-        } else {
-          styles.selectors[layer] ??= new Set<string>();
-          styles.selectors[layer]!.add(declaration);
-          styles.selectors[layer]!.add(toggleDeclaration);
-        }
+        const template = `@layer ${layer} {${SELECTOR_TAG} { ${declaration} ${gridToggle} }}`;
+        const toggleTemplate = `@layer ${layer} {${SELECTOR_TAG} { ${toggleDeclaration} }}`;
 
-        if (prop.isGrid) {
-          const gridToggle = getGridPropertyToggle(prop.tokenProperty);
-          styles.selectors[layer]!.add(gridToggle);
+        styles.selectors[template] ??= new Set<string>();
+        styles.selectors[toggleTemplate] ??= new Set<string>();
+        for (const selector of baseSelectors) {
+          styles.selectors[template]!.add(selector);
+          styles.selectors[toggleTemplate]!.add(selector);
         }
 
         const selectors = getPropertySelectors(
@@ -162,12 +157,11 @@ function createSheet(params: {
         const layer = `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerIndex}`;
 
         if (!isInheritable) styles.reset.add(`${prop.tokenProperty}: initial;`);
-        styles.atomic[layer] ??= new Set<string>();
-        styles.atomic[layer]!.add(declaration);
 
-        if (prop.isGrid) {
-          const gridToggle = getGridPropertyToggle(prop.tokenProperty);
-          styles.atomic[layer]!.add(gridToggle);
+        const template = `@layer ${layer} {${SELECTOR_TAG} { ${declaration} ${gridToggle} }}`;
+        styles.atomic[template] ??= new Set<string>();
+        for (const selector of baseSelectors) {
+          styles.atomic[template]!.add(selector);
         }
       }
     }
@@ -192,7 +186,7 @@ function createSheet(params: {
 
     @layer tkb {
       ${generateKeyframeRules(tokenValues, params.config)}
-      ${generateThemeTokens(tokenValues, allSelectors, params.config)}
+      ${generateThemeTokens(tokenValues, utils.unique(selectors), params.config)}
       * { ${Array.from(styles.reset).join(' ')} }
 
       ${Object.values(styles.toggles)
@@ -205,9 +199,8 @@ function createSheet(params: {
     ${generatePlaceholderLayers(LAYERS.SELECTORS)}
     ${generatePlaceholderLayers(LAYERS.SELECTORS_LOGICAL)}
     ${generatePlaceholderLayers(LAYERS.COMPONENTS)}
-    ${generateLayerStyles(styles.atomic, selectors.self)}
-    ${generateLayerStyles(styles.selectors, selectorsNotSelection)}
-    ${generateLayerStyles(styles.selectorsSelection, selectorsSelection)}
+    ${generateLayerStyles(styles.atomic)}
+    ${generateLayerStyles(styles.selectors)}
 
     ${composeStyles.join(' ')}
   `;
@@ -253,30 +246,23 @@ function parseComposeBlocks(
 
 function getPropertyBaseSelectors(
   composeBlocks: Record<`.${string}`, TokenamiProperties>,
-  propertyConfigs: PropertyConfig[],
+  prop: PropertyConfig,
   config: Tokenami.Config
-): { self: string[]; elem: string[] } {
-  let selfSelectors: string[] = [];
-  let elemSelectors: string[] = [];
+): string[] {
+  let selectors: string[] = [];
+  const selectorConfig = getPropertyConfigSelector(prop.selector, config);
+  const baseSelectors = getBaseSelectors(composeBlocks, prop.tokenProperty);
+  const elemSelector = selectorConfig.find(isElementSelector);
 
-  for (const prop of propertyConfigs) {
-    const selectorConfig = getPropertyConfigSelector(prop.selector, config);
-    const baseSelectors = getBaseSelectors(composeBlocks, prop.tokenProperty);
-    const elemSelector = selectorConfig.find(isElementSelector);
-
-    if (!elemSelector) {
-      selfSelectors.push(...baseSelectors);
-    } else {
-      const parsedSelectors = getParsedSelectors(prop.selector, [elemSelector], baseSelectors);
-      if (elemSelector === '&') selfSelectors.push(...parsedSelectors.flat());
-      elemSelectors.push(...parsedSelectors.flat());
-    }
+  if (!elemSelector) {
+    selectors.push(...baseSelectors);
+  } else {
+    const parsedSelectors = getParsedSelectors(prop.selector, [elemSelector], baseSelectors);
+    if (elemSelector === '&') selectors.push(...parsedSelectors.flat());
+    selectors.push(...parsedSelectors.flat());
   }
 
-  return {
-    self: utils.unique(selfSelectors),
-    elem: utils.unique(elemSelectors),
-  };
+  return utils.unique(selectors);
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -343,10 +329,20 @@ function generatePlaceholderLayers(prefix: string) {
  * generateLayerStyles
  * -----------------------------------------------------------------------------------------------*/
 
-function generateLayerStyles(styles: Record<string, Set<string>>, baseSelectors: string[]) {
-  const layerStyles = Object.entries(styles).map(([layer, declarations]) => {
-    return `@layer ${layer} { ${baseSelectors} { ${Array.from(declarations).join(' ')} } }`;
+function generateLayerStyles(styles: Record<string, Set<string>>) {
+  const groupedBySelectors = new Map<string, string[]>();
+
+  for (const [template, selectors] of Object.entries(styles)) {
+    const selectorKey = Array.from(selectors).sort().join(',');
+    const templates = groupedBySelectors.get(selectorKey) || [];
+    templates.push(template);
+    groupedBySelectors.set(selectorKey, templates);
+  }
+
+  const layerStyles = Array.from(groupedBySelectors.entries()).map(([selectors, templates]) => {
+    return templates.map((template) => template.replace(SELECTOR_TAG, selectors)).join(' ');
   });
+
   return layerStyles.join(' ');
 }
 
