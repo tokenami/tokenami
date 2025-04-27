@@ -253,23 +253,29 @@
 }
 
 @layer tk1 {
-  [style], .tk-1ddz3jq {
+  .tk-1ddz3jq, [style] {
     color: var(--color, revert-layer);
     border-radius: var(--border-radius, revert-layer);
     transition: var(--transition, revert-layer);
+  }
+
+  [style] {
     font: var(--font, revert-layer);
   }
 }
 
 @layer tk2 {
-  [style], .tk-1ddz3jq {
+  .tk-1ddz3jq, [style] {
     background-color: var(--background-color, revert-layer);
+  }
+
+  [style] {
     font-family: var(--font-family, revert-layer);
   }
 }
 
 @layer tkl1 {
-  [style], .tk-1ddz3jq {
+  .tk-1ddz3jq, [style] {
     inline-size: var(--_a9n10r, var(--inline-size, revert-layer));
     --_a9n10r: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
     block-size: var(--_19kaxgm, var(--block-size, revert-layer));
@@ -278,27 +284,27 @@
 }
 
 @layer tkl3 {
-  [style], .tk-1ddz3jq {
+  .tk-1ddz3jq, [style] {
     border-block-end: var(--border-block-end, revert-layer);
   }
 }
 
 @layer tkl5 {
-  [style], .tk-1ddz3jq {
+  .tk-1ddz3jq, [style] {
     border-block-color: var(--border-block-color, revert-layer);
     border-inline-color: var(--border-inline-color, revert-layer);
   }
 }
 
 @layer tks1 {
-  [style], .tk-1ddz3jq {
+  .tk-1ddz3jq, [style] {
     animation: var(--_xgpg9b, revert-layer);
     --_xgpg9b: var(--hover) var(--hover_animation);
   }
 }
 
 @layer tks2 {
-  [style], .tk-1ddz3jq {
+  .tk-1ddz3jq, [style] {
     background-color: var(--_aoiy32, var(--_1gqxh9p, revert-layer));
     --_1gqxh9p: var(--hover) var(--hover_background-color);
     --_aoiy32: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
