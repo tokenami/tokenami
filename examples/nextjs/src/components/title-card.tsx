@@ -80,7 +80,7 @@ const titleCard = css.compose({
 const titleCardDescription = css.compose({
   '--display': 'flex',
   '--gap': 1,
-  '--font': 'var(--text_sm)',
+  '--font': 'var(--text_xs)',
   '--color': 'var(--color_gray11)',
 });
 

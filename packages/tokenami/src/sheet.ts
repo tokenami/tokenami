@@ -289,7 +289,7 @@ function getBaseSelectors(
   property: Tokenami.TokenProperty
 ): string[] {
   const composeSelectors = Object.entries(composeBlocks).flatMap(([selector, styles]) => {
-    return styles[property] ? [selector] : [];
+    return styles[property] !== undefined ? [selector] : [];
   });
   return [DEFAULT_SELECTOR, ...composeSelectors];
 }

@@ -38,14 +38,7 @@ interface SelectableListTriggerProps extends TokenamiStyle<React.ComponentProps<
 const SelectableListTrigger = ({ asChild = false, ...props }: SelectableListTriggerProps) => {
   const [cn, css] = selectableListTrigger();
   const Comp = asChild ? Slot : 'button';
-  return (
-    <Comp
-      type="button"
-      {...props}
-      className={cn('hover', props.className)}
-      style={css(props.style)}
-    />
-  );
+  return <Comp {...props} className={cn('hover', props.className)} style={css(props.style)} />;
 };
 
 SelectableListTrigger.displayName = 'SelectableListTrigger';
