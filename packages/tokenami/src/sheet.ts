@@ -359,7 +359,6 @@ function getPropertyConfigs(
   config: Tokenami.Config
 ): Map<string, PropertyConfig[]> {
   let propertyConfigs: Map<string, PropertyConfig[]> = new Map();
-  const customProperties = Object.keys(config.customProperties || {});
 
   for (const property of tokenProperties) {
     const parts = Tokenami.getTokenPropertyParts(property, config);
@@ -374,8 +373,10 @@ function getPropertyConfigs(
       const longhandProperty = Tokenami.createLonghandProperty(property, cssProperty);
       const tokenProperty = Tokenami.parseProperty(longhandProperty);
       const currentConfigs = propertyConfigs.get(cssProperty as any) || [];
-      const isCustom = customProperties.includes(cssProperty);
-      const isGrid = config.properties?.[cssProperty]?.includes('grid') ?? false;
+      const customConfig = config.customProperties?.[cssProperty];
+      const propertyConfig = config.properties?.[cssProperty];
+      const isGrid = customConfig?.includes('grid') ?? propertyConfig?.includes('grid') ?? false;
+      const isCustom = Boolean(customConfig);
       const nextConfig = { ...parts, tokenProperty, order, isCustom, isGrid };
       propertyConfigs.set(cssProperty, [...currentConfigs, nextConfig]);
     }
