@@ -17,11 +17,11 @@ type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T>
   : Omit<ThemeConfig, 'modes' | 'root'>;
 
 type TokenProperties<P> = {
-  [K in TokenProperty<P>]?: TokenValue<P> extends never
+  [K in TokenProperty<P>]?: PropertyValue<P> extends never
     ? P extends keyof Tokenami.CSSProperties
       ? Tokenami.CSSProperties[P]
       : never
-    : TokenValue<P>;
+    : PropertyValue<P>;
 };
 
 type TokenProperty<P> = P extends string
@@ -38,7 +38,7 @@ type VariantProperty<P extends string> =
   | Tokenami.TokenProperty<P>
   | Tokenami.VariantProperty<P, string>;
 
-type TokenValue<P> = P extends string
+type PropertyValue<P> = P extends string
   ? P extends keyof PropertyConfig
     ? NonNullable<PropertyConfig[P]>[number] extends `${infer ThemeKey}`
       ? PropertyThemeValue<ThemeKey>
@@ -49,6 +49,9 @@ type TokenValue<P> = P extends string
 type PropertyThemeValue<ThemeKey extends string> =
   | Tokenami.ArbitraryValue
   | CSS.Globals
+  | TokenValue<ThemeKey>;
+
+type TokenValue<ThemeKey extends string> =
   | TokensByThemeKey[ThemeKey]
   | (ThemeKey extends 'grid' | 'number' ? Tokenami.GridValue : never);
 
@@ -1044,4 +1047,5 @@ export type {
   TokenamiPropertiesPick,
   TokenamiPropertiesOmit,
   TokenProperties,
+  TokenValue,
 };

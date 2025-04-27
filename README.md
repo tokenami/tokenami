@@ -704,6 +704,36 @@ Now you can pass Tokenami properties directly with proper type checking:
 <Button style={{ '--padding': 4 }} />
 ```
 
+### TokenValue
+
+Use `TokenValue` to get a union of CSS variable tokens based on your theme.
+
+Given this theme:
+
+```ts
+export default createConfig({
+  theme: {
+    color: {
+      'slate-100': '#f1f5f9',
+      'slate-700': '#334155',
+    },
+    radii: {
+      rounded: '10px',
+      circle: '9999px',
+    },
+  },
+});
+```
+
+It will output the following types:
+
+```ts
+import { type TokenValue } from '@tokenami/css';
+
+type Color = TokenValue<'color'>; // var(--color_slate-100) | var(--color_slate-700)
+type Radii = TokenValue<'radii'>; // var(--radii_rounded) | var(--radii_circle)
+```
+
 ### CI setup
 
 Tokenami uses widened types during development for better performance. When you run `tsc` in the command line, it uses these widened types and won't show custom Tokenami errors.
