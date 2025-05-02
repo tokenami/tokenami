@@ -2,15 +2,20 @@ import ts from 'typescript/lib/tsserverlibrary.js';
 import TrieSearch from 'trie-search';
 import * as TokenamiConfig from '@tokenami/config';
 import * as tokenami from '../utils';
-import { getSortText, isColorThemeEntry } from './common';
+import { isColorThemeEntry } from './common';
+import { Logger } from './logger';
 
 type ModeValues = Record<string, string>;
 
-type ValueCompletionEntry = ts.CompletionEntry & {
+type CompletionEntry = ts.CompletionEntry & {
+  searchText: string;
+};
+
+type ValueCompletionEntry = CompletionEntry & {
   details: { modeValues: ModeValues; themeKey: string };
 };
 
-type SelectorCompletionEntry = ts.CompletionEntry & {
+type SelectorCompletionEntry = CompletionEntry & {
   details: { selector: string | string[] };
 };
 
@@ -18,13 +23,18 @@ type SelectorCompletionEntry = ts.CompletionEntry & {
  * TrieCompletions
  * -----------------------------------------------------------------------------------------------*/
 
+type TrieCompletionsContext = {
+  insertFormatter?: (name: string) => string;
+  logger: Logger;
+};
+
 class TrieCompletions {
+  #ctx: Required<TrieCompletionsContext>;
   #config: TokenamiConfig.Config;
-  #insertFormatter: (name: string) => string;
 
   // lazily instantiate these to avoid unnecessary memory usage
-  #_base?: TrieSearch<ts.CompletionEntry>;
-  #_baseCompletions?: ts.CompletionEntry[];
+  #_base?: TrieSearch<CompletionEntry>;
+  #_baseCompletions?: CompletionEntry[];
   #_selectors?: TrieSearch<SelectorCompletionEntry>;
   #_selectorSnippets?: TrieSearch<SelectorCompletionEntry>;
   #_selectorSnippetsCompletions?: SelectorCompletionEntry[];
@@ -36,9 +46,9 @@ class TrieCompletions {
   #arbSelectors: Record<string, TrieSearch<SelectorCompletionEntry>> = {};
   #arbResponsiveSelectors: Record<string, TrieSearch<SelectorCompletionEntry>> = {};
 
-  constructor(config: TokenamiConfig.Config, insertFormatter = (name: string) => name) {
+  constructor(config: TokenamiConfig.Config, context: TrieCompletionsContext) {
     this.#config = config;
-    this.#insertFormatter = insertFormatter;
+    this.#ctx = { ...context, insertFormatter: context.insertFormatter ?? ((name) => name) };
   }
 
   get #base() {
@@ -84,7 +94,7 @@ class TrieCompletions {
   }
 
   propertySearch(search: string) {
-    const input = this.#createTrieInput(search);
+    const input = this.#createSearchString(search);
 
     if (input.length > 0) {
       const baseEntries = this.#base.search(input);
@@ -96,7 +106,7 @@ class TrieCompletions {
   }
 
   variantSearch(search: string) {
-    const input = this.#createTrieInput(search);
+    const input = this.#createSearchString(search);
     const parts = TokenamiConfig.getTokenPropertySplit(search as any);
 
     if (!parts.variants.length) return this.#selectorSnippets.search(input);
@@ -108,7 +118,7 @@ class TrieCompletions {
   }
 
   valueSearch(search: string) {
-    const input = this.#createTrieInput(search);
+    const input = this.#createSearchString(search);
 
     // we kill these to avoid having lots of tries in memory
     this.#arbSelectors = {};
@@ -145,23 +155,27 @@ class TrieCompletions {
     return this.#arbResponsiveSelectors[key]!.search(input);
   }
 
-  #createTrieInput(search: string) {
-    return getSortText(search).replace('$', '');
+  #createSearchString(search: string) {
+    // remove quotes, hyphens, dollar signs, and var()
+    return search.replace(/['"-]|\$|var\(|\)/g, '');
   }
 
-  #createCompletionEntriesTrie<T extends ts.CompletionEntry | SelectorCompletionEntry>(
-    entries: T[]
-  ) {
-    const trie = new TrieSearch<T>('sortText', { splitOnRegEx: /\$/g, expandRegexes: [] });
+  #createSortText(name: string) {
+    name = name.replace(/[0-9]+/g, (m) => m.padStart(6, '0'));
+    return `$${name}`;
+  }
+
+  #createCompletionEntriesTrie<T extends CompletionEntry | SelectorCompletionEntry>(entries: T[]) {
+    const trie = new TrieSearch<T>('searchText', { splitOnRegEx: /_/g, expandRegexes: [] });
     trie.addAll(entries);
     return trie;
   }
 
-  #getBaseCompletions(): ts.CompletionEntry[] {
+  #getBaseCompletions(): CompletionEntry[] {
     const properties = this.#getAllProperties();
     return properties.map((property) => {
       const name = TokenamiConfig.tokenProperty(property);
-      return this.#createPropertyEntry(name, getSortText(`$${name}`));
+      return this.#createPropertyEntry(name, this.#createSortText(`$${name}`));
     });
   }
 
@@ -207,8 +221,9 @@ class TrieCompletions {
         name,
         kind: ts.ScriptElementKind.string,
         kindModifiers: isColorThemeEntry(modeValues) ? 'color' : parts.themeKey,
-        sortText: getSortText(`${tokenIndex}${name}`),
-        insertText: this.#insertFormatter(entryName),
+        sortText: this.#createSortText(`${tokenIndex}${name}`),
+        searchText: this.#createSearchString(entryName),
+        insertText: this.#ctx.insertFormatter(entryName),
         labelDetails: { detail: '', description: entryName },
         details: { modeValues, themeKey: parts.themeKey },
       };
@@ -254,16 +269,26 @@ class TrieCompletions {
     };
   }
 
-  #createPropertySnippetEntry(name: string, sortText = getSortText(name)) {
+  #createPropertySnippetEntry(
+    name: string,
+    sortText = this.#createSortText(name)
+  ): CompletionEntry {
     const entry = this.#createPropertyEntry(name, sortText);
     const insertText = entry.name.replace('{}', '{${1}}');
     return { ...entry, insertText, isSnippet: true };
   }
 
-  #createPropertyEntry(name: string, sortText = getSortText(name)) {
+  #createPropertyEntry(name: string, sortText = this.#createSortText(name)): CompletionEntry {
     const kind = ts.ScriptElementKind.memberVariableElement;
     const kindModifiers = ts.ScriptElementKindModifier.optionalModifier;
-    return { name, kind, kindModifiers, sortText, insertText: this.#insertFormatter(name) };
+    return {
+      name,
+      kind,
+      kindModifiers,
+      sortText,
+      searchText: this.#createSearchString(name),
+      insertText: this.#ctx.insertFormatter(name),
+    };
   }
 }
 

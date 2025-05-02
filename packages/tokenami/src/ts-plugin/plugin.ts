@@ -54,8 +54,11 @@ class TokenamiPlugin {
     this.#config = tokenami.getConfigAtPath(configPath);
     this.#ctx = context;
     this.#diagnostics = new TokenamiDiagnostics(this.#config, this.#ctx);
-    this.#completions = new TrieCompletions(this.#config);
-    this.#quotedCompletions = new TrieCompletions(this.#config, (name) => `"${name}"`);
+    this.#completions = new TrieCompletions(this.#config, this.#ctx);
+    this.#quotedCompletions = new TrieCompletions(this.#config, {
+      insertFormatter: (name) => `"${name}"`,
+      logger: this.#ctx.logger,
+    });
     this.#ctx.logger.log(`Watching config at ${configPath}`);
     this.#watchConfig(configPath);
 
@@ -74,8 +77,11 @@ class TokenamiPlugin {
         updateEnvFile(configPath, reloadedConfig);
 
         this.#ctx.logger.log(`Config changed at ${configPath}}`);
-        this.#completions = new TrieCompletions(reloadedConfig);
-        this.#quotedCompletions = new TrieCompletions(reloadedConfig, (name) => `"${name}"`);
+        this.#completions = new TrieCompletions(reloadedConfig, this.#ctx);
+        this.#quotedCompletions = new TrieCompletions(reloadedConfig, {
+          insertFormatter: (name) => `"${name}"`,
+          logger: this.#ctx.logger,
+        });
         this.#diagnostics = new TokenamiDiagnostics(reloadedConfig, this.#ctx);
         this.#ctx.info.project.refreshDiagnostics();
         this.#config = reloadedConfig;
