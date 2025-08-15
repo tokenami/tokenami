@@ -13,9 +13,10 @@ interface IconProps extends TokenamiStyle<React.ComponentProps<'svg'>>, Variants
 
 const Icon = ({ name, size, ...props }: IconProps) => {
   const [cn, css] = icon({ size });
+  const href = typeof spriteHref === 'string' ? spriteHref : spriteHref.src;
   return (
     <svg {...props} className={cn(props.className)} style={css(props.style)}>
-      <use href={`${spriteHref}#${name}`} />
+      <use href={`${href}#${name}`} />
     </svg>
   );
 };

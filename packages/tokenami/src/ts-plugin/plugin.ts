@@ -7,7 +7,7 @@ import * as ERROR_CODES from './error-codes';
 import { isColorThemeEntry, replaceCssVarsWithFallback } from './common';
 import { LanguageServiceLogger } from './logger';
 import { TokenamiDiagnostics } from './diagnostics';
-import { TrieCompletions } from './trie';
+import { TokenamiCompletions } from './completions';
 
 type ModeValues = Record<string, string>;
 
@@ -47,15 +47,16 @@ class TokenamiPlugin {
   #diagnostics: TokenamiDiagnostics;
   #config: TokenamiConfig.Config;
   #ctx: TokenamiPluginContext;
-  #completions: TrieCompletions;
-  #quotedCompletions: TrieCompletions;
+  #completions: TokenamiCompletions;
+  #quotedCompletions: TokenamiCompletions;
+  #completionsForPosition: { [entryName: string]: ts.CompletionEntry } = {};
 
   constructor(configPath: string, context: TokenamiPluginContext) {
     this.#config = tokenami.getConfigAtPath(configPath);
     this.#ctx = context;
     this.#diagnostics = new TokenamiDiagnostics(this.#config, this.#ctx);
-    this.#completions = new TrieCompletions(this.#config, this.#ctx);
-    this.#quotedCompletions = new TrieCompletions(this.#config, {
+    this.#completions = new TokenamiCompletions(this.#config, this.#ctx);
+    this.#quotedCompletions = new TokenamiCompletions(this.#config, {
       insertFormatter: (name) => `"${name}"`,
       logger: this.#ctx.logger,
     });
@@ -77,8 +78,8 @@ class TokenamiPlugin {
         updateEnvFile(configPath, reloadedConfig);
 
         this.#ctx.logger.log(`Config changed at ${configPath}}`);
-        this.#completions = new TrieCompletions(reloadedConfig, this.#ctx);
-        this.#quotedCompletions = new TrieCompletions(reloadedConfig, {
+        this.#completions = new TokenamiCompletions(reloadedConfig, this.#ctx);
+        this.#quotedCompletions = new TokenamiCompletions(reloadedConfig, {
           insertFormatter: (name) => `"${name}"`,
           logger: this.#ctx.logger,
         });
@@ -100,53 +101,67 @@ class TokenamiPlugin {
     return [...this.#diagnostics.getSemanticDiagnostics(sourceFile), ...original];
   }
 
-  getCompletionsAtPosition = (
+  getCompletionsAtPosition(
     fileName: string,
     position: number,
     options?: ts.GetCompletionsAtPositionOptions
-  ) => {
-    const original = this.#ctx.info.languageService.getCompletionsAtPosition(
-      fileName,
-      position,
-      options
-    );
-    const program = this.#ctx.info.languageService.getProgram();
-    const sourceFile = program?.getSourceFile(fileName);
-    if (!original || !sourceFile) return original;
+  ): ReturnType<ts.LanguageService['getCompletionsAtPosition']> {
+    const languageService = this.#ctx.info.languageService;
+    const original = () => languageService.getCompletionsAtPosition(fileName, position, options);
 
-    const isTokenPropertyEntries = original.entries.some(
-      (entry) => TokenamiConfig.TokenProperty.safeParse(entry.name).success
-    );
-    const isTokenValueEntries = original.entries.some(
-      (entry) => TokenamiConfig.TokenValue.safeParse(entry.name).success
-    );
+    const program = languageService.getProgram();
+    const sourceFile = program?.getSourceFile(fileName);
+    if (!sourceFile) return original();
 
     const node = findNodeAtPosition(sourceFile, position);
-    if (!node) return original;
+    if (!node) return original();
 
-    if (isTokenValueEntries) {
-      const input = getValueAtPosition(node, position);
-      const needsQuotes = !input.startsWith('"') && !input.startsWith("'");
-      const trie = needsQuotes ? this.#quotedCompletions : this.#completions;
-      const values = trie.valueSearch(getUnquotedString(input));
+    const input = this.#parseCompletionsInput(node, fileName, position);
+    if (!input) return original();
 
-      original.entries = original.entries.flatMap((entry) => {
-        const result = values.find((result) => {
-          const name = getUnquotedString(result.insertText ?? result.name);
-          return name === getUnquotedString(entry.name);
-        });
-        return result ? [result] : [];
+    if (input.isTokenamiProperty) {
+      const rawInput = removeQuotes(input.value);
+      const hasQuotes = input.value.startsWith('"') || input.value.startsWith("'");
+      const completions = hasQuotes ? this.#completions : this.#quotedCompletions;
+      const results = completions.propertySearch(rawInput);
+      this.#completionsForPosition = results;
+
+      return {
+        entries: Object.values(results),
+        isGlobalCompletion: false,
+        isMemberCompletion: false,
+        isNewIdentifierLocation: false,
+        optionalReplacementSpan: {
+          start: position - rawInput.length,
+          length: rawInput.length,
+        },
+      };
+    } else {
+      const result = original();
+      const isTokenValue = result?.entries?.some((entry) => {
+        return TokenamiConfig.TokenValue.safeParse(entry.name).success;
       });
-    } else if (isTokenPropertyEntries) {
-      const input = getPropertyAtPosition(node, position);
-      const needsQuotes = !input.startsWith('"') && !input.startsWith("'");
-      const trie = needsQuotes ? this.#quotedCompletions : this.#completions;
-      original.entries = trie.propertySearch(getUnquotedString(input));
-      return { ...original, isIncomplete: true };
-    }
 
-    return original;
-  };
+      if (!isTokenValue) return result;
+
+      const rawInput = removeQuotes(input.value);
+      const hasQuotes = input.value.startsWith('"') || input.value.startsWith("'");
+      const completions = hasQuotes ? this.#completions : this.#quotedCompletions;
+      const results = completions.valueSearch(result?.entries ?? []);
+      this.#completionsForPosition = results;
+
+      return {
+        entries: Object.values(results),
+        isGlobalCompletion: false,
+        isMemberCompletion: false,
+        isNewIdentifierLocation: false,
+        optionalReplacementSpan: {
+          start: position - rawInput.length,
+          length: rawInput.length,
+        },
+      };
+    }
+  }
 
   getCompletionEntryDetails(
     fileName: string,
@@ -167,13 +182,13 @@ class TokenamiPlugin {
       data
     );
 
-    const completions = this.getCompletionsAtPosition(fileName, position);
-    const entry = completions?.entries.find((entry) => entry.name === entryName);
-    const selector = (entry as any).details?.selector;
-    const modeValues: ModeValues = (entry as any).details?.modeValues;
-
+    const entry = this.#completionsForPosition[entryName];
     if (!entry) return original;
+
+    const selector = (entry as any).details?.selector;
     if (selector) return createEntryDetails(original, entry, selector);
+
+    const modeValues: ModeValues = (entry as any).details?.modeValues;
     if (!modeValues) return original;
 
     const themeEntries = Object.entries(modeValues);
@@ -194,7 +209,7 @@ class TokenamiPlugin {
     const original = this.#ctx.info.languageService.getQuickInfoAtPosition(fileName, position);
     const sourceFile = this.#ctx.info.languageService.getProgram()?.getSourceFile(fileName);
 
-    if (!original || !sourceFile) return original;
+    if (!original || !sourceFile) return;
     const node = findNodeAtPosition(sourceFile, position);
     if (!node || !node.parent || !ts.isPropertyAssignment(node.parent)) return original;
 
@@ -256,6 +271,72 @@ class TokenamiPlugin {
         changes: [{ fileName, textChanges: [{ span: valueSpan, newText: arbitraryText }] }],
       },
     ];
+  }
+
+  #parseCompletionsInput(
+    node: ts.Node,
+    fileName: string,
+    position: number
+  ): { value: string; isTokenamiProperty: boolean } | null {
+    const objLit = ts.findAncestor(node, ts.isObjectLiteralExpression);
+
+    if (!objLit) {
+      const text = node.getText();
+      return ts.isStringLiteral(node) ? { isTokenamiProperty: false, value: text } : null;
+    }
+
+    const isTokenami = this.#isTokenamiObject(objLit, fileName);
+    if (!isTokenami) return null;
+
+    const assignmentAtPosition = objLit.properties.find((prop) => {
+      const start = prop.getStart();
+      const end = prop.getEnd();
+      return start <= position && position <= end;
+    });
+
+    if (!assignmentAtPosition) return null;
+    const assignmentText = assignmentAtPosition.getText();
+
+    if (!ts.isPropertyAssignment(assignmentAtPosition)) {
+      return { isTokenamiProperty: true, value: assignmentText };
+    }
+
+    const propertyStart = assignmentAtPosition.getStart();
+    const relativePosition = position - propertyStart;
+    const key = assignmentAtPosition.name.getText();
+    const value = assignmentAtPosition.initializer.getText();
+    const isTokenamiProperty = !!(key && relativePosition < key.length);
+
+    return { isTokenamiProperty, value: isTokenamiProperty ? key : value };
+  }
+
+  #isTokenamiObjectCache = new Set<string>();
+  #isTokenamiObject(objLit: ts.ObjectLiteralExpression, fileName: string): boolean {
+    const sourceFile = this.#ctx.info.languageService.getProgram()?.getSourceFile(fileName);
+    if (!sourceFile) return false;
+
+    // get the text before the opening brace (up to 10 characters)
+    const startPos = objLit.getStart(sourceFile);
+    const textBeforeBrace = sourceFile.text.substring(Math.max(0, startPos - 10), startPos);
+
+    const cacheKey = `${fileName}:${objLit.pos}:${textBeforeBrace}`;
+    if (this.#isTokenamiObjectCache.has(cacheKey)) return true;
+
+    const checker = this.#ctx.info.languageService.getProgram()?.getTypeChecker();
+    if (!checker) return false;
+
+    const contextual = checker.getContextualType(objLit);
+    if (!contextual) return false;
+
+    let isTokenami = contextual.getProperties().some((p) => p.name === '__tokenami__');
+
+    if (!isTokenami) {
+      const typeString = checker.typeToString(contextual);
+      isTokenami = typeString.includes('TokenamiProperties');
+    }
+
+    if (isTokenami) this.#isTokenamiObjectCache.add(cacheKey);
+    return isTokenami;
   }
 }
 
@@ -329,52 +410,10 @@ const createEntryDetails = (
 });
 
 /* -------------------------------------------------------------------------------------------------
- * getPropertyAtPosition
+ * removeQuotes
  * -----------------------------------------------------------------------------------------------*/
 
-const getPropertyAtPosition = (node: ts.Node, position: number) => {
-  let input = node.getText();
-
-  if (ts.isObjectLiteralExpression(node)) {
-    for (const property of node.properties) {
-      const start = property.getStart();
-      const end = property.getEnd();
-      if (start <= position && position <= end) {
-        input = property.getText();
-      }
-    }
-  }
-
-  return input;
-};
-
-/* -------------------------------------------------------------------------------------------------
- * getValueAtPosition
- * -----------------------------------------------------------------------------------------------*/
-
-function getValueAtPosition(node: ts.Node, position: number) {
-  let input = node.getText();
-
-  if (ts.isObjectLiteralExpression(node)) {
-    for (const property of node.properties) {
-      if (!ts.isPropertyAssignment(property)) continue;
-      const value = property.initializer;
-      const start = value.getStart();
-      const end = value.getEnd();
-      if (start <= position && position <= end) {
-        input = value.getText();
-      }
-    }
-  }
-
-  return input;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getUnquotedString
- * -----------------------------------------------------------------------------------------------*/
-
-function getUnquotedString(name: string) {
+function removeQuotes(name: string) {
   return name.replace(/'|"/g, '');
 }
 
