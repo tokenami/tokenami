@@ -143,7 +143,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <footer className={footerCn()}>
           <TitleCard.Root>
-            <TitleCard.Graphic color="var(--color_crimson9)" />
+            <TitleCard.Graphic color="crimson" />
             <TitleCard.Content>
               <TitleCard.Title variant={6}>Flip</TitleCard.Title>
               <TitleCard.Description style={{ '--font': 'var(--text_xs)' }}>
