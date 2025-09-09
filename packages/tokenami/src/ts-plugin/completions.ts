@@ -31,7 +31,7 @@ type ValueCompletionEntries = {
  * -----------------------------------------------------------------------------------------------*/
 
 type TokenamiCompletionsContext = {
-  insertFormatter?: (name: string) => string;
+  insertFormatter?: (name: string, options?: { type: 'value' | 'property' }) => string;
   logger: Logger;
 };
 
@@ -249,7 +249,7 @@ class TokenamiCompletions {
         kind: ts.ScriptElementKind.string,
         kindModifiers: isColorThemeEntry(modeValues) ? 'color' : parts.themeKey,
         sortText: this.#createSortText(`${index}${entryName}`),
-        insertText: this.#ctx.insertFormatter(entryName),
+        insertText: this.#ctx.insertFormatter(entryName, { type: 'value' }),
         labelDetails: { detail: '', description: entryName },
         details: { modeValues, themeKey: parts.themeKey },
       };
@@ -313,12 +313,15 @@ class TokenamiCompletions {
   #createPropertyEntry(name: string, sortText = this.#createSortText(name)): CompletionEntry {
     const kind = ts.ScriptElementKind.memberVariableElement;
     const kindModifiers = ts.ScriptElementKindModifier.optionalModifier;
+    const insertText = this.#ctx.insertFormatter(name, { type: 'property' });
+    const isSnippet = insertText.includes('${');
     return {
       name,
       kind,
       kindModifiers,
       sortText,
-      insertText: this.#ctx.insertFormatter(name),
+      insertText,
+      ...(isSnippet && { isSnippet }),
     };
   }
 }
