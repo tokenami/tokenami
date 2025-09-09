@@ -57,7 +57,7 @@ class TokenamiPlugin {
     this.#diagnostics = new TokenamiDiagnostics(this.#config, this.#ctx);
     this.#completions = new TokenamiCompletions(this.#config, this.#ctx);
     this.#quotedCompletions = new TokenamiCompletions(this.#config, {
-      insertFormatter: (name) => `"${name}"`,
+      insertFormatter: quotedInsertFormatter,
       logger: this.#ctx.logger,
     });
     this.#ctx.logger.log(`Watching config at ${configPath}`);
@@ -80,7 +80,7 @@ class TokenamiPlugin {
         this.#ctx.logger.log(`Config changed at ${configPath}}`);
         this.#completions = new TokenamiCompletions(reloadedConfig, this.#ctx);
         this.#quotedCompletions = new TokenamiCompletions(reloadedConfig, {
-          insertFormatter: (name) => `"${name}"`,
+          insertFormatter: quotedInsertFormatter,
           logger: this.#ctx.logger,
         });
         this.#diagnostics = new TokenamiDiagnostics(reloadedConfig, this.#ctx);
@@ -371,6 +371,16 @@ function updateEnvFile(configPath: string, config: TokenamiConfig.Config) {
         );
 
   ts.sys.writeFile(envFilePath, updatedEnvFileContent);
+}
+
+/* -----------------------------------------------------------------------------------------------
+ * quotedInsertFormatter
+ * ---------------------------------------------------------------------------------------------*/
+
+function quotedInsertFormatter(name: string, options?: { type: 'value' | 'property' }) {
+  if (options?.type === 'value') return `"${name}"`;
+  if (name.slice(-1) === '_') return `"${name}\${1}": \${2}`;
+  return `"${name}": \${1}`;
 }
 
 /* -----------------------------------------------------------------------------------------------

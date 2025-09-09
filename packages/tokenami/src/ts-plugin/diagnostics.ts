@@ -119,6 +119,7 @@ class TokenamiDiagnostics {
       if (ts.isObjectLiteralExpression(value)) {
         return this.#validateComposeConfig(value, sourceFile);
       } else if (
+        value.getText().length > 0 &&
         !ts.isIdentifier(key) &&
         !ts.isStringLiteral(value) &&
         !ts.isNumericLiteral(value) &&
