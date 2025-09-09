@@ -19,7 +19,7 @@
     "@sly-cli/sly": "^2.1.1",
     "@tokenami/css": "workspace:*",
     "@tokenami/ds": "workspace:*",
-    "next": "15.2.4",
+    "next": "15.4.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
