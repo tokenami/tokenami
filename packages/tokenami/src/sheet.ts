@@ -429,7 +429,7 @@ function generateThemeTokens(
   config: Tokenami.Config
 ) {
   const theme = utils.getThemeFromConfig(config.theme);
-  const rootSelector = ':root';
+  const rootSelector = config.themeSelector('root');
   const gridStyles = `${rootSelector} { ${Tokenami.gridProperty()}: ${config.grid}; }`;
   const rootStyles = getThemeStyles(styleSelector, rootSelector, tokenValues, theme.root, config);
   const themeToModes: Record<string, string[]> = {};
