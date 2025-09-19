@@ -121,6 +121,7 @@ function createSheet(params: {
         const declaration = `${propertyPrefix}${cssProperty}: ${declarationValue};`;
 
         styles.reset.add(`${toggleProperty}: initial;`);
+        styles.reset.add(`${hashedProperty}: initial;`);
         if (!isInheritable && !hasChildSelector) {
           styles.reset.add(`${prop.tokenProperty}: initial;`);
         }
