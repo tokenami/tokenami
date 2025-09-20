@@ -46,6 +46,7 @@ class TokenamiCompletions {
   #_values?: ValueCompletionEntries;
   #_selectorSnippets?: SelectorCompletionEntries;
   #_responsiveSelectorSnippets?: SelectorCompletionEntries;
+  #_responsiveArbitrarySelectorSnippets?: SelectorCompletionEntries;
   #_validProperties: string[];
   #_validTokenValues: (readonly [string, string])[];
 
@@ -71,7 +72,20 @@ class TokenamiCompletions {
   }
 
   get #responsiveSelectorSnippets() {
-    return (this.#_responsiveSelectorSnippets ??= this.#getResponsiveSelectorSnippetCompletions());
+    if (this.#_responsiveSelectorSnippets) return this.#_responsiveSelectorSnippets;
+    const selectorConfig = this.#getSelectorConfigEntries();
+    const completions = this.#getResponsiveSelectorSnippetCompletions(selectorConfig);
+    this.#_responsiveSelectorSnippets = completions;
+    return completions;
+  }
+
+  get #responsiveArbitrarySelectorSnippets() {
+    if (this.#_responsiveArbitrarySelectorSnippets)
+      return this.#_responsiveArbitrarySelectorSnippets;
+    const selectorConfig = [[`{}`, '']] as [string, string][];
+    const completions = this.#getResponsiveSelectorSnippetCompletions(selectorConfig);
+    this.#_responsiveArbitrarySelectorSnippets = completions;
+    return completions;
   }
 
   propertySearch(input: string): CompletionEntries {
@@ -95,7 +109,7 @@ class TokenamiCompletions {
     const parts = TokenamiConfig.getTokenPropertySplit(input as any);
 
     if (!parts.variants.length) {
-      return { ...this.#selectorSnippets, ...this.#responsiveSelectorSnippets };
+      return { ...this.#selectorSnippets, ...this.#responsiveArbitrarySelectorSnippets };
     }
 
     if (parts.variants.length === 1) {
@@ -118,7 +132,8 @@ class TokenamiCompletions {
 
   #responsiveSelectorsSearch(input: string, alias: string, variants: string[]) {
     const arbSelector = this.#getArbitrarySelector(input);
-    return this.#getResponsiveSelectorCompletions(alias, variants, arbSelector);
+    const selectorConfig = this.#getSelectorConfigEntries(variants, arbSelector);
+    return this.#getResponsiveSelectorCompletions(alias, variants, selectorConfig);
   }
 
   #matchSearch(input: string, entryName: string): boolean {
@@ -174,15 +189,15 @@ class TokenamiCompletions {
   #getResponsiveSelectorCompletions(
     alias: string,
     variants: string[],
-    arbSelector?: string
+    selectorConfig: [string, string | string[]][]
   ): SelectorCompletionEntries {
-    const responsiveSelectorKeys = this.#getResponsiveSelectorConfigEntries(variants, arbSelector);
+    const responsiveSelectors = this.#getResponsiveSelectorConfigEntries(selectorConfig, variants);
     const result: SelectorCompletionEntries = {};
     for (const property of this.#_validProperties) {
       if (!this.#matchSearch(alias, property)) continue;
       const create = this.#createVariantPropertyEntry(property);
 
-      for (const [selector, value] of responsiveSelectorKeys) {
+      for (const [selector, value] of responsiveSelectors) {
         const entry = create([selector, value]);
         result[entry.name] = entry;
       }
@@ -192,18 +207,27 @@ class TokenamiCompletions {
 
   #getSelectorSnippetCompletions(): SelectorCompletionEntries {
     const responsiveConfig = this.#getResponsiveConfigEntries();
-    const selectorConfig = this.#getSelectorConfigEntries().concat(responsiveConfig);
+    const selectorConfig = this.#getSelectorConfigEntries();
     const create = this.#createVariantPropertyEntry(null);
     const result: SelectorCompletionEntries = {};
+
     for (const [selector, value] of selectorConfig) {
       const entry = create([selector, value]);
       result[entry.name] = entry;
     }
+
+    for (const [selector, value] of responsiveConfig) {
+      const entry = create([selector, value]);
+      result[entry.name] = entry;
+    }
+
     return result;
   }
 
-  #getResponsiveSelectorSnippetCompletions(): SelectorCompletionEntries {
-    const entries = this.#getResponsiveSelectorConfigEntries();
+  #getResponsiveSelectorSnippetCompletions(
+    selectorConfig: [string, string | string[]][]
+  ): SelectorCompletionEntries {
+    const entries = this.#getResponsiveSelectorConfigEntries(selectorConfig);
     const create = this.#createVariantPropertyEntry(null);
     const result: SelectorCompletionEntries = {};
     for (const [selector, value] of entries) {
@@ -251,9 +275,11 @@ class TokenamiCompletions {
     return this.#responsiveEntries.filter(([k]) => variantSet.has(k));
   }
 
-  #getResponsiveSelectorConfigEntries(variants?: string[], arbSelector?: string) {
-    let responsiveConfig = this.#getResponsiveConfigEntries(variants);
-    let selectorConfig = this.#getSelectorConfigEntries(variants, arbSelector);
+  #getResponsiveSelectorConfigEntries(
+    selectorConfig: [string, string | string[]][],
+    variants?: string[]
+  ) {
+    const responsiveConfig = this.#getResponsiveConfigEntries(variants);
     const result: [string, string | string[]][] = [];
 
     for (const [responsiveSelector, responsiveValue] of responsiveConfig) {
