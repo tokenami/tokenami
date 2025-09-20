@@ -61,8 +61,7 @@
     "jiti": "^1.21.0",
     "lightningcss": "1.29.1",
     "pathe": "^1.1.1",
-    "sucrase": "^3.34.0",
-    "trie-search": "^2.0.0"
+    "sucrase": "^3.34.0"
   },
   "peerDependencies": {
     "typescript": ">= 5"

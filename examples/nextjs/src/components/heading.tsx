@@ -7,7 +7,6 @@ import { type Variants, type TokenamiStyle, css } from '@/css';
 
 interface HeadingProps extends TokenamiStyle<React.ComponentProps<'h1'>>, Variants<typeof heading> {
   level: 1 | 2 | 3 | 4 | 5 | 6;
-  variant?: 1 | 2 | 3 | 4 | 5 | 6;
 }
 
 const Heading = ({ level = 2, variant = level, ...props }: HeadingProps) => {

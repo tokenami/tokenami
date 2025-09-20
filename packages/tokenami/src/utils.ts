@@ -174,7 +174,7 @@ function generateTypeDefs(configPath: string, stubPath = '../stubs/tokenami.env.
  * getValidProperties
  * -----------------------------------------------------------------------------------------------*/
 
-function getValidProperties(config: Tokenami.Config) {
+function getValidProperties(config: Tokenami.Config): Set<string> {
   return new Set([
     ...supportedProperties,
     ...Object.keys(config.properties || {}),
@@ -187,7 +187,7 @@ function getValidProperties(config: Tokenami.Config) {
  * getValidValues
  * -----------------------------------------------------------------------------------------------*/
 
-function getValidValues(config: Tokenami.Config) {
+function getValidValues(config: Tokenami.Config): (readonly [string, string])[] {
   const configTheme = getThemeFromConfig(config.theme);
   // pluck first mode because modes should have the same keys
   const mode = Object.values(configTheme.modes)[0];

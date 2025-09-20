@@ -9,19 +9,508 @@ interface TokenamiFinalConfig extends Merge<Tokenami.Config, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
 type AliasConfig = Omit<NonNullable<TokenamiFinalConfig['aliases']>, Tokenami.CSSProperty>;
-type PropertyConfig = NonNullable<TokenamiFinalConfig['properties']> &
-  NonNullable<TokenamiFinalConfig['customProperties']>;
+type NativePropertyConfig = NonNullable<TokenamiFinalConfig['properties']>;
+type CustomPropertyConfig = NonNullable<TokenamiFinalConfig['customProperties']>;
+type ExperimentalProperty = Exclude<keyof NativePropertyConfig, keyof SupportedTokenPropertiesMap>;
+type PropertyConfig = NativePropertyConfig & CustomPropertyConfig;
 
 type Theme = ThemeConfig extends Tokenami.ThemeModes<infer T>
   ? T & ThemeConfig['root']
   : Omit<ThemeConfig, 'modes' | 'root'>;
 
+type SupportedPropertyValue<P> = P extends keyof Tokenami.CSSProperties
+  ? PropertyValue<P> extends never
+    ? Tokenami.CSSProperties[P]
+    : PropertyValue<P>
+  : never;
+
+type SupportedTokenProperties<P> = { [K in TokenProperty<P>]?: SupportedPropertyValue<P> };
+
+interface SupportedTokenPropertiesMap {
+  all: SupportedTokenProperties<'all'>;
+  animation: SupportedTokenProperties<'animation'>;
+  'animation-range': SupportedTokenProperties<'animation-range'>;
+  background: SupportedTokenProperties<'background'>;
+  'background-position': SupportedTokenProperties<'background-position'>;
+  border: SupportedTokenProperties<'border'>;
+  'border-bottom': SupportedTokenProperties<'border-bottom'>;
+  'border-color': SupportedTokenProperties<'border-color'>;
+  'border-image': SupportedTokenProperties<'border-image'>;
+  'border-left': SupportedTokenProperties<'border-left'>;
+  'border-radius': SupportedTokenProperties<'border-radius'>;
+  'border-right': SupportedTokenProperties<'border-right'>;
+  'border-style': SupportedTokenProperties<'border-style'>;
+  'border-top': SupportedTokenProperties<'border-top'>;
+  'border-width': SupportedTokenProperties<'border-width'>;
+  caret: SupportedTokenProperties<'caret'>;
+  'column-rule': SupportedTokenProperties<'column-rule'>;
+  columns: SupportedTokenProperties<'columns'>;
+  'contain-intrinsic-size': SupportedTokenProperties<'contain-intrinsic-size'>;
+  container: SupportedTokenProperties<'container'>;
+  flex: SupportedTokenProperties<'flex'>;
+  'flex-flow': SupportedTokenProperties<'flex-flow'>;
+  font: SupportedTokenProperties<'font'>;
+  gap: SupportedTokenProperties<'gap'>;
+  grid: SupportedTokenProperties<'grid'>;
+  'grid-area': SupportedTokenProperties<'grid-area'>;
+  'grid-column': SupportedTokenProperties<'grid-column'>;
+  'grid-row': SupportedTokenProperties<'grid-row'>;
+  'grid-template': SupportedTokenProperties<'grid-template'>;
+  inset: SupportedTokenProperties<'inset'>;
+  'line-clamp': SupportedTokenProperties<'line-clamp'>;
+  'list-style': SupportedTokenProperties<'list-style'>;
+  margin: SupportedTokenProperties<'margin'>;
+  mask: SupportedTokenProperties<'mask'>;
+  'mask-border': SupportedTokenProperties<'mask-border'>;
+  motion: SupportedTokenProperties<'motion'>;
+  offset: SupportedTokenProperties<'offset'>;
+  outline: SupportedTokenProperties<'outline'>;
+  overflow: SupportedTokenProperties<'overflow'>;
+  'overscroll-behavior': SupportedTokenProperties<'overscroll-behavior'>;
+  padding: SupportedTokenProperties<'padding'>;
+  'place-content': SupportedTokenProperties<'place-content'>;
+  'place-items': SupportedTokenProperties<'place-items'>;
+  'place-self': SupportedTokenProperties<'place-self'>;
+  'scroll-margin': SupportedTokenProperties<'scroll-margin'>;
+  'scroll-padding': SupportedTokenProperties<'scroll-padding'>;
+  'scroll-snap-margin': SupportedTokenProperties<'scroll-snap-margin'>;
+  'scroll-timeline': SupportedTokenProperties<'scroll-timeline'>;
+  'text-decoration': SupportedTokenProperties<'text-decoration'>;
+  'text-emphasis': SupportedTokenProperties<'text-emphasis'>;
+  transition: SupportedTokenProperties<'transition'>;
+  'view-timeline': SupportedTokenProperties<'view-timeline'>;
+  'accent-color': SupportedTokenProperties<'accent-color'>;
+  'align-content': SupportedTokenProperties<'align-content'>;
+  'align-items': SupportedTokenProperties<'align-items'>;
+  'align-self': SupportedTokenProperties<'align-self'>;
+  'align-tracks': SupportedTokenProperties<'align-tracks'>;
+  'animation-composition': SupportedTokenProperties<'animation-composition'>;
+  'animation-delay': SupportedTokenProperties<'animation-delay'>;
+  'animation-direction': SupportedTokenProperties<'animation-direction'>;
+  'animation-duration': SupportedTokenProperties<'animation-duration'>;
+  'animation-fill-mode': SupportedTokenProperties<'animation-fill-mode'>;
+  'animation-iteration-count': SupportedTokenProperties<'animation-iteration-count'>;
+  'animation-name': SupportedTokenProperties<'animation-name'>;
+  'animation-play-state': SupportedTokenProperties<'animation-play-state'>;
+  'animation-range-end': SupportedTokenProperties<'animation-range-end'>;
+  'animation-range-start': SupportedTokenProperties<'animation-range-start'>;
+  'animation-timeline': SupportedTokenProperties<'animation-timeline'>;
+  'animation-timing-function': SupportedTokenProperties<'animation-timing-function'>;
+  appearance: SupportedTokenProperties<'appearance'>;
+  'aspect-ratio': SupportedTokenProperties<'aspect-ratio'>;
+  'backdrop-filter': SupportedTokenProperties<'backdrop-filter'>;
+  'backface-visibility': SupportedTokenProperties<'backface-visibility'>;
+  'background-attachment': SupportedTokenProperties<'background-attachment'>;
+  'background-blend-mode': SupportedTokenProperties<'background-blend-mode'>;
+  'background-clip': SupportedTokenProperties<'background-clip'>;
+  'background-color': SupportedTokenProperties<'background-color'>;
+  'background-image': SupportedTokenProperties<'background-image'>;
+  'background-origin': SupportedTokenProperties<'background-origin'>;
+  'background-position-x': SupportedTokenProperties<'background-position-x'>;
+  'background-position-y': SupportedTokenProperties<'background-position-y'>;
+  'background-repeat': SupportedTokenProperties<'background-repeat'>;
+  'background-size': SupportedTokenProperties<'background-size'>;
+  'border-bottom-color': SupportedTokenProperties<'border-bottom-color'>;
+  'border-bottom-left-radius': SupportedTokenProperties<'border-bottom-left-radius'>;
+  'border-bottom-right-radius': SupportedTokenProperties<'border-bottom-right-radius'>;
+  'border-bottom-style': SupportedTokenProperties<'border-bottom-style'>;
+  'border-bottom-width': SupportedTokenProperties<'border-bottom-width'>;
+  'border-collapse': SupportedTokenProperties<'border-collapse'>;
+  'border-end-end-radius': SupportedTokenProperties<'border-end-end-radius'>;
+  'border-end-start-radius': SupportedTokenProperties<'border-end-start-radius'>;
+  'border-image-outset': SupportedTokenProperties<'border-image-outset'>;
+  'border-image-repeat': SupportedTokenProperties<'border-image-repeat'>;
+  'border-image-slice': SupportedTokenProperties<'border-image-slice'>;
+  'border-image-source': SupportedTokenProperties<'border-image-source'>;
+  'border-image-width': SupportedTokenProperties<'border-image-width'>;
+  'border-left-color': SupportedTokenProperties<'border-left-color'>;
+  'border-left-style': SupportedTokenProperties<'border-left-style'>;
+  'border-left-width': SupportedTokenProperties<'border-left-width'>;
+  'border-right-color': SupportedTokenProperties<'border-right-color'>;
+  'border-right-style': SupportedTokenProperties<'border-right-style'>;
+  'border-right-width': SupportedTokenProperties<'border-right-width'>;
+  'border-spacing': SupportedTokenProperties<'border-spacing'>;
+  'border-start-end-radius': SupportedTokenProperties<'border-start-end-radius'>;
+  'border-start-start-radius': SupportedTokenProperties<'border-start-start-radius'>;
+  'border-top-color': SupportedTokenProperties<'border-top-color'>;
+  'border-top-left-radius': SupportedTokenProperties<'border-top-left-radius'>;
+  'border-top-right-radius': SupportedTokenProperties<'border-top-right-radius'>;
+  'border-top-style': SupportedTokenProperties<'border-top-style'>;
+  'border-top-width': SupportedTokenProperties<'border-top-width'>;
+  bottom: SupportedTokenProperties<'bottom'>;
+  'box-decoration-break': SupportedTokenProperties<'box-decoration-break'>;
+  'box-shadow': SupportedTokenProperties<'box-shadow'>;
+  'box-sizing': SupportedTokenProperties<'box-sizing'>;
+  'break-after': SupportedTokenProperties<'break-after'>;
+  'break-before': SupportedTokenProperties<'break-before'>;
+  'break-inside': SupportedTokenProperties<'break-inside'>;
+  'caption-side': SupportedTokenProperties<'caption-side'>;
+  'caret-color': SupportedTokenProperties<'caret-color'>;
+  'caret-shape': SupportedTokenProperties<'caret-shape'>;
+  clear: SupportedTokenProperties<'clear'>;
+  'clip-path': SupportedTokenProperties<'clip-path'>;
+  color: SupportedTokenProperties<'color'>;
+  'color-adjust': SupportedTokenProperties<'color-adjust'>;
+  'color-scheme': SupportedTokenProperties<'color-scheme'>;
+  'column-count': SupportedTokenProperties<'column-count'>;
+  'column-fill': SupportedTokenProperties<'column-fill'>;
+  'column-gap': SupportedTokenProperties<'column-gap'>;
+  'column-rule-color': SupportedTokenProperties<'column-rule-color'>;
+  'column-rule-style': SupportedTokenProperties<'column-rule-style'>;
+  'column-rule-width': SupportedTokenProperties<'column-rule-width'>;
+  'column-span': SupportedTokenProperties<'column-span'>;
+  'column-width': SupportedTokenProperties<'column-width'>;
+  contain: SupportedTokenProperties<'contain'>;
+  'contain-intrinsic-height': SupportedTokenProperties<'contain-intrinsic-height'>;
+  'contain-intrinsic-width': SupportedTokenProperties<'contain-intrinsic-width'>;
+  'container-name': SupportedTokenProperties<'container-name'>;
+  'container-type': SupportedTokenProperties<'container-type'>;
+  content: SupportedTokenProperties<'content'>;
+  'content-visibility': SupportedTokenProperties<'content-visibility'>;
+  'counter-increment': SupportedTokenProperties<'counter-increment'>;
+  'counter-reset': SupportedTokenProperties<'counter-reset'>;
+  'counter-set': SupportedTokenProperties<'counter-set'>;
+  cursor: SupportedTokenProperties<'cursor'>;
+  direction: SupportedTokenProperties<'direction'>;
+  display: SupportedTokenProperties<'display'>;
+  'empty-cells': SupportedTokenProperties<'empty-cells'>;
+  filter: SupportedTokenProperties<'filter'>;
+  'flex-basis': SupportedTokenProperties<'flex-basis'>;
+  'flex-direction': SupportedTokenProperties<'flex-direction'>;
+  'flex-grow': SupportedTokenProperties<'flex-grow'>;
+  'flex-shrink': SupportedTokenProperties<'flex-shrink'>;
+  'flex-wrap': SupportedTokenProperties<'flex-wrap'>;
+  float: SupportedTokenProperties<'float'>;
+  'font-family': SupportedTokenProperties<'font-family'>;
+  'font-feature-settings': SupportedTokenProperties<'font-feature-settings'>;
+  'font-kerning': SupportedTokenProperties<'font-kerning'>;
+  'font-language-override': SupportedTokenProperties<'font-language-override'>;
+  'font-optical-sizing': SupportedTokenProperties<'font-optical-sizing'>;
+  'font-palette': SupportedTokenProperties<'font-palette'>;
+  'font-size': SupportedTokenProperties<'font-size'>;
+  'font-size-adjust': SupportedTokenProperties<'font-size-adjust'>;
+  'font-smooth': SupportedTokenProperties<'font-smooth'>;
+  'font-stretch': SupportedTokenProperties<'font-stretch'>;
+  'font-style': SupportedTokenProperties<'font-style'>;
+  'font-synthesis': SupportedTokenProperties<'font-synthesis'>;
+  'font-synthesis-position': SupportedTokenProperties<'font-synthesis-position'>;
+  'font-synthesis-small-caps': SupportedTokenProperties<'font-synthesis-small-caps'>;
+  'font-synthesis-style': SupportedTokenProperties<'font-synthesis-style'>;
+  'font-synthesis-weight': SupportedTokenProperties<'font-synthesis-weight'>;
+  'font-variant': SupportedTokenProperties<'font-variant'>;
+  'font-variant-alternates': SupportedTokenProperties<'font-variant-alternates'>;
+  'font-variant-caps': SupportedTokenProperties<'font-variant-caps'>;
+  'font-variant-east-asian': SupportedTokenProperties<'font-variant-east-asian'>;
+  'font-variant-emoji': SupportedTokenProperties<'font-variant-emoji'>;
+  'font-variant-ligatures': SupportedTokenProperties<'font-variant-ligatures'>;
+  'font-variant-numeric': SupportedTokenProperties<'font-variant-numeric'>;
+  'font-variant-position': SupportedTokenProperties<'font-variant-position'>;
+  'font-variation-settings': SupportedTokenProperties<'font-variation-settings'>;
+  'font-weight': SupportedTokenProperties<'font-weight'>;
+  'forced-color-adjust': SupportedTokenProperties<'forced-color-adjust'>;
+  'grid-auto-columns': SupportedTokenProperties<'grid-auto-columns'>;
+  'grid-auto-flow': SupportedTokenProperties<'grid-auto-flow'>;
+  'grid-auto-rows': SupportedTokenProperties<'grid-auto-rows'>;
+  'grid-column-end': SupportedTokenProperties<'grid-column-end'>;
+  'grid-column-start': SupportedTokenProperties<'grid-column-start'>;
+  'grid-row-end': SupportedTokenProperties<'grid-row-end'>;
+  'grid-row-start': SupportedTokenProperties<'grid-row-start'>;
+  'grid-template-areas': SupportedTokenProperties<'grid-template-areas'>;
+  'grid-template-columns': SupportedTokenProperties<'grid-template-columns'>;
+  'grid-template-rows': SupportedTokenProperties<'grid-template-rows'>;
+  'hanging-punctuation': SupportedTokenProperties<'hanging-punctuation'>;
+  height: SupportedTokenProperties<'height'>;
+  'hyphenate-character': SupportedTokenProperties<'hyphenate-character'>;
+  'hyphenate-limit-chars': SupportedTokenProperties<'hyphenate-limit-chars'>;
+  hyphens: SupportedTokenProperties<'hyphens'>;
+  'image-orientation': SupportedTokenProperties<'image-orientation'>;
+  'image-rendering': SupportedTokenProperties<'image-rendering'>;
+  'image-resolution': SupportedTokenProperties<'image-resolution'>;
+  'initial-letter': SupportedTokenProperties<'initial-letter'>;
+  'input-security': SupportedTokenProperties<'input-security'>;
+  isolation: SupportedTokenProperties<'isolation'>;
+  'justify-content': SupportedTokenProperties<'justify-content'>;
+  'justify-items': SupportedTokenProperties<'justify-items'>;
+  'justify-self': SupportedTokenProperties<'justify-self'>;
+  'justify-tracks': SupportedTokenProperties<'justify-tracks'>;
+  left: SupportedTokenProperties<'left'>;
+  'letter-spacing': SupportedTokenProperties<'letter-spacing'>;
+  'line-break': SupportedTokenProperties<'line-break'>;
+  'line-height': SupportedTokenProperties<'line-height'>;
+  'line-height-step': SupportedTokenProperties<'line-height-step'>;
+  'list-style-image': SupportedTokenProperties<'list-style-image'>;
+  'list-style-position': SupportedTokenProperties<'list-style-position'>;
+  'list-style-type': SupportedTokenProperties<'list-style-type'>;
+  'margin-bottom': SupportedTokenProperties<'margin-bottom'>;
+  'margin-left': SupportedTokenProperties<'margin-left'>;
+  'margin-right': SupportedTokenProperties<'margin-right'>;
+  'margin-top': SupportedTokenProperties<'margin-top'>;
+  'margin-trim': SupportedTokenProperties<'margin-trim'>;
+  'mask-border-mode': SupportedTokenProperties<'mask-border-mode'>;
+  'mask-border-outset': SupportedTokenProperties<'mask-border-outset'>;
+  'mask-border-repeat': SupportedTokenProperties<'mask-border-repeat'>;
+  'mask-border-slice': SupportedTokenProperties<'mask-border-slice'>;
+  'mask-border-source': SupportedTokenProperties<'mask-border-source'>;
+  'mask-border-width': SupportedTokenProperties<'mask-border-width'>;
+  'mask-clip': SupportedTokenProperties<'mask-clip'>;
+  'mask-composite': SupportedTokenProperties<'mask-composite'>;
+  'mask-image': SupportedTokenProperties<'mask-image'>;
+  'mask-mode': SupportedTokenProperties<'mask-mode'>;
+  'mask-origin': SupportedTokenProperties<'mask-origin'>;
+  'mask-position': SupportedTokenProperties<'mask-position'>;
+  'mask-repeat': SupportedTokenProperties<'mask-repeat'>;
+  'mask-size': SupportedTokenProperties<'mask-size'>;
+  'mask-type': SupportedTokenProperties<'mask-type'>;
+  'masonry-auto-flow': SupportedTokenProperties<'masonry-auto-flow'>;
+  'math-depth': SupportedTokenProperties<'math-depth'>;
+  'math-shift': SupportedTokenProperties<'math-shift'>;
+  'math-style': SupportedTokenProperties<'math-style'>;
+  'max-height': SupportedTokenProperties<'max-height'>;
+  'max-lines': SupportedTokenProperties<'max-lines'>;
+  'max-width': SupportedTokenProperties<'max-width'>;
+  'min-height': SupportedTokenProperties<'min-height'>;
+  'min-width': SupportedTokenProperties<'min-width'>;
+  'mix-blend-mode': SupportedTokenProperties<'mix-blend-mode'>;
+  'motion-distance': SupportedTokenProperties<'motion-distance'>;
+  'motion-path': SupportedTokenProperties<'motion-path'>;
+  'motion-rotation': SupportedTokenProperties<'motion-rotation'>;
+  'object-fit': SupportedTokenProperties<'object-fit'>;
+  'object-position': SupportedTokenProperties<'object-position'>;
+  'offset-anchor': SupportedTokenProperties<'offset-anchor'>;
+  'offset-distance': SupportedTokenProperties<'offset-distance'>;
+  'offset-path': SupportedTokenProperties<'offset-path'>;
+  'offset-position': SupportedTokenProperties<'offset-position'>;
+  'offset-rotate': SupportedTokenProperties<'offset-rotate'>;
+  'offset-rotation': SupportedTokenProperties<'offset-rotation'>;
+  opacity: SupportedTokenProperties<'opacity'>;
+  order: SupportedTokenProperties<'order'>;
+  orphans: SupportedTokenProperties<'orphans'>;
+  'outline-color': SupportedTokenProperties<'outline-color'>;
+  'outline-offset': SupportedTokenProperties<'outline-offset'>;
+  'outline-style': SupportedTokenProperties<'outline-style'>;
+  'outline-width': SupportedTokenProperties<'outline-width'>;
+  'overflow-anchor': SupportedTokenProperties<'overflow-anchor'>;
+  'overflow-clip-box': SupportedTokenProperties<'overflow-clip-box'>;
+  'overflow-clip-margin': SupportedTokenProperties<'overflow-clip-margin'>;
+  'overflow-wrap': SupportedTokenProperties<'overflow-wrap'>;
+  'overflow-x': SupportedTokenProperties<'overflow-x'>;
+  'overflow-y': SupportedTokenProperties<'overflow-y'>;
+  overlay: SupportedTokenProperties<'overlay'>;
+  'overscroll-behavior-x': SupportedTokenProperties<'overscroll-behavior-x'>;
+  'overscroll-behavior-y': SupportedTokenProperties<'overscroll-behavior-y'>;
+  'padding-bottom': SupportedTokenProperties<'padding-bottom'>;
+  'padding-left': SupportedTokenProperties<'padding-left'>;
+  'padding-right': SupportedTokenProperties<'padding-right'>;
+  'padding-top': SupportedTokenProperties<'padding-top'>;
+  page: SupportedTokenProperties<'page'>;
+  'page-break-after': SupportedTokenProperties<'page-break-after'>;
+  'page-break-before': SupportedTokenProperties<'page-break-before'>;
+  'page-break-inside': SupportedTokenProperties<'page-break-inside'>;
+  'paint-order': SupportedTokenProperties<'paint-order'>;
+  perspective: SupportedTokenProperties<'perspective'>;
+  'perspective-origin': SupportedTokenProperties<'perspective-origin'>;
+  'pointer-events': SupportedTokenProperties<'pointer-events'>;
+  position: SupportedTokenProperties<'position'>;
+  'print-color-adjust': SupportedTokenProperties<'print-color-adjust'>;
+  quotes: SupportedTokenProperties<'quotes'>;
+  resize: SupportedTokenProperties<'resize'>;
+  right: SupportedTokenProperties<'right'>;
+  rotate: SupportedTokenProperties<'rotate'>;
+  'row-gap': SupportedTokenProperties<'row-gap'>;
+  'ruby-align': SupportedTokenProperties<'ruby-align'>;
+  'ruby-merge': SupportedTokenProperties<'ruby-merge'>;
+  'ruby-position': SupportedTokenProperties<'ruby-position'>;
+  scale: SupportedTokenProperties<'scale'>;
+  'scroll-behavior': SupportedTokenProperties<'scroll-behavior'>;
+  'scroll-margin-bottom': SupportedTokenProperties<'scroll-margin-bottom'>;
+  'scroll-margin-left': SupportedTokenProperties<'scroll-margin-left'>;
+  'scroll-margin-right': SupportedTokenProperties<'scroll-margin-right'>;
+  'scroll-margin-top': SupportedTokenProperties<'scroll-margin-top'>;
+  'scroll-padding-bottom': SupportedTokenProperties<'scroll-padding-bottom'>;
+  'scroll-padding-left': SupportedTokenProperties<'scroll-padding-left'>;
+  'scroll-padding-right': SupportedTokenProperties<'scroll-padding-right'>;
+  'scroll-padding-top': SupportedTokenProperties<'scroll-padding-top'>;
+  'scroll-snap-align': SupportedTokenProperties<'scroll-snap-align'>;
+  'scroll-snap-margin-bottom': SupportedTokenProperties<'scroll-snap-margin-bottom'>;
+  'scroll-snap-margin-left': SupportedTokenProperties<'scroll-snap-margin-left'>;
+  'scroll-snap-margin-right': SupportedTokenProperties<'scroll-snap-margin-right'>;
+  'scroll-snap-margin-top': SupportedTokenProperties<'scroll-snap-margin-top'>;
+  'scroll-snap-stop': SupportedTokenProperties<'scroll-snap-stop'>;
+  'scroll-snap-type': SupportedTokenProperties<'scroll-snap-type'>;
+  'scroll-timeline-axis': SupportedTokenProperties<'scroll-timeline-axis'>;
+  'scroll-timeline-name': SupportedTokenProperties<'scroll-timeline-name'>;
+  'scrollbar-color': SupportedTokenProperties<'scrollbar-color'>;
+  'scrollbar-gutter': SupportedTokenProperties<'scrollbar-gutter'>;
+  'scrollbar-width': SupportedTokenProperties<'scrollbar-width'>;
+  'shape-image-threshold': SupportedTokenProperties<'shape-image-threshold'>;
+  'shape-margin': SupportedTokenProperties<'shape-margin'>;
+  'shape-outside': SupportedTokenProperties<'shape-outside'>;
+  'tab-size': SupportedTokenProperties<'tab-size'>;
+  'table-layout': SupportedTokenProperties<'table-layout'>;
+  'text-align': SupportedTokenProperties<'text-align'>;
+  'text-align-last': SupportedTokenProperties<'text-align-last'>;
+  'text-combine-upright': SupportedTokenProperties<'text-combine-upright'>;
+  'text-decoration-color': SupportedTokenProperties<'text-decoration-color'>;
+  'text-decoration-line': SupportedTokenProperties<'text-decoration-line'>;
+  'text-decoration-skip': SupportedTokenProperties<'text-decoration-skip'>;
+  'text-decoration-skip-ink': SupportedTokenProperties<'text-decoration-skip-ink'>;
+  'text-decoration-style': SupportedTokenProperties<'text-decoration-style'>;
+  'text-decoration-thickness': SupportedTokenProperties<'text-decoration-thickness'>;
+  'text-emphasis-color': SupportedTokenProperties<'text-emphasis-color'>;
+  'text-emphasis-position': SupportedTokenProperties<'text-emphasis-position'>;
+  'text-emphasis-style': SupportedTokenProperties<'text-emphasis-style'>;
+  'text-indent': SupportedTokenProperties<'text-indent'>;
+  'text-justify': SupportedTokenProperties<'text-justify'>;
+  'text-orientation': SupportedTokenProperties<'text-orientation'>;
+  'text-overflow': SupportedTokenProperties<'text-overflow'>;
+  'text-rendering': SupportedTokenProperties<'text-rendering'>;
+  'text-shadow': SupportedTokenProperties<'text-shadow'>;
+  'text-size-adjust': SupportedTokenProperties<'text-size-adjust'>;
+  'text-transform': SupportedTokenProperties<'text-transform'>;
+  'text-underline-offset': SupportedTokenProperties<'text-underline-offset'>;
+  'text-underline-position': SupportedTokenProperties<'text-underline-position'>;
+  'text-wrap': SupportedTokenProperties<'text-wrap'>;
+  'timeline-scope': SupportedTokenProperties<'timeline-scope'>;
+  top: SupportedTokenProperties<'top'>;
+  'touch-action': SupportedTokenProperties<'touch-action'>;
+  transform: SupportedTokenProperties<'transform'>;
+  'transform-box': SupportedTokenProperties<'transform-box'>;
+  'transform-origin': SupportedTokenProperties<'transform-origin'>;
+  'transform-style': SupportedTokenProperties<'transform-style'>;
+  'transition-behavior': SupportedTokenProperties<'transition-behavior'>;
+  'transition-delay': SupportedTokenProperties<'transition-delay'>;
+  'transition-duration': SupportedTokenProperties<'transition-duration'>;
+  'transition-property': SupportedTokenProperties<'transition-property'>;
+  'transition-timing-function': SupportedTokenProperties<'transition-timing-function'>;
+  translate: SupportedTokenProperties<'translate'>;
+  'unicode-bidi': SupportedTokenProperties<'unicode-bidi'>;
+  'user-select': SupportedTokenProperties<'user-select'>;
+  'vertical-align': SupportedTokenProperties<'vertical-align'>;
+  'view-timeline-axis': SupportedTokenProperties<'view-timeline-axis'>;
+  'view-timeline-inset': SupportedTokenProperties<'view-timeline-inset'>;
+  'view-timeline-name': SupportedTokenProperties<'view-timeline-name'>;
+  'view-transition-name': SupportedTokenProperties<'view-transition-name'>;
+  visibility: SupportedTokenProperties<'visibility'>;
+  'white-space': SupportedTokenProperties<'white-space'>;
+  'white-space-collapse': SupportedTokenProperties<'white-space-collapse'>;
+  'white-space-trim': SupportedTokenProperties<'white-space-trim'>;
+  widows: SupportedTokenProperties<'widows'>;
+  width: SupportedTokenProperties<'width'>;
+  'will-change': SupportedTokenProperties<'will-change'>;
+  'word-break': SupportedTokenProperties<'word-break'>;
+  'word-spacing': SupportedTokenProperties<'word-spacing'>;
+  'word-wrap': SupportedTokenProperties<'word-wrap'>;
+  'writing-mode': SupportedTokenProperties<'writing-mode'>;
+  'z-index': SupportedTokenProperties<'z-index'>;
+  zoom: SupportedTokenProperties<'zoom'>;
+  'alignment-baseline': SupportedTokenProperties<'alignment-baseline'>;
+  'baseline-shift': SupportedTokenProperties<'baseline-shift'>;
+  clip: SupportedTokenProperties<'clip'>;
+  'clip-rule': SupportedTokenProperties<'clip-rule'>;
+  'color-interpolation': SupportedTokenProperties<'color-interpolation'>;
+  'color-rendering': SupportedTokenProperties<'color-rendering'>;
+  'dominant-baseline': SupportedTokenProperties<'dominant-baseline'>;
+  fill: SupportedTokenProperties<'fill'>;
+  'fill-opacity': SupportedTokenProperties<'fill-opacity'>;
+  'fill-rule': SupportedTokenProperties<'fill-rule'>;
+  'flood-color': SupportedTokenProperties<'flood-color'>;
+  'flood-opacity': SupportedTokenProperties<'flood-opacity'>;
+  'glyph-orientation-vertical': SupportedTokenProperties<'glyph-orientation-vertical'>;
+  'lighting-color': SupportedTokenProperties<'lighting-color'>;
+  marker: SupportedTokenProperties<'marker'>;
+  'marker-end': SupportedTokenProperties<'marker-end'>;
+  'marker-mid': SupportedTokenProperties<'marker-mid'>;
+  'marker-start': SupportedTokenProperties<'marker-start'>;
+  'shape-rendering': SupportedTokenProperties<'shape-rendering'>;
+  'stop-color': SupportedTokenProperties<'stop-color'>;
+  'stop-opacity': SupportedTokenProperties<'stop-opacity'>;
+  stroke: SupportedTokenProperties<'stroke'>;
+  'stroke-dasharray': SupportedTokenProperties<'stroke-dasharray'>;
+  'stroke-dashoffset': SupportedTokenProperties<'stroke-dashoffset'>;
+  'stroke-linecap': SupportedTokenProperties<'stroke-linecap'>;
+  'stroke-linejoin': SupportedTokenProperties<'stroke-linejoin'>;
+  'stroke-miterlimit': SupportedTokenProperties<'stroke-miterlimit'>;
+  'stroke-opacity': SupportedTokenProperties<'stroke-opacity'>;
+  'stroke-width': SupportedTokenProperties<'stroke-width'>;
+  'text-anchor': SupportedTokenProperties<'text-anchor'>;
+  'vector-effect': SupportedTokenProperties<'vector-effect'>;
+  'block-overflow': SupportedTokenProperties<'block-overflow'>;
+  'block-size': SupportedTokenProperties<'block-size'>;
+  'border-block': SupportedTokenProperties<'border-block'>;
+  'border-block-end': SupportedTokenProperties<'border-block-end'>;
+  'border-block-start': SupportedTokenProperties<'border-block-start'>;
+  'border-block-color': SupportedTokenProperties<'border-block-color'>;
+  'border-block-end-color': SupportedTokenProperties<'border-block-end-color'>;
+  'border-block-end-style': SupportedTokenProperties<'border-block-end-style'>;
+  'border-block-end-width': SupportedTokenProperties<'border-block-end-width'>;
+  'border-block-start-color': SupportedTokenProperties<'border-block-start-color'>;
+  'border-block-start-style': SupportedTokenProperties<'border-block-start-style'>;
+  'border-block-start-width': SupportedTokenProperties<'border-block-start-width'>;
+  'border-block-style': SupportedTokenProperties<'border-block-style'>;
+  'border-block-width': SupportedTokenProperties<'border-block-width'>;
+  'border-inline': SupportedTokenProperties<'border-inline'>;
+  'border-inline-end': SupportedTokenProperties<'border-inline-end'>;
+  'border-inline-start': SupportedTokenProperties<'border-inline-start'>;
+  'border-inline-color': SupportedTokenProperties<'border-inline-color'>;
+  'border-inline-end-color': SupportedTokenProperties<'border-inline-end-color'>;
+  'border-inline-end-style': SupportedTokenProperties<'border-inline-end-style'>;
+  'border-inline-end-width': SupportedTokenProperties<'border-inline-end-width'>;
+  'border-inline-start-color': SupportedTokenProperties<'border-inline-start-color'>;
+  'border-inline-start-style': SupportedTokenProperties<'border-inline-start-style'>;
+  'border-inline-start-width': SupportedTokenProperties<'border-inline-start-width'>;
+  'border-inline-style': SupportedTokenProperties<'border-inline-style'>;
+  'border-inline-width': SupportedTokenProperties<'border-inline-width'>;
+  'contain-intrinsic-block-size': SupportedTokenProperties<'contain-intrinsic-block-size'>;
+  'contain-intrinsic-inline-size': SupportedTokenProperties<'contain-intrinsic-inline-size'>;
+  'inline-size': SupportedTokenProperties<'inline-size'>;
+  'inset-block': SupportedTokenProperties<'inset-block'>;
+  'inset-block-end': SupportedTokenProperties<'inset-block-end'>;
+  'inset-block-start': SupportedTokenProperties<'inset-block-start'>;
+  'inset-inline': SupportedTokenProperties<'inset-inline'>;
+  'inset-inline-end': SupportedTokenProperties<'inset-inline-end'>;
+  'inset-inline-start': SupportedTokenProperties<'inset-inline-start'>;
+  'margin-block': SupportedTokenProperties<'margin-block'>;
+  'margin-block-end': SupportedTokenProperties<'margin-block-end'>;
+  'margin-block-start': SupportedTokenProperties<'margin-block-start'>;
+  'margin-inline': SupportedTokenProperties<'margin-inline'>;
+  'margin-inline-end': SupportedTokenProperties<'margin-inline-end'>;
+  'margin-inline-start': SupportedTokenProperties<'margin-inline-start'>;
+  'max-block-size': SupportedTokenProperties<'max-block-size'>;
+  'max-inline-size': SupportedTokenProperties<'max-inline-size'>;
+  'min-block-size': SupportedTokenProperties<'min-block-size'>;
+  'min-inline-size': SupportedTokenProperties<'min-inline-size'>;
+  'overflow-block': SupportedTokenProperties<'overflow-block'>;
+  'overflow-inline': SupportedTokenProperties<'overflow-inline'>;
+  'overscroll-behavior-block': SupportedTokenProperties<'overscroll-behavior-block'>;
+  'overscroll-behavior-inline': SupportedTokenProperties<'overscroll-behavior-inline'>;
+  'padding-block': SupportedTokenProperties<'padding-block'>;
+  'padding-block-end': SupportedTokenProperties<'padding-block-end'>;
+  'padding-block-start': SupportedTokenProperties<'padding-block-start'>;
+  'padding-inline': SupportedTokenProperties<'padding-inline'>;
+  'padding-inline-end': SupportedTokenProperties<'padding-inline-end'>;
+  'padding-inline-start': SupportedTokenProperties<'padding-inline-start'>;
+  'scroll-margin-block': SupportedTokenProperties<'scroll-margin-block'>;
+  'scroll-margin-block-end': SupportedTokenProperties<'scroll-margin-block-end'>;
+  'scroll-margin-block-start': SupportedTokenProperties<'scroll-margin-block-start'>;
+  'scroll-margin-inline': SupportedTokenProperties<'scroll-margin-inline'>;
+  'scroll-margin-inline-end': SupportedTokenProperties<'scroll-margin-inline-end'>;
+  'scroll-margin-inline-start': SupportedTokenProperties<'scroll-margin-inline-start'>;
+  'scroll-padding-block': SupportedTokenProperties<'scroll-padding-block'>;
+  'scroll-padding-block-end': SupportedTokenProperties<'scroll-padding-block-end'>;
+  'scroll-padding-block-start': SupportedTokenProperties<'scroll-padding-block-start'>;
+  'scroll-padding-inline': SupportedTokenProperties<'scroll-padding-inline'>;
+  'scroll-padding-inline-end': SupportedTokenProperties<'scroll-padding-inline-end'>;
+  'scroll-padding-inline-start': SupportedTokenProperties<'scroll-padding-inline-start'>;
+}
+
+type CustomPropertyValueMap = {
+  [K in keyof CustomPropertyConfig | ExperimentalProperty]: PropertyValue<K>;
+};
+
 type TokenProperties<P> = {
-  [K in TokenProperty<P>]?: PropertyValue<P> extends never
-    ? P extends keyof Tokenami.CSSProperties
-      ? Tokenami.CSSProperties[P]
-      : never
-    : PropertyValue<P>;
+  [K in TokenProperty<P>]?: P extends keyof CustomPropertyValueMap
+    ? CustomPropertyValueMap[P]
+    : never;
 };
 
 type TokenProperty<P> = P extends string
@@ -62,981 +551,500 @@ type TokensByThemeKey = { [key: string]: never } & {
 };
 
 // -------------------------------------------------------------------------
-// we purposefully list these manually for performance.
-// using inference here would cripple intellisense performance.
-// -------------------------------------------------------------------------
-// generated from the following snippet in console. KISS for now.
-// copy(`export interface Properties {${properties.map(prop => `'${prop}': TokenProperties<'${prop}'>;`).join(' ')}}`)
-// -------------------------------------------------------------------------
-
-export interface Properties {
-  all: TokenProperties<'all'>;
-  animation: TokenProperties<'animation'>;
-  'animation-range': TokenProperties<'animation-range'>;
-  background: TokenProperties<'background'>;
-  'background-position': TokenProperties<'background-position'>;
-  border: TokenProperties<'border'>;
-  'border-bottom': TokenProperties<'border-bottom'>;
-  'border-color': TokenProperties<'border-color'>;
-  'border-image': TokenProperties<'border-image'>;
-  'border-left': TokenProperties<'border-left'>;
-  'border-radius': TokenProperties<'border-radius'>;
-  'border-right': TokenProperties<'border-right'>;
-  'border-style': TokenProperties<'border-style'>;
-  'border-top': TokenProperties<'border-top'>;
-  'border-width': TokenProperties<'border-width'>;
-  caret: TokenProperties<'caret'>;
-  'column-rule': TokenProperties<'column-rule'>;
-  columns: TokenProperties<'columns'>;
-  'contain-intrinsic-size': TokenProperties<'contain-intrinsic-size'>;
-  container: TokenProperties<'container'>;
-  flex: TokenProperties<'flex'>;
-  'flex-flow': TokenProperties<'flex-flow'>;
-  font: TokenProperties<'font'>;
-  gap: TokenProperties<'gap'>;
-  grid: TokenProperties<'grid'>;
-  'grid-area': TokenProperties<'grid-area'>;
-  'grid-column': TokenProperties<'grid-column'>;
-  'grid-row': TokenProperties<'grid-row'>;
-  'grid-template': TokenProperties<'grid-template'>;
-  inset: TokenProperties<'inset'>;
-  'line-clamp': TokenProperties<'line-clamp'>;
-  'list-style': TokenProperties<'list-style'>;
-  margin: TokenProperties<'margin'>;
-  mask: TokenProperties<'mask'>;
-  'mask-border': TokenProperties<'mask-border'>;
-  motion: TokenProperties<'motion'>;
-  offset: TokenProperties<'offset'>;
-  outline: TokenProperties<'outline'>;
-  overflow: TokenProperties<'overflow'>;
-  'overscroll-behavior': TokenProperties<'overscroll-behavior'>;
-  padding: TokenProperties<'padding'>;
-  'place-content': TokenProperties<'place-content'>;
-  'place-items': TokenProperties<'place-items'>;
-  'place-self': TokenProperties<'place-self'>;
-  'scroll-margin': TokenProperties<'scroll-margin'>;
-  'scroll-padding': TokenProperties<'scroll-padding'>;
-  'scroll-snap-margin': TokenProperties<'scroll-snap-margin'>;
-  'scroll-timeline': TokenProperties<'scroll-timeline'>;
-  'text-decoration': TokenProperties<'text-decoration'>;
-  'text-emphasis': TokenProperties<'text-emphasis'>;
-  transition: TokenProperties<'transition'>;
-  'view-timeline': TokenProperties<'view-timeline'>;
-  'accent-color': TokenProperties<'accent-color'>;
-  'align-content': TokenProperties<'align-content'>;
-  'align-items': TokenProperties<'align-items'>;
-  'align-self': TokenProperties<'align-self'>;
-  'align-tracks': TokenProperties<'align-tracks'>;
-  'animation-composition': TokenProperties<'animation-composition'>;
-  'animation-delay': TokenProperties<'animation-delay'>;
-  'animation-direction': TokenProperties<'animation-direction'>;
-  'animation-duration': TokenProperties<'animation-duration'>;
-  'animation-fill-mode': TokenProperties<'animation-fill-mode'>;
-  'animation-iteration-count': TokenProperties<'animation-iteration-count'>;
-  'animation-name': TokenProperties<'animation-name'>;
-  'animation-play-state': TokenProperties<'animation-play-state'>;
-  'animation-range-end': TokenProperties<'animation-range-end'>;
-  'animation-range-start': TokenProperties<'animation-range-start'>;
-  'animation-timeline': TokenProperties<'animation-timeline'>;
-  'animation-timing-function': TokenProperties<'animation-timing-function'>;
-  appearance: TokenProperties<'appearance'>;
-  'aspect-ratio': TokenProperties<'aspect-ratio'>;
-  'backdrop-filter': TokenProperties<'backdrop-filter'>;
-  'backface-visibility': TokenProperties<'backface-visibility'>;
-  'background-attachment': TokenProperties<'background-attachment'>;
-  'background-blend-mode': TokenProperties<'background-blend-mode'>;
-  'background-clip': TokenProperties<'background-clip'>;
-  'background-color': TokenProperties<'background-color'>;
-  'background-image': TokenProperties<'background-image'>;
-  'background-origin': TokenProperties<'background-origin'>;
-  'background-position-x': TokenProperties<'background-position-x'>;
-  'background-position-y': TokenProperties<'background-position-y'>;
-  'background-repeat': TokenProperties<'background-repeat'>;
-  'background-size': TokenProperties<'background-size'>;
-  'border-bottom-color': TokenProperties<'border-bottom-color'>;
-  'border-bottom-left-radius': TokenProperties<'border-bottom-left-radius'>;
-  'border-bottom-right-radius': TokenProperties<'border-bottom-right-radius'>;
-  'border-bottom-style': TokenProperties<'border-bottom-style'>;
-  'border-bottom-width': TokenProperties<'border-bottom-width'>;
-  'border-collapse': TokenProperties<'border-collapse'>;
-  'border-end-end-radius': TokenProperties<'border-end-end-radius'>;
-  'border-end-start-radius': TokenProperties<'border-end-start-radius'>;
-  'border-image-outset': TokenProperties<'border-image-outset'>;
-  'border-image-repeat': TokenProperties<'border-image-repeat'>;
-  'border-image-slice': TokenProperties<'border-image-slice'>;
-  'border-image-source': TokenProperties<'border-image-source'>;
-  'border-image-width': TokenProperties<'border-image-width'>;
-  'border-left-color': TokenProperties<'border-left-color'>;
-  'border-left-style': TokenProperties<'border-left-style'>;
-  'border-left-width': TokenProperties<'border-left-width'>;
-  'border-right-color': TokenProperties<'border-right-color'>;
-  'border-right-style': TokenProperties<'border-right-style'>;
-  'border-right-width': TokenProperties<'border-right-width'>;
-  'border-spacing': TokenProperties<'border-spacing'>;
-  'border-start-end-radius': TokenProperties<'border-start-end-radius'>;
-  'border-start-start-radius': TokenProperties<'border-start-start-radius'>;
-  'border-top-color': TokenProperties<'border-top-color'>;
-  'border-top-left-radius': TokenProperties<'border-top-left-radius'>;
-  'border-top-right-radius': TokenProperties<'border-top-right-radius'>;
-  'border-top-style': TokenProperties<'border-top-style'>;
-  'border-top-width': TokenProperties<'border-top-width'>;
-  bottom: TokenProperties<'bottom'>;
-  'box-decoration-break': TokenProperties<'box-decoration-break'>;
-  'box-shadow': TokenProperties<'box-shadow'>;
-  'box-sizing': TokenProperties<'box-sizing'>;
-  'break-after': TokenProperties<'break-after'>;
-  'break-before': TokenProperties<'break-before'>;
-  'break-inside': TokenProperties<'break-inside'>;
-  'caption-side': TokenProperties<'caption-side'>;
-  'caret-color': TokenProperties<'caret-color'>;
-  'caret-shape': TokenProperties<'caret-shape'>;
-  clear: TokenProperties<'clear'>;
-  'clip-path': TokenProperties<'clip-path'>;
-  color: TokenProperties<'color'>;
-  'color-adjust': TokenProperties<'color-adjust'>;
-  'color-scheme': TokenProperties<'color-scheme'>;
-  'column-count': TokenProperties<'column-count'>;
-  'column-fill': TokenProperties<'column-fill'>;
-  'column-gap': TokenProperties<'column-gap'>;
-  'column-rule-color': TokenProperties<'column-rule-color'>;
-  'column-rule-style': TokenProperties<'column-rule-style'>;
-  'column-rule-width': TokenProperties<'column-rule-width'>;
-  'column-span': TokenProperties<'column-span'>;
-  'column-width': TokenProperties<'column-width'>;
-  contain: TokenProperties<'contain'>;
-  'contain-intrinsic-height': TokenProperties<'contain-intrinsic-height'>;
-  'contain-intrinsic-width': TokenProperties<'contain-intrinsic-width'>;
-  'container-name': TokenProperties<'container-name'>;
-  'container-type': TokenProperties<'container-type'>;
-  content: TokenProperties<'content'>;
-  'content-visibility': TokenProperties<'content-visibility'>;
-  'counter-increment': TokenProperties<'counter-increment'>;
-  'counter-reset': TokenProperties<'counter-reset'>;
-  'counter-set': TokenProperties<'counter-set'>;
-  cursor: TokenProperties<'cursor'>;
-  direction: TokenProperties<'direction'>;
-  display: TokenProperties<'display'>;
-  'empty-cells': TokenProperties<'empty-cells'>;
-  filter: TokenProperties<'filter'>;
-  'flex-basis': TokenProperties<'flex-basis'>;
-  'flex-direction': TokenProperties<'flex-direction'>;
-  'flex-grow': TokenProperties<'flex-grow'>;
-  'flex-shrink': TokenProperties<'flex-shrink'>;
-  'flex-wrap': TokenProperties<'flex-wrap'>;
-  float: TokenProperties<'float'>;
-  'font-family': TokenProperties<'font-family'>;
-  'font-feature-settings': TokenProperties<'font-feature-settings'>;
-  'font-kerning': TokenProperties<'font-kerning'>;
-  'font-language-override': TokenProperties<'font-language-override'>;
-  'font-optical-sizing': TokenProperties<'font-optical-sizing'>;
-  'font-palette': TokenProperties<'font-palette'>;
-  'font-size': TokenProperties<'font-size'>;
-  'font-size-adjust': TokenProperties<'font-size-adjust'>;
-  'font-smooth': TokenProperties<'font-smooth'>;
-  'font-stretch': TokenProperties<'font-stretch'>;
-  'font-style': TokenProperties<'font-style'>;
-  'font-synthesis': TokenProperties<'font-synthesis'>;
-  'font-synthesis-position': TokenProperties<'font-synthesis-position'>;
-  'font-synthesis-small-caps': TokenProperties<'font-synthesis-small-caps'>;
-  'font-synthesis-style': TokenProperties<'font-synthesis-style'>;
-  'font-synthesis-weight': TokenProperties<'font-synthesis-weight'>;
-  'font-variant': TokenProperties<'font-variant'>;
-  'font-variant-alternates': TokenProperties<'font-variant-alternates'>;
-  'font-variant-caps': TokenProperties<'font-variant-caps'>;
-  'font-variant-east-asian': TokenProperties<'font-variant-east-asian'>;
-  'font-variant-emoji': TokenProperties<'font-variant-emoji'>;
-  'font-variant-ligatures': TokenProperties<'font-variant-ligatures'>;
-  'font-variant-numeric': TokenProperties<'font-variant-numeric'>;
-  'font-variant-position': TokenProperties<'font-variant-position'>;
-  'font-variation-settings': TokenProperties<'font-variation-settings'>;
-  'font-weight': TokenProperties<'font-weight'>;
-  'forced-color-adjust': TokenProperties<'forced-color-adjust'>;
-  'grid-auto-columns': TokenProperties<'grid-auto-columns'>;
-  'grid-auto-flow': TokenProperties<'grid-auto-flow'>;
-  'grid-auto-rows': TokenProperties<'grid-auto-rows'>;
-  'grid-column-end': TokenProperties<'grid-column-end'>;
-  'grid-column-start': TokenProperties<'grid-column-start'>;
-  'grid-row-end': TokenProperties<'grid-row-end'>;
-  'grid-row-start': TokenProperties<'grid-row-start'>;
-  'grid-template-areas': TokenProperties<'grid-template-areas'>;
-  'grid-template-columns': TokenProperties<'grid-template-columns'>;
-  'grid-template-rows': TokenProperties<'grid-template-rows'>;
-  'hanging-punctuation': TokenProperties<'hanging-punctuation'>;
-  height: TokenProperties<'height'>;
-  'hyphenate-character': TokenProperties<'hyphenate-character'>;
-  'hyphenate-limit-chars': TokenProperties<'hyphenate-limit-chars'>;
-  hyphens: TokenProperties<'hyphens'>;
-  'image-orientation': TokenProperties<'image-orientation'>;
-  'image-rendering': TokenProperties<'image-rendering'>;
-  'image-resolution': TokenProperties<'image-resolution'>;
-  'initial-letter': TokenProperties<'initial-letter'>;
-  'input-security': TokenProperties<'input-security'>;
-  isolation: TokenProperties<'isolation'>;
-  'justify-content': TokenProperties<'justify-content'>;
-  'justify-items': TokenProperties<'justify-items'>;
-  'justify-self': TokenProperties<'justify-self'>;
-  'justify-tracks': TokenProperties<'justify-tracks'>;
-  left: TokenProperties<'left'>;
-  'letter-spacing': TokenProperties<'letter-spacing'>;
-  'line-break': TokenProperties<'line-break'>;
-  'line-height': TokenProperties<'line-height'>;
-  'line-height-step': TokenProperties<'line-height-step'>;
-  'list-style-image': TokenProperties<'list-style-image'>;
-  'list-style-position': TokenProperties<'list-style-position'>;
-  'list-style-type': TokenProperties<'list-style-type'>;
-  'margin-bottom': TokenProperties<'margin-bottom'>;
-  'margin-left': TokenProperties<'margin-left'>;
-  'margin-right': TokenProperties<'margin-right'>;
-  'margin-top': TokenProperties<'margin-top'>;
-  'margin-trim': TokenProperties<'margin-trim'>;
-  'mask-border-mode': TokenProperties<'mask-border-mode'>;
-  'mask-border-outset': TokenProperties<'mask-border-outset'>;
-  'mask-border-repeat': TokenProperties<'mask-border-repeat'>;
-  'mask-border-slice': TokenProperties<'mask-border-slice'>;
-  'mask-border-source': TokenProperties<'mask-border-source'>;
-  'mask-border-width': TokenProperties<'mask-border-width'>;
-  'mask-clip': TokenProperties<'mask-clip'>;
-  'mask-composite': TokenProperties<'mask-composite'>;
-  'mask-image': TokenProperties<'mask-image'>;
-  'mask-mode': TokenProperties<'mask-mode'>;
-  'mask-origin': TokenProperties<'mask-origin'>;
-  'mask-position': TokenProperties<'mask-position'>;
-  'mask-repeat': TokenProperties<'mask-repeat'>;
-  'mask-size': TokenProperties<'mask-size'>;
-  'mask-type': TokenProperties<'mask-type'>;
-  'masonry-auto-flow': TokenProperties<'masonry-auto-flow'>;
-  'math-depth': TokenProperties<'math-depth'>;
-  'math-shift': TokenProperties<'math-shift'>;
-  'math-style': TokenProperties<'math-style'>;
-  'max-height': TokenProperties<'max-height'>;
-  'max-lines': TokenProperties<'max-lines'>;
-  'max-width': TokenProperties<'max-width'>;
-  'min-height': TokenProperties<'min-height'>;
-  'min-width': TokenProperties<'min-width'>;
-  'mix-blend-mode': TokenProperties<'mix-blend-mode'>;
-  'motion-distance': TokenProperties<'motion-distance'>;
-  'motion-path': TokenProperties<'motion-path'>;
-  'motion-rotation': TokenProperties<'motion-rotation'>;
-  'object-fit': TokenProperties<'object-fit'>;
-  'object-position': TokenProperties<'object-position'>;
-  'offset-anchor': TokenProperties<'offset-anchor'>;
-  'offset-distance': TokenProperties<'offset-distance'>;
-  'offset-path': TokenProperties<'offset-path'>;
-  'offset-position': TokenProperties<'offset-position'>;
-  'offset-rotate': TokenProperties<'offset-rotate'>;
-  'offset-rotation': TokenProperties<'offset-rotation'>;
-  opacity: TokenProperties<'opacity'>;
-  order: TokenProperties<'order'>;
-  orphans: TokenProperties<'orphans'>;
-  'outline-color': TokenProperties<'outline-color'>;
-  'outline-offset': TokenProperties<'outline-offset'>;
-  'outline-style': TokenProperties<'outline-style'>;
-  'outline-width': TokenProperties<'outline-width'>;
-  'overflow-anchor': TokenProperties<'overflow-anchor'>;
-  'overflow-clip-box': TokenProperties<'overflow-clip-box'>;
-  'overflow-clip-margin': TokenProperties<'overflow-clip-margin'>;
-  'overflow-wrap': TokenProperties<'overflow-wrap'>;
-  'overflow-x': TokenProperties<'overflow-x'>;
-  'overflow-y': TokenProperties<'overflow-y'>;
-  overlay: TokenProperties<'overlay'>;
-  'overscroll-behavior-x': TokenProperties<'overscroll-behavior-x'>;
-  'overscroll-behavior-y': TokenProperties<'overscroll-behavior-y'>;
-  'padding-bottom': TokenProperties<'padding-bottom'>;
-  'padding-left': TokenProperties<'padding-left'>;
-  'padding-right': TokenProperties<'padding-right'>;
-  'padding-top': TokenProperties<'padding-top'>;
-  page: TokenProperties<'page'>;
-  'page-break-after': TokenProperties<'page-break-after'>;
-  'page-break-before': TokenProperties<'page-break-before'>;
-  'page-break-inside': TokenProperties<'page-break-inside'>;
-  'paint-order': TokenProperties<'paint-order'>;
-  perspective: TokenProperties<'perspective'>;
-  'perspective-origin': TokenProperties<'perspective-origin'>;
-  'pointer-events': TokenProperties<'pointer-events'>;
-  position: TokenProperties<'position'>;
-  'print-color-adjust': TokenProperties<'print-color-adjust'>;
-  quotes: TokenProperties<'quotes'>;
-  resize: TokenProperties<'resize'>;
-  right: TokenProperties<'right'>;
-  rotate: TokenProperties<'rotate'>;
-  'row-gap': TokenProperties<'row-gap'>;
-  'ruby-align': TokenProperties<'ruby-align'>;
-  'ruby-merge': TokenProperties<'ruby-merge'>;
-  'ruby-position': TokenProperties<'ruby-position'>;
-  scale: TokenProperties<'scale'>;
-  'scroll-behavior': TokenProperties<'scroll-behavior'>;
-  'scroll-margin-bottom': TokenProperties<'scroll-margin-bottom'>;
-  'scroll-margin-left': TokenProperties<'scroll-margin-left'>;
-  'scroll-margin-right': TokenProperties<'scroll-margin-right'>;
-  'scroll-margin-top': TokenProperties<'scroll-margin-top'>;
-  'scroll-padding-bottom': TokenProperties<'scroll-padding-bottom'>;
-  'scroll-padding-left': TokenProperties<'scroll-padding-left'>;
-  'scroll-padding-right': TokenProperties<'scroll-padding-right'>;
-  'scroll-padding-top': TokenProperties<'scroll-padding-top'>;
-  'scroll-snap-align': TokenProperties<'scroll-snap-align'>;
-  'scroll-snap-margin-bottom': TokenProperties<'scroll-snap-margin-bottom'>;
-  'scroll-snap-margin-left': TokenProperties<'scroll-snap-margin-left'>;
-  'scroll-snap-margin-right': TokenProperties<'scroll-snap-margin-right'>;
-  'scroll-snap-margin-top': TokenProperties<'scroll-snap-margin-top'>;
-  'scroll-snap-stop': TokenProperties<'scroll-snap-stop'>;
-  'scroll-snap-type': TokenProperties<'scroll-snap-type'>;
-  'scroll-timeline-axis': TokenProperties<'scroll-timeline-axis'>;
-  'scroll-timeline-name': TokenProperties<'scroll-timeline-name'>;
-  'scrollbar-color': TokenProperties<'scrollbar-color'>;
-  'scrollbar-gutter': TokenProperties<'scrollbar-gutter'>;
-  'scrollbar-width': TokenProperties<'scrollbar-width'>;
-  'shape-image-threshold': TokenProperties<'shape-image-threshold'>;
-  'shape-margin': TokenProperties<'shape-margin'>;
-  'shape-outside': TokenProperties<'shape-outside'>;
-  'tab-size': TokenProperties<'tab-size'>;
-  'table-layout': TokenProperties<'table-layout'>;
-  'text-align': TokenProperties<'text-align'>;
-  'text-align-last': TokenProperties<'text-align-last'>;
-  'text-combine-upright': TokenProperties<'text-combine-upright'>;
-  'text-decoration-color': TokenProperties<'text-decoration-color'>;
-  'text-decoration-line': TokenProperties<'text-decoration-line'>;
-  'text-decoration-skip': TokenProperties<'text-decoration-skip'>;
-  'text-decoration-skip-ink': TokenProperties<'text-decoration-skip-ink'>;
-  'text-decoration-style': TokenProperties<'text-decoration-style'>;
-  'text-decoration-thickness': TokenProperties<'text-decoration-thickness'>;
-  'text-emphasis-color': TokenProperties<'text-emphasis-color'>;
-  'text-emphasis-position': TokenProperties<'text-emphasis-position'>;
-  'text-emphasis-style': TokenProperties<'text-emphasis-style'>;
-  'text-indent': TokenProperties<'text-indent'>;
-  'text-justify': TokenProperties<'text-justify'>;
-  'text-orientation': TokenProperties<'text-orientation'>;
-  'text-overflow': TokenProperties<'text-overflow'>;
-  'text-rendering': TokenProperties<'text-rendering'>;
-  'text-shadow': TokenProperties<'text-shadow'>;
-  'text-size-adjust': TokenProperties<'text-size-adjust'>;
-  'text-transform': TokenProperties<'text-transform'>;
-  'text-underline-offset': TokenProperties<'text-underline-offset'>;
-  'text-underline-position': TokenProperties<'text-underline-position'>;
-  'text-wrap': TokenProperties<'text-wrap'>;
-  'timeline-scope': TokenProperties<'timeline-scope'>;
-  top: TokenProperties<'top'>;
-  'touch-action': TokenProperties<'touch-action'>;
-  transform: TokenProperties<'transform'>;
-  'transform-box': TokenProperties<'transform-box'>;
-  'transform-origin': TokenProperties<'transform-origin'>;
-  'transform-style': TokenProperties<'transform-style'>;
-  'transition-behavior': TokenProperties<'transition-behavior'>;
-  'transition-delay': TokenProperties<'transition-delay'>;
-  'transition-duration': TokenProperties<'transition-duration'>;
-  'transition-property': TokenProperties<'transition-property'>;
-  'transition-timing-function': TokenProperties<'transition-timing-function'>;
-  translate: TokenProperties<'translate'>;
-  'unicode-bidi': TokenProperties<'unicode-bidi'>;
-  'user-select': TokenProperties<'user-select'>;
-  'vertical-align': TokenProperties<'vertical-align'>;
-  'view-timeline-axis': TokenProperties<'view-timeline-axis'>;
-  'view-timeline-inset': TokenProperties<'view-timeline-inset'>;
-  'view-timeline-name': TokenProperties<'view-timeline-name'>;
-  'view-transition-name': TokenProperties<'view-transition-name'>;
-  visibility: TokenProperties<'visibility'>;
-  'white-space': TokenProperties<'white-space'>;
-  'white-space-collapse': TokenProperties<'white-space-collapse'>;
-  'white-space-trim': TokenProperties<'white-space-trim'>;
-  widows: TokenProperties<'widows'>;
-  width: TokenProperties<'width'>;
-  'will-change': TokenProperties<'will-change'>;
-  'word-break': TokenProperties<'word-break'>;
-  'word-spacing': TokenProperties<'word-spacing'>;
-  'word-wrap': TokenProperties<'word-wrap'>;
-  'writing-mode': TokenProperties<'writing-mode'>;
-  'z-index': TokenProperties<'z-index'>;
-  zoom: TokenProperties<'zoom'>;
-  'alignment-baseline': TokenProperties<'alignment-baseline'>;
-  'baseline-shift': TokenProperties<'baseline-shift'>;
-  clip: TokenProperties<'clip'>;
-  'clip-rule': TokenProperties<'clip-rule'>;
-  'color-interpolation': TokenProperties<'color-interpolation'>;
-  'color-rendering': TokenProperties<'color-rendering'>;
-  'dominant-baseline': TokenProperties<'dominant-baseline'>;
-  fill: TokenProperties<'fill'>;
-  'fill-opacity': TokenProperties<'fill-opacity'>;
-  'fill-rule': TokenProperties<'fill-rule'>;
-  'flood-color': TokenProperties<'flood-color'>;
-  'flood-opacity': TokenProperties<'flood-opacity'>;
-  'glyph-orientation-vertical': TokenProperties<'glyph-orientation-vertical'>;
-  'lighting-color': TokenProperties<'lighting-color'>;
-  marker: TokenProperties<'marker'>;
-  'marker-end': TokenProperties<'marker-end'>;
-  'marker-mid': TokenProperties<'marker-mid'>;
-  'marker-start': TokenProperties<'marker-start'>;
-  'shape-rendering': TokenProperties<'shape-rendering'>;
-  'stop-color': TokenProperties<'stop-color'>;
-  'stop-opacity': TokenProperties<'stop-opacity'>;
-  stroke: TokenProperties<'stroke'>;
-  'stroke-dasharray': TokenProperties<'stroke-dasharray'>;
-  'stroke-dashoffset': TokenProperties<'stroke-dashoffset'>;
-  'stroke-linecap': TokenProperties<'stroke-linecap'>;
-  'stroke-linejoin': TokenProperties<'stroke-linejoin'>;
-  'stroke-miterlimit': TokenProperties<'stroke-miterlimit'>;
-  'stroke-opacity': TokenProperties<'stroke-opacity'>;
-  'stroke-width': TokenProperties<'stroke-width'>;
-  'text-anchor': TokenProperties<'text-anchor'>;
-  'vector-effect': TokenProperties<'vector-effect'>;
-  'block-overflow': TokenProperties<'block-overflow'>;
-  'block-size': TokenProperties<'block-size'>;
-  'border-block': TokenProperties<'border-block'>;
-  'border-block-end': TokenProperties<'border-block-end'>;
-  'border-block-start': TokenProperties<'border-block-start'>;
-  'border-block-color': TokenProperties<'border-block-color'>;
-  'border-block-end-color': TokenProperties<'border-block-end-color'>;
-  'border-block-end-style': TokenProperties<'border-block-end-style'>;
-  'border-block-end-width': TokenProperties<'border-block-end-width'>;
-  'border-block-start-color': TokenProperties<'border-block-start-color'>;
-  'border-block-start-style': TokenProperties<'border-block-start-style'>;
-  'border-block-start-width': TokenProperties<'border-block-start-width'>;
-  'border-block-style': TokenProperties<'border-block-style'>;
-  'border-block-width': TokenProperties<'border-block-width'>;
-  'border-inline': TokenProperties<'border-inline'>;
-  'border-inline-end': TokenProperties<'border-inline-end'>;
-  'border-inline-start': TokenProperties<'border-inline-start'>;
-  'border-inline-color': TokenProperties<'border-inline-color'>;
-  'border-inline-end-color': TokenProperties<'border-inline-end-color'>;
-  'border-inline-end-style': TokenProperties<'border-inline-end-style'>;
-  'border-inline-end-width': TokenProperties<'border-inline-end-width'>;
-  'border-inline-start-color': TokenProperties<'border-inline-start-color'>;
-  'border-inline-start-style': TokenProperties<'border-inline-start-style'>;
-  'border-inline-start-width': TokenProperties<'border-inline-start-width'>;
-  'border-inline-style': TokenProperties<'border-inline-style'>;
-  'border-inline-width': TokenProperties<'border-inline-width'>;
-  'contain-intrinsic-block-size': TokenProperties<'contain-intrinsic-block-size'>;
-  'contain-intrinsic-inline-size': TokenProperties<'contain-intrinsic-inline-size'>;
-  'inline-size': TokenProperties<'inline-size'>;
-  'inset-block': TokenProperties<'inset-block'>;
-  'inset-block-end': TokenProperties<'inset-block-end'>;
-  'inset-block-start': TokenProperties<'inset-block-start'>;
-  'inset-inline': TokenProperties<'inset-inline'>;
-  'inset-inline-end': TokenProperties<'inset-inline-end'>;
-  'inset-inline-start': TokenProperties<'inset-inline-start'>;
-  'margin-block': TokenProperties<'margin-block'>;
-  'margin-block-end': TokenProperties<'margin-block-end'>;
-  'margin-block-start': TokenProperties<'margin-block-start'>;
-  'margin-inline': TokenProperties<'margin-inline'>;
-  'margin-inline-end': TokenProperties<'margin-inline-end'>;
-  'margin-inline-start': TokenProperties<'margin-inline-start'>;
-  'max-block-size': TokenProperties<'max-block-size'>;
-  'max-inline-size': TokenProperties<'max-inline-size'>;
-  'min-block-size': TokenProperties<'min-block-size'>;
-  'min-inline-size': TokenProperties<'min-inline-size'>;
-  'overflow-block': TokenProperties<'overflow-block'>;
-  'overflow-inline': TokenProperties<'overflow-inline'>;
-  'overscroll-behavior-block': TokenProperties<'overscroll-behavior-block'>;
-  'overscroll-behavior-inline': TokenProperties<'overscroll-behavior-inline'>;
-  'padding-block': TokenProperties<'padding-block'>;
-  'padding-block-end': TokenProperties<'padding-block-end'>;
-  'padding-block-start': TokenProperties<'padding-block-start'>;
-  'padding-inline': TokenProperties<'padding-inline'>;
-  'padding-inline-end': TokenProperties<'padding-inline-end'>;
-  'padding-inline-start': TokenProperties<'padding-inline-start'>;
-  'scroll-margin-block': TokenProperties<'scroll-margin-block'>;
-  'scroll-margin-block-end': TokenProperties<'scroll-margin-block-end'>;
-  'scroll-margin-block-start': TokenProperties<'scroll-margin-block-start'>;
-  'scroll-margin-inline': TokenProperties<'scroll-margin-inline'>;
-  'scroll-margin-inline-end': TokenProperties<'scroll-margin-inline-end'>;
-  'scroll-margin-inline-start': TokenProperties<'scroll-margin-inline-start'>;
-  'scroll-padding-block': TokenProperties<'scroll-padding-block'>;
-  'scroll-padding-block-end': TokenProperties<'scroll-padding-block-end'>;
-  'scroll-padding-block-start': TokenProperties<'scroll-padding-block-start'>;
-  'scroll-padding-inline': TokenProperties<'scroll-padding-inline'>;
-  'scroll-padding-inline-end': TokenProperties<'scroll-padding-inline-end'>;
-  'scroll-padding-inline-start': TokenProperties<'scroll-padding-inline-start'>;
-}
-
-// -------------------------------------------------------------------------
 // we purposefully use an interface and list these manually for performance.
 // using intersection types or inference wld cripple intellisense perf.
 // -------------------------------------------------------------------------
-// generated from the following snippet in console. KISS for now.
-// copy(`interface TokenamiProperties extends ${properties.map(prop => `TokenProperties<'${prop}'>`).join(', ')} { [customProperty: \`---\${string}\`]: string | number | undefined; }`)
-// -------------------------------------------------------------------------
 
 interface TokenamiProperties
-  extends TokenProperties<'all'>,
-    TokenProperties<'animation'>,
-    TokenProperties<'animation-range'>,
-    TokenProperties<'background'>,
-    TokenProperties<'background-position'>,
-    TokenProperties<'border'>,
-    TokenProperties<'border-bottom'>,
-    TokenProperties<'border-color'>,
-    TokenProperties<'border-image'>,
-    TokenProperties<'border-left'>,
-    TokenProperties<'border-radius'>,
-    TokenProperties<'border-right'>,
-    TokenProperties<'border-style'>,
-    TokenProperties<'border-top'>,
-    TokenProperties<'border-width'>,
-    TokenProperties<'caret'>,
-    TokenProperties<'column-rule'>,
-    TokenProperties<'columns'>,
-    TokenProperties<'contain-intrinsic-size'>,
-    TokenProperties<'container'>,
-    TokenProperties<'flex'>,
-    TokenProperties<'flex-flow'>,
-    TokenProperties<'font'>,
-    TokenProperties<'gap'>,
-    TokenProperties<'grid'>,
-    TokenProperties<'grid-area'>,
-    TokenProperties<'grid-column'>,
-    TokenProperties<'grid-row'>,
-    TokenProperties<'grid-template'>,
-    TokenProperties<'inset'>,
-    TokenProperties<'line-clamp'>,
-    TokenProperties<'list-style'>,
-    TokenProperties<'margin'>,
-    TokenProperties<'mask'>,
-    TokenProperties<'mask-border'>,
-    TokenProperties<'motion'>,
-    TokenProperties<'offset'>,
-    TokenProperties<'outline'>,
-    TokenProperties<'overflow'>,
-    TokenProperties<'overscroll-behavior'>,
-    TokenProperties<'padding'>,
-    TokenProperties<'place-content'>,
-    TokenProperties<'place-items'>,
-    TokenProperties<'place-self'>,
-    TokenProperties<'scroll-margin'>,
-    TokenProperties<'scroll-padding'>,
-    TokenProperties<'scroll-snap-margin'>,
-    TokenProperties<'scroll-timeline'>,
-    TokenProperties<'text-decoration'>,
-    TokenProperties<'text-emphasis'>,
-    TokenProperties<'transition'>,
-    TokenProperties<'view-timeline'>,
-    TokenProperties<'accent-color'>,
-    TokenProperties<'align-content'>,
-    TokenProperties<'align-items'>,
-    TokenProperties<'align-self'>,
-    TokenProperties<'align-tracks'>,
-    TokenProperties<'animation-composition'>,
-    TokenProperties<'animation-delay'>,
-    TokenProperties<'animation-direction'>,
-    TokenProperties<'animation-duration'>,
-    TokenProperties<'animation-fill-mode'>,
-    TokenProperties<'animation-iteration-count'>,
-    TokenProperties<'animation-name'>,
-    TokenProperties<'animation-play-state'>,
-    TokenProperties<'animation-range-end'>,
-    TokenProperties<'animation-range-start'>,
-    TokenProperties<'animation-timeline'>,
-    TokenProperties<'animation-timing-function'>,
-    TokenProperties<'appearance'>,
-    TokenProperties<'aspect-ratio'>,
-    TokenProperties<'backdrop-filter'>,
-    TokenProperties<'backface-visibility'>,
-    TokenProperties<'background-attachment'>,
-    TokenProperties<'background-blend-mode'>,
-    TokenProperties<'background-clip'>,
-    TokenProperties<'background-color'>,
-    TokenProperties<'background-image'>,
-    TokenProperties<'background-origin'>,
-    TokenProperties<'background-position-x'>,
-    TokenProperties<'background-position-y'>,
-    TokenProperties<'background-repeat'>,
-    TokenProperties<'background-size'>,
-    TokenProperties<'border-bottom-color'>,
-    TokenProperties<'border-bottom-left-radius'>,
-    TokenProperties<'border-bottom-right-radius'>,
-    TokenProperties<'border-bottom-style'>,
-    TokenProperties<'border-bottom-width'>,
-    TokenProperties<'border-collapse'>,
-    TokenProperties<'border-end-end-radius'>,
-    TokenProperties<'border-end-start-radius'>,
-    TokenProperties<'border-image-outset'>,
-    TokenProperties<'border-image-repeat'>,
-    TokenProperties<'border-image-slice'>,
-    TokenProperties<'border-image-source'>,
-    TokenProperties<'border-image-width'>,
-    TokenProperties<'border-left-color'>,
-    TokenProperties<'border-left-style'>,
-    TokenProperties<'border-left-width'>,
-    TokenProperties<'border-right-color'>,
-    TokenProperties<'border-right-style'>,
-    TokenProperties<'border-right-width'>,
-    TokenProperties<'border-spacing'>,
-    TokenProperties<'border-start-end-radius'>,
-    TokenProperties<'border-start-start-radius'>,
-    TokenProperties<'border-top-color'>,
-    TokenProperties<'border-top-left-radius'>,
-    TokenProperties<'border-top-right-radius'>,
-    TokenProperties<'border-top-style'>,
-    TokenProperties<'border-top-width'>,
-    TokenProperties<'bottom'>,
-    TokenProperties<'box-decoration-break'>,
-    TokenProperties<'box-shadow'>,
-    TokenProperties<'box-sizing'>,
-    TokenProperties<'break-after'>,
-    TokenProperties<'break-before'>,
-    TokenProperties<'break-inside'>,
-    TokenProperties<'caption-side'>,
-    TokenProperties<'caret-color'>,
-    TokenProperties<'caret-shape'>,
-    TokenProperties<'clear'>,
-    TokenProperties<'clip-path'>,
-    TokenProperties<'color'>,
-    TokenProperties<'color-adjust'>,
-    TokenProperties<'color-scheme'>,
-    TokenProperties<'column-count'>,
-    TokenProperties<'column-fill'>,
-    TokenProperties<'column-gap'>,
-    TokenProperties<'column-rule-color'>,
-    TokenProperties<'column-rule-style'>,
-    TokenProperties<'column-rule-width'>,
-    TokenProperties<'column-span'>,
-    TokenProperties<'column-width'>,
-    TokenProperties<'contain'>,
-    TokenProperties<'contain-intrinsic-height'>,
-    TokenProperties<'contain-intrinsic-width'>,
-    TokenProperties<'container-name'>,
-    TokenProperties<'container-type'>,
-    TokenProperties<'content'>,
-    TokenProperties<'content-visibility'>,
-    TokenProperties<'counter-increment'>,
-    TokenProperties<'counter-reset'>,
-    TokenProperties<'counter-set'>,
-    TokenProperties<'cursor'>,
-    TokenProperties<'direction'>,
-    TokenProperties<'display'>,
-    TokenProperties<'empty-cells'>,
-    TokenProperties<'filter'>,
-    TokenProperties<'flex-basis'>,
-    TokenProperties<'flex-direction'>,
-    TokenProperties<'flex-grow'>,
-    TokenProperties<'flex-shrink'>,
-    TokenProperties<'flex-wrap'>,
-    TokenProperties<'float'>,
-    TokenProperties<'font-family'>,
-    TokenProperties<'font-feature-settings'>,
-    TokenProperties<'font-kerning'>,
-    TokenProperties<'font-language-override'>,
-    TokenProperties<'font-optical-sizing'>,
-    TokenProperties<'font-palette'>,
-    TokenProperties<'font-size'>,
-    TokenProperties<'font-size-adjust'>,
-    TokenProperties<'font-smooth'>,
-    TokenProperties<'font-stretch'>,
-    TokenProperties<'font-style'>,
-    TokenProperties<'font-synthesis'>,
-    TokenProperties<'font-synthesis-position'>,
-    TokenProperties<'font-synthesis-small-caps'>,
-    TokenProperties<'font-synthesis-style'>,
-    TokenProperties<'font-synthesis-weight'>,
-    TokenProperties<'font-variant'>,
-    TokenProperties<'font-variant-alternates'>,
-    TokenProperties<'font-variant-caps'>,
-    TokenProperties<'font-variant-east-asian'>,
-    TokenProperties<'font-variant-emoji'>,
-    TokenProperties<'font-variant-ligatures'>,
-    TokenProperties<'font-variant-numeric'>,
-    TokenProperties<'font-variant-position'>,
-    TokenProperties<'font-variation-settings'>,
-    TokenProperties<'font-weight'>,
-    TokenProperties<'forced-color-adjust'>,
-    TokenProperties<'grid-auto-columns'>,
-    TokenProperties<'grid-auto-flow'>,
-    TokenProperties<'grid-auto-rows'>,
-    TokenProperties<'grid-column-end'>,
-    TokenProperties<'grid-column-start'>,
-    TokenProperties<'grid-row-end'>,
-    TokenProperties<'grid-row-start'>,
-    TokenProperties<'grid-template-areas'>,
-    TokenProperties<'grid-template-columns'>,
-    TokenProperties<'grid-template-rows'>,
-    TokenProperties<'hanging-punctuation'>,
-    TokenProperties<'height'>,
-    TokenProperties<'hyphenate-character'>,
-    TokenProperties<'hyphenate-limit-chars'>,
-    TokenProperties<'hyphens'>,
-    TokenProperties<'image-orientation'>,
-    TokenProperties<'image-rendering'>,
-    TokenProperties<'image-resolution'>,
-    TokenProperties<'initial-letter'>,
-    TokenProperties<'input-security'>,
-    TokenProperties<'isolation'>,
-    TokenProperties<'justify-content'>,
-    TokenProperties<'justify-items'>,
-    TokenProperties<'justify-self'>,
-    TokenProperties<'justify-tracks'>,
-    TokenProperties<'left'>,
-    TokenProperties<'letter-spacing'>,
-    TokenProperties<'line-break'>,
-    TokenProperties<'line-height'>,
-    TokenProperties<'line-height-step'>,
-    TokenProperties<'list-style-image'>,
-    TokenProperties<'list-style-position'>,
-    TokenProperties<'list-style-type'>,
-    TokenProperties<'margin-bottom'>,
-    TokenProperties<'margin-left'>,
-    TokenProperties<'margin-right'>,
-    TokenProperties<'margin-top'>,
-    TokenProperties<'margin-trim'>,
-    TokenProperties<'mask-border-mode'>,
-    TokenProperties<'mask-border-outset'>,
-    TokenProperties<'mask-border-repeat'>,
-    TokenProperties<'mask-border-slice'>,
-    TokenProperties<'mask-border-source'>,
-    TokenProperties<'mask-border-width'>,
-    TokenProperties<'mask-clip'>,
-    TokenProperties<'mask-composite'>,
-    TokenProperties<'mask-image'>,
-    TokenProperties<'mask-mode'>,
-    TokenProperties<'mask-origin'>,
-    TokenProperties<'mask-position'>,
-    TokenProperties<'mask-repeat'>,
-    TokenProperties<'mask-size'>,
-    TokenProperties<'mask-type'>,
-    TokenProperties<'masonry-auto-flow'>,
-    TokenProperties<'math-depth'>,
-    TokenProperties<'math-shift'>,
-    TokenProperties<'math-style'>,
-    TokenProperties<'max-height'>,
-    TokenProperties<'max-lines'>,
-    TokenProperties<'max-width'>,
-    TokenProperties<'min-height'>,
-    TokenProperties<'min-width'>,
-    TokenProperties<'mix-blend-mode'>,
-    TokenProperties<'motion-distance'>,
-    TokenProperties<'motion-path'>,
-    TokenProperties<'motion-rotation'>,
-    TokenProperties<'object-fit'>,
-    TokenProperties<'object-position'>,
-    TokenProperties<'offset-anchor'>,
-    TokenProperties<'offset-distance'>,
-    TokenProperties<'offset-path'>,
-    TokenProperties<'offset-position'>,
-    TokenProperties<'offset-rotate'>,
-    TokenProperties<'offset-rotation'>,
-    TokenProperties<'opacity'>,
-    TokenProperties<'order'>,
-    TokenProperties<'orphans'>,
-    TokenProperties<'outline-color'>,
-    TokenProperties<'outline-offset'>,
-    TokenProperties<'outline-style'>,
-    TokenProperties<'outline-width'>,
-    TokenProperties<'overflow-anchor'>,
-    TokenProperties<'overflow-clip-box'>,
-    TokenProperties<'overflow-clip-margin'>,
-    TokenProperties<'overflow-wrap'>,
-    TokenProperties<'overflow-x'>,
-    TokenProperties<'overflow-y'>,
-    TokenProperties<'overlay'>,
-    TokenProperties<'overscroll-behavior-x'>,
-    TokenProperties<'overscroll-behavior-y'>,
-    TokenProperties<'padding-bottom'>,
-    TokenProperties<'padding-left'>,
-    TokenProperties<'padding-right'>,
-    TokenProperties<'padding-top'>,
-    TokenProperties<'page'>,
-    TokenProperties<'page-break-after'>,
-    TokenProperties<'page-break-before'>,
-    TokenProperties<'page-break-inside'>,
-    TokenProperties<'paint-order'>,
-    TokenProperties<'perspective'>,
-    TokenProperties<'perspective-origin'>,
-    TokenProperties<'pointer-events'>,
-    TokenProperties<'position'>,
-    TokenProperties<'print-color-adjust'>,
-    TokenProperties<'quotes'>,
-    TokenProperties<'resize'>,
-    TokenProperties<'right'>,
-    TokenProperties<'rotate'>,
-    TokenProperties<'row-gap'>,
-    TokenProperties<'ruby-align'>,
-    TokenProperties<'ruby-merge'>,
-    TokenProperties<'ruby-position'>,
-    TokenProperties<'scale'>,
-    TokenProperties<'scroll-behavior'>,
-    TokenProperties<'scroll-margin-bottom'>,
-    TokenProperties<'scroll-margin-left'>,
-    TokenProperties<'scroll-margin-right'>,
-    TokenProperties<'scroll-margin-top'>,
-    TokenProperties<'scroll-padding-bottom'>,
-    TokenProperties<'scroll-padding-left'>,
-    TokenProperties<'scroll-padding-right'>,
-    TokenProperties<'scroll-padding-top'>,
-    TokenProperties<'scroll-snap-align'>,
-    TokenProperties<'scroll-snap-margin-bottom'>,
-    TokenProperties<'scroll-snap-margin-left'>,
-    TokenProperties<'scroll-snap-margin-right'>,
-    TokenProperties<'scroll-snap-margin-top'>,
-    TokenProperties<'scroll-snap-stop'>,
-    TokenProperties<'scroll-snap-type'>,
-    TokenProperties<'scroll-timeline-axis'>,
-    TokenProperties<'scroll-timeline-name'>,
-    TokenProperties<'scrollbar-color'>,
-    TokenProperties<'scrollbar-gutter'>,
-    TokenProperties<'scrollbar-width'>,
-    TokenProperties<'shape-image-threshold'>,
-    TokenProperties<'shape-margin'>,
-    TokenProperties<'shape-outside'>,
-    TokenProperties<'tab-size'>,
-    TokenProperties<'table-layout'>,
-    TokenProperties<'text-align'>,
-    TokenProperties<'text-align-last'>,
-    TokenProperties<'text-combine-upright'>,
-    TokenProperties<'text-decoration-color'>,
-    TokenProperties<'text-decoration-line'>,
-    TokenProperties<'text-decoration-skip'>,
-    TokenProperties<'text-decoration-skip-ink'>,
-    TokenProperties<'text-decoration-style'>,
-    TokenProperties<'text-decoration-thickness'>,
-    TokenProperties<'text-emphasis-color'>,
-    TokenProperties<'text-emphasis-position'>,
-    TokenProperties<'text-emphasis-style'>,
-    TokenProperties<'text-indent'>,
-    TokenProperties<'text-justify'>,
-    TokenProperties<'text-orientation'>,
-    TokenProperties<'text-overflow'>,
-    TokenProperties<'text-rendering'>,
-    TokenProperties<'text-shadow'>,
-    TokenProperties<'text-size-adjust'>,
-    TokenProperties<'text-transform'>,
-    TokenProperties<'text-underline-offset'>,
-    TokenProperties<'text-underline-position'>,
-    TokenProperties<'text-wrap'>,
-    TokenProperties<'timeline-scope'>,
-    TokenProperties<'top'>,
-    TokenProperties<'touch-action'>,
-    TokenProperties<'transform'>,
-    TokenProperties<'transform-box'>,
-    TokenProperties<'transform-origin'>,
-    TokenProperties<'transform-style'>,
-    TokenProperties<'transition-behavior'>,
-    TokenProperties<'transition-delay'>,
-    TokenProperties<'transition-duration'>,
-    TokenProperties<'transition-property'>,
-    TokenProperties<'transition-timing-function'>,
-    TokenProperties<'translate'>,
-    TokenProperties<'unicode-bidi'>,
-    TokenProperties<'user-select'>,
-    TokenProperties<'vertical-align'>,
-    TokenProperties<'view-timeline-axis'>,
-    TokenProperties<'view-timeline-inset'>,
-    TokenProperties<'view-timeline-name'>,
-    TokenProperties<'view-transition-name'>,
-    TokenProperties<'visibility'>,
-    TokenProperties<'white-space'>,
-    TokenProperties<'white-space-collapse'>,
-    TokenProperties<'white-space-trim'>,
-    TokenProperties<'widows'>,
-    TokenProperties<'width'>,
-    TokenProperties<'will-change'>,
-    TokenProperties<'word-break'>,
-    TokenProperties<'word-spacing'>,
-    TokenProperties<'word-wrap'>,
-    TokenProperties<'writing-mode'>,
-    TokenProperties<'z-index'>,
-    TokenProperties<'zoom'>,
-    TokenProperties<'alignment-baseline'>,
-    TokenProperties<'baseline-shift'>,
-    TokenProperties<'clip'>,
-    TokenProperties<'clip-rule'>,
-    TokenProperties<'color-interpolation'>,
-    TokenProperties<'color-rendering'>,
-    TokenProperties<'dominant-baseline'>,
-    TokenProperties<'fill'>,
-    TokenProperties<'fill-opacity'>,
-    TokenProperties<'fill-rule'>,
-    TokenProperties<'flood-color'>,
-    TokenProperties<'flood-opacity'>,
-    TokenProperties<'glyph-orientation-vertical'>,
-    TokenProperties<'lighting-color'>,
-    TokenProperties<'marker'>,
-    TokenProperties<'marker-end'>,
-    TokenProperties<'marker-mid'>,
-    TokenProperties<'marker-start'>,
-    TokenProperties<'shape-rendering'>,
-    TokenProperties<'stop-color'>,
-    TokenProperties<'stop-opacity'>,
-    TokenProperties<'stroke'>,
-    TokenProperties<'stroke-dasharray'>,
-    TokenProperties<'stroke-dashoffset'>,
-    TokenProperties<'stroke-linecap'>,
-    TokenProperties<'stroke-linejoin'>,
-    TokenProperties<'stroke-miterlimit'>,
-    TokenProperties<'stroke-opacity'>,
-    TokenProperties<'stroke-width'>,
-    TokenProperties<'text-anchor'>,
-    TokenProperties<'vector-effect'>,
-    TokenProperties<'block-overflow'>,
-    TokenProperties<'block-size'>,
-    TokenProperties<'border-block'>,
-    TokenProperties<'border-block-end'>,
-    TokenProperties<'border-block-start'>,
-    TokenProperties<'border-block-color'>,
-    TokenProperties<'border-block-end-color'>,
-    TokenProperties<'border-block-end-style'>,
-    TokenProperties<'border-block-end-width'>,
-    TokenProperties<'border-block-start-color'>,
-    TokenProperties<'border-block-start-style'>,
-    TokenProperties<'border-block-start-width'>,
-    TokenProperties<'border-block-style'>,
-    TokenProperties<'border-block-width'>,
-    TokenProperties<'border-inline'>,
-    TokenProperties<'border-inline-end'>,
-    TokenProperties<'border-inline-start'>,
-    TokenProperties<'border-inline-color'>,
-    TokenProperties<'border-inline-end-color'>,
-    TokenProperties<'border-inline-end-style'>,
-    TokenProperties<'border-inline-end-width'>,
-    TokenProperties<'border-inline-start-color'>,
-    TokenProperties<'border-inline-start-style'>,
-    TokenProperties<'border-inline-start-width'>,
-    TokenProperties<'border-inline-style'>,
-    TokenProperties<'border-inline-width'>,
-    TokenProperties<'contain-intrinsic-block-size'>,
-    TokenProperties<'contain-intrinsic-inline-size'>,
-    TokenProperties<'inline-size'>,
-    TokenProperties<'inset-block'>,
-    TokenProperties<'inset-block-end'>,
-    TokenProperties<'inset-block-start'>,
-    TokenProperties<'inset-inline'>,
-    TokenProperties<'inset-inline-end'>,
-    TokenProperties<'inset-inline-start'>,
-    TokenProperties<'margin-block'>,
-    TokenProperties<'margin-block-end'>,
-    TokenProperties<'margin-block-start'>,
-    TokenProperties<'margin-inline'>,
-    TokenProperties<'margin-inline-end'>,
-    TokenProperties<'margin-inline-start'>,
-    TokenProperties<'max-block-size'>,
-    TokenProperties<'max-inline-size'>,
-    TokenProperties<'min-block-size'>,
-    TokenProperties<'min-inline-size'>,
-    TokenProperties<'overflow-block'>,
-    TokenProperties<'overflow-inline'>,
-    TokenProperties<'overscroll-behavior-block'>,
-    TokenProperties<'overscroll-behavior-inline'>,
-    TokenProperties<'padding-block'>,
-    TokenProperties<'padding-block-end'>,
-    TokenProperties<'padding-block-start'>,
-    TokenProperties<'padding-inline'>,
-    TokenProperties<'padding-inline-end'>,
-    TokenProperties<'padding-inline-start'>,
-    TokenProperties<'scroll-margin-block'>,
-    TokenProperties<'scroll-margin-block-end'>,
-    TokenProperties<'scroll-margin-block-start'>,
-    TokenProperties<'scroll-margin-inline'>,
-    TokenProperties<'scroll-margin-inline-end'>,
-    TokenProperties<'scroll-margin-inline-start'>,
-    TokenProperties<'scroll-padding-block'>,
-    TokenProperties<'scroll-padding-block-end'>,
-    TokenProperties<'scroll-padding-block-start'>,
-    TokenProperties<'scroll-padding-inline'>,
-    TokenProperties<'scroll-padding-inline-end'>,
-    TokenProperties<'scroll-padding-inline-start'> {
+  extends SupportedTokenProperties<'all'>,
+    SupportedTokenProperties<'animation'>,
+    SupportedTokenProperties<'animation-range'>,
+    SupportedTokenProperties<'background'>,
+    SupportedTokenProperties<'background-position'>,
+    SupportedTokenProperties<'border'>,
+    SupportedTokenProperties<'border-bottom'>,
+    SupportedTokenProperties<'border-color'>,
+    SupportedTokenProperties<'border-image'>,
+    SupportedTokenProperties<'border-left'>,
+    SupportedTokenProperties<'border-radius'>,
+    SupportedTokenProperties<'border-right'>,
+    SupportedTokenProperties<'border-style'>,
+    SupportedTokenProperties<'border-top'>,
+    SupportedTokenProperties<'border-width'>,
+    SupportedTokenProperties<'caret'>,
+    SupportedTokenProperties<'column-rule'>,
+    SupportedTokenProperties<'columns'>,
+    SupportedTokenProperties<'contain-intrinsic-size'>,
+    SupportedTokenProperties<'container'>,
+    SupportedTokenProperties<'flex'>,
+    SupportedTokenProperties<'flex-flow'>,
+    SupportedTokenProperties<'font'>,
+    SupportedTokenProperties<'gap'>,
+    SupportedTokenProperties<'grid'>,
+    SupportedTokenProperties<'grid-area'>,
+    SupportedTokenProperties<'grid-column'>,
+    SupportedTokenProperties<'grid-row'>,
+    SupportedTokenProperties<'grid-template'>,
+    SupportedTokenProperties<'inset'>,
+    SupportedTokenProperties<'line-clamp'>,
+    SupportedTokenProperties<'list-style'>,
+    SupportedTokenProperties<'margin'>,
+    SupportedTokenProperties<'mask'>,
+    SupportedTokenProperties<'mask-border'>,
+    SupportedTokenProperties<'motion'>,
+    SupportedTokenProperties<'offset'>,
+    SupportedTokenProperties<'outline'>,
+    SupportedTokenProperties<'overflow'>,
+    SupportedTokenProperties<'overscroll-behavior'>,
+    SupportedTokenProperties<'padding'>,
+    SupportedTokenProperties<'place-content'>,
+    SupportedTokenProperties<'place-items'>,
+    SupportedTokenProperties<'place-self'>,
+    SupportedTokenProperties<'scroll-margin'>,
+    SupportedTokenProperties<'scroll-padding'>,
+    SupportedTokenProperties<'scroll-snap-margin'>,
+    SupportedTokenProperties<'scroll-timeline'>,
+    SupportedTokenProperties<'text-decoration'>,
+    SupportedTokenProperties<'text-emphasis'>,
+    SupportedTokenProperties<'transition'>,
+    SupportedTokenProperties<'view-timeline'>,
+    SupportedTokenProperties<'accent-color'>,
+    SupportedTokenProperties<'align-content'>,
+    SupportedTokenProperties<'align-items'>,
+    SupportedTokenProperties<'align-self'>,
+    SupportedTokenProperties<'align-tracks'>,
+    SupportedTokenProperties<'animation-composition'>,
+    SupportedTokenProperties<'animation-delay'>,
+    SupportedTokenProperties<'animation-direction'>,
+    SupportedTokenProperties<'animation-duration'>,
+    SupportedTokenProperties<'animation-fill-mode'>,
+    SupportedTokenProperties<'animation-iteration-count'>,
+    SupportedTokenProperties<'animation-name'>,
+    SupportedTokenProperties<'animation-play-state'>,
+    SupportedTokenProperties<'animation-range-end'>,
+    SupportedTokenProperties<'animation-range-start'>,
+    SupportedTokenProperties<'animation-timeline'>,
+    SupportedTokenProperties<'animation-timing-function'>,
+    SupportedTokenProperties<'appearance'>,
+    SupportedTokenProperties<'aspect-ratio'>,
+    SupportedTokenProperties<'backdrop-filter'>,
+    SupportedTokenProperties<'backface-visibility'>,
+    SupportedTokenProperties<'background-attachment'>,
+    SupportedTokenProperties<'background-blend-mode'>,
+    SupportedTokenProperties<'background-clip'>,
+    SupportedTokenProperties<'background-color'>,
+    SupportedTokenProperties<'background-image'>,
+    SupportedTokenProperties<'background-origin'>,
+    SupportedTokenProperties<'background-position-x'>,
+    SupportedTokenProperties<'background-position-y'>,
+    SupportedTokenProperties<'background-repeat'>,
+    SupportedTokenProperties<'background-size'>,
+    SupportedTokenProperties<'border-bottom-color'>,
+    SupportedTokenProperties<'border-bottom-left-radius'>,
+    SupportedTokenProperties<'border-bottom-right-radius'>,
+    SupportedTokenProperties<'border-bottom-style'>,
+    SupportedTokenProperties<'border-bottom-width'>,
+    SupportedTokenProperties<'border-collapse'>,
+    SupportedTokenProperties<'border-end-end-radius'>,
+    SupportedTokenProperties<'border-end-start-radius'>,
+    SupportedTokenProperties<'border-image-outset'>,
+    SupportedTokenProperties<'border-image-repeat'>,
+    SupportedTokenProperties<'border-image-slice'>,
+    SupportedTokenProperties<'border-image-source'>,
+    SupportedTokenProperties<'border-image-width'>,
+    SupportedTokenProperties<'border-left-color'>,
+    SupportedTokenProperties<'border-left-style'>,
+    SupportedTokenProperties<'border-left-width'>,
+    SupportedTokenProperties<'border-right-color'>,
+    SupportedTokenProperties<'border-right-style'>,
+    SupportedTokenProperties<'border-right-width'>,
+    SupportedTokenProperties<'border-spacing'>,
+    SupportedTokenProperties<'border-start-end-radius'>,
+    SupportedTokenProperties<'border-start-start-radius'>,
+    SupportedTokenProperties<'border-top-color'>,
+    SupportedTokenProperties<'border-top-left-radius'>,
+    SupportedTokenProperties<'border-top-right-radius'>,
+    SupportedTokenProperties<'border-top-style'>,
+    SupportedTokenProperties<'border-top-width'>,
+    SupportedTokenProperties<'bottom'>,
+    SupportedTokenProperties<'box-decoration-break'>,
+    SupportedTokenProperties<'box-shadow'>,
+    SupportedTokenProperties<'box-sizing'>,
+    SupportedTokenProperties<'break-after'>,
+    SupportedTokenProperties<'break-before'>,
+    SupportedTokenProperties<'break-inside'>,
+    SupportedTokenProperties<'caption-side'>,
+    SupportedTokenProperties<'caret-color'>,
+    SupportedTokenProperties<'caret-shape'>,
+    SupportedTokenProperties<'clear'>,
+    SupportedTokenProperties<'clip-path'>,
+    SupportedTokenProperties<'color'>,
+    SupportedTokenProperties<'color-adjust'>,
+    SupportedTokenProperties<'color-scheme'>,
+    SupportedTokenProperties<'column-count'>,
+    SupportedTokenProperties<'column-fill'>,
+    SupportedTokenProperties<'column-gap'>,
+    SupportedTokenProperties<'column-rule-color'>,
+    SupportedTokenProperties<'column-rule-style'>,
+    SupportedTokenProperties<'column-rule-width'>,
+    SupportedTokenProperties<'column-span'>,
+    SupportedTokenProperties<'column-width'>,
+    SupportedTokenProperties<'contain'>,
+    SupportedTokenProperties<'contain-intrinsic-height'>,
+    SupportedTokenProperties<'contain-intrinsic-width'>,
+    SupportedTokenProperties<'container-name'>,
+    SupportedTokenProperties<'container-type'>,
+    SupportedTokenProperties<'content'>,
+    SupportedTokenProperties<'content-visibility'>,
+    SupportedTokenProperties<'counter-increment'>,
+    SupportedTokenProperties<'counter-reset'>,
+    SupportedTokenProperties<'counter-set'>,
+    SupportedTokenProperties<'cursor'>,
+    SupportedTokenProperties<'direction'>,
+    SupportedTokenProperties<'display'>,
+    SupportedTokenProperties<'empty-cells'>,
+    SupportedTokenProperties<'filter'>,
+    SupportedTokenProperties<'flex-basis'>,
+    SupportedTokenProperties<'flex-direction'>,
+    SupportedTokenProperties<'flex-grow'>,
+    SupportedTokenProperties<'flex-shrink'>,
+    SupportedTokenProperties<'flex-wrap'>,
+    SupportedTokenProperties<'float'>,
+    SupportedTokenProperties<'font-family'>,
+    SupportedTokenProperties<'font-feature-settings'>,
+    SupportedTokenProperties<'font-kerning'>,
+    SupportedTokenProperties<'font-language-override'>,
+    SupportedTokenProperties<'font-optical-sizing'>,
+    SupportedTokenProperties<'font-palette'>,
+    SupportedTokenProperties<'font-size'>,
+    SupportedTokenProperties<'font-size-adjust'>,
+    SupportedTokenProperties<'font-smooth'>,
+    SupportedTokenProperties<'font-stretch'>,
+    SupportedTokenProperties<'font-style'>,
+    SupportedTokenProperties<'font-synthesis'>,
+    SupportedTokenProperties<'font-synthesis-position'>,
+    SupportedTokenProperties<'font-synthesis-small-caps'>,
+    SupportedTokenProperties<'font-synthesis-style'>,
+    SupportedTokenProperties<'font-synthesis-weight'>,
+    SupportedTokenProperties<'font-variant'>,
+    SupportedTokenProperties<'font-variant-alternates'>,
+    SupportedTokenProperties<'font-variant-caps'>,
+    SupportedTokenProperties<'font-variant-east-asian'>,
+    SupportedTokenProperties<'font-variant-emoji'>,
+    SupportedTokenProperties<'font-variant-ligatures'>,
+    SupportedTokenProperties<'font-variant-numeric'>,
+    SupportedTokenProperties<'font-variant-position'>,
+    SupportedTokenProperties<'font-variation-settings'>,
+    SupportedTokenProperties<'font-weight'>,
+    SupportedTokenProperties<'forced-color-adjust'>,
+    SupportedTokenProperties<'grid-auto-columns'>,
+    SupportedTokenProperties<'grid-auto-flow'>,
+    SupportedTokenProperties<'grid-auto-rows'>,
+    SupportedTokenProperties<'grid-column-end'>,
+    SupportedTokenProperties<'grid-column-start'>,
+    SupportedTokenProperties<'grid-row-end'>,
+    SupportedTokenProperties<'grid-row-start'>,
+    SupportedTokenProperties<'grid-template-areas'>,
+    SupportedTokenProperties<'grid-template-columns'>,
+    SupportedTokenProperties<'grid-template-rows'>,
+    SupportedTokenProperties<'hanging-punctuation'>,
+    SupportedTokenProperties<'height'>,
+    SupportedTokenProperties<'hyphenate-character'>,
+    SupportedTokenProperties<'hyphenate-limit-chars'>,
+    SupportedTokenProperties<'hyphens'>,
+    SupportedTokenProperties<'image-orientation'>,
+    SupportedTokenProperties<'image-rendering'>,
+    SupportedTokenProperties<'image-resolution'>,
+    SupportedTokenProperties<'initial-letter'>,
+    SupportedTokenProperties<'input-security'>,
+    SupportedTokenProperties<'isolation'>,
+    SupportedTokenProperties<'justify-content'>,
+    SupportedTokenProperties<'justify-items'>,
+    SupportedTokenProperties<'justify-self'>,
+    SupportedTokenProperties<'justify-tracks'>,
+    SupportedTokenProperties<'left'>,
+    SupportedTokenProperties<'letter-spacing'>,
+    SupportedTokenProperties<'line-break'>,
+    SupportedTokenProperties<'line-height'>,
+    SupportedTokenProperties<'line-height-step'>,
+    SupportedTokenProperties<'list-style-image'>,
+    SupportedTokenProperties<'list-style-position'>,
+    SupportedTokenProperties<'list-style-type'>,
+    SupportedTokenProperties<'margin-bottom'>,
+    SupportedTokenProperties<'margin-left'>,
+    SupportedTokenProperties<'margin-right'>,
+    SupportedTokenProperties<'margin-top'>,
+    SupportedTokenProperties<'margin-trim'>,
+    SupportedTokenProperties<'mask-border-mode'>,
+    SupportedTokenProperties<'mask-border-outset'>,
+    SupportedTokenProperties<'mask-border-repeat'>,
+    SupportedTokenProperties<'mask-border-slice'>,
+    SupportedTokenProperties<'mask-border-source'>,
+    SupportedTokenProperties<'mask-border-width'>,
+    SupportedTokenProperties<'mask-clip'>,
+    SupportedTokenProperties<'mask-composite'>,
+    SupportedTokenProperties<'mask-image'>,
+    SupportedTokenProperties<'mask-mode'>,
+    SupportedTokenProperties<'mask-origin'>,
+    SupportedTokenProperties<'mask-position'>,
+    SupportedTokenProperties<'mask-repeat'>,
+    SupportedTokenProperties<'mask-size'>,
+    SupportedTokenProperties<'mask-type'>,
+    SupportedTokenProperties<'masonry-auto-flow'>,
+    SupportedTokenProperties<'math-depth'>,
+    SupportedTokenProperties<'math-shift'>,
+    SupportedTokenProperties<'math-style'>,
+    SupportedTokenProperties<'max-height'>,
+    SupportedTokenProperties<'max-lines'>,
+    SupportedTokenProperties<'max-width'>,
+    SupportedTokenProperties<'min-height'>,
+    SupportedTokenProperties<'min-width'>,
+    SupportedTokenProperties<'mix-blend-mode'>,
+    SupportedTokenProperties<'motion-distance'>,
+    SupportedTokenProperties<'motion-path'>,
+    SupportedTokenProperties<'motion-rotation'>,
+    SupportedTokenProperties<'object-fit'>,
+    SupportedTokenProperties<'object-position'>,
+    SupportedTokenProperties<'offset-anchor'>,
+    SupportedTokenProperties<'offset-distance'>,
+    SupportedTokenProperties<'offset-path'>,
+    SupportedTokenProperties<'offset-position'>,
+    SupportedTokenProperties<'offset-rotate'>,
+    SupportedTokenProperties<'offset-rotation'>,
+    SupportedTokenProperties<'opacity'>,
+    SupportedTokenProperties<'order'>,
+    SupportedTokenProperties<'orphans'>,
+    SupportedTokenProperties<'outline-color'>,
+    SupportedTokenProperties<'outline-offset'>,
+    SupportedTokenProperties<'outline-style'>,
+    SupportedTokenProperties<'outline-width'>,
+    SupportedTokenProperties<'overflow-anchor'>,
+    SupportedTokenProperties<'overflow-clip-box'>,
+    SupportedTokenProperties<'overflow-clip-margin'>,
+    SupportedTokenProperties<'overflow-wrap'>,
+    SupportedTokenProperties<'overflow-x'>,
+    SupportedTokenProperties<'overflow-y'>,
+    SupportedTokenProperties<'overlay'>,
+    SupportedTokenProperties<'overscroll-behavior-x'>,
+    SupportedTokenProperties<'overscroll-behavior-y'>,
+    SupportedTokenProperties<'padding-bottom'>,
+    SupportedTokenProperties<'padding-left'>,
+    SupportedTokenProperties<'padding-right'>,
+    SupportedTokenProperties<'padding-top'>,
+    SupportedTokenProperties<'page'>,
+    SupportedTokenProperties<'page-break-after'>,
+    SupportedTokenProperties<'page-break-before'>,
+    SupportedTokenProperties<'page-break-inside'>,
+    SupportedTokenProperties<'paint-order'>,
+    SupportedTokenProperties<'perspective'>,
+    SupportedTokenProperties<'perspective-origin'>,
+    SupportedTokenProperties<'pointer-events'>,
+    SupportedTokenProperties<'position'>,
+    SupportedTokenProperties<'print-color-adjust'>,
+    SupportedTokenProperties<'quotes'>,
+    SupportedTokenProperties<'resize'>,
+    SupportedTokenProperties<'right'>,
+    SupportedTokenProperties<'rotate'>,
+    SupportedTokenProperties<'row-gap'>,
+    SupportedTokenProperties<'ruby-align'>,
+    SupportedTokenProperties<'ruby-merge'>,
+    SupportedTokenProperties<'ruby-position'>,
+    SupportedTokenProperties<'scale'>,
+    SupportedTokenProperties<'scroll-behavior'>,
+    SupportedTokenProperties<'scroll-margin-bottom'>,
+    SupportedTokenProperties<'scroll-margin-left'>,
+    SupportedTokenProperties<'scroll-margin-right'>,
+    SupportedTokenProperties<'scroll-margin-top'>,
+    SupportedTokenProperties<'scroll-padding-bottom'>,
+    SupportedTokenProperties<'scroll-padding-left'>,
+    SupportedTokenProperties<'scroll-padding-right'>,
+    SupportedTokenProperties<'scroll-padding-top'>,
+    SupportedTokenProperties<'scroll-snap-align'>,
+    SupportedTokenProperties<'scroll-snap-margin-bottom'>,
+    SupportedTokenProperties<'scroll-snap-margin-left'>,
+    SupportedTokenProperties<'scroll-snap-margin-right'>,
+    SupportedTokenProperties<'scroll-snap-margin-top'>,
+    SupportedTokenProperties<'scroll-snap-stop'>,
+    SupportedTokenProperties<'scroll-snap-type'>,
+    SupportedTokenProperties<'scroll-timeline-axis'>,
+    SupportedTokenProperties<'scroll-timeline-name'>,
+    SupportedTokenProperties<'scrollbar-color'>,
+    SupportedTokenProperties<'scrollbar-gutter'>,
+    SupportedTokenProperties<'scrollbar-width'>,
+    SupportedTokenProperties<'shape-image-threshold'>,
+    SupportedTokenProperties<'shape-margin'>,
+    SupportedTokenProperties<'shape-outside'>,
+    SupportedTokenProperties<'tab-size'>,
+    SupportedTokenProperties<'table-layout'>,
+    SupportedTokenProperties<'text-align'>,
+    SupportedTokenProperties<'text-align-last'>,
+    SupportedTokenProperties<'text-combine-upright'>,
+    SupportedTokenProperties<'text-decoration-color'>,
+    SupportedTokenProperties<'text-decoration-line'>,
+    SupportedTokenProperties<'text-decoration-skip'>,
+    SupportedTokenProperties<'text-decoration-skip-ink'>,
+    SupportedTokenProperties<'text-decoration-style'>,
+    SupportedTokenProperties<'text-decoration-thickness'>,
+    SupportedTokenProperties<'text-emphasis-color'>,
+    SupportedTokenProperties<'text-emphasis-position'>,
+    SupportedTokenProperties<'text-emphasis-style'>,
+    SupportedTokenProperties<'text-indent'>,
+    SupportedTokenProperties<'text-justify'>,
+    SupportedTokenProperties<'text-orientation'>,
+    SupportedTokenProperties<'text-overflow'>,
+    SupportedTokenProperties<'text-rendering'>,
+    SupportedTokenProperties<'text-shadow'>,
+    SupportedTokenProperties<'text-size-adjust'>,
+    SupportedTokenProperties<'text-transform'>,
+    SupportedTokenProperties<'text-underline-offset'>,
+    SupportedTokenProperties<'text-underline-position'>,
+    SupportedTokenProperties<'text-wrap'>,
+    SupportedTokenProperties<'timeline-scope'>,
+    SupportedTokenProperties<'top'>,
+    SupportedTokenProperties<'touch-action'>,
+    SupportedTokenProperties<'transform'>,
+    SupportedTokenProperties<'transform-box'>,
+    SupportedTokenProperties<'transform-origin'>,
+    SupportedTokenProperties<'transform-style'>,
+    SupportedTokenProperties<'transition-behavior'>,
+    SupportedTokenProperties<'transition-delay'>,
+    SupportedTokenProperties<'transition-duration'>,
+    SupportedTokenProperties<'transition-property'>,
+    SupportedTokenProperties<'transition-timing-function'>,
+    SupportedTokenProperties<'translate'>,
+    SupportedTokenProperties<'unicode-bidi'>,
+    SupportedTokenProperties<'user-select'>,
+    SupportedTokenProperties<'vertical-align'>,
+    SupportedTokenProperties<'view-timeline-axis'>,
+    SupportedTokenProperties<'view-timeline-inset'>,
+    SupportedTokenProperties<'view-timeline-name'>,
+    SupportedTokenProperties<'view-transition-name'>,
+    SupportedTokenProperties<'visibility'>,
+    SupportedTokenProperties<'white-space'>,
+    SupportedTokenProperties<'white-space-collapse'>,
+    SupportedTokenProperties<'white-space-trim'>,
+    SupportedTokenProperties<'widows'>,
+    SupportedTokenProperties<'width'>,
+    SupportedTokenProperties<'will-change'>,
+    SupportedTokenProperties<'word-break'>,
+    SupportedTokenProperties<'word-spacing'>,
+    SupportedTokenProperties<'word-wrap'>,
+    SupportedTokenProperties<'writing-mode'>,
+    SupportedTokenProperties<'z-index'>,
+    SupportedTokenProperties<'zoom'>,
+    SupportedTokenProperties<'alignment-baseline'>,
+    SupportedTokenProperties<'baseline-shift'>,
+    SupportedTokenProperties<'clip'>,
+    SupportedTokenProperties<'clip-rule'>,
+    SupportedTokenProperties<'color-interpolation'>,
+    SupportedTokenProperties<'color-rendering'>,
+    SupportedTokenProperties<'dominant-baseline'>,
+    SupportedTokenProperties<'fill'>,
+    SupportedTokenProperties<'fill-opacity'>,
+    SupportedTokenProperties<'fill-rule'>,
+    SupportedTokenProperties<'flood-color'>,
+    SupportedTokenProperties<'flood-opacity'>,
+    SupportedTokenProperties<'glyph-orientation-vertical'>,
+    SupportedTokenProperties<'lighting-color'>,
+    SupportedTokenProperties<'marker'>,
+    SupportedTokenProperties<'marker-end'>,
+    SupportedTokenProperties<'marker-mid'>,
+    SupportedTokenProperties<'marker-start'>,
+    SupportedTokenProperties<'shape-rendering'>,
+    SupportedTokenProperties<'stop-color'>,
+    SupportedTokenProperties<'stop-opacity'>,
+    SupportedTokenProperties<'stroke'>,
+    SupportedTokenProperties<'stroke-dasharray'>,
+    SupportedTokenProperties<'stroke-dashoffset'>,
+    SupportedTokenProperties<'stroke-linecap'>,
+    SupportedTokenProperties<'stroke-linejoin'>,
+    SupportedTokenProperties<'stroke-miterlimit'>,
+    SupportedTokenProperties<'stroke-opacity'>,
+    SupportedTokenProperties<'stroke-width'>,
+    SupportedTokenProperties<'text-anchor'>,
+    SupportedTokenProperties<'vector-effect'>,
+    SupportedTokenProperties<'block-overflow'>,
+    SupportedTokenProperties<'block-size'>,
+    SupportedTokenProperties<'border-block'>,
+    SupportedTokenProperties<'border-block-end'>,
+    SupportedTokenProperties<'border-block-start'>,
+    SupportedTokenProperties<'border-block-color'>,
+    SupportedTokenProperties<'border-block-end-color'>,
+    SupportedTokenProperties<'border-block-end-style'>,
+    SupportedTokenProperties<'border-block-end-width'>,
+    SupportedTokenProperties<'border-block-start-color'>,
+    SupportedTokenProperties<'border-block-start-style'>,
+    SupportedTokenProperties<'border-block-start-width'>,
+    SupportedTokenProperties<'border-block-style'>,
+    SupportedTokenProperties<'border-block-width'>,
+    SupportedTokenProperties<'border-inline'>,
+    SupportedTokenProperties<'border-inline-end'>,
+    SupportedTokenProperties<'border-inline-start'>,
+    SupportedTokenProperties<'border-inline-color'>,
+    SupportedTokenProperties<'border-inline-end-color'>,
+    SupportedTokenProperties<'border-inline-end-style'>,
+    SupportedTokenProperties<'border-inline-end-width'>,
+    SupportedTokenProperties<'border-inline-start-color'>,
+    SupportedTokenProperties<'border-inline-start-style'>,
+    SupportedTokenProperties<'border-inline-start-width'>,
+    SupportedTokenProperties<'border-inline-style'>,
+    SupportedTokenProperties<'border-inline-width'>,
+    SupportedTokenProperties<'contain-intrinsic-block-size'>,
+    SupportedTokenProperties<'contain-intrinsic-inline-size'>,
+    SupportedTokenProperties<'inline-size'>,
+    SupportedTokenProperties<'inset-block'>,
+    SupportedTokenProperties<'inset-block-end'>,
+    SupportedTokenProperties<'inset-block-start'>,
+    SupportedTokenProperties<'inset-inline'>,
+    SupportedTokenProperties<'inset-inline-end'>,
+    SupportedTokenProperties<'inset-inline-start'>,
+    SupportedTokenProperties<'margin-block'>,
+    SupportedTokenProperties<'margin-block-end'>,
+    SupportedTokenProperties<'margin-block-start'>,
+    SupportedTokenProperties<'margin-inline'>,
+    SupportedTokenProperties<'margin-inline-end'>,
+    SupportedTokenProperties<'margin-inline-start'>,
+    SupportedTokenProperties<'max-block-size'>,
+    SupportedTokenProperties<'max-inline-size'>,
+    SupportedTokenProperties<'min-block-size'>,
+    SupportedTokenProperties<'min-inline-size'>,
+    SupportedTokenProperties<'overflow-block'>,
+    SupportedTokenProperties<'overflow-inline'>,
+    SupportedTokenProperties<'overscroll-behavior-block'>,
+    SupportedTokenProperties<'overscroll-behavior-inline'>,
+    SupportedTokenProperties<'padding-block'>,
+    SupportedTokenProperties<'padding-block-end'>,
+    SupportedTokenProperties<'padding-block-start'>,
+    SupportedTokenProperties<'padding-inline'>,
+    SupportedTokenProperties<'padding-inline-end'>,
+    SupportedTokenProperties<'padding-inline-start'>,
+    SupportedTokenProperties<'scroll-margin-block'>,
+    SupportedTokenProperties<'scroll-margin-block-end'>,
+    SupportedTokenProperties<'scroll-margin-block-start'>,
+    SupportedTokenProperties<'scroll-margin-inline'>,
+    SupportedTokenProperties<'scroll-margin-inline-end'>,
+    SupportedTokenProperties<'scroll-margin-inline-start'>,
+    SupportedTokenProperties<'scroll-padding-block'>,
+    SupportedTokenProperties<'scroll-padding-block-end'>,
+    SupportedTokenProperties<'scroll-padding-block-start'>,
+    SupportedTokenProperties<'scroll-padding-inline'>,
+    SupportedTokenProperties<'scroll-padding-inline-end'>,
+    SupportedTokenProperties<'scroll-padding-inline-start'> {
+  __tokenami__?: true;
   [customProperty: `---${string}`]: any;
 }
 
-type TokenamiPropertiesPick<P extends keyof Properties> = Pick<Properties, P> extends infer T
+type TokenamiPropertiesPick<P extends keyof SupportedTokenPropertiesMap> = Pick<
+  SupportedTokenPropertiesMap,
+  P
+> extends infer T
   ? T[keyof T]
   : never;
 
-type TokenamiPropertiesOmit<P extends keyof Properties> = Omit<Properties, P> extends infer T
+type TokenamiPropertiesOmit<P extends keyof SupportedTokenPropertiesMap> = Omit<
+  SupportedTokenPropertiesMap,
+  P
+> extends infer T
   ? T[keyof T]
   : never;
 

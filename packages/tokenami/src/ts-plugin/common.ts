@@ -1,15 +1,4 @@
 import * as culori from 'culori';
-import * as TokenamiConfig from '@tokenami/config';
-
-/* -------------------------------------------------------------------------------------------------
- * getSortText
- * -----------------------------------------------------------------------------------------------*/
-
-function getSortText(name: string) {
-  const regex = new RegExp(`['"-]|${TokenamiConfig.tokenProperty('')}`, 'g');
-  name = name.replace(regex, '').replace(/[0-9]+/g, (m) => m.padStart(6, '0'));
-  return `$${name}`;
-}
 
 /* -----------------------------------------------------------------------------------------------
  * isColorThemeEntry
@@ -40,4 +29,4 @@ function replaceCssVarsWithFallback(value: string) {
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export { getSortText, isColorThemeEntry, replaceCssVarsWithFallback };
+export { isColorThemeEntry, replaceCssVarsWithFallback };

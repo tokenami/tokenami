@@ -1,12 +1,4 @@
-import { type TokenValue } from 'tokenami';
-
-export const colors = [
-  'var(--color_iris8)',
-  'var(--color_sky8)',
-  'var(--color_green8)',
-  'var(--color_orange8)',
-  'var(--color_yellow8)',
-] as const satisfies TokenValue<'color'>[];
+export const colors = ['iris', 'sky', 'green', 'orange', 'yellow', 'crimson'] as const;
 
 export const list: {
   id: string;
