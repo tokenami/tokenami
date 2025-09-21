@@ -49,7 +49,7 @@ class TokenamiPlugin {
   #ctx: TokenamiPluginContext;
   #completions: TokenamiCompletions;
   #quotedCompletions: TokenamiCompletions;
-  #completionsForPosition: { [entryName: string]: ts.CompletionEntry } = {};
+  #completionsForPosition: { [entryName: string]: ts.CompletionEntry } | null = null;
 
   constructor(configPath: string, context: TokenamiPluginContext) {
     this.#config = tokenami.getConfigAtPath(configPath);
@@ -182,7 +182,7 @@ class TokenamiPlugin {
       data
     );
 
-    const entry = this.#completionsForPosition[entryName];
+    const entry = this.#completionsForPosition?.[entryName];
     if (!entry) return original;
 
     const selector = (entry as any).details?.selector;
@@ -310,7 +310,7 @@ class TokenamiPlugin {
     return { isTokenamiProperty, value: isTokenamiProperty ? key : value };
   }
 
-  #isTokenamiObjectCache = new Set<string>();
+  #isTokenamiObjectCache = TokenamiConfig.createLRUCache();
   #isTokenamiObject(objLit: ts.ObjectLiteralExpression, fileName: string): boolean {
     const sourceFile = this.#ctx.info.languageService.getProgram()?.getSourceFile(fileName);
     if (!sourceFile) return false;
@@ -320,7 +320,7 @@ class TokenamiPlugin {
     const textBeforeBrace = sourceFile.text.substring(Math.max(0, startPos - 10), startPos);
 
     const cacheKey = `${fileName}:${objLit.pos}:${textBeforeBrace}`;
-    if (this.#isTokenamiObjectCache.has(cacheKey)) return true;
+    if (this.#isTokenamiObjectCache.get(cacheKey)) return true;
 
     const checker = this.#ctx.info.languageService.getProgram()?.getTypeChecker();
     if (!checker) return false;
@@ -335,7 +335,7 @@ class TokenamiPlugin {
       isTokenami = typeString.includes('TokenamiProperties');
     }
 
-    if (isTokenami) this.#isTokenamiObjectCache.add(cacheKey);
+    if (isTokenami) this.#isTokenamiObjectCache.set(cacheKey, true);
     return isTokenami;
   }
 }

@@ -8,5 +8,8 @@
 
   "editor.quickSuggestions": {
     "strings": true
-  }
+  },
+
+  "editor.suggest.filterGraceful": false,
+  "editor.suggest.matchOnWordStartOnly": true
 }

@@ -81,6 +81,6 @@ function createConfig<C extends Config, T extends ThemeConfig, P extends Propert
 /* ---------------------------------------------------------------------------------------------- */
 
 export type { Config };
-export type { Theme, ThemeModes, Aliases };
+export type { Theme, ThemeModes, Aliases, Selector };
 export type { CSSProperties, CSSProperty };
 export { createConfig };

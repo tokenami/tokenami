@@ -164,25 +164,7 @@ function generateCacheId(objs: (object | Override)[]) {
  * lruCache
  * -----------------------------------------------------------------------------------------------*/
 
-const lruCache = {
-  limit: 1_500,
-  cache: new Map(),
-  get(key: string) {
-    const value = this.cache.get(key);
-    if (!value) return;
-    // re-insert as most recently used
-    this.cache.delete(key);
-    this.cache.set(key, value);
-    return value;
-  },
-  set(key: string, value: any) {
-    // ensure inserts are most recent
-    this.cache.delete(key);
-    // remove oldest entry
-    if (this.cache.size === this.limit) this.cache.delete(this.cache.keys().next().value);
-    this.cache.set(key, value);
-  },
-};
+const lruCache = Tokenami.createLRUCache(1_500);
 
 /* -------------------------------------------------------------------------------------------------
  * cn
