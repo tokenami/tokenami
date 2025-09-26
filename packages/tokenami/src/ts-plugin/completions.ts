@@ -40,13 +40,13 @@ class TokenamiCompletions {
   #config: TokenamiConfig.Config;
   #selectorEntries: [string, TokenamiConfig.Selector][];
   #responsiveEntries: [string, string][];
+  #base: CompletionEntries;
+  #selectorSnippets: SelectorCompletionEntries;
+  #responsiveArbitrarySelectorSnippets: SelectorCompletionEntries;
 
   // lazily instantiate and cache these
-  #_base?: CompletionEntries;
   #_values?: ValueCompletionEntries;
-  #_selectorSnippets?: SelectorCompletionEntries;
   #_responsiveSelectorSnippets?: SelectorCompletionEntries;
-  #_responsiveArbitrarySelectorSnippets?: SelectorCompletionEntries;
   #_validProperties: string[];
   #_validTokenValues: (readonly [string, string])[];
 
@@ -57,18 +57,13 @@ class TokenamiCompletions {
     this.#_validTokenValues = tokenami.getValidValues(this.#config);
     this.#selectorEntries = Object.entries(this.#config.selectors || {});
     this.#responsiveEntries = Object.entries(this.#config.responsive || {});
-  }
-
-  get #base() {
-    return (this.#_base ??= this.#getBaseCompletions());
+    this.#base = this.#getBaseCompletions();
+    this.#selectorSnippets = this.#getSelectorSnippetCompletions();
+    this.#responsiveArbitrarySelectorSnippets = this.#getResponsiveArbitrarySelectorSnippets();
   }
 
   get #values() {
     return (this.#_values ??= this.#getValueCompletions());
-  }
-
-  get #selectorSnippets() {
-    return (this.#_selectorSnippets ??= this.#getSelectorSnippetCompletions());
   }
 
   get #responsiveSelectorSnippets() {
@@ -76,15 +71,6 @@ class TokenamiCompletions {
     const selectorConfig = this.#getSelectorConfigEntries();
     const completions = this.#getResponsiveSelectorSnippetCompletions(selectorConfig);
     this.#_responsiveSelectorSnippets = completions;
-    return completions;
-  }
-
-  get #responsiveArbitrarySelectorSnippets() {
-    if (this.#_responsiveArbitrarySelectorSnippets)
-      return this.#_responsiveArbitrarySelectorSnippets;
-    const selectorConfig = [[`{}`, '']] as [string, string][];
-    const completions = this.#getResponsiveSelectorSnippetCompletions(selectorConfig);
-    this.#_responsiveArbitrarySelectorSnippets = completions;
     return completions;
   }
 
@@ -123,6 +109,12 @@ class TokenamiCompletions {
   #arbitrarySelectorRegex = /\{(.*)\}/;
   #getArbitrarySelector(input: string) {
     return input.match(this.#arbitrarySelectorRegex)?.[1];
+  }
+
+  #getResponsiveArbitrarySelectorSnippets() {
+    const selectorConfig = [[`{}`, '']] as [string, string][];
+    const completions = this.#getResponsiveSelectorSnippetCompletions(selectorConfig);
+    return completions;
   }
 
   #selectorsSearch(input: string, alias: string, variants: string[]) {

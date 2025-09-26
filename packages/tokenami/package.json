@@ -57,6 +57,7 @@
     "csstype": "^3.1.2",
     "culori": "^4.0.1",
     "fast-glob": "^3.2.12",
+    "find-up": "^4.0.0",
     "inquirer": "^9.2.12",
     "jiti": "^1.21.0",
     "lightningcss": "1.29.1",
