@@ -5,13 +5,14 @@
   "sideEffects": false,
   "scripts": {
     "dev": "pnpm run \"/dev:/\"",
-    "dev:app": "next dev",
+    "dev:app": "next dev --turbopack",
     "dev:css": "tokenami --output ./src/app/tokenami.css --watch",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "icons:add": "pnpx @sly-cli/sly add remixicon",
-    "icons:build": "icons build -i ./svg-icons -o ./src/components/icons --optimize"
+    "icons:build": "icons build -i ./svg-icons -o ./src/components/icons --optimize",
+    "typecheck": "tokenami check; tsc --noEmit"
   },
   "dependencies": {
     "@base-ui-components/react": "1.0.0-alpha.7",
@@ -19,16 +20,22 @@
     "@sly-cli/sly": "^2.1.1",
     "@tokenami/css": "workspace:*",
     "@tokenami/ds": "workspace:*",
-    "next": "15.2.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "next": "15.5.3",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9",
     "svg-icons-cli": "^0.0.8",
     "tokenami": "workspace:*",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.1.13",
+      "@types/react-dom": "19.1.9"
+    }
   }
 }

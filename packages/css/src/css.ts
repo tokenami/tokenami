@@ -7,19 +7,20 @@ const _TOKENAMI_CSS = Symbol.for('@tokenami/css');
 // types to `CSS.PropertiesHyphen` or `CSS.Properties` which doesn't include `--custom-properties`
 type TokenamiCSS = { [_: symbol]: TokenamiProperties };
 type TokenamiCSSResult = Record<string, any>;
-type VariantsConfig = Record<string, Record<string, TokenamiProperties>>;
-type VariantValue<T> = T extends 'true' | 'false' ? boolean : T;
+type VariantsConfig<T> = { [K in keyof T]: { [V in keyof T[K]]: TokenamiProperties } };
+type VariantNumber<T> = T extends `${infer N extends number}` ? N : T;
+type VariantBoolean<T> = T extends 'true' | 'false' ? boolean : T;
+type VariantValue<T> = VariantNumber<VariantBoolean<T>>;
 type Override = TokenamiProperties | TokenamiCSS | false | undefined;
 type ClassName = string | undefined | null | false;
 type Variants<C> = undefined extends C ? {} : { [V in keyof C]?: VariantValue<keyof C[V]> };
 
-type TokenamiComposeInput<V, R> = TokenamiProperties & {
+type TokenamiComposeInput<T> = TokenamiProperties & {
   includes?: (TokenamiComposeResult<any> | TokenamiCSS)[];
-  variants?: V & VariantsConfig;
+  variants?: VariantsConfig<T>;
 };
-
-type TokenamiComposeResult<V> = (
-  selectedVariants?: Variants<V>
+type TokenamiComposeResult<T> = (
+  selectedVariants?: Variants<T>
 ) => [cn: (...classNames: ClassName[]) => string, style: (...overrides: Override[]) => TokenamiCSS];
 
 const composeStylesMap = new WeakMap<object, Record<string, any>>();
@@ -99,9 +100,7 @@ function createCss(
     return overriddenStyles as any as TokenamiCSS;
   }
 
-  css.compose = <V extends VariantsConfig | undefined, R extends VariantsConfig | undefined>(
-    styleConfig: TokenamiComposeInput<V, R>
-  ): TokenamiComposeResult<V> => {
+  css.compose = <T>(styleConfig: TokenamiComposeInput<T>): TokenamiComposeResult<T> => {
     const { includes = [], variants, ...baseStyles } = styleConfig;
     const className = Tokenami.generateClassName(baseStyles);
 
@@ -126,11 +125,12 @@ function createCss(
       }
 
       for (const [key, variant] of selectedVariantsEntries) {
-        const variantValue = variants?.[key]?.[variant as any];
+        const variantGroup = variants?.[key as keyof typeof variants];
+        const variantValue = variantGroup?.[variant as keyof typeof variantGroup];
         if (variantValue) variantStyles.push(variantValue);
       }
 
-      const result: ReturnType<TokenamiComposeResult<V>> = [
+      const result: ReturnType<TokenamiComposeResult<T>> = [
         cn.bind(null, ...includeClassNames, className),
         (...overrides) => {
           const styles = {};
@@ -164,25 +164,7 @@ function generateCacheId(objs: (object | Override)[]) {
  * lruCache
  * -----------------------------------------------------------------------------------------------*/
 
-const lruCache = {
-  limit: 1_500,
-  cache: new Map(),
-  get(key: string) {
-    const value = this.cache.get(key);
-    if (!value) return;
-    // re-insert as most recently used
-    this.cache.delete(key);
-    this.cache.set(key, value);
-    return value;
-  },
-  set(key: string, value: any) {
-    // ensure inserts are most recent
-    this.cache.delete(key);
-    // remove oldest entry
-    if (this.cache.size === this.limit) this.cache.delete(this.cache.keys().next().value);
-    this.cache.set(key, value);
-  },
-};
+const lruCache = Tokenami.createLRUCache(1_500);
 
 /* -------------------------------------------------------------------------------------------------
  * cn
@@ -221,5 +203,5 @@ function overrideLonghands(style: TokenamiCSSResult, tokenProperty: Tokenami.Tok
 /* ---------------------------------------------------------------------------------------------- */
 
 export const css = createCss({});
-export type { TokenamiCSS };
+export type { TokenamiCSS, TokenamiComposeResult, Variants };
 export { createCss };

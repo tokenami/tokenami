@@ -4,7 +4,7 @@ import * as ButtonGroup from '@/components/button-group';
 export default function Home() {
   return (
     <Frame
-      color="var(--color_iris9)"
+      color="iris"
       style={{
         '--display': 'flex',
         '--flex-direction': 'column',

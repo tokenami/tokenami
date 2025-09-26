@@ -1,4 +1,6 @@
 import ts from 'typescript/lib/tsserverlibrary.js';
+import * as findUp from 'find-up';
+import * as pathe from 'pathe';
 import * as culori from 'culori';
 import * as TokenamiConfig from '@tokenami/config';
 import * as tokenami from '../utils';
@@ -7,7 +9,7 @@ import * as ERROR_CODES from './error-codes';
 import { isColorThemeEntry, replaceCssVarsWithFallback } from './common';
 import { LanguageServiceLogger } from './logger';
 import { TokenamiDiagnostics } from './diagnostics';
-import { TrieCompletions } from './trie';
+import { TokenamiCompletions } from './completions';
 
 type ModeValues = Record<string, string>;
 
@@ -47,22 +49,34 @@ class TokenamiPlugin {
   #diagnostics: TokenamiDiagnostics;
   #config: TokenamiConfig.Config;
   #ctx: TokenamiPluginContext;
-  #completions: TrieCompletions;
-  #quotedCompletions: TrieCompletions;
+  #completions: TokenamiCompletions;
+  #quotedCompletions: TokenamiCompletions;
+  #completionsForPosition: { [entryName: string]: ts.CompletionEntry } | null = null;
+  #isIncompleteCompletions = true;
 
   constructor(configPath: string, context: TokenamiPluginContext) {
+    const projectCwd = context.info.project.getCurrentDirectory();
+    const projectRoot = findProjectRoot(projectCwd);
+    const settingsPath = pathe.join(projectRoot, '.vscode', 'settings.json');
+
     this.#config = tokenami.getConfigAtPath(configPath);
+    this.#diagnostics = new TokenamiDiagnostics(this.#config, context);
+    this.#completions = new TokenamiCompletions(this.#config, context);
+    this.#isIncompleteCompletions = getIsIncompleteCompletionsSetting(context.ts, settingsPath);
     this.#ctx = context;
-    this.#diagnostics = new TokenamiDiagnostics(this.#config, this.#ctx);
-    this.#completions = new TrieCompletions(this.#config);
-    this.#quotedCompletions = new TrieCompletions(this.#config, (name) => `"${name}"`);
-    this.#ctx.logger.log(`Watching config at ${configPath}`);
+
+    this.#quotedCompletions = new TokenamiCompletions(this.#config, {
+      insertFormatter: (name) => `"${name}"`,
+      logger: context.logger,
+    });
+
     this.#watchConfig(configPath);
+    context.logger.log(`Watching config at ${configPath}`);
 
     try {
       updateEnvFile(configPath, this.#config);
     } catch (e) {
-      this.#ctx.logger.error(`Error updating typedefs: ${e}`);
+      context.logger.error(`Error updating typedefs: ${e}`);
     }
   }
 
@@ -74,8 +88,11 @@ class TokenamiPlugin {
         updateEnvFile(configPath, reloadedConfig);
 
         this.#ctx.logger.log(`Config changed at ${configPath}}`);
-        this.#completions = new TrieCompletions(reloadedConfig);
-        this.#quotedCompletions = new TrieCompletions(reloadedConfig, (name) => `"${name}"`);
+        this.#completions = new TokenamiCompletions(reloadedConfig, this.#ctx);
+        this.#quotedCompletions = new TokenamiCompletions(reloadedConfig, {
+          insertFormatter: (name) => `"${name}"`,
+          logger: this.#ctx.logger,
+        });
         this.#diagnostics = new TokenamiDiagnostics(reloadedConfig, this.#ctx);
         this.#ctx.info.project.refreshDiagnostics();
         this.#config = reloadedConfig;
@@ -94,53 +111,68 @@ class TokenamiPlugin {
     return [...this.#diagnostics.getSemanticDiagnostics(sourceFile), ...original];
   }
 
-  getCompletionsAtPosition = (
+  getCompletionsAtPosition(
     fileName: string,
     position: number,
     options?: ts.GetCompletionsAtPositionOptions
-  ) => {
-    const original = this.#ctx.info.languageService.getCompletionsAtPosition(
-      fileName,
-      position,
-      options
-    );
-    const program = this.#ctx.info.languageService.getProgram();
-    const sourceFile = program?.getSourceFile(fileName);
-    if (!original || !sourceFile) return original;
+  ): ReturnType<ts.LanguageService['getCompletionsAtPosition']> {
+    const languageService = this.#ctx.info.languageService;
+    const original = () => languageService.getCompletionsAtPosition(fileName, position, options);
 
-    const isTokenPropertyEntries = original.entries.some(
-      (entry) => TokenamiConfig.TokenProperty.safeParse(entry.name).success
-    );
-    const isTokenValueEntries = original.entries.some(
-      (entry) => TokenamiConfig.TokenValue.safeParse(entry.name).success
-    );
+    const program = languageService.getProgram();
+    const sourceFile = program?.getSourceFile(fileName);
+    if (!sourceFile) return original();
 
     const node = findNodeAtPosition(sourceFile, position);
-    if (!node) return original;
+    if (!node) return original();
 
-    if (isTokenValueEntries) {
-      const input = getValueAtPosition(node, position);
-      const needsQuotes = !input.startsWith('"') && !input.startsWith("'");
-      const trie = needsQuotes ? this.#quotedCompletions : this.#completions;
-      const values = trie.valueSearch(getUnquotedString(input));
+    const input = this.#parseCompletionsInput(node, fileName, position);
+    if (!input) return original();
 
-      original.entries = original.entries.flatMap((entry) => {
-        const result = values.find((result) => {
-          const name = getUnquotedString(result.insertText ?? result.name);
-          return name === getUnquotedString(entry.name);
-        });
-        return result ? [result] : [];
+    if (input.isTokenamiProperty) {
+      const rawInput = removeQuotes(input.value);
+      const hasQuotes = input.value.startsWith('"') || input.value.startsWith("'");
+      const completions = hasQuotes ? this.#completions : this.#quotedCompletions;
+      const results = completions.propertySearch(rawInput);
+      this.#completionsForPosition = results;
+
+      return {
+        entries: Object.values(results),
+        isGlobalCompletion: false,
+        isMemberCompletion: false,
+        isNewIdentifierLocation: false,
+        ...(this.#isIncompleteCompletions && { isIncomplete: true }),
+        optionalReplacementSpan: {
+          start: position - rawInput.length,
+          length: rawInput.length,
+        },
+      };
+    } else {
+      const result = original();
+      const isTokenValue = result?.entries?.some((entry) => {
+        return TokenamiConfig.TokenValue.safeParse(entry.name).success;
       });
-    } else if (isTokenPropertyEntries) {
-      const input = getPropertyAtPosition(node, position);
-      const needsQuotes = !input.startsWith('"') && !input.startsWith("'");
-      const trie = needsQuotes ? this.#quotedCompletions : this.#completions;
-      original.entries = trie.propertySearch(getUnquotedString(input));
-      return { ...original, isIncomplete: true };
-    }
 
-    return original;
-  };
+      if (!isTokenValue) return result;
+
+      const rawInput = removeQuotes(input.value);
+      const hasQuotes = input.value.startsWith('"') || input.value.startsWith("'");
+      const completions = hasQuotes ? this.#completions : this.#quotedCompletions;
+      const results = completions.valueSearch(result?.entries ?? []);
+      this.#completionsForPosition = results;
+
+      return {
+        entries: Object.values(results),
+        isGlobalCompletion: false,
+        isMemberCompletion: false,
+        isNewIdentifierLocation: false,
+        optionalReplacementSpan: {
+          start: position - rawInput.length,
+          length: rawInput.length,
+        },
+      };
+    }
+  }
 
   getCompletionEntryDetails(
     fileName: string,
@@ -161,13 +193,13 @@ class TokenamiPlugin {
       data
     );
 
-    const completions = this.getCompletionsAtPosition(fileName, position);
-    const entry = completions?.entries.find((entry) => entry.name === entryName);
-    const selector = (entry as any).details?.selector;
-    const modeValues: ModeValues = (entry as any).details?.modeValues;
-
+    const entry = this.#completionsForPosition?.[entryName];
     if (!entry) return original;
+
+    const selector = (entry as any).details?.selector;
     if (selector) return createEntryDetails(original, entry, selector);
+
+    const modeValues: ModeValues = (entry as any).details?.modeValues;
     if (!modeValues) return original;
 
     const themeEntries = Object.entries(modeValues);
@@ -188,7 +220,7 @@ class TokenamiPlugin {
     const original = this.#ctx.info.languageService.getQuickInfoAtPosition(fileName, position);
     const sourceFile = this.#ctx.info.languageService.getProgram()?.getSourceFile(fileName);
 
-    if (!original || !sourceFile) return original;
+    if (!original || !sourceFile) return;
     const node = findNodeAtPosition(sourceFile, position);
     if (!node || !node.parent || !ts.isPropertyAssignment(node.parent)) return original;
 
@@ -250,6 +282,72 @@ class TokenamiPlugin {
         changes: [{ fileName, textChanges: [{ span: valueSpan, newText: arbitraryText }] }],
       },
     ];
+  }
+
+  #parseCompletionsInput(
+    node: ts.Node,
+    fileName: string,
+    position: number
+  ): { value: string; isTokenamiProperty: boolean } | null {
+    const objLit = ts.findAncestor(node, ts.isObjectLiteralExpression);
+
+    if (!objLit) {
+      const text = node.getText();
+      return ts.isStringLiteral(node) ? { isTokenamiProperty: false, value: text } : null;
+    }
+
+    const isTokenami = this.#isTokenamiObject(objLit, fileName);
+    if (!isTokenami) return null;
+
+    const assignmentAtPosition = objLit.properties.find((prop) => {
+      const start = prop.getStart();
+      const end = prop.getEnd();
+      return start <= position && position <= end;
+    });
+
+    if (!assignmentAtPosition) return null;
+    const assignmentText = assignmentAtPosition.getText();
+
+    if (!ts.isPropertyAssignment(assignmentAtPosition)) {
+      return { isTokenamiProperty: true, value: assignmentText };
+    }
+
+    const propertyStart = assignmentAtPosition.getStart();
+    const relativePosition = position - propertyStart;
+    const key = assignmentAtPosition.name.getText();
+    const value = assignmentAtPosition.initializer.getText();
+    const isTokenamiProperty = !!(key && relativePosition < key.length);
+
+    return { isTokenamiProperty, value: isTokenamiProperty ? key : value };
+  }
+
+  #isTokenamiObjectCache = TokenamiConfig.createLRUCache();
+  #isTokenamiObject(objLit: ts.ObjectLiteralExpression, fileName: string): boolean {
+    const sourceFile = this.#ctx.info.languageService.getProgram()?.getSourceFile(fileName);
+    if (!sourceFile) return false;
+
+    // get the text before the opening brace (up to 10 characters)
+    const startPos = objLit.getStart(sourceFile);
+    const textBeforeBrace = sourceFile.text.substring(Math.max(0, startPos - 10), startPos);
+
+    const cacheKey = `${fileName}:${objLit.pos}:${textBeforeBrace}`;
+    if (this.#isTokenamiObjectCache.get(cacheKey)) return true;
+
+    const checker = this.#ctx.info.languageService.getProgram()?.getTypeChecker();
+    if (!checker) return false;
+
+    const contextual = checker.getContextualType(objLit);
+    if (!contextual) return false;
+
+    let isTokenami = contextual.getProperties().some((p) => p.name === '__tokenami__');
+
+    if (!isTokenami) {
+      const typeString = checker.typeToString(contextual);
+      isTokenami = typeString.includes('TokenamiProperties');
+    }
+
+    if (isTokenami) this.#isTokenamiObjectCache.set(cacheKey, true);
+    return isTokenami;
   }
 }
 
@@ -323,52 +421,10 @@ const createEntryDetails = (
 });
 
 /* -------------------------------------------------------------------------------------------------
- * getPropertyAtPosition
+ * removeQuotes
  * -----------------------------------------------------------------------------------------------*/
 
-const getPropertyAtPosition = (node: ts.Node, position: number) => {
-  let input = node.getText();
-
-  if (ts.isObjectLiteralExpression(node)) {
-    for (const property of node.properties) {
-      const start = property.getStart();
-      const end = property.getEnd();
-      if (start <= position && position <= end) {
-        input = property.getText();
-      }
-    }
-  }
-
-  return input;
-};
-
-/* -------------------------------------------------------------------------------------------------
- * getValueAtPosition
- * -----------------------------------------------------------------------------------------------*/
-
-function getValueAtPosition(node: ts.Node, position: number) {
-  let input = node.getText();
-
-  if (ts.isObjectLiteralExpression(node)) {
-    for (const property of node.properties) {
-      if (!ts.isPropertyAssignment(property)) continue;
-      const value = property.initializer;
-      const start = value.getStart();
-      const end = value.getEnd();
-      if (start <= position && position <= end) {
-        input = value.getText();
-      }
-    }
-  }
-
-  return input;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getUnquotedString
- * -----------------------------------------------------------------------------------------------*/
-
-function getUnquotedString(name: string) {
+function removeQuotes(name: string) {
   return name.replace(/'|"/g, '');
 }
 
@@ -433,6 +489,49 @@ function convertToRgb(fill: string, mode?: string) {
     return culori.formatRgb(color);
   } catch {
     return fill;
+  }
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getIsIncompleteCompletionsSetting
+ * -----------------------------------------------------------------------------------------------*/
+
+function getIsIncompleteCompletionsSetting(tsserver: typeof ts, settingsPath: string): boolean {
+  if (!tsserver.sys.fileExists(settingsPath)) return true;
+
+  const text = tsserver.sys.readFile(settingsPath, 'utf8');
+  if (!text) return true;
+
+  const parsed = tsserver.parseConfigFileTextToJson(settingsPath, text);
+  const json = parsed.config as Record<string, any> | undefined;
+  if (!json) return true;
+
+  const matchOnWordStartOnly = json['editor.suggest.matchOnWordStartOnly'];
+  const filterGraceful = json['editor.suggest.filterGraceful'];
+
+  return matchOnWordStartOnly !== true && filterGraceful !== false;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * findProjectRoot
+ * -----------------------------------------------------------------------------------------------*/
+
+const workspaceFiles = ['pnpm-workspace.yaml', 'lerna.json', 'nx.json', 'turbo.json'];
+
+function findProjectRoot(cwd: string): string {
+  try {
+    const wsMarker = findUp.sync(workspaceFiles, { cwd });
+    if (wsMarker) return pathe.dirname(wsMarker);
+
+    const gitDir = findUp.sync('.git', { cwd, type: 'directory' as const });
+    if (gitDir) return pathe.dirname(gitDir);
+
+    const pkg = findUp.sync('package.json', { cwd });
+    if (pkg) return pathe.dirname(pkg);
+
+    return cwd;
+  } catch {
+    return cwd;
   }
 }
 
