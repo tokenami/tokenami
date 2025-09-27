@@ -1,3 +1,39 @@
+# v0.0.87 (Sat Sep 27 2025)
+
+### Release Notes
+
+#### improve ts intellisense performance for properties ([#448](https://github.com/tokenami/tokenami/pull/448))
+
+If you are using a VS Code-based editor, add these two settings to your `.vscode/settings.json` for further improvements:
+
+```json
+{
+  "editor.suggest.filterGraceful": false,
+  "editor.suggest.matchOnWordStartOnly": true,
+}
+```
+
+---
+
+#### 🚀 Enhancement
+
+- automatically add colon after quoted completions [#451](https://github.com/tokenami/tokenami/pull/451) ([@jjenzz](https://github.com/jjenzz))
+- add custom root selector support [#452](https://github.com/tokenami/tokenami/pull/452) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- reset toggles for descendant elements to fix prose styling [#453](https://github.com/tokenami/tokenami/pull/453) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏎 Performance
+
+- improve ts intellisense performance for properties [#448](https://github.com/tokenami/tokenami/pull/448) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.86 (Sun Apr 27 2025)
 
 #### 🚀 Enhancement
