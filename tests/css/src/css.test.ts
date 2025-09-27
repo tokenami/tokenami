@@ -1,5 +1,5 @@
 import { describe, beforeEach, it, expect } from 'vitest';
-import { TokenamiCSS, css } from '../css';
+import { TokenamiCSS, css } from '@tokenami/css';
 
 /* -------------------------------------------------------------------------------------------------
  * tests

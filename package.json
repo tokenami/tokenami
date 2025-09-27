@@ -15,6 +15,7 @@
     "clean": "pnpm exec rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules .turbo dist",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:ci": "turbo run test:ci",
     "test:watch": "turbo run test:watch",
     "size:why": "size-limit --why",
     "release": "auto shipit"
