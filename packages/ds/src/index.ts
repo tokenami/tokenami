@@ -9,15 +9,15 @@ const BP_LG = 1024;
 const BP_XL = 1280;
 const BP_2XL = 1536;
 
-const rem = <T extends number>(value: T) => `${value / BASE_FONT_SIZE}rem` as const;
-const remBreakpoint = <T extends number>(bp: T) => `@media (min-width: ${rem(bp)})` as const;
+const rem = <T extends number>(value: T) => `${value / BASE_FONT_SIZE}rem`;
+const remBreakpoint = <T extends number>(bp: T) => `@media (min-width: ${rem(bp)})`;
 
 const font = <S extends string, L extends string>(fontSize: S, lineHeight: L) =>
-  `var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) ${fontSize}/${lineHeight} var(--font-family)` as const;
+  `var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) ${fontSize}/${lineHeight} var(--font-family)`;
 
 const optionalViaGradient = <T extends string>(direction: T) =>
   `linear-gradient(${direction}, var(--gradient-from) var(--gradient-from-stop,/**/), var(---via, var(--gradient-to) var(--gradient-to-stop,/**/)));
-  ---via: var(--gradient-via) var(--gradient-via-stop,/**/), var(--gradient-to)` as const;
+  ---via: var(--gradient-via) var(--gradient-via-stop,/**/), var(--gradient-to)`;
 
 const fluid = <P extends string, MinPx extends number, MaxPx extends number>(params: {
   property: P;
@@ -35,15 +35,15 @@ const fluid = <P extends string, MinPx extends number, MaxPx extends number>(par
     ---${params.property}-max: var(--${params.property}-max) / ${divider};
     ---${params.property}-scope: (var(---${params.property}-max) - var(---${params.property}-min)) / ${breakpointScope};
     ---${params.property}-intercept: calc(var(---${params.property}-min) - (var(---${params.property}-scope) * ${breakpointMin}));
-  ` as const;
+  `;
 };
 
 const colorMixOpacity = <P extends string>(property: P) => {
-  return `color-mix(in var(--color-space, srgb), var(--${property}-color) calc(var(--${property}-percent) * 1%), transparent)` as const;
+  return `color-mix(in var(--color-space, srgb), var(--${property}-color) calc(var(--${property}-percent) * 1%), transparent)`;
 };
 
 const colorMix = <P extends string, C extends string>(property: P, color: C) => {
-  return `color-mix(in var(--color-space, srgb), var(--${property}-color), ${color} calc(var(--${property}-percent) * 1%))` as const;
+  return `color-mix(in var(--color-space, srgb), var(--${property}-color), ${color} calc(var(--${property}-percent) * 1%))`;
 };
 
 export default createConfig({
