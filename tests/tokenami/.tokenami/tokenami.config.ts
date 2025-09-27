@@ -1,36 +1,35 @@
-import designSystemConfig from '@tokenami/example-design-system';
+import designSystem from '@tokenami/example-design-system';
 import { createConfig } from '@tokenami/css';
 
 export default createConfig({
-  ...designSystemConfig,
-  exclude: ['./app/routes/original.tsx', './app/test.tsx'],
+  ...designSystem,
   include: [
-    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
     './node_modules/@tokenami/example-design-system/dist/tokenami.css',
   ],
   properties: {
-    ...designSystemConfig.properties,
+    ...designSystem.properties,
     content: ['pet'],
   },
   selectors: {
-    ...designSystemConfig.selectors,
+    ...designSystem.selectors,
     'child-p': '& > p',
     'prose-p': '& p',
     'prose-card': '& .card',
   },
   theme: {
-    ...designSystemConfig.theme,
+    ...designSystem.theme,
     modes: {
       root: {
-        ...designSystemConfig.theme.modes.root,
+        ...designSystem.theme.modes.root,
         pet: { favourite: '"🐶"' },
       },
       light: {
-        ...designSystemConfig.theme.modes.light,
+        ...designSystem.theme.modes.light,
         pet: { favourite: '"🐶"' },
       },
       dark: {
-        ...designSystemConfig.theme.modes.dark,
+        ...designSystem.theme.modes.dark,
         pet: { favourite: '"🐱"' },
       },
     },

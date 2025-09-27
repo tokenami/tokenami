@@ -15,6 +15,10 @@
     "test:watch": {
       "cache": false
     },
+    "test:ci": {
+      "env": ["CI", "ARGOS_TOKEN"],
+      "cache": false
+    },
     "typecheck": {
       "dependsOn": ["topo"]
     },
