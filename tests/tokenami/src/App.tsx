@@ -1,9 +1,37 @@
+import * as React from 'react';
 import * as DS from '@tokenami/example-design-system';
-import { TokenamiStyle, css } from '~/css';
+import { TokenamiStyle, css } from './css';
 
 export default function Index() {
+  const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
   return (
-    <>
+    <div
+      data-theme={theme}
+      style={css({
+        '--min-height': 'var(--size_screen-h)',
+        '---radial-gradient': 'radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)',
+        '---grid-bg-size': 'calc(var(--_grid) * 5)',
+        '--background-size': 'var(---,var(---grid-bg-size) var(---grid-bg-size))',
+        '--background-image': 'var(---,var(---radial-gradient))',
+        '--background-color': 'var(--color_indigo6)',
+        '--background-position-x': 1,
+        '--background-position-y': 0.5,
+        '--display': 'flex',
+        '--flex-direction': 'column',
+        '--align-items': 'center',
+        '--justify-content': 'center',
+        '--child-p_background-color': 'var(--color_indigo5)',
+        '--child-p_border-radius': 'var(--radii_sm)',
+        '--child-p_px': 2,
+      })}
+    >
+      <DS.Button
+        data-testid="theme-button"
+        onClick={() => setTheme((theme) => (theme === 'light' ? 'dark' : 'light'))}
+      >
+        Switch theme
+      </DS.Button>
+
       <figure
         style={css({
           '--bg': 'var(--color_white)',
@@ -39,9 +67,13 @@ export default function Index() {
             >
               "Like Tailwind, but atomic tokens."
             </p>
-            <div style={css({ '--m': 5 })}>
-              <div style={css({ '--mx': 3 })}>
-                <div style={css({ '--ml': 12 })}>Testing aliases</div>
+            <div style={css({ '--bg': 'var(--color_gray7)', '--color': 'var(--color_white)' })}>
+              <div style={css({ '--m': 5, '--bg': 'var(--color_gray8)' })}>
+                <div style={css({ '--mx': 3, '--bg': 'var(--color_gray10)' })}>
+                  <div style={css({ '--ml': 12, '--bg': 'var(--color_gray11)' })}>
+                    Testing alias margins
+                  </div>
+                </div>
               </div>
             </div>
           </blockquote>
@@ -54,7 +86,6 @@ export default function Index() {
       </figure>
 
       <div style={css({ '--mb': 5, '--p': 5, '--border': 'var(--line_px)' })}>
-        boop
         <div
           style={css({
             '--p': 'inherit',
@@ -62,7 +93,7 @@ export default function Index() {
             '--color': 'var(--color_amber9)',
           })}
         >
-          Testing inherit
+          Should inherit 20px padding from border box parent
         </div>
       </div>
 
@@ -81,6 +112,7 @@ export default function Index() {
       </div>
 
       <button
+        data-testid="hover-button"
         style={css({
           '--border-block-end': 'var(---, 1px solid var(--color_amber12))',
           '--width': 'var(---,180px)',
@@ -102,7 +134,7 @@ export default function Index() {
         Button
       </button>
       <DS.Button style={{ '--border-color': 'var(---, red)' }}>Button</DS.Button>
-    </>
+    </div>
   );
 }
 
