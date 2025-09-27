@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/example-nextjs",
-  "version": "0.0.86",
+  "version": "0.0.87",
   "private": true,
   "sideEffects": false,
   "scripts": {
