@@ -1,0 +1,33 @@
+{
+  "name": "@tokenami/tests-tokenami",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm run \"/dev:/\"",
+    "dev:app": "vite",
+    "dev:css": "tokenami --output ./src/tokenami.css --watch",
+    "build": "pnpm build:css && vite build",
+    "build:css": "tokenami --output ./src/tokenami.css --minify",
+    "test": "percy exec -- playwright test",
+    "preview": "pnpm build && vite preview",
+    "typecheck": "tokenami check; tsc --noEmit"
+  },
+  "dependencies": {
+    "@tokenami/config": "workspace:*",
+    "@tokenami/css": "workspace:*",
+    "@tokenami/example-design-system": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@percy/cli": "^1.31.2",
+    "@percy/playwright": "^1.0.9",
+    "@playwright/test": "^1.55.1",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.0",
+    "tokenami": "workspace:*",
+    "typescript": "^5.1.3",
+    "vite": "^5.1.0"
+  }
+}

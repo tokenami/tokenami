@@ -11,7 +11,9 @@
       "cache": false,
       "persistent": true
     },
-    "test": {},
+    "test": {
+      "env": ["CI", "PERCY_TOKEN"]
+    },
     "test:watch": {
       "cache": false
     },

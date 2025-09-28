@@ -1,6 +1,5 @@
 {
   "name": "@tokenami/example-nextjs",
-  "version": "0.0.87",
   "private": true,
   "sideEffects": false,
   "scripts": {
@@ -31,11 +30,5 @@
     "svg-icons-cli": "^0.0.8",
     "tokenami": "workspace:*",
     "typescript": "^5"
-  },
-  "pnpm": {
-    "overrides": {
-      "@types/react": "19.1.13",
-      "@types/react-dom": "19.1.9"
-    }
   }
 }
