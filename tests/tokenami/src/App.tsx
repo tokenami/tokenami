@@ -41,6 +41,7 @@ export default function Index() {
           '--m': 10,
           '--px': 8,
           '--py': 8,
+          '--display': 'grid',
           '--justify-items': 'center',
           '--md_display': 'flex',
           '--md_p': 0,

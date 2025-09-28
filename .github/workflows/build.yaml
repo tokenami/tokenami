@@ -34,7 +34,7 @@ jobs:
           run: pnpm test
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
-          PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+          PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
           CI: true
 
   size:
