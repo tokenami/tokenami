@@ -12,7 +12,7 @@
       "persistent": true
     },
     "test": {
-      "env": ["CI", "PERCY_TOKEN"]
+      "env": ["CI", "PERCY_TOKEN", "PERCY_BRANCH", "PERCY_PULL_REQUEST"]
     },
     "test:watch": {
       "cache": false
