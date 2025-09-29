@@ -331,20 +331,49 @@ function generatePlaceholderLayers(prefix: string) {
  * -----------------------------------------------------------------------------------------------*/
 
 function generateLayerStyles(styles: Record<string, Set<string>>) {
-  const groupedBySelectors = new Map<string, string[]>();
+  const groupedBySelectors = new Map<string, string>();
 
   for (const [template, selectors] of Object.entries(styles)) {
-    const selectorKey = Array.from(selectors).sort().join(',');
-    const templates = groupedBySelectors.get(selectorKey) || [];
-    templates.push(template);
-    groupedBySelectors.set(selectorKey, templates);
+    // separate pseudo elements from other selectors
+    const { pseudoElements, otherSelectors } = separateSelectors(selectors);
+
+    // group other selectors (comma-separated) and add their styles
+    if (otherSelectors.length > 0) {
+      const groupedSelector = otherSelectors.sort().join(',');
+      const existingStyles = groupedBySelectors.get(groupedSelector) || '';
+      const newStyles = template.replace(SELECTOR_TAG, groupedSelector);
+      groupedBySelectors.set(groupedSelector, existingStyles + ' ' + newStyles);
+    }
+
+    // add pseudo element styles individually (NOT grouped) to avoid breaking
+    // unchainable selectors like ::selection
+    for (const pseudoElement of pseudoElements) {
+      const existingStyles = groupedBySelectors.get(pseudoElement) || '';
+      const newStyles = template.replace(SELECTOR_TAG, pseudoElement);
+      groupedBySelectors.set(pseudoElement, existingStyles + ' ' + newStyles);
+    }
   }
 
-  const layerStyles = Array.from(groupedBySelectors.entries()).map(([selectors, templates]) => {
-    return templates.map((template) => template.replace(SELECTOR_TAG, selectors)).join(' ');
-  });
+  return Array.from(groupedBySelectors.values()).join(' ');
+}
 
-  return layerStyles.join(' ');
+/* -------------------------------------------------------------------------------------------------
+ * separateSelectors
+ * -----------------------------------------------------------------------------------------------*/
+
+function separateSelectors(selectors: Set<string>) {
+  const pseudoElements: string[] = [];
+  const otherSelectors: string[] = [];
+
+  for (const selector of selectors) {
+    if (isPseudoElementSelector(selector)) {
+      pseudoElements.push(selector);
+    } else {
+      otherSelectors.push(selector);
+    }
+  }
+
+  return { pseudoElements, otherSelectors };
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -561,7 +590,7 @@ function hashVariantProperty(variant: string, property: string) {
  * -----------------------------------------------------------------------------------------------*/
 
 function isElementSelector(selector = '') {
-  return isCombinatorSelector(selector) || /::/.test(selector) || selector === '&';
+  return isCombinatorSelector(selector) || isPseudoElementSelector(selector) || selector === '&';
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -570,6 +599,14 @@ function isElementSelector(selector = '') {
 
 function isCombinatorSelector(selector = '') {
   return isChildSelector(selector) || /(.+)\s\&/.test(selector);
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * isPseudoElementSelector
+ * -----------------------------------------------------------------------------------------------*/
+
+function isPseudoElementSelector(selector = '') {
+  return /::/.test(selector);
 }
 
 /* -------------------------------------------------------------------------------------------------
