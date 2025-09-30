@@ -1,3 +1,24 @@
+# v0.0.88 (Tue Sep 30 2025)
+
+#### 🚀 Enhancement
+
+- [ds] remove large unnecessary const strings from dts file [#457](https://github.com/tokenami/tokenami/pull/457) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- avoid relying on lightningcss to isolate unchainable selectors [#459](https://github.com/tokenami/tokenami/pull/459) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- fix percy shots in Safari and Firefox [#458](https://github.com/tokenami/tokenami/pull/458) ([@jjenzz](https://github.com/jjenzz))
+- move remix example to test package with percy visual regression tests [#456](https://github.com/tokenami/tokenami/pull/456) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.87 (Sat Sep 27 2025)
 
 ### Release Notes
