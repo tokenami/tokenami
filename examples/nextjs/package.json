@@ -30,5 +30,6 @@
     "svg-icons-cli": "^0.0.8",
     "tokenami": "workspace:*",
     "typescript": "^5"
-  }
+  },
+  "version": "0.0.88"
 }

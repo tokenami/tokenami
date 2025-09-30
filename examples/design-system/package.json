@@ -48,5 +48,6 @@
   },
   "browserslist": [
     "supports css-cascade-layers"
-  ]
+  ],
+  "version": "0.0.88"
 }
