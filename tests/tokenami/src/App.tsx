@@ -4,6 +4,12 @@ import { TokenamiStyle, css } from './css';
 
 export default function Index() {
   const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
+  const selectionRef = React.useRef<HTMLParagraphElement>(null);
+
+  useTextSelectionParam('percy-select', selectionRef, () => {
+    window.dispatchEvent(new CustomEvent('percy-selection-ready'));
+  });
+
   return (
     <div
       data-theme={theme}
@@ -56,6 +62,8 @@ export default function Index() {
         <div style={css({ '--pt': 4, '--md_p': 8 })}>
           <blockquote style={css({ '--m': 0 })}>
             <p
+              ref={selectionRef}
+              data-testid="selection"
               style={css({
                 '--font-size': 'var(--text-size_lg)',
                 '--line-height': 'var(--leading_7)',
@@ -183,3 +191,36 @@ const quoteImage = css.compose({
     },
   },
 });
+
+const useTextSelectionParam = (
+  param: string,
+  selectionRef: React.RefObject<HTMLParagraphElement | null>,
+  onComplete: () => void
+) => {
+  const handleComplete = React.useRef(onComplete);
+
+  React.useLayoutEffect(() => {
+    handleComplete.current = onComplete;
+  });
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (!params.has(param)) return;
+
+    const p = selectionRef.current;
+    const node = p?.firstChild;
+    if (node && node.nodeType === Node.TEXT_NODE) {
+      const r = document.createRange();
+      const sel = window.getSelection();
+
+      sel?.removeAllRanges();
+      r.setStart(node, 0);
+      r.setEnd(node, Math.min(node.textContent?.length ?? 0, 12));
+      sel?.addRange(r);
+
+      if (sel && sel.rangeCount > 0) {
+        handleComplete.current();
+      }
+    }
+  }, []);
+};
