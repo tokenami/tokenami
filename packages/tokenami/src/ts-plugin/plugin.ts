@@ -343,7 +343,9 @@ class TokenamiPlugin {
 
     if (!isTokenami) {
       const typeString = checker.typeToString(contextual);
-      isTokenami = typeString.includes('TokenamiProperties');
+      const isTokenamiProperties = typeString.includes('TokenamiProperties');
+      const isTokenamiOverride = typeString.includes('TokenamiOverride');
+      isTokenami = isTokenamiProperties || isTokenamiOverride;
     }
 
     if (isTokenami) this.#isTokenamiObjectCache.set(cacheKey, true);
