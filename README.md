@@ -1,9 +1,9 @@
 ![image](https://github.com/user-attachments/assets/73712e13-2af9-46c4-a3df-48590cbb4c8a)
 
 <div align="center">
-  <h3>CSS-in-JS Reinvented for Scalable, Typesafe Design Systems</h3>
+  <h3>CSS-in-JS Reinvented for Portable, Type-Safe Design Systems</h3>
   <p>
-    A modern approach to <a href="https://css-tricks.com/just-in-time-css/">just-in-time</a> atomic CSS using CSS variables—<strong>no bundler required</strong>.
+    A modern approach to <a href="https://css-tricks.com/just-in-time-css/">just-in-time</a> CSS using atomic CSS variables—<strong>no bundler required</strong>.
   </p>
 
   <img src="https://github.com/tokenami/tokenami/assets/175330/8cdfcdf8-05da-4096-8e0b-5645e1b329e5" alt="React support" width="40" />
@@ -19,11 +19,11 @@
 
 ## Contents
 
-- [Why Tokenami?](#user-content-why-tokenami)
 - [Quick start](#user-content-quick-start)
   - [Installation](#user-content-installation)
   - [Basic setup](#user-content-basic-setup)
 - [Core concepts](#user-content-core-concepts)
+  - [Why Tokenami?](#user-content-why-tokenami)
   - [Theming](#user-content-theming)
   - [Grid values](#user-content-grid-values)
   - [Arbitrary selectors](#user-content-arbitrary-selectors)
@@ -49,8 +49,8 @@
   - [CI setup](#user-content-ci-setup)
 - [Troubleshooting](#user-content-troubleshooting)
   - [Why the CSS variable syntax?](#user-content-why-the-css-variable-syntax)
-  - [Improve autocomplete speed and accuracy](#user-content-improve-autocomplete-speed-and-accuracy)
   - [Enable string completions](#user-content-enable-string-completions)
+  - [Improve autocomplete speed and accuracy](#user-content-improve-autocomplete-speed-and-accuracy)
   - [Supported libraries](#user-content-supported-libraries)
   - [Supported browsers](#user-content-supported-browsers)
   - [Supported editors](#user-content-supported-editors)
@@ -59,63 +59,6 @@
   - [Contributing](#user-content-contributing)
   - [Contributors](#user-content-contributors)
   - [Credits](#user-content-credits)
-
-## Why Tokenami?
-
-The React team [no longer recommends](https://github.com/reactwg/react-18/discussions/110) CSS-in-JS solutions that inject styles. Instead, they suggest:
-
-> [...] use [`<link rel="stylesheet">`](https://github.com/reactwg/react-18/discussions/108) for static styles and plain inline styles for dynamic values. E.g. `<div style={{...}}>`
-
-In other words—write CSS like we used to. But what about the benefits CSS-in-JS gave us? Some CSS-in-JS tools extract static styles into `.css` files, but they often need [bundler setup](https://vanilla-extract.style/documentation/integrations/next/) and have [build-time limitations](https://panda-css.com/docs/guides/dynamic-styling).
-
-<details>
-<summary>Read more</summary>
-<br/>
-
-Developers use these tools despite the learning curve because they want:
-
-- Type checking and suggestions for design system tokens
-- Style deduplication
-- Critical path CSS
-- Style scoping
-- Composition without specificity conflicts
-
-Tailwind CSS adopts a different strategy:
-
-- Atomic CSS so styles have a cap on how large they can grow
-- Statically generated styles with a simple CLI script, no bundler integration needed
-- Quick prototyping with inline styles
-- Editor tools suggest classes from your theme
-
-On the flip side:
-
-- Removing values from your theme won't flag redundant references
-- We must memorise Tailwind's custom class names which spawns things like the [Tailwind Cheatsheet](https://tailwindcomponents.com/cheatsheet/)
-- Specificity issues when composing unless we use third-party packages like [tailwind-merge](https://www.npmjs.com/package/tailwind-merge)
-- Styling inline can be unpleasant to maintain, resulting in third-party packages like [cva](https://cva.style/docs)
-- Classes must exist as [complete unbroken strings](https://tailwindcss.com/docs/content-configuration#dynamic-class-names)
-- Debugging in dev tools is tricky because styles are spread across atomic classes
-
-### Introducing Tokenami
-
-Tokenami aims to improve some of these areas by using atomic CSS variables instead of atomic classes, and bringing all necessary tools under one roof. It features:
-
-- Simple naming convention—convert any CSS property to a CSS variable (e.g. `padding` becomes `--padding`)
-- Smaller stylesheet using atomic CSS variables (e.g. one `padding: var(--padding)` rule vs. many `.p-1`, `.p-2` classes)
-- Config file for providing design system constraints
-- Feature-rich intellisense when authoring styles
-- Tiny `css` utility for variant support and composition without specificity conflicts
-- Dynamic style support (e.g. `style={css({ '--color': props.color })}`)
-- Aliasable properties (e.g. `style={css({ '--p': 4 })}` for padding)
-- Custom selector support enabling descendant selectors
-- Improved debugging experience in dev tools (coming soon)
-- Static style generation
-- No bundler integration needed
-</details>
-
-| Tokenami DX                                                                               | HTML output                                                                                |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| ![Input](https://github.com/user-attachments/assets/2a675b7e-5415-4b8c-b801-6735a504bf47) | ![Output](https://github.com/user-attachments/assets/3537d155-22f5-4f98-afff-ee05b092972d) |
 
 ## Quick start
 
@@ -177,10 +120,68 @@ Tokenami is built around a few key ideas:
 - Combine selectors and breakpoints (e.g. `--md_hover_padding`)
 - Use `---` (triple dash) for custom CSS variables
 
+### Why Tokenami?
+
+The React team [no longer recommends](https://github.com/reactwg/react-18/discussions/110) CSS-in-JS solutions that inject styles at runtime. Instead, they suggest:
+
+> [...] use [`<link rel="stylesheet">`](https://github.com/reactwg/react-18/discussions/108) for static styles and plain inline styles for dynamic values. E.g. `<div style={{...}}>`
+
+In other words—write CSS like we used to. But what about the benefits CSS-in-JS gave us?
+
+<details>
+<summary>Read more</summary>
+<br/>
+
+Some CSS-in-JS tools already extract static styles into `.css` files, but they often need [bundler setup](https://vanilla-extract.style/documentation/integrations/next/) and have [build-time limitations](https://panda-css.com/docs/guides/dynamic-styling).
+
+Developers use them for their design systems despite the learning curve, because they want:
+
+- Type-checked tokens with autocomplete
+- Enforced theme constraints to ensure consistency
+- Style deduplication and critical path CSS
+- Scoped, conflict-free styles
+- Composable building blocks
+
+Tailwind CSS offers a different approach:
+
+- Atomic utility classes to limit stylesheet growth
+- Editor extensions that suggest theme values
+- Statically generated styles with a simple CLI, no bundler needed
+- Quick prototyping using inline classes
+
+But when building a design system, Tailwind has drawbacks:
+
+- Removing a token in the theme does not show redundant usage in code
+- Developers must memorise many class names (see [Tailwind Cheatsheet](https://tailwindcomponents.com/cheatsheet/))
+- Style composition can create specificity conflicts (solved with third-party tools like [tailwind-merge](https://www.npmjs.com/package/tailwind-merge))
+- Styling inline is not always ideal, leading to third-party tools like [cva](https://cva.style/docs)
+- Classes must be written as [complete unbroken strings](https://tailwindcss.com/docs/content-configuration#dynamic-class-names) making dynamic styling trickier
+- Debugging is harder because styles are spread across many atomic classes
+
+#### Introducing Tokenami
+
+Tokenami isn't another design system. It's a toolkit for building your own.
+
+By replacing atomic classes with **atomic CSS variables** and providing a unified set of tools, Tokenami makes it simple to create portable, type-safe design systems with tokens at the heart of your CSS.
+
+Benefits include:
+
+- **Simple naming convention** — turn any CSS property into a variable (`padding` → `--padding`)
+- **Smaller stylesheet** — one variable-driven rule instead of dozens of utility classes
+- **Single source of truth** — a config file defines and enforces your design tokens
+- **Smart authoring** — autocomplete + type safety built into your workflow
+- **No specificity wars** — a tiny first-class `css` utility handles safe composition
+- **Dynamic by default** — pass props directly into tokens (`--color: props.color`)
+- **Shorthand tokens** — define aliases like `--p` for padding
+- **Expressive selectors** — custom selectors for nesting and descendant rules
+- **Developer-friendly debugging** — easier inspection in devtools (coming soon)
+- **Zero bundler friction** — static styles with no bundler integration
+</details>
+
 ### Theming
 
 > [!Tip]
-> Want to skip theme setup? Use our [official design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) which comes with dark mode, fluid typography, RTL support, and more. Jump to [using the official system](#user-content-using-the-official-system).
+> Want to skip theme setup? Use our [official design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) which comes with dark mode, fluid typography, RTL support, and more.
 
 Tokenami relies on your theme to provide design system constraints. Create one in `.tokenami/tokenami.config`:
 
@@ -268,6 +269,7 @@ Use arbitrary selectors to prototype quickly:
     '--{&:hover}_color': 'var(--color_primary)',
     '--{&:has(:focus)}_border-color': 'var(--color_highlight)',
     '--{&[data-state=open]}_border-color': 'var(--color_primary)',
+    // use underscore for spaces in your selector
     '--{&_p}_color': 'var(--color_primary)',
   })}
 />
@@ -343,19 +345,18 @@ Here's a basic example:
 const button = css.compose({
   '--background': 'var(--color_primary)',
   '--hover_background': 'var(--color_primary-dark)',
-
-  variants: {
-    size: {
-      small: { '--padding': 2 },
-      large: { '--padding': 6 },
-    },
-  },
 });
 
-function Button({ size = 'small', ...props }) {
-  const [cn, css] = button({ size });
+function Button(props) {
+  const [cn, css] = button();
   return <button {...props} className={cn(props.className)} style={css(props.style)} />;
 }
+```
+
+Output:
+
+```html
+<button class="tk-abc">click me</button>
 ```
 
 #### Variants
@@ -398,7 +399,7 @@ Variants are treated like overrides, so appear inline:
 
 #### Extending styles
 
-Use `includes` to combine styles from multiple components or `css` utilities. Conflicting styles (e.g. `--background`) are moved inline to ensure correct overrides:
+Use `includes` to combine styles from multiple components or `css` utilities.
 
 ```tsx
 // Reusable focus styles (will appear inline)
@@ -407,7 +408,7 @@ const focusable = css({
   '--outline-offset': 'var(--outline-offset_sm)',
 });
 
-// Base button styles (will be extracted into stylesheet)
+// Base button styles (composed so will be extracted into stylesheet)
 const button = css.compose({
   '--background': 'var(--color_primary)',
   '--color': 'var(--color_white)',
@@ -421,7 +422,7 @@ const tomatoButton = css.compose({
 });
 ```
 
-Output:
+Conflicting styles (e.g. `--background`) are moved inline to override:
 
 ```html
 <button
@@ -434,7 +435,7 @@ Output:
 
 ## Design systems
 
-Design systems help teams build consistent interfaces. Tokenami eases the friction of creating and consuming design systems, whether you're building your own or using our official one.
+Tokenami eases the friction of creating portable design systems, whether you're building your own or using our official one.
 
 ### Using the official system
 
@@ -450,7 +451,7 @@ Follow [the `@tokenami/ds` docs](https://github.com/tokenami/tokenami/blob/main/
 
 ### Building your own system
 
-Want to create your own portable design system? Create a shared Tokenami config and stylesheet package that projects can consume:
+Create a shared Tokenami config + stylesheet package, and publish it for projects to consume. If consumer is using Tokenami also, they should include your design system in their config:
 
 ```tsx
 import designSystemConfig from '@acme/design-system';
@@ -461,6 +462,8 @@ export default createConfig({
   include: ['./app/**/*.{ts,tsx}', 'node_modules/@acme/design-system/tokenami.css'],
 });
 ```
+
+Projects that consume a Tokenami design system do not need to be using Tokenami themselves though. If they're not using Tokenami, they can reference their stylesheet _after_ the design system stylesheet and their styles will override accordingly.
 
 ### Global styles
 
@@ -541,7 +544,7 @@ Tokenami has some advanced features that can help you build more powerful design
 
 ### Custom selectors
 
-Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/tokenami/stubs/tokenami.config.ts#L28) are built in, but you can add your own. Use the ampersand (`&`) to mark where the current element's selector should be injected:
+Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/tokenami/stubs/tokenami.config.ts#L28) are included, but you can configure your own. Use the ampersand (`&`) to mark where the current element's selector should be injected:
 
 ```ts
 export default createConfig({
@@ -686,7 +689,7 @@ interface ButtonProps extends ButtonElementProps, Variants<typeof button> {}
 
 #### TokenamiStyle
 
-For components using the `css` utility, use `TokenamiStyle` to type its style prop:
+Components styled with the `css` utility can use `TokenamiStyle` to type their style prop if you want it to accept Tokenami properties.
 
 ```tsx
 import { type TokenamiStyle, css } from '@tokenami/css';
@@ -698,7 +701,7 @@ function Button(props: ButtonProps) {
 }
 ```
 
-Now you can pass Tokenami properties directly with proper type checking:
+Now you can pass Tokenami properties with type checking:
 
 ```tsx
 <Button style={{ '--padding': 4 }} />
@@ -736,7 +739,7 @@ type Radii = TokenValue<'radii'>; // var(--radii_rounded) | var(--radii_circle)
 
 ### CI setup
 
-Tokenami uses widened types during development for better performance. When you run `tsc` in the command line, it uses these widened types and won't show custom Tokenami errors.
+Tokenami uses widened types during development for better performance. When you run `tsc` in the command line, it uses these widened types and won't show Tokenami type errors.
 
 For accurate type checking in CI, run both commands:
 
@@ -757,20 +760,6 @@ CSS variables also have lower specificity than direct CSS properties in the `sty
 > [!Tip]
 > Don't worry about typing extra dashes! Just type `bord` and Tokenami's intellisense will help autocomplete it in the right format.
 
-### Improve autocomplete speed and accuracy
-
-Some editors that Tokenami integrates with (such as VS Code and Cursor) support VS Code–style configuration settings. If you feel Tokenami's completions are slow or match on irrelevant suggestions, you can refine IntelliSense behaviour by adding the following settings to your workspace `.vscode/settings.json`:
-
-```json
-{
-  "editor.suggest.filterGraceful": false,
-  "editor.suggest.matchOnWordStartOnly": true
-}
-```
-
-- **"editor.suggest.filterGraceful": false**: Filters out loosely related suggestions so only closer matches are shown.
-- **"editor.suggest.matchOnWordStartOnly": true**: Prioritises suggestions that begin with your typed characters, reducing noise from matches inside words.
-
 ### Enable string completions
 
 VS Code won't suggest completions for partial strings by default. This prevents Tokenami from updating its suggestions. To fix, add the following to `.vscode/settings.json`:
@@ -786,6 +775,20 @@ VS Code won't suggest completions for partial strings by default. This prevents 
 | BEFORE                                                                                                               | AFTER                                                                                                                |
 | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | ![CleanShot 2024-09-08 at 14 10 10](https://github.com/user-attachments/assets/9b99edb4-dec0-402e-99c9-671525332ccf) | ![CleanShot 2024-09-08 at 14 09 43](https://github.com/user-attachments/assets/ad2ed719-c2ca-4929-902d-5fdf5142468b) |
+
+### Improve autocomplete speed and accuracy
+
+Some editors that Tokenami integrates with (such as VS Code and Cursor) support VS Code–style configuration settings. If you feel Tokenami's completions are slow or match on irrelevant suggestions, you can refine IntelliSense behaviour by adding the following settings to your workspace `.vscode/settings.json`:
+
+```json
+{
+  "editor.suggest.filterGraceful": false,
+  "editor.suggest.matchOnWordStartOnly": true
+}
+```
+
+- **"editor.suggest.filterGraceful": false**: Filters out loosely related suggestions so closer matches are shown.
+- **"editor.suggest.matchOnWordStartOnly": true**: Redcues noise by prioritising suggestions that begin with your typed characters.
 
 ### Supported libraries
 
