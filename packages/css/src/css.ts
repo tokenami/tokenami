@@ -7,7 +7,7 @@ const _TOKENAMI_CSS = Symbol.for('@tokenami/css');
 // types to `CSS.PropertiesHyphen` or `CSS.Properties` which doesn't include `--custom-properties`
 type TokenamiCSS = { [_: symbol]: TokenamiProperties };
 type TokenamiCSSResult = Record<string, any>;
-type TokenamiOverride = TokenamiProperties | TokenamiCSS | false | undefined;
+type TokenamiOverride = TokenamiProperties | TokenamiCSS | false | undefined | Record<string, any>;
 type VariantsConfig<T> = { [K in keyof T]: { [V in keyof T[K]]: TokenamiProperties } };
 type VariantNumber<T> = T extends `${infer N extends number}` ? N : T;
 type VariantBoolean<T> = T extends 'true' | 'false' ? boolean : T;

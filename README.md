@@ -698,7 +698,7 @@ function Button(props: ButtonProps) {
 }
 ```
 
-Now you can pass Tokenami properties directly with proper type checking:
+Now you can pass Tokenami properties directly to the `style` prop with type checking:
 
 ```tsx
 <Button style={{ '--padding': 4 }} />
