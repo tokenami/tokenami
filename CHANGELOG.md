@@ -1,3 +1,19 @@
+# v0.0.89 (Fri Oct 03 2025)
+
+#### 🐛 Bug Fix
+
+- fix autocompletions for overrides [#460](https://github.com/tokenami/tokenami/pull/460) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- general docs improvements [#462](https://github.com/tokenami/tokenami/pull/462) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.88 (Tue Sep 30 2025)
 
 #### 🚀 Enhancement
