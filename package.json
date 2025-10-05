@@ -42,9 +42,6 @@
       "@types/react-dom": "19.1.9"
     }
   },
-  "browserslist": [
-    "supports css-cascade-layers"
-  ],
   "prettier": {
     "singleQuote": true,
     "printWidth": 100

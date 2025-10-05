@@ -346,7 +346,7 @@ function generateLayerStyles(styles: Record<string, Set<string>>) {
     }
 
     // add pseudo element styles individually (NOT grouped) to avoid breaking
-    // unchainable selectors like ::selection
+    // ungroupable selectors like ::selection
     for (const pseudoElement of pseudoElements) {
       const existingStyles = groupedBySelectors.get(pseudoElement) || '';
       const newStyles = template.replace(SELECTOR_TAG, pseudoElement);
@@ -526,8 +526,8 @@ const getElementThemeStyles = (
   selector: string,
   themeValues: Record<string, string>
 ) => {
-  const splitChained = selector.split(',');
-  const themeStyles = splitChained.map((selector) => {
+  const splitGroups = selector.split(',');
+  const themeStyles = splitGroups.map((selector) => {
     const elemSelector = [styleSelector].flat().map((s) => `${selector} ${s}`);
     return `${selector}, ${elemSelector} { ${stringify(themeValues)} }`;
   });

@@ -1,5 +1,6 @@
 {
   "name": "@tokenami/example-nextjs",
+  "version": "0.0.89",
   "private": true,
   "sideEffects": false,
   "scripts": {
@@ -31,5 +32,7 @@
     "tokenami": "workspace:*",
     "typescript": "^5"
   },
-  "version": "0.0.89"
+  "browserslist": [
+    "supports css-cascade-layers and supports css-has"
+  ]
 }
