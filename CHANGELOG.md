@@ -1,3 +1,19 @@
+# v0.0.90 (Mon Oct 06 2025)
+
+#### 🚀 Enhancement
+
+- add custom property support to pseudo elements [#464](https://github.com/tokenami/tokenami/pull/464) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- upgrade browserslist dependency [#463](https://github.com/tokenami/tokenami/pull/463) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.89 (Fri Oct 03 2025)
 
 #### 🐛 Bug Fix
