@@ -38,6 +38,25 @@ export default function Index() {
         Switch theme
       </DS.Button>
 
+      <div
+        style={css({
+          '--position': 'relative',
+          '--z-index': 0,
+          '--padding': 5,
+          '--m': 2,
+          '--color': 'var(--color_white)',
+          '--before_content': 'var(---, "")',
+          '--before_inset': 0,
+          '--before_z-index': -1,
+          '--before_position': 'absolute',
+          '--before_background': 'var(--gradient_to-b)',
+          '--before_gradient-from': 'var(--color_green9)',
+          '--before_gradient-to': 'var(--color_red9)',
+        })}
+      >
+        should have gradient bg on pseudo element
+      </div>
+
       <figure
         style={css({
           '--bg': 'var(--color_white)',

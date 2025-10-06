@@ -3,9 +3,6 @@ test-results/
 playwright-report/
 playwright/.cache/
 
-# Generated CSS (will be regenerated)
-src/tokenami.css
-
 # Node modules
 node_modules/
 
