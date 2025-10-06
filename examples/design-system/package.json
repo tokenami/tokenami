@@ -1,5 +1,6 @@
 {
   "name": "@tokenami/example-design-system",
+  "version": "0.0.89",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -47,7 +48,6 @@
     }
   },
   "browserslist": [
-    "supports css-cascade-layers"
-  ],
-  "version": "0.0.89"
+    "supports css-cascade-layers and supports css-has"
+  ]
 }
