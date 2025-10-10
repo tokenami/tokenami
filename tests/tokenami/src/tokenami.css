@@ -35,7 +35,6 @@
   }
 
   abbr:where([title]) {
-    -webkit-text-decoration: underline dotted;
     text-decoration: underline dotted;
   }
 
@@ -46,7 +45,6 @@
 
   a {
     color: inherit;
-    -webkit-text-decoration: inherit;
     text-decoration: inherit;
   }
 
@@ -319,38 +317,38 @@
 
   * {
     --background-color: initial;
+    --hover_background-color: initial;
     --hover: initial;
     --_1gqxh9p: initial;
-    --hover_background-color: initial;
     --child-p: initial;
     --_163r6xx: initial;
+    --selection_background-color: initial;
     --selection: initial;
     --_9t0pqg: initial;
-    --selection_background-color: initial;
     --prose-p: initial;
     --_nf2ooy: initial;
     --prose-card: initial;
     --_134znwc: initial;
+    --\{\&\;focus\;hover\}_background-color: initial;
     --\{\&\;focus\;hover\}: initial;
     --_aoiy32: initial;
-    --\{\&\;focus\;hover\}_background-color: initial;
     --border-block-end: initial;
     --border-block-color: initial;
     --border-inline-color: initial;
     --border-radius: initial;
+    --md_border-radius: initial;
     --md: initial;
     --_1u7yt41: initial;
-    --md_border-radius: initial;
     --_d4svsr: initial;
     --inline-size: initial;
-    --_1imu60m: initial;
     --md_inline-size: initial;
+    --_1imu60m: initial;
     --block-size: initial;
-    --_qqcymk: initial;
     --md_block-size: initial;
+    --_qqcymk: initial;
     --transition: initial;
-    --_xgpg9b: initial;
     --hover_animation: initial;
+    --_xgpg9b: initial;
     --_xksefa: initial;
     --_ez0gpl: initial;
     --min-height: initial;
@@ -359,40 +357,40 @@
     --background-position-x: initial;
     --background-position-y: initial;
     --display: initial;
-    --_1loixh8: initial;
     --md_display: initial;
+    --_1loixh8: initial;
     --flex-direction: initial;
     --align-items: initial;
     --justify-content: initial;
     --padding-inline: initial;
     --_1wrhsdd: initial;
     --position: initial;
+    --before_position: initial;
     --before: initial;
     --_nej54n: initial;
-    --before_position: initial;
     --z-index: initial;
-    --_1f713oa: initial;
     --before_z-index: initial;
+    --_1f713oa: initial;
     --padding: initial;
-    --_1432d1p: initial;
     --md_padding: initial;
+    --_1432d1p: initial;
     --margin: initial;
-    --_16uwti7: initial;
     --before_content: initial;
+    --_16uwti7: initial;
+    --after_content: initial;
     --after: initial;
     --_d9agn9: initial;
-    --after_content: initial;
+    --md_after_content: initial;
     --md_after: initial;
     --_1swegf4: initial;
-    --md_after_content: initial;
-    --_1vokwbf: initial;
     --before_inset: initial;
-    --_rt68g4: initial;
+    --_1vokwbf: initial;
     --before_background: initial;
-    --_blthfh: initial;
+    --_rt68g4: initial;
     --before_gradient-from: initial;
-    --_jkmljo: initial;
+    --_blthfh: initial;
     --before_gradient-to: initial;
+    --_jkmljo: initial;
     --_18hd4n5: initial;
     --overflow: initial;
     --padding-block: initial;
@@ -438,7 +436,7 @@
     --\{\&\;focus\;hover\}: ;
   }
 
-  @media (min-width: 48rem) {
+  @media (width >= 48rem) {
     [style] {
       --md: ;
       --md_after: ;
@@ -450,7 +448,7 @@
     --after: ;
   }
 
-  @media (min-width: 96rem) {
+  @media (width >= 96rem) {
     [style] {
       --xxl: ;
     }
@@ -571,27 +569,6 @@
 }
 
 @layer tks1 {
-  .tk-1ddz3jq, [style] {
-    animation: var(--_xgpg9b, revert-layer);
-    --_xgpg9b: var(--hover) var(--hover_animation);
-  }
-
-  [style] > p {
-    --_d4svsr: var(--child-p) var(--child-p_border-radius);
-  }
-
-  [style*="selection_"]::selection {
-    color: var(--_xksefa, revert-layer);
-  }
-
-  [style*="selection_"] {
-    --_xksefa: var(--selection) var(--selection_color);
-  }
-
-  [style], [style] > p {
-    border-radius: var(--_d4svsr, var(--_1u7yt41, revert-layer));
-  }
-
   [style] {
     --_1u7yt41: var(--md) var(--md_border-radius);
     color: var(--_ez0gpl, revert-layer);
@@ -617,6 +594,27 @@
     --_18hd4n5: var(--md) var(--md_text-align);
   }
 
+  .tk-1ddz3jq, [style] {
+    animation: var(--_xgpg9b, revert-layer);
+    --_xgpg9b: var(--hover) var(--hover_animation);
+  }
+
+  [style] > p {
+    --_d4svsr: var(--child-p) var(--child-p_border-radius);
+  }
+
+  [style*="selection_"]::selection {
+    color: var(--_xksefa, revert-layer);
+  }
+
+  [style*="selection_"] {
+    --_xksefa: var(--selection) var(--selection_color);
+  }
+
+  [style], [style] > p {
+    border-radius: var(--_d4svsr, var(--_1u7yt41, revert-layer));
+  }
+
   [style]:before {
     position: var(--_nej54n, revert-layer);
     z-index: var(--_1f713oa, revert-layer);
@@ -631,13 +629,18 @@
 }
 
 @layer tks2 {
-  .tk-1ddz3jq, [style], [style] .card, [style] > p, [style] p {
-    background-color: var(--_aoiy32, var(--_134znwc, var(--_nf2ooy, var(--_163r6xx, var(--_1gqxh9p, revert-layer)))));
+  [style] {
+    font-size: var(--_axuivf, revert-layer);
+    --_axuivf: var(--xxl) var(--xxl_font-size);
   }
 
   .tk-1ddz3jq, [style] {
     --_1gqxh9p: var(--hover) var(--hover_background-color);
     --_aoiy32: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
+  }
+
+  .tk-1ddz3jq, [style], [style] .card, [style] > p, [style] p {
+    background-color: var(--_aoiy32, var(--_134znwc, var(--_nf2ooy, var(--_163r6xx, var(--_1gqxh9p, revert-layer)))));
   }
 
   [style] > p {
@@ -658,11 +661,6 @@
 
   [style] .card {
     --_134znwc: var(--prose-card) var(--prose-card_background-color);
-  }
-
-  [style] {
-    font-size: var(--_axuivf, revert-layer);
-    --_axuivf: var(--xxl) var(--xxl_font-size);
   }
 }
 
