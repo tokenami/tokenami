@@ -300,7 +300,7 @@ importers:
         version: 18.3.1(react@18.3.1)
     devDependencies:
       '@percy/cli':
-        specifier: ^1.31.2
+        specifier: 1.31.2
         version: 1.31.2(typescript@5.4.5)
       '@percy/playwright':
         specifier: ^1.0.9
