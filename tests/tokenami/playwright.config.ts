@@ -1,31 +1,21 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const isCI = process.env.CI === 'true';
-
 export default defineConfig({
   testDir: './src',
-  reporter: [['html', { open: 'never' }]],
+  reporter: 'dot',
   use: {
-    baseURL: isCI ? 'http://localhost:4173' : 'http://localhost:5173',
-    screenshot: 'only-on-failure',
+    baseURL: 'http://localhost:4173',
     trace: 'retain-on-failure',
   },
   projects: [
-    { name: 'chrome', use: { ...devices['Desktop Chrome'], headless: false } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'], headless: false } },
-    { name: 'safari', use: { ...devices['Desktop Safari'], headless: false } },
+    { name: 'chrome', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'safari', use: { ...devices['Desktop Safari'] } },
   ],
-  webServer: isCI
-    ? {
-        command: 'pnpm preview --port 4173',
-        url: 'http://localhost:4173',
-        reuseExistingServer: false,
-        timeout: 60_000,
-      }
-    : {
-        command: 'pnpm dev',
-        url: 'http://localhost:5173',
-        reuseExistingServer: true,
-        timeout: 60_000,
-      },
+  webServer: {
+    command: 'pnpm preview --port 4173',
+    url: 'http://localhost:4173',
+    reuseExistingServer: false,
+    timeout: 60_000,
+  },
 });

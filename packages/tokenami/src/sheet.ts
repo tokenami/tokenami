@@ -9,7 +9,6 @@ import * as log from './log';
 const UNUSED_LAYERS_REGEX = /[\n\s]*@layer[^;{]+;/g;
 const DEFAULT_SELECTOR = '[style]';
 const CUSTOM_PROP_PREFIX = '--_';
-const SELECTOR_TAG = '<selector>';
 
 const LAYERS = {
   BASE: 'tk',
@@ -67,128 +66,332 @@ function createSheet(params: {
 }): string {
   if (!params.tokens.properties.length) return '';
 
-  const tokenProperties = params.tokens.properties;
-  const tokenValues = params.tokens.values;
+  const sheet = new Sheet(params.tokens.values, params.config);
   const composeBlocks = parseComposeBlocks(params.tokens.composeBlocks, params.config);
-  const propertyConfigsByCSSProperty = getPropertyConfigs(tokenProperties, params.config);
-  let themeTokenSelectors: string[] = [];
+  const propertyConfigsByCSSProperty = getPropertyConfigs(params.tokens.properties, params.config);
 
-  const styles = {
-    reset: new Set<string>(),
-    atomic: {} as Record<string, Set<string>>,
-    selectors: {} as Record<string, Set<string>>,
-    components: {} as Record<string, Set<string>>,
-    toggles: {} as Record<string, Set<string>>,
-  };
-
-  for (const [cssProperty, configs] of propertyConfigsByCSSProperty) {
+  for (const [cssProperty, propertyConfigs] of propertyConfigsByCSSProperty) {
     const isInheritable = Supports.inheritedProperties.has(cssProperty);
-    const elementConfigs = configs.filter((c) => {
-      const selectorConfig = getPropertyConfigSelector(c.selector, params.config);
+    const elementConfigs = propertyConfigs.filter((c) => {
+      const selectorConfig = getSelectorFromConfig(c.selector, params.config);
       return !selectorConfig.some(isPseudoElementSelector);
     });
 
-    for (const prop of configs) {
-      const toggleKey = prop.responsive || prop.selector;
-      const propertyPrefix = prop.isCustom ? CUSTOM_PROP_PREFIX : '';
-      const gridToggle = prop.isGrid ? getGridPropertyToggle(prop.tokenProperty) : '';
-      const selectors = getPropertySelectors(composeBlocks, prop, params.config);
+    for (const prop of propertyConfigs) {
+      const baseProperty = prop.isCustom ? CUSTOM_PROP_PREFIX + cssProperty : cssProperty;
+      const gridProperty = hashVariantProperty('grid', prop.tokenProperty);
+      const gridToggleValue = createGridToggleValue(prop.tokenProperty);
+      const selectorConfig = getSelectorFromConfig(prop.selector, params.config);
+      const parsedSelectors = getPropertySelectors(composeBlocks, prop, selectorConfig);
+      const configs = selectorConfig.some(isPseudoElementSelector)
+        ? propertyConfigs.filter((c) => c.selector === prop.selector)
+        : elementConfigs;
 
-      themeTokenSelectors.push(...selectors.base.map(removePseudoElementSelector));
+      sheet.addThemeTokenSelectors(parsedSelectors.base);
 
-      if (prop.variant && toggleKey) {
-        const responsive = getResponsiveSelectorFromConfig(prop.responsive, params.config);
-        const selectorConfig = getPropertyConfigSelector(prop.selector, params.config);
-        const hasChildSelector = selectorConfig.some(isChildSelector);
+      if (!isInheritable && !selectorConfig.some(isChildSelector)) {
+        sheet.addReset(prop.tokenProperty);
+      }
 
-        const propertyConfigs = selectorConfig.some(isPseudoElementSelector)
-          ? configs.filter((c) => c.selector === prop.selector)
-          : elementConfigs;
-
-        const declarationValue = createVariantValue(cssProperty, prop, propertyConfigs);
+      if (prop.variant) {
+        const responsiveConfig = getResponsiveSelectorFromConfig(prop.responsive, params.config);
         const hashedProperty = hashVariantProperty(prop.variant, cssProperty);
-        const basePropertyValue = getBasePropertyValue(prop.tokenProperty, prop, false);
         const toggleProperty = Tokenami.parsedTokenProperty(prop.variant);
-        const declaration = `${propertyPrefix}${cssProperty}: ${declarationValue};`;
-        const toggleDeclaration = `${hashedProperty}: var(${toggleProperty}) ${basePropertyValue};`;
-        const toggleTemplate = `@layer ${prop.layer} {${SELECTOR_TAG} { ${toggleDeclaration} }}`;
-        const gridToggleTemplate = `@layer ${prop.layer} {${SELECTOR_TAG} { ${gridToggle} }}`;
-        const template = `@layer ${prop.layer} {${SELECTOR_TAG} { ${declaration} }}`;
+        const variantValue = createVariantValue(cssProperty, prop, configs);
+        const variantToggleValue = prop.isGrid
+          ? createGridVariantToggleValue(toggleProperty, prop.tokenProperty)
+          : createVariantToggleValue(toggleProperty, prop.tokenProperty);
 
-        styles.reset.add(`${toggleProperty}: initial;`);
-        styles.reset.add(`${hashedProperty}: initial;`);
-        if (!isInheritable && !hasChildSelector) {
-          styles.reset.add(`${prop.tokenProperty}: initial;`);
+        sheet.addReset(toggleProperty);
+        sheet.addReset(hashedProperty);
+
+        for (const selector of parsedSelectors.all) {
+          sheet.addToggleFlagDeclaration(responsiveConfig, selector, toggleProperty);
         }
 
-        styles.selectors[template] ??= new Set<string>();
-        styles.selectors[toggleTemplate] ??= new Set<string>();
-        styles.selectors[gridToggleTemplate] ??= new Set<string>();
-
-        for (const selector of selectors.base) {
+        for (const selector of parsedSelectors.base) {
           const elemSelector = removePseudoElementSelector(selector);
-          styles.selectors[template]!.add(prop.isCustom ? elemSelector : selector);
-          styles.selectors[toggleTemplate]!.add(elemSelector);
-          styles.selectors[gridToggleTemplate]!.add(elemSelector);
-        }
-
-        for (const selector of selectors.all) {
-          const toggle = createToggleDeclaration(responsive, selector, toggleProperty);
-          styles.toggles[toggleKey] ??= new Set<string>();
-          styles.toggles[toggleKey]!.add(toggle);
+          const baseSelector = prop.isCustom ? elemSelector : selector;
+          sheet.addDeclaration(prop.layer, baseSelector, baseProperty, variantValue);
+          sheet.addDeclaration(prop.layer, elemSelector, hashedProperty, variantToggleValue);
+          if (prop.isGrid) {
+            sheet.addDeclaration(prop.layer, elemSelector, gridProperty, gridToggleValue);
+          }
         }
       } else {
-        const propertyValue = getBasePropertyValue(prop.tokenProperty, prop);
-        const declaration = `${propertyPrefix}${cssProperty}: ${propertyValue};`;
-        const template = `@layer ${prop.layer} {${SELECTOR_TAG} { ${declaration} ${gridToggle} }}`;
+        const propertyValue = prop.isGrid
+          ? createGridPropertyValue(prop.tokenProperty, 'revert-layer')
+          : createBasePropertyValue(prop.tokenProperty, 'revert-layer');
 
-        if (!isInheritable) styles.reset.add(`${prop.tokenProperty}: initial;`);
-        styles.atomic[template] ??= new Set<string>();
-
-        for (const selector of selectors.base) {
-          styles.atomic[template]!.add(selector);
+        for (const selector of parsedSelectors.base) {
+          sheet.addDeclaration(prop.layer, selector, baseProperty, propertyValue);
+          if (prop.isGrid) {
+            sheet.addDeclaration(prop.layer, selector, gridProperty, gridToggleValue);
+          }
         }
       }
     }
   }
 
-  for (const [selector, tokenamiProperties] of Object.entries(composeBlocks)) {
-    for (let [key, value] of Object.entries(tokenamiProperties)) {
-      const atomicPair = `${key}: ${value};`;
-      styles.components[atomicPair] ??= new Set<string>();
-      styles.components[atomicPair]!.add(selector);
+  const composeEntries = Object.entries(composeBlocks);
+  for (const [selector, tokenamiProperties] of composeEntries) {
+    const propertyEntries = Object.entries(tokenamiProperties);
+    for (let [key, value] of propertyEntries) {
+      sheet.addDeclaration(LAYERS.COMPONENTS, selector, key, value);
     }
   }
 
-  const composeStyles = Object.entries(styles.components).map(([atomicPair, blocks]) => {
-    return `@layer ${LAYERS.COMPONENTS} { ${Array.from(blocks)} { ${atomicPair} } }`;
-  });
+  return sheet.toString();
+}
 
-  return `
-    @layer global {
-      ${params.config.globalStyles ? stringify(params.config.globalStyles) : ''}
+/* -------------------------------------------------------------------------------------------------
+ * Sheet
+ * -----------------------------------------------------------------------------------------------*/
+
+const SELECTOR_TAG = '<selector>';
+const CUSTOM_PROP_REGEX = /\(--[^-][\w-]+/g;
+
+class Sheet {
+  config: Tokenami.Config;
+  tokenValues: Tokenami.TokenValue[];
+  themeTokenSelectors: string[] = [];
+  reset = new Set<string>();
+  toggles: Record<string, Set<string>> = {};
+  layers: Record<string, Set<string>> = {};
+
+  constructor(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
+    this.tokenValues = tokenValues;
+    this.config = config;
+  }
+
+  addReset(property: string) {
+    this.reset.add(`${property}: initial;`);
+  }
+
+  addThemeTokenSelectors(baseSelectors: string[]) {
+    this.themeTokenSelectors.push(...baseSelectors.map(removePseudoElementSelector));
+  }
+
+  addDeclaration(layer: string, selector: string, property: string, value: string) {
+    const declaration = `${property}: ${value}`;
+    const template = `@layer ${layer} { ${SELECTOR_TAG} { ${declaration} } }`;
+    this.layers[template] ??= new Set<string>();
+    this.layers[template]!.add(selector);
+  }
+
+  addToggleFlagDeclaration(
+    responsiveConfig: string | undefined,
+    selector: string[],
+    toggleProperty: string
+  ) {
+    let toggle = `${toggleProperty}: ;`;
+    const toggleKey = responsiveConfig || selector.join();
+    const responsiveSelectors = [responsiveConfig, ...selector].reverse();
+
+    for (const selector of responsiveSelectors) {
+      if (!selector) continue;
+      const elemSelector = removePseudoElementSelector(selector);
+      toggle = `${elemSelector} { ${toggle} }`;
     }
 
-    @layer tkb {
-      ${generateKeyframeRules(tokenValues, params.config)}
-      ${generateThemeTokens(tokenValues, utils.unique(themeTokenSelectors), params.config)}
-      * { ${Array.from(styles.reset).join(' ')} }
+    this.toggles[toggleKey] ??= new Set<string>();
+    this.toggles[toggleKey]!.add(toggle);
+  }
 
-      ${Object.values(styles.toggles)
-        .flatMap((set) => Array.from(set))
-        .join(' ')}
+  #generateGlobalStyles() {
+    if (!this.config.globalStyles) return '';
+    return `@layer global { ${stringify(this.config.globalStyles)} }`;
+  }
+
+  #generateTokenamiResets() {
+    const themeTokenSelectors = utils.unique(this.themeTokenSelectors);
+    return `
+      @layer tkb {
+        ${this.#generateKeyframeRules()}
+        ${this.#generateThemeTokens(themeTokenSelectors)}
+        * { ${Array.from(this.reset).join(' ')} }
+        ${Object.values(this.toggles)
+          .flatMap((set) => Array.from(set))
+          .join(' ')}
+      }
+    `;
+  }
+
+  #generatePlaceholderLayers(prefix: string) {
+    // this 20 is arbitrary for now, will make this more correct later.
+    return `@layer ${Array.from({ length: 20 })
+      .map((_, layer) => `${prefix}${layer}`)
+      .join(', ')};`;
+  }
+
+  #generateLayerStyles() {
+    const entries = Object.entries(this.layers);
+    const groupedBySelectors = new Map<string, string>();
+
+    for (const [template, selectors] of entries) {
+      // separate pseudo elements from other selectors
+      const { pseudoElements, otherSelectors } = this.#separateSelectors(selectors);
+
+      // group other selectors (comma-separated) and add their styles
+      if (otherSelectors.length > 0) {
+        const groupedSelector = otherSelectors.sort().join(',');
+        const existingStyles = groupedBySelectors.get(groupedSelector) || '';
+        const newStyles = template.replace(SELECTOR_TAG, groupedSelector);
+        groupedBySelectors.set(groupedSelector, existingStyles + ' ' + newStyles);
+      }
+
+      // add pseudo element styles individually (NOT grouped) to avoid breaking
+      // ungroupable selectors like ::selection
+      for (const pseudoElement of pseudoElements) {
+        const existingStyles = groupedBySelectors.get(pseudoElement) || '';
+        const newStyles = template.replace(SELECTOR_TAG, pseudoElement);
+        groupedBySelectors.set(pseudoElement, existingStyles + ' ' + newStyles);
+      }
     }
 
-    ${generatePlaceholderLayers(LAYERS.BASE)}
-    ${generatePlaceholderLayers(LAYERS.LOGICAL)}
-    ${generatePlaceholderLayers(LAYERS.SELECTORS)}
-    ${generatePlaceholderLayers(LAYERS.SELECTORS_LOGICAL)}
-    ${generatePlaceholderLayers(LAYERS.COMPONENTS)}
-    ${generateLayerStyles(styles.atomic)}
-    ${generateLayerStyles(styles.selectors)}
+    return Array.from(groupedBySelectors.values()).join(' ');
+  }
 
-    ${composeStyles.join(' ')}
-  `;
+  #separateSelectors(selectors: Set<string>) {
+    const pseudoElements: string[] = [];
+    const otherSelectors: string[] = [];
+
+    for (const selector of selectors) {
+      if (isPseudoElementSelector(selector)) {
+        pseudoElements.push(selector);
+      } else {
+        otherSelectors.push(selector);
+      }
+    }
+
+    return { pseudoElements, otherSelectors };
+  }
+
+  #generateKeyframeRules() {
+    const themeValues = this.tokenValues.flatMap((tokenValue) => {
+      return Object.values(utils.getThemeValuesByThemeMode(tokenValue, this.config.theme));
+    });
+
+    const rules = Object.entries(this.config.keyframes || {}).flatMap(([name, styles]) => {
+      const nameRegex = new RegExp(`\\b${name}\\b`);
+      const isUsingKeyframeName = themeValues.some((value) => nameRegex.test(value));
+      if (!isUsingKeyframeName) return [];
+      return [[`@keyframes ${name} { ${stringify(styles)} }`]];
+    });
+
+    return rules.join(' ');
+  }
+
+  #generateThemeTokens(styleSelector: string | string[]) {
+    const theme = utils.getThemeFromConfig(this.config.theme);
+    const rootSelector = this.config.themeSelector('root');
+    const gridStyles = `${rootSelector} { ${Tokenami.gridProperty()}: ${this.config.grid}; }`;
+    const rootStyles = this.#getThemeStyles(styleSelector, rootSelector, theme.root);
+    const themeToModes: Record<string, string[]> = {};
+    const modeEntries = Object.entries(theme.modes || {});
+
+    // working around this for now https://github.com/parcel-bundler/lightningcss/issues/841
+    for (const [mode, theme] of modeEntries) {
+      const themeKey = JSON.stringify(theme);
+      if (themeKey in themeToModes) themeToModes[themeKey]!.push(mode);
+      else themeToModes[themeKey] = [mode];
+    }
+
+    const modeStyles = Object.entries(themeToModes).map(([theme, modes]) => {
+      const selector = modes.map(this.config.themeSelector).join(', ');
+      return this.#getThemeStyles(styleSelector, selector, JSON.parse(theme));
+    });
+
+    const themeTokens = [gridStyles, rootStyles, modeStyles.join(' ')];
+    return themeTokens.join(' ');
+  }
+
+  #getThemeStyles(
+    styleSelector: string | string[],
+    selector: string | string[],
+    theme: Tokenami.Theme
+  ) {
+    const themeValues = utils.getThemeValuesByTokenValues(this.tokenValues, theme);
+    const customPropertyThemeValues = this.#getCustomPropertyThemeValues(themeValues);
+    const customPropertyThemeKeys = Object.keys(customPropertyThemeValues);
+    const selectors = [selector].flat();
+    const elementSelector = selectors.at(-1)!;
+    const parentSelectors = selectors.slice(0, -1);
+    const elementThemeStyles = this.#getElementThemeStyles(
+      styleSelector,
+      elementSelector,
+      customPropertyThemeValues
+    );
+
+    for (const customKey of customPropertyThemeKeys) {
+      delete themeValues[customKey];
+    }
+
+    const themeStyles = selectors.reduceRight(
+      (declaration, selector) => `${selector} { ${declaration} }`,
+      stringify(themeValues)
+    );
+
+    const customPropertyThemeStyles = parentSelectors.reduceRight(
+      (declaration, selector) => `${selector} { ${declaration} }`,
+      elementThemeStyles
+    );
+
+    return themeStyles + ' ' + customPropertyThemeStyles;
+  }
+
+  #getCustomPropertyThemeValues(themeValues: { [key: string]: string }) {
+    const entries = Object.entries(themeValues).flatMap(([key, value]) => {
+      const valueWithCustomPrefixes = this.#getPrefixedCustomPropertyValues(value);
+      return valueWithCustomPrefixes ? [[key, valueWithCustomPrefixes] as const] : [];
+    });
+    return Object.fromEntries(entries);
+  }
+
+  #getPrefixedCustomPropertyValues(themeValue: string) {
+    const variables = themeValue.match(CUSTOM_PROP_REGEX);
+    if (!variables) return null;
+
+    return themeValue.replace(CUSTOM_PROP_REGEX, (m) => {
+      const match = m.replace('(', '');
+      const tokenProperty = Tokenami.TokenProperty.safeParse(match);
+      if (!tokenProperty.success) return m;
+
+      const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
+      const isCustom = Boolean(this.config.customProperties?.[parts.alias]);
+      if (!isCustom) return m;
+
+      const tokenPrefix = Tokenami.tokenProperty('');
+      const customPrefixTokenValue = tokenProperty.output.replace(tokenPrefix, CUSTOM_PROP_PREFIX);
+      return '(' + customPrefixTokenValue;
+    });
+  }
+
+  #getElementThemeStyles(
+    styleSelector: string | string[],
+    selector: string,
+    themeValues: Record<string, string>
+  ) {
+    const splitGroups = selector.split(',');
+    const themeStyles = splitGroups.map((selector) => {
+      const elemSelector = [styleSelector].flat().map((s) => `${selector} ${s}`);
+      return `${selector}, ${elemSelector} { ${stringify(themeValues)} }`;
+    });
+    return themeStyles.join(' ');
+  }
+
+  toString() {
+    return `
+      ${this.#generateGlobalStyles()}
+      ${this.#generateTokenamiResets()}
+      ${this.#generatePlaceholderLayers(LAYERS.BASE)}
+      ${this.#generatePlaceholderLayers(LAYERS.LOGICAL)}
+      ${this.#generatePlaceholderLayers(LAYERS.SELECTORS)}
+      ${this.#generatePlaceholderLayers(LAYERS.SELECTORS_LOGICAL)}
+      ${this.#generatePlaceholderLayers(LAYERS.COMPONENTS)}
+      ${this.#generateLayerStyles()}
+    `;
+  }
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -200,8 +403,9 @@ function parseComposeBlocks(
   config: Tokenami.Config
 ) {
   let parsedComposeBlocks: Record<`.${string}`, TokenamiProperties> = {};
+  const entries = Object.entries(composeBlocks);
 
-  for (const [selector, tokenamiProperties] of Object.entries(composeBlocks)) {
+  for (const [selector, tokenamiProperties] of entries) {
     const entries = Object.entries(tokenamiProperties);
     const aliasProperties = Tokenami.iterateAliasProperties(entries, config);
     let styles: TokenamiProperties = {};
@@ -232,10 +436,9 @@ function parseComposeBlocks(
 function getPropertySelectors(
   composeBlocks: Record<`.${string}`, TokenamiProperties>,
   prop: PropertyConfig,
-  config: Tokenami.Config
+  selectorConfig: string[]
 ) {
   let selectors: string[] = [];
-  const selectorConfig = getPropertyConfigSelector(prop.selector, config);
   const baseSelectors = getBaseSelectors(composeBlocks, prop.tokenProperty);
   const elemSelector = selectorConfig.find(isElementSelector);
 
@@ -268,6 +471,24 @@ function getBaseSelectors(
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * createBasePropertyValue
+ * -----------------------------------------------------------------------------------------------*/
+
+function createBasePropertyValue(property: string, fallback?: string) {
+  return `var(${property}${fallback ? ', ' + fallback : ''})`;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * createGridPropertyValue
+ * -----------------------------------------------------------------------------------------------*/
+
+function createGridPropertyValue(property: string, fallback?: string) {
+  const hashGridProperty = hashVariantProperty('grid', property);
+  const baseProperty = createBasePropertyValue(property, fallback);
+  return `var(${hashGridProperty}, ${baseProperty})`;
+}
+
+/* -------------------------------------------------------------------------------------------------
  * createVariantValue
  * -----------------------------------------------------------------------------------------------*/
 
@@ -276,7 +497,10 @@ function createVariantValue(
   prop: PropertyConfig,
   propertyConfigs: PropertyConfig[]
 ) {
-  let variantValue = 'revert-layer';
+  // revert-layer doesn't work for custom properties in Safari so we explicitly set the fallback
+  // to the base custom property value for variants
+  const customPropertyFallback = `var(${Tokenami.tokenProperty(cssProperty)})`;
+  let variantValue = prop.isCustom ? customPropertyFallback : 'revert-layer';
   const seen = new Set<string>();
 
   for (const propertyConfig of propertyConfigs) {
@@ -288,113 +512,34 @@ function createVariantValue(
     seen.add(propertyConfig.variant);
   }
 
-  // revert-layer doesn't work for custom properties in Safari so we explicitly set the fallback
-  // to the base custom property value for variants
-  const customPropertyFallback = `var(${Tokenami.tokenProperty(cssProperty)})`;
-  const customPropertyValue = variantValue.replace('revert-layer', customPropertyFallback);
-  return prop.isCustom ? customPropertyValue : variantValue;
+  return variantValue;
 }
 
 /* -------------------------------------------------------------------------------------------------
- * createToggleDeclaration
+ * createGridToggleValue
  * -----------------------------------------------------------------------------------------------*/
 
-function createToggleDeclaration(
-  responsiveSelector: string | undefined,
-  selector: string[],
-  toggleProperty: string
-) {
-  let toggle = `${toggleProperty}: ;`;
-  const responsiveSelectors = [responsiveSelector, ...selector].reverse();
-
-  for (const selector of responsiveSelectors) {
-    if (!selector) continue;
-    const elemSelector = removePseudoElementSelector(selector);
-    toggle = `${elemSelector} { ${toggle} }`;
-  }
-
-  return toggle;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getGridPropertyToggle
- * -----------------------------------------------------------------------------------------------*/
-
-function getGridPropertyToggle(property: string) {
-  const hashGridProperty = hashVariantProperty('grid', property);
+function createGridToggleValue(property: string) {
   const gridProperty = Tokenami.gridProperty();
-  return `${hashGridProperty}: var(${property}__calc) calc(var(${property}) * var(${gridProperty}));`;
+  return `var(${property}__calc) calc(var(${property}) * var(${gridProperty}))`;
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getBasePropertyValue
+ * createVariantToggleValue
  * -----------------------------------------------------------------------------------------------*/
 
-function getBasePropertyValue(property: string, config: PropertyConfig, revert = true) {
-  const hashGridProperty = hashVariantProperty('grid', property);
-  const baseProperty = `var(${property}${revert ? ', revert-layer' : ''})`;
-  return config.isGrid ? `var(${hashGridProperty}, ${baseProperty})` : baseProperty;
+function createVariantToggleValue(toggleProperty: string, tokenProperty: string) {
+  const basePropertyValue = createBasePropertyValue(tokenProperty);
+  return `var(${toggleProperty}) ${basePropertyValue};`;
 }
 
 /* -------------------------------------------------------------------------------------------------
- * generatePlaceholderLayers
+ * createGridVariantToggleValue
  * -----------------------------------------------------------------------------------------------*/
 
-function generatePlaceholderLayers(prefix: string) {
-  // this 20 is arbitrary for now, will make this more correct later.
-  return `@layer ${Array.from({ length: 20 })
-    .map((_, layer) => `${prefix}${layer}`)
-    .join(', ')};`;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * generateLayerStyles
- * -----------------------------------------------------------------------------------------------*/
-
-function generateLayerStyles(styles: Record<string, Set<string>>) {
-  const groupedBySelectors = new Map<string, string>();
-
-  for (const [template, selectors] of Object.entries(styles)) {
-    // separate pseudo elements from other selectors
-    const { pseudoElements, otherSelectors } = separateSelectors(selectors);
-
-    // group other selectors (comma-separated) and add their styles
-    if (otherSelectors.length > 0) {
-      const groupedSelector = otherSelectors.sort().join(',');
-      const existingStyles = groupedBySelectors.get(groupedSelector) || '';
-      const newStyles = template.replace(SELECTOR_TAG, groupedSelector);
-      groupedBySelectors.set(groupedSelector, existingStyles + ' ' + newStyles);
-    }
-
-    // add pseudo element styles individually (NOT grouped) to avoid breaking
-    // ungroupable selectors like ::selection
-    for (const pseudoElement of pseudoElements) {
-      const existingStyles = groupedBySelectors.get(pseudoElement) || '';
-      const newStyles = template.replace(SELECTOR_TAG, pseudoElement);
-      groupedBySelectors.set(pseudoElement, existingStyles + ' ' + newStyles);
-    }
-  }
-
-  return Array.from(groupedBySelectors.values()).join(' ');
-}
-
-/* -------------------------------------------------------------------------------------------------
- * separateSelectors
- * -----------------------------------------------------------------------------------------------*/
-
-function separateSelectors(selectors: Set<string>) {
-  const pseudoElements: string[] = [];
-  const otherSelectors: string[] = [];
-
-  for (const selector of selectors) {
-    if (isPseudoElementSelector(selector)) {
-      pseudoElements.push(selector);
-    } else {
-      otherSelectors.push(selector);
-    }
-  }
-
-  return { pseudoElements, otherSelectors };
+function createGridVariantToggleValue(toggleProperty: string, tokenProperty: string) {
+  const basePropertyValue = createGridPropertyValue(tokenProperty);
+  return `var(${toggleProperty}) ${basePropertyValue};`;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -417,7 +562,7 @@ function getPropertyConfigs(
     const order = responsiveOrder + selectorOrder;
 
     for (const cssProperty of properties) {
-      const layerIndex = getAtomicLayerIndex(cssProperty, config);
+      const layerIndex = getPropertyLayerIndex(cssProperty, config);
       if (layerIndex === -1) continue;
 
       const longhandProperty = Tokenami.createLonghandProperty(property, cssProperty);
@@ -425,17 +570,16 @@ function getPropertyConfigs(
       const currentConfigs = propertyConfigs.get(cssProperty as any) || [];
       const customConfig = config.customProperties?.[cssProperty];
       const propertyConfig = config.properties?.[cssProperty];
-
       const isLogical = Supports.supportedLogicalProperties.has(cssProperty as any);
       const isGrid = customConfig?.includes('grid') ?? propertyConfig?.includes('grid') ?? false;
       const isCustom = Boolean(customConfig);
-
       const layer = parts.variant
         ? `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerIndex}`
         : `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerIndex}`;
 
       const nextConfig = { ...parts, tokenProperty, order, layer, isCustom, isGrid };
       const sortedConfigs = [...currentConfigs, nextConfig].sort((a, b) => a.order - b.order);
+
       propertyConfigs.set(cssProperty, sortedConfigs);
     }
   }
@@ -444,12 +588,12 @@ function getPropertyConfigs(
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getAtomicLayerIndex
+ * getPropertyLayerIndex
  * -----------------------------------------------------------------------------------------------*/
 
-const SHORTHAND_TO_LONGHAND_ENTRIES = [...Tokenami.mapShorthandToLonghands.entries()];
+const SHORTHAND_TO_LONGHAND_ENTRIES = Array.from(Tokenami.mapShorthandToLonghands.entries());
 
-function getAtomicLayerIndex(cssProperty: string, config: Tokenami.Config): number {
+function getPropertyLayerIndex(cssProperty: string, config: Tokenami.Config): number {
   const validProperties = utils.getValidProperties(config);
   const isSupported = validProperties.has(cssProperty as any);
   const initialDepth = isSupported ? 1 : -1;
@@ -458,156 +602,9 @@ function getAtomicLayerIndex(cssProperty: string, config: Tokenami.Config): numb
 
   return SHORTHAND_TO_LONGHAND_ENTRIES.reduce((depth, [shorthand, longhands]) => {
     const isLonghand = (longhands as string[]).includes(cssProperty);
-    return isLonghand ? depth + getAtomicLayerIndex(shorthand, config) : depth;
+    return isLonghand ? depth + getPropertyLayerIndex(shorthand, config) : depth;
   }, initialDepth);
 }
-
-/* -------------------------------------------------------------------------------------------------
- * generateKeyframeRules
- * -----------------------------------------------------------------------------------------------*/
-
-function generateKeyframeRules(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
-  const themeValues = tokenValues.flatMap((tokenValue) => {
-    return Object.values(utils.getThemeValuesByThemeMode(tokenValue, config.theme));
-  });
-
-  const rules = Object.entries(config.keyframes || {}).flatMap(([name, styles]) => {
-    const nameRegex = new RegExp(`\\b${name}\\b`);
-    const isUsingKeyframeName = themeValues.some((value) => nameRegex.test(value));
-    if (!isUsingKeyframeName) return [];
-    return [[`@keyframes ${name} { ${stringify(styles)} }`]];
-  });
-
-  return rules.join(' ');
-}
-
-/* -------------------------------------------------------------------------------------------------
- * generateThemeTokens
- * -----------------------------------------------------------------------------------------------*/
-
-function generateThemeTokens(
-  tokenValues: Tokenami.TokenValue[],
-  styleSelector: string | string[],
-  config: Tokenami.Config
-) {
-  const theme = utils.getThemeFromConfig(config.theme);
-  const rootSelector = config.themeSelector('root');
-  const gridStyles = `${rootSelector} { ${Tokenami.gridProperty()}: ${config.grid}; }`;
-  const rootStyles = getThemeStyles(styleSelector, rootSelector, tokenValues, theme.root, config);
-  const themeToModes: Record<string, string[]> = {};
-  const modeEntries = Object.entries(theme.modes || {});
-
-  // working around this for now https://github.com/parcel-bundler/lightningcss/issues/841
-  for (const [mode, theme] of modeEntries) {
-    const themeKey = JSON.stringify(theme);
-    if (themeKey in themeToModes) themeToModes[themeKey]!.push(mode);
-    else themeToModes[themeKey] = [mode];
-  }
-
-  const modeStyles = Object.entries(themeToModes).map(([theme, modes]) => {
-    const selector = modes.map(config.themeSelector).join(', ');
-    return getThemeStyles(styleSelector, selector, tokenValues, JSON.parse(theme), config);
-  });
-
-  const themeTokens = [gridStyles, rootStyles, modeStyles.join(' ')];
-  return themeTokens.join(' ');
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getThemeStyles
- * -----------------------------------------------------------------------------------------------*/
-
-const getThemeStyles = (
-  styleSelector: string | string[],
-  selector: string | string[],
-  tokenValues: Tokenami.TokenValue[],
-  theme: Tokenami.Theme,
-  config: Tokenami.Config
-) => {
-  const themeValues = utils.getThemeValuesByTokenValues(tokenValues, theme);
-  const customPropertyThemeValues = getCustomPropertyThemeValues(themeValues, config);
-  const selectors = [selector].flat();
-
-  for (const customKey of Object.keys(customPropertyThemeValues)) {
-    delete themeValues[customKey];
-  }
-
-  const themeStyles = selectors.reduceRight((declaration, selector) => {
-    return `${selector} { ${declaration} }`;
-  }, stringify(themeValues));
-
-  const elementSelector = selectors.at(-1)!;
-  const elementThemeStyles = getElementThemeStyles(
-    styleSelector,
-    elementSelector,
-    customPropertyThemeValues
-  );
-  const customPropertyThemeStyles = selectors.slice(0, -1).reduceRight((declaration, selector) => {
-    return `${selector} { ${declaration} }`;
-  }, elementThemeStyles);
-
-  return themeStyles + ' ' + customPropertyThemeStyles;
-};
-
-/* -------------------------------------------------------------------------------------------------
- * getElementThemeStyles
- * -----------------------------------------------------------------------------------------------*/
-
-const getElementThemeStyles = (
-  styleSelector: string | string[],
-  selector: string,
-  themeValues: Record<string, string>
-) => {
-  const splitGroups = selector.split(',');
-  const themeStyles = splitGroups.map((selector) => {
-    const elemSelector = [styleSelector].flat().map((s) => `${selector} ${s}`);
-    return `${selector}, ${elemSelector} { ${stringify(themeValues)} }`;
-  });
-  return themeStyles.join(' ');
-};
-
-/* -------------------------------------------------------------------------------------------------
- * getCustomPropertyThemeValues
- * -----------------------------------------------------------------------------------------------*/
-
-function getCustomPropertyThemeValues(
-  themeValues: { [key: string]: string },
-  config: Tokenami.Config
-) {
-  const entries = Object.entries(themeValues).flatMap(([key, value]) => {
-    const valueWithCustomPrefixes = getPrefixedCustomPropertyValues(value, config.customProperties);
-    return valueWithCustomPrefixes ? [[key, valueWithCustomPrefixes] as const] : [];
-  });
-  return Object.fromEntries(entries);
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getPrefixedCustomPropertyValues
- * -----------------------------------------------------------------------------------------------*/
-
-const CUSTOM_PROP_REGEX = /\(--[^-][\w-]+/g;
-
-const getPrefixedCustomPropertyValues = (
-  themeValue: string,
-  customProperties?: Tokenami.Config['customProperties']
-) => {
-  const variables = themeValue.match(CUSTOM_PROP_REGEX);
-  if (!variables) return null;
-
-  return themeValue.replace(CUSTOM_PROP_REGEX, (m) => {
-    const match = m.replace('(', '');
-    const tokenProperty = Tokenami.TokenProperty.safeParse(match);
-    if (!tokenProperty.success) return m;
-
-    const parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
-    const isCustom = Boolean(customProperties?.[parts.alias]);
-    if (!isCustom) return m;
-
-    const tokenPrefix = Tokenami.tokenProperty('');
-    const customPrefixTokenValue = tokenProperty.output.replace(tokenPrefix, CUSTOM_PROP_PREFIX);
-    return '(' + customPrefixTokenValue;
-  });
-};
 
 /* -------------------------------------------------------------------------------------------------
  * hashVariantProperty
@@ -669,10 +666,10 @@ function getResponsiveSelectorFromConfig(
 }
 
 /* -------------------------------------------------------------------------------------------------
- * getPropertyConfigSelector
+ * getSelectorFromConfig
  * -----------------------------------------------------------------------------------------------*/
 
-function getPropertyConfigSelector(
+function getSelectorFromConfig(
   propertySelector: PropertyConfig['selector'],
   tokenamiConfig: Tokenami.Config
 ): string[] {

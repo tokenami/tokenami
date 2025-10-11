@@ -21,21 +21,20 @@ jobs:
 
   test:
     needs: build
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup-repo
-      - run: pnpx playwright install --with-deps
-      - run: pnpm install --save-dev @percy/cli
-      - uses: GabrielBB/xvfb-action@v1
-        with:
-          run: pnpm test
+      - name: Install Playwright browsers
+        working-directory: tests/tokenami
+        run: npx playwright install --with-deps
+      - run: pnpm test
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
           PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
-          CI: true
+          PERCY_TARGET_BRANCH: main
 
   size:
     runs-on: ubuntu-latest
