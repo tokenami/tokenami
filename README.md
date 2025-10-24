@@ -22,8 +22,10 @@
 - [Quick start](#user-content-quick-start)
   - [Installation](#user-content-installation)
   - [Basic setup](#user-content-basic-setup)
-- [Core concepts](#user-content-core-concepts)
+- [Introduction](#user-content-introduction)
   - [Why Tokenami?](#user-content-why-tokenami)
+  - [Why the CSS variable syntax?](#user-content-why-the-css-variable-syntax)
+- [Core concepts](#user-content-core-concepts)
   - [Theming](#user-content-theming)
   - [Grid values](#user-content-grid-values)
   - [Arbitrary selectors](#user-content-arbitrary-selectors)
@@ -48,7 +50,6 @@
   - [Utility types](#user-content-utility-types)
   - [CI setup](#user-content-ci-setup)
 - [Troubleshooting](#user-content-troubleshooting)
-  - [Why the CSS variable syntax?](#user-content-why-the-css-variable-syntax)
   - [Enable string completions](#user-content-enable-string-completions)
   - [Improve autocomplete speed and accuracy](#user-content-improve-autocomplete-speed-and-accuracy)
   - [Supported libraries](#user-content-supported-libraries)
@@ -110,15 +111,23 @@ function Page() {
 }
 ```
 
-## Core concepts
+## Introduction
 
-Tokenami is built around a few key ideas:
+Tokenami isn't another design system. It's a toolkit for building your own. By replacing atomic classes with **atomic CSS variables** and providing a unified set of tools, Tokenami makes it simple to create portable, type-safe design systems with tokens at the heart of your CSS.
 
-- Turn any CSS property into a variable by adding `--` (e.g. `--padding`)
-- Add selectors with underscores (e.g. `--hover_padding`)
-- Add breakpoints the same way (e.g. `--md_padding`)
-- Combine selectors and breakpoints (e.g. `--md_hover_padding`)
-- Use `---` (triple dash) for custom CSS variables
+Benefits include:
+
+- 🏷️ **Simple naming convention** — turn any CSS property into a variable (`padding` → `--padding`)
+- 📦 **Smaller stylesheet** — one variable-driven rule instead of dozens of utility classes
+- ✨ **Streamlined markup** — one class name for your reusable components, keeping HTML clean and DRY
+- 🎯 **Single source of truth** — a config file defines and enforces your design tokens
+- 💡 **Smart authoring** — autocomplete + type safety built into your workflow
+- 🔓 **Extensible by design** — atomic CSS variables give your consumers control to override
+- ☮️ **No specificity wars** — a tiny first-class `css` utility handles safe composition
+- ⚡ **Dynamic by default** — pass props directly into tokens (`--color: props.color`)
+- ✍️ **Shorthand tokens** — define aliases like `--p` for padding
+- 🎨 **Expressive selectors** — custom selectors for nesting and descendant rules
+- 🚀 **Zero bundler friction** — static styles with no bundler integration
 
 ### Why Tokenami?
 
@@ -152,31 +161,33 @@ Tailwind CSS offers a different approach:
 But when building a design system, Tailwind has drawbacks:
 
 - Removing a token in the theme does not show redundant usage in code
+- Reused components bloat markup with repetitive utility classes
 - Developers must memorise many class names (see [Tailwind Cheatsheet](https://tailwindcomponents.com/cheatsheet/))
 - Style composition can create specificity conflicts (solved with third-party tools like [tailwind-merge](https://www.npmjs.com/package/tailwind-merge))
 - Styling inline is not always ideal, leading to third-party tools like [cva](https://cva.style/docs)
 - Classes must be written as [complete unbroken strings](https://tailwindcss.com/docs/content-configuration#dynamic-class-names) making dynamic styling trickier
 - Debugging is harder because styles are spread across many atomic classes
-
-#### Introducing Tokenami
-
-Tokenami isn't another design system. It's a toolkit for building your own.
-
-By replacing atomic classes with **atomic CSS variables** and providing a unified set of tools, Tokenami makes it simple to create portable, type-safe design systems with tokens at the heart of your CSS.
-
-Benefits include:
-
-- **Simple naming convention** — turn any CSS property into a variable (`padding` → `--padding`)
-- **Smaller stylesheet** — one variable-driven rule instead of dozens of utility classes
-- **Single source of truth** — a config file defines and enforces your design tokens
-- **Smart authoring** — autocomplete + type safety built into your workflow
-- **No specificity wars** — a tiny first-class `css` utility handles safe composition
-- **Dynamic by default** — pass props directly into tokens (`--color: props.color`)
-- **Shorthand tokens** — define aliases like `--p` for padding
-- **Expressive selectors** — custom selectors for nesting and descendant rules
-- **Developer-friendly debugging** — easier inspection in devtools (coming soon)
-- **Zero bundler friction** — static styles with no bundler integration
 </details>
+
+Tokenami bridges the gap between CSS-in-JS and utility-first frameworks. You get the type safety, composability, and design token discipline of CSS-in-JS, with the performance and simplicity of plain CSS. No build plugins, no runtime injection, no class soup—just clean, predictable styling powered by tokens.
+
+### Why the CSS variable syntax?
+
+To keep things fast, Tokenami applies styles directly to the `style` attribute when needed instead of injecting runtime CSS. Since inline styles can't handle media queries or pseudo-selectors, Tokenami expresses everything as CSS variables.
+
+This approach not only enables responsive and state-based styling—it also keeps specificity low, so others can easily integrate your design system and override its styles when needed. You're never locked into Tokenami.
+
+And don’t worry about typing all those dashes—just type `bord`, and Tokenami's IntelliSense completes the variable for you.
+
+## Core concepts
+
+Tokenami is built around a few key ideas:
+
+- Turn any CSS property into a variable by adding `--` (e.g. `--padding`)
+- Add selectors with underscores (e.g. `--hover_padding`)
+- Add breakpoints the same way (e.g. `--md_padding`)
+- Combine selectors and breakpoints (e.g. `--md_hover_padding`)
+- Use `---` (triple dash) for custom CSS variables
 
 ### Theming
 
@@ -750,15 +761,6 @@ tokenami check; tsc --noEmit
 ## Troubleshooting
 
 Common questions and how to solve them. If you need additional support or encounter any issues, please don't hesitate to join the [discord server](https://discord.gg/CAU4HNR4XK).
-
-### Why the CSS variable syntax?
-
-Tokenami applies your authored styles directly to the `style` attribute to minimise runtime overhead. Since the `style` attribute doesn't support media queries or pseudo-selectors, we use CSS variables to enable them. Making everything a CSS variable simplifies the learning curve.
-
-CSS variables also have lower specificity than direct CSS properties in the `style` attribute. This allows overriding Tokenami's styles by adding a stylesheet after Tokenami's when needed.
-
-> [!Tip]
-> Don't worry about typing extra dashes! Just type `bord` and Tokenami's intellisense will help autocomplete it in the right format.
 
 ### Enable string completions
 
