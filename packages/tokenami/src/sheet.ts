@@ -696,17 +696,73 @@ function getParsedSelectors(
   }
 
   const isSelectionVariant = selectorConfig.includes('&::selection');
-  return elementSelectors.map((elementSelector) => {
+  const selectors = [];
+
+  for (const elementSelector of elementSelectors) {
     // revert-layer for ::selection doesn't work: https://codepen.io/jjenzz/pen/LYvOydB
     // we use a substring selector for now to ensure selection styles aren't inadvertently
     // removed. we can use container style queries to improve this when support improves
     // https://codepen.io/jjenzz/pen/BaEmRpg
     const isSelectionSelector = isSelectionVariant && elementSelector === DEFAULT_SELECTOR;
     const tkSelector = isSelectionSelector ? `[style*="${propertySelector}_"]` : elementSelector;
-    return selectorConfig.flatMap((selector) => {
-      return selector.split(',').map((s) => s.replace(/&/g, tkSelector).trim());
-    });
-  });
+    const selectorConfigs = expandSelectorConfigs(selectorConfig);
+
+    for (const selectorConfig of selectorConfigs) {
+      const selector = selectorConfig.map((selector) => selector.replace(/&/g, tkSelector));
+      selectors.push(selector);
+    }
+  }
+
+  return selectors;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * expandSelectorConfigs
+ * -----------------------------------------------------------------------------------------------*/
+
+function expandSelectorConfigs(selectorConfig: string[]) {
+  const parts = selectorConfig.map(parseSelectorList);
+  let results: string[][] = [[]];
+
+  for (const group of parts) {
+    const res = [];
+    for (const existing of results) {
+      for (const value of group) {
+        res.push([...existing, value]);
+      }
+    }
+    results = res;
+  }
+
+  return results;
+}
+
+function parseSelectorList(selector: string) {
+  const selectors: string[] = [];
+  let currentSelector = '';
+  let depth = 0;
+
+  for (const [index, char] of selector.split('').entries()) {
+    if (char === '(') depth++;
+    if (char === '[') depth++;
+    if (char === ')') depth--;
+    if (char === ']') depth--;
+
+    const nextChar = selector[index + 1];
+
+    if (!nextChar) {
+      currentSelector += char;
+      selectors.push(currentSelector.trim());
+      currentSelector = '';
+    } else if (char === ',' && depth === 0) {
+      selectors.push(currentSelector.trim());
+      currentSelector = '';
+    } else {
+      currentSelector += char;
+    }
+  }
+
+  return selectors;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
