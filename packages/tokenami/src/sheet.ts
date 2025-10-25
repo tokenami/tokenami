@@ -87,7 +87,7 @@ function createSheet(params: {
         ? propertyConfigs.filter((c) => c.selector === prop.selector)
         : elementConfigs;
 
-      sheet.addThemeTokenSelectors(parsedSelectors.base);
+      sheet.addThemeTokenSelectors(parsedSelectors.elements);
 
       if (!isInheritable && !selectorConfig.some(isChildSelector)) {
         sheet.addReset(prop.tokenProperty);
@@ -109,13 +109,13 @@ function createSheet(params: {
           sheet.addToggleFlagDeclaration(responsiveConfig, selector, toggleProperty);
         }
 
-        for (const selector of parsedSelectors.base) {
-          const elemSelector = removePseudoElementSelector(selector);
-          const baseSelector = prop.isCustom ? elemSelector : selector;
+        for (const selector of parsedSelectors.elements) {
+          const pseudoOwnerSelector = removePseudoElementSelector(selector);
+          const baseSelector = prop.isCustom ? pseudoOwnerSelector : selector;
           sheet.addDeclaration(prop.layer, baseSelector, baseProperty, variantValue);
-          sheet.addDeclaration(prop.layer, elemSelector, hashedProperty, variantToggleValue);
+          sheet.addDeclaration(prop.layer, pseudoOwnerSelector, hashedProperty, variantToggleValue);
           if (prop.isGrid) {
-            sheet.addDeclaration(prop.layer, elemSelector, gridProperty, gridToggleValue);
+            sheet.addDeclaration(prop.layer, pseudoOwnerSelector, gridProperty, gridToggleValue);
           }
         }
       } else {
@@ -123,7 +123,7 @@ function createSheet(params: {
           ? createGridPropertyValue(prop.tokenProperty, 'revert-layer')
           : createBasePropertyValue(prop.tokenProperty, 'revert-layer');
 
-        for (const selector of parsedSelectors.base) {
+        for (const selector of parsedSelectors.elements) {
           sheet.addDeclaration(prop.layer, selector, baseProperty, propertyValue);
           if (prop.isGrid) {
             sheet.addDeclaration(prop.layer, selector, gridProperty, gridToggleValue);
@@ -444,15 +444,18 @@ function getPropertySelectors(
 
   if (elemSelector) {
     const parsedSelectors = getParsedSelectors(prop.selector, [elemSelector], baseSelectors);
-    if (elemSelector === '&') selectors.push(...parsedSelectors.flat());
     selectors.push(...parsedSelectors.flat());
   } else {
     selectors.push(...baseSelectors);
   }
 
+  const elementSelectors = utils.unique(selectors).map((selector) => {
+    return isPseudoElementSelector(selector) ? selector : selector.replace(/:.+$/, '');
+  });
+
   return {
-    base: utils.unique(selectors),
     all: getParsedSelectors(prop.selector, selectorConfig, baseSelectors),
+    elements: elementSelectors,
   };
 }
 
@@ -700,7 +703,9 @@ function getParsedSelectors(
     // https://codepen.io/jjenzz/pen/BaEmRpg
     const isSelectionSelector = isSelectionVariant && elementSelector === DEFAULT_SELECTOR;
     const tkSelector = isSelectionSelector ? `[style*="${propertySelector}_"]` : elementSelector;
-    return selectorConfig.map((selector) => selector.replace(/&/g, tkSelector));
+    return selectorConfig.flatMap((selector) => {
+      return selector.split(',').map((s) => s.replace(/&/g, tkSelector).trim());
+    });
   });
 }
 
