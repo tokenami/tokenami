@@ -258,9 +258,11 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
     tokenValues = [...tokenValues, ...tokens.values];
 
     for (const composeBlock of composeBlocksContents) {
-      const ast = acorn.parse(composeBlock, { ecmaVersion: 'latest' });
-      const composeBlockStyles = matchBaseComposeBlocks(ast);
-      composeBlocks = { ...composeBlocks, ...composeBlockStyles };
+      try {
+        const ast = acorn.parse(composeBlock, { ecmaVersion: 'latest' });
+        const composeBlockStyles = matchBaseComposeBlocks(ast);
+        composeBlocks = { ...composeBlocks, ...composeBlockStyles };
+      } catch {}
     }
 
     if (fileContent.includes(sheet.LAYERS.COMPONENTS)) {
