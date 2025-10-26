@@ -686,25 +686,39 @@ function getSelectorFromConfig(
  * getParsedSelectors
  * -----------------------------------------------------------------------------------------------*/
 
+/**
+ * revert-layer disabled for these pseudo-selectors because it doesn't work.
+ * see `::selection` example: https://codepen.io/jjenzz/pen/LYvOydB
+ *
+ * we use a substring selector for now to ensure selection styles aren't inadvertently
+ * removed. we can maybe use container style queries to improve this when support improves
+ * https://codepen.io/jjenzz/pen/BaEmRpg
+ */
+const disableRevertSelectors = ['&::selection', '&::-webkit-scrollbar'];
+
 function getParsedSelectors(
   propertySelector: PropertyConfig['selector'],
   selectorConfig: string[],
   elementSelectors: string[]
 ): string[][] {
-  if (selectorConfig.toString().indexOf('&') === -1) {
+  const selectors = [];
+  const selectorString = selectorConfig.toString();
+
+  if (selectorString.indexOf('&') === -1) {
     throw new Error(`Selector '${propertySelector}' must include '&'`);
   }
 
-  const isSelectionVariant = selectorConfig.includes('&::selection');
-  const selectors = [];
+  const isRevertDisabled = disableRevertSelectors.some((s) => selectorString.includes(s));
 
   for (const elementSelector of elementSelectors) {
     // revert-layer for ::selection doesn't work: https://codepen.io/jjenzz/pen/LYvOydB
     // we use a substring selector for now to ensure selection styles aren't inadvertently
     // removed. we can use container style queries to improve this when support improves
     // https://codepen.io/jjenzz/pen/BaEmRpg
-    const isSelectionSelector = isSelectionVariant && elementSelector === DEFAULT_SELECTOR;
-    const tkSelector = isSelectionSelector ? `[style*="${propertySelector}_"]` : elementSelector;
+    const isRevertDisabledSelector = isRevertDisabled && elementSelector === DEFAULT_SELECTOR;
+    const tkSelector = isRevertDisabledSelector
+      ? `[style*="${propertySelector}_"]`
+      : elementSelector;
     const selectorConfigs = expandSelectorConfigs(selectorConfig);
 
     for (const selectorConfig of selectorConfigs) {
