@@ -45,8 +45,9 @@ const searchForm = css.compose({
   '--px': 4,
 
   '--hover_background-color': 'var(--color_gray5)',
-  '--focus-within_background-color': 'var(--color_gray5)',
   '--hover_color': 'var(--color_gray12)',
+  '--focus-within_outline': 'var(--line_ring)',
+  '--focus-within_outline-offset': 'var(--offset_ring)',
 });
 
 const searchInput = css.compose({
