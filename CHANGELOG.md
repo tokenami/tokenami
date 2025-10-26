@@ -1,3 +1,30 @@
+# v0.0.91 (Sun Oct 26 2025)
+
+#### 🚀 Enhancement
+
+- support comma separated selector strings in selector configs [#469](https://github.com/tokenami/tokenami/pull/469) ([@jjenzz](https://github.com/jjenzz))
+- clean up redundant selectors in generated sheet (reduced nextjs example sheet size by ~8%) [#467](https://github.com/tokenami/tokenami/pull/467) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- fix overeager removal of parent pseudo-classes in #467 [#470](https://github.com/tokenami/tokenami/pull/470) ([@jjenzz](https://github.com/jjenzz))
+- prevent compose block ast parsing errors from killing tokenami process [#468](https://github.com/tokenami/tokenami/pull/468) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- improve focus styles in nextjs example project [#471](https://github.com/tokenami/tokenami/pull/471) ([@jjenzz](https://github.com/jjenzz))
+- improve legibility of sheet logic [#465](https://github.com/tokenami/tokenami/pull/465) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- add intro section to readme [#466](https://github.com/tokenami/tokenami/pull/466) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.90 (Mon Oct 06 2025)
 
 #### 🚀 Enhancement
