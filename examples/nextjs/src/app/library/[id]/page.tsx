@@ -137,10 +137,8 @@ export default async function LibraryItemPage({ params }: { params: Promise<{ id
                       size="sm"
                       color={mockLibrary.colors[index % mockLibrary.colors.length]}
                     />
-                    <TitleCard.Content>
-                      <TitleCard.Title variant={6}>{track.title}</TitleCard.Title>
-                      <TitleCard.Description>{track.artist}</TitleCard.Description>
-                    </TitleCard.Content>
+                    <TitleCard.Title variant={6}>{track.title}</TitleCard.Title>
+                    <TitleCard.Description>{track.artist}</TitleCard.Description>
                   </TitleCard.Root>
                 </TableCell>
                 <TableCell>{track.album}</TableCell>

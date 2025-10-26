@@ -24,19 +24,14 @@ TitleCard.displayName = 'TitleCard';
  * TitleCardGraphic
  * -----------------------------------------------------------------------------------------------*/
 
-const TitleCardGraphic = Cover;
+interface TitleCardGraphicProps extends React.ComponentProps<typeof Cover> {}
 
-/* -------------------------------------------------------------------------------------------------
- * TitleCardContent
- * -----------------------------------------------------------------------------------------------*/
-
-interface TitleCardContentProps extends React.ComponentProps<'div'> {}
-
-const TitleCardContent = (props: TitleCardContentProps) => {
-  return <div {...props} />;
+const TitleCardGraphic = (props: TitleCardGraphicProps) => {
+  const [cn, css] = titleCardGraphic();
+  return <Cover {...props} className={cn(props.className)} style={css(props.style)} />;
 };
 
-TitleCardContent.displayName = 'TitleCardContent';
+TitleCardGraphic.displayName = 'TitleCardGraphic';
 
 /* -------------------------------------------------------------------------------------------------
  * TitleCardTitle
@@ -48,7 +43,16 @@ interface TitleCardTitleProps extends Omit<HeadingProps, 'level'> {
 }
 
 const TitleCardTitle = (props: TitleCardTitleProps) => {
-  return <Heading level={3} variant={5} {...props} />;
+  const [cn, css] = titleCardTitle();
+  return (
+    <Heading
+      level={3}
+      variant={5}
+      {...props}
+      className={cn(props.className)}
+      style={css(props.style)}
+    />
+  );
 };
 
 TitleCardTitle.displayName = 'TitleCardTitle';
@@ -72,28 +76,35 @@ TitleCardDescription.displayName = 'TitleCardDescription';
 /* ---------------------------------------------------------------------------------------------- */
 
 const titleCard = css.compose({
-  '--display': 'flex',
-  '--gap': 3,
-  '--align-items': 'center',
+  '--display': 'grid',
+  '--grid-template-areas': "'graphic title' 'graphic description'",
+  '--grid-template-columns': 'var(---, auto 1fr)',
+  '--grid-template-rows': 'var(---, auto auto)',
+  '--gap-x': 3,
+});
+
+const titleCardGraphic = css.compose({
+  '--grid-area': 'var(---, graphic)',
+});
+
+const titleCardTitle = css.compose({
+  '--grid-area': 'var(---, title)',
 });
 
 const titleCardDescription = css.compose({
-  '--display': 'flex',
-  '--gap': 1,
   '--font': 'var(--text_xs)',
   '--color': 'var(--color_gray11)',
+  '--grid-area': 'var(---, description)',
 });
 
 export {
   TitleCard,
   TitleCardGraphic,
-  TitleCardContent,
   TitleCardTitle,
   TitleCardDescription,
   //
   TitleCard as Root,
   TitleCardGraphic as Graphic,
-  TitleCardContent as Content,
   TitleCardTitle as Title,
   TitleCardDescription as Description,
 };

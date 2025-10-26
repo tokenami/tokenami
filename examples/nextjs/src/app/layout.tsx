@@ -144,12 +144,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className={footerCn()}>
           <TitleCard.Root>
             <TitleCard.Graphic color="crimson" />
-            <TitleCard.Content>
-              <TitleCard.Title variant={6}>Flip</TitleCard.Title>
-              <TitleCard.Description style={{ '--font': 'var(--text_xs)' }}>
-                Glass Animals
-              </TitleCard.Description>
-            </TitleCard.Content>
+            <TitleCard.Title variant={6}>Flip</TitleCard.Title>
+            <TitleCard.Description style={{ '--font': 'var(--text_xs)' }}>
+              Glass Animals
+            </TitleCard.Description>
           </TitleCard.Root>
         </footer>
       </body>
@@ -175,19 +173,17 @@ const LibraryCard = ({ title, type, author, color }: LibraryCardProps) => {
         color={color}
         style={{ '--box-shadow': 'var(--shadow_base)', '--shadow-color': 'var(--color_blackA6)' }}
       />
-      <TitleCard.Content>
-        <TitleCard.Title level={3} variant={5}>
-          {title}
-        </TitleCard.Title>
-        <TitleCard.Description asChild>
-          <dl>
-            <dt className={cssUtil.srOnly()}>Type</dt>
-            <dd>{type}</dd>
-            <dt className={cssUtil.srOnly()}>Author</dt>
-            <dd>{author}</dd>
-          </dl>
-        </TitleCard.Description>
-      </TitleCard.Content>
+      <TitleCard.Title level={3} variant={5}>
+        {title}
+      </TitleCard.Title>
+      <TitleCard.Description asChild style={{ '--display': 'flex', '--gap': 1 }}>
+        <dl>
+          <dt className={cssUtil.srOnly()}>Type</dt>
+          <dd>{type}</dd>
+          <dt className={cssUtil.srOnly()}>Author</dt>
+          <dd>{author}</dd>
+        </dl>
+      </TitleCard.Description>
     </TitleCard.Root>
   );
 };
