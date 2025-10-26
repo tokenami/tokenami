@@ -6,12 +6,12 @@ import { css, type TokenamiStyle, type TokenValue } from '@/css';
 type Color = (typeof mockLibrary.colors)[number];
 
 const COLORS = {
-  green: 'var(--color_green9)',
-  sky: 'var(--color_sky9)',
-  orange: 'var(--color_orange9)',
-  yellow: 'var(--color_yellow9)',
-  iris: 'var(--color_iris9)',
-  crimson: 'var(--color_crimson9)',
+  green: 'var(--color_green8)',
+  sky: 'var(--color_sky8)',
+  orange: 'var(--color_orange8)',
+  yellow: 'var(--color_yellow8)',
+  iris: 'var(--color_iris8)',
+  crimson: 'var(--color_crimson8)',
 } satisfies Record<Color, TokenValue<'color'>>;
 
 /* -------------------------------------------------------------------------------------------------
