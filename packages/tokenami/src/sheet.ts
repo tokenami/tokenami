@@ -450,7 +450,7 @@ function getPropertySelectors(
   }
 
   const elementSelectors = utils.unique(selectors).map((selector) => {
-    return isPseudoElementSelector(selector) ? selector : selector.replace(/:.+$/, '');
+    return isPseudoElementSelector(selector) ? selector : selector.replace(/:[^ ]+$/, '');
   });
 
   return {
