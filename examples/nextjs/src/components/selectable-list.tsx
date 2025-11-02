@@ -6,10 +6,11 @@ import { Slot } from '@radix-ui/react-slot';
  * SelectableList
  * -----------------------------------------------------------------------------------------------*/
 
-interface SelectableListProps extends React.ComponentProps<'ol'> {}
+interface SelectableListProps extends TokenamiStyle<React.ComponentProps<'ol'>> {}
 
 const SelectableList = (props: SelectableListProps) => {
-  return <ol {...props} />;
+  const [cn, css] = selectableList();
+  return <ol {...props} className={cn(props.className)} style={css(props.style)} />;
 };
 
 SelectableList.displayName = 'SelectableList';
@@ -18,11 +19,20 @@ SelectableList.displayName = 'SelectableList';
  * SelectableListItem
  * -----------------------------------------------------------------------------------------------*/
 
-interface SelectableListItemProps extends TokenamiStyle<React.ComponentProps<'li'>> {}
+interface SelectableListItemProps extends TokenamiStyle<React.ComponentProps<'li'>> {
+  isSelected?: boolean;
+}
 
-const SelectableListItem = (props: SelectableListItemProps) => {
+const SelectableListItem = ({ isSelected, ...props }: SelectableListItemProps) => {
   const [cn, css] = selectableListItem();
-  return <li {...props} className={cn('group', props.className)} style={css(props.style)} />;
+  return (
+    <li
+      {...props}
+      className={cn('group', props.className)}
+      style={css(props.style)}
+      data-selected={isSelected ? '' : undefined}
+    />
+  );
 };
 
 SelectableListItem.displayName = 'SelectableListItem';
@@ -45,12 +55,18 @@ SelectableListTrigger.displayName = 'SelectableListTrigger';
 
 /* ---------------------------------------------------------------------------------------------- */
 
+const selectableList = css.compose({
+  '--display': 'grid',
+  '--gap': 1,
+});
+
 const selectableListItem = css.compose({
   '--position': 'relative',
   '--isolation': 'isolate',
   '--overflow': 'hidden',
   '--border-radius': 'var(--radii_md)',
   '--hover-within_background-color': 'var(--color_gray3)',
+  '--{&[data-selected]}_background-color': 'var(--color_gray4)',
   '--p': 2,
 });
 

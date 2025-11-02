@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import Link from 'next/link';
 import { css } from '@/css';
 import { Icon } from '@/components/icon';
 import { IconButton } from '@/components/icon-button';
@@ -8,7 +7,7 @@ import { Heading } from '@/components/heading';
 import { Frame } from '@/components/frame';
 import { Search } from '@/components/search';
 import * as mockLibrary from '@/mock/library';
-import * as SelectableList from '@/components/selectable-list';
+import * as LibraryNavigation from '@/components/library-navigation';
 import * as TitleCard from '@/components/title-card';
 import * as Button from '@/components/button';
 import * as ButtonGroup from '@/components/button-group';
@@ -41,18 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" data-theme="dark">
       <body className={bodyCn(`${geistSans.variable} ${geistMono.variable}`)}>
         <header className={headerCn()}>
-          <div
-            style={css({
-              '--display': 'flex',
-              '--place-content': 'center',
-              '--gap': 1,
-            })}
-          >
-            <IconButton icon="home-5-line" size="xl">
-              Home
-            </IconButton>
-            <Search />
-          </div>
+          <Search />
         </header>
 
         <div className={contentCn()}>
@@ -120,21 +108,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
               </header>
 
-              <SelectableList.Root>
+              <LibraryNavigation.Root>
                 {mockLibrary.list.map((item) => (
-                  <SelectableList.Item key={item.id}>
-                    <SelectableList.Trigger asChild>
-                      <Link href={`/library/${item.id}`} />
-                    </SelectableList.Trigger>
+                  <LibraryNavigation.Item key={item.id} href={`/library/${item.id}`}>
                     <LibraryCard
                       title={item.title}
                       type={item.type}
                       author={item.author}
                       color={mockLibrary.colors[item.colorIndex]}
                     />
-                  </SelectableList.Item>
+                  </LibraryNavigation.Item>
                 ))}
-              </SelectableList.Root>
+              </LibraryNavigation.Root>
             </aside>
           </Frame>
 
