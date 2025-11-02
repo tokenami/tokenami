@@ -41,6 +41,7 @@ const iconButton = css.compose({
 
   variants: {
     size: {
+      sm: { '--size': 6 },
       md: { '--size': 8 },
       lg: { '--size': 9 },
       xl: { '--size': 10 },

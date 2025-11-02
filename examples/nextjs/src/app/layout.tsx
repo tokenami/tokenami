@@ -11,6 +11,7 @@ import * as LibraryNavigation from '@/components/library-navigation';
 import * as TitleCard from '@/components/title-card';
 import * as Button from '@/components/button';
 import * as ButtonGroup from '@/components/button-group';
+import * as AudioPlayer from '@/components/audio-player';
 import * as cssUtil from '@/css/utils';
 
 import './tokenami.css';
@@ -126,15 +127,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main style={css({ '--flex': 'var(--flex_1)', '--min-width': 0 })}>{children}</main>
         </div>
 
-        <footer className={footerCn()}>
-          <TitleCard.Root>
-            <TitleCard.Graphic color="crimson" />
-            <TitleCard.Title variant={6}>Flip</TitleCard.Title>
-            <TitleCard.Description style={{ '--font': 'var(--text_xs)' }}>
-              Glass Animals
-            </TitleCard.Description>
-          </TitleCard.Root>
-        </footer>
+        <AudioPlayer.Root asChild>
+          <footer className={footerCn()}>
+            <TitleCard.Root>
+              <TitleCard.Graphic color="crimson" />
+              <TitleCard.Title variant={6}>Flip</TitleCard.Title>
+              <TitleCard.Description style={{ '--font': 'var(--text_xs)' }}>
+                Glass Animals
+              </TitleCard.Description>
+            </TitleCard.Root>
+
+            <AudioPlayer.Player>
+              <AudioPlayer.Controls />
+              <AudioPlayer.Scrubber />
+            </AudioPlayer.Player>
+
+            <AudioPlayer.Volume />
+          </footer>
+        </AudioPlayer.Root>
       </body>
     </html>
   );
@@ -200,6 +210,8 @@ const content = css.compose({
 });
 
 const footer = css.compose({
+  '--display': 'flex',
+  '--align-items': 'center',
+  '--gap': 6,
   '--px': 4,
-  '--py': 2,
 });

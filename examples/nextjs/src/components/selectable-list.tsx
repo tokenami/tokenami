@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { css, type TokenamiStyle } from '@/css';
-import { Slot } from '@radix-ui/react-slot';
+import { Slot } from './slot';
 
 /* -------------------------------------------------------------------------------------------------
  * SelectableList
