@@ -95,8 +95,8 @@ importers:
         specifier: 1.0.0-alpha.7
         version: 1.0.0-alpha.7(@types/react@19.1.13)(react-dom@19.1.1)(react@19.1.1)
       '@radix-ui/react-slot':
-        specifier: ^1.1.2
-        version: 1.1.2(@types/react@19.1.13)(react@19.1.1)
+        specifier: ^1.2.4
+        version: 1.2.4(@types/react@19.1.13)(react@19.1.1)
       '@sly-cli/sly':
         specifier: ^2.1.1
         version: 2.1.1(typescript@5.4.5)
@@ -2578,8 +2578,8 @@ packages:
     resolution: {integrity: sha512-FUOsGBkHrYJwCSEtWRCIfQbZG7q1e6DgxCIOe1SUQzDe/7rXXeA47s8yCn6fuTNQAj1Zq4oTFi9Yjp3wzElcxg==}
     dev: false
 
-  /@radix-ui/react-compose-refs@1.1.1(@types/react@19.1.13)(react@19.1.1):
-    resolution: {integrity: sha512-Y9VzoRDSJtgFMUCoiZBDVo084VQ5hfpXxVE+NgkdNsjiDBByiImMZKKhxMwCbdHvhlENG6a833CbFkOQvTricw==}
+  /@radix-ui/react-compose-refs@1.1.2(@types/react@19.1.13)(react@19.1.1):
+    resolution: {integrity: sha512-z4eqJvfiNnFMHIIvXP3CY57y2WJs5g2v3X0zm9mEJkrkNv4rDxu+sg9Jh8EkXyeqBkB7SOcboo9dMVqhyrACIg==}
     peerDependencies:
       '@types/react': 19.1.13
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
@@ -2591,8 +2591,8 @@ packages:
       react: 19.1.1
     dev: false
 
-  /@radix-ui/react-slot@1.1.2(@types/react@19.1.13)(react@19.1.1):
-    resolution: {integrity: sha512-YAKxaiGsSQJ38VzKH86/BPRC4rh+b1Jpa+JneA5LRE7skmLPNAyeG8kPJj/oo4STLvlrs8vkf/iYyc3A5stYCQ==}
+  /@radix-ui/react-slot@1.2.4(@types/react@19.1.13)(react@19.1.1):
+    resolution: {integrity: sha512-Jl+bCv8HxKnlTLVrcDE8zTMJ09R9/ukw4qBs/oZClOfoQk/cOTbDn+NceXfV7j09YPVQUryJPHurafcSg6EVKA==}
     peerDependencies:
       '@types/react': 19.1.13
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
@@ -2600,7 +2600,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.1.13)(react@19.1.1)
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.13)(react@19.1.1)
       '@types/react': 19.1.13
       react: 19.1.1
     dev: false

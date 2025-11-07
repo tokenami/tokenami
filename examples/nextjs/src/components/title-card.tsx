@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import { TokenamiProperties, css, type TokenamiStyle } from '@/css';
+import { css, type TokenamiStyle } from '@/css';
 import { Heading } from './heading';
 import { Cover } from './cover';
 

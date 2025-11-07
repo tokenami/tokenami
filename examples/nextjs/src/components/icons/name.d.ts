@@ -4,7 +4,14 @@
 	| "add-line"
 	| "archive-stack-line"
 	| "home-5-line"
+	| "pause-fill"
+	| "play-fill"
 	| "play-large-fill"
+	| "repeat-line"
 	| "search-line"
-	| "time-line";
+	| "shuffle-line"
+	| "skip-back-fill"
+	| "skip-forward-fill"
+	| "time-line"
+	| "volume-up-line";
   

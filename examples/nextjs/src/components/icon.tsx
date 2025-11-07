@@ -31,10 +31,11 @@ const icon = css.compose({
 
   variants: {
     size: {
+      sm: { '--size': 3 },
       md: { '--size': 4 },
       lg: { '--size': 5 },
       xl: { '--size': 6 },
-      '2xl': { '--size': 6 },
+      '2xl': { '--size': 7 },
     },
   },
 });
