@@ -207,6 +207,7 @@
     --radii_sm: .125rem;
     --radii_xl: .75rem;
     --size_auto: auto;
+    --size_half: 50%;
     --size_screen-h: 100vh;
     --text-size_4xl: 2.25rem;
     --text-size_lg: 1.125rem;
@@ -233,6 +234,7 @@
     --color_indigo10: #3358d4;
     --color_indigo5: #d2deff;
     --color_indigo6: #c1d0ff;
+    --color_indigo8: #8da4ef;
     --color_iris10: #5151cd;
     --color_red10: #dd3e42;
     --color_red8: #eb8e90;
@@ -257,6 +259,7 @@
       --color_indigo10: color(display-p3 .234 .343 .801);
       --color_indigo5: color(display-p3 .831 .87 1);
       --color_indigo6: color(display-p3 .767 .814 .995);
+      --color_indigo8: color(display-p3 .569 .639 .916);
       --color_iris10: color(display-p3 .318 .318 .774);
       --color_red10: color(display-p3 .798 .294 .285);
       --color_red8: color(display-p3 .872 .575 .572);
@@ -280,6 +283,7 @@
     --color_indigo10: #5472e4;
     --color_indigo5: #253974;
     --color_indigo6: #304384;
+    --color_indigo8: #435db2;
     --color_iris10: #6e6ade;
     --color_red10: #ec5e5e;
     --color_red8: #b54548;
@@ -304,6 +308,7 @@
       --color_indigo10: color(display-p3 .354 .445 .866);
       --color_indigo5: color(display-p3 .163 .22 .439);
       --color_indigo6: color(display-p3 .203 .262 .5);
+      --color_indigo8: color(display-p3 .285 .362 .674);
       --color_iris10: color(display-p3 .428 .416 .843);
       --color_red10: color(display-p3 .861 .403 .387);
       --color_red8: color(display-p3 .659 .298 .297);
@@ -397,6 +402,7 @@
     --before_inset: initial;
     --before_inset__calc: initial;
     --_1vokwbf: initial;
+    --background: initial;
     --before_background: initial;
     --_rt68g4: initial;
     --before_gradient-from: initial;
@@ -423,6 +429,8 @@
     --margin-block__calc: initial;
     --border-start-start-radius: initial;
     --border-start-end-radius: initial;
+    --margin-block-start: initial;
+    --margin-block-start__calc: initial;
     --border-block-width: initial;
     --border-inline-width: initial;
     --object-fit: initial;
@@ -485,6 +493,7 @@
     --_443yf1: var(--padding__calc) calc(var(--padding) * var(--_grid));
     margin: var(--_1ty9hq, var(--margin, revert-layer));
     --_1ty9hq: var(--margin__calc) calc(var(--margin) * var(--_grid));
+    background: var(--background, revert-layer);
     text-align: var(--text-align, revert-layer);
     overflow: var(--overflow, revert-layer);
   }
@@ -564,6 +573,8 @@
     --_193cv1f: var(--padding-block-start__calc) calc(var(--padding-block-start) * var(--_grid));
     --_rq4yuw: var(--margin-block-end__calc) calc(var(--margin-block-end) * var(--_grid));
     --_sn3kh4: var(--margin-inline-start__calc) calc(var(--margin-inline-start) * var(--_grid));
+    --_1x10y43: var(--margin-block-start__calc) calc(var(--margin-block-start) * var(--_grid));
+    margin-block-start: var(--_1x10y43, var(--margin-block-start, revert-layer));
     margin-block-end: var(--_rq4yuw, var(--margin-block-end, revert-layer));
     margin-inline-start: var(--_sn3kh4, var(--margin-inline-start, revert-layer));
     padding-block-start: var(--_193cv1f, var(--padding-block-start, revert-layer));
