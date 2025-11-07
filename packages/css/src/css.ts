@@ -27,6 +27,8 @@ type TokenamiComposeOutput<T> = (
   style: (...overrides: TokenamiOverride[]) => TokenamiCSS
 ];
 
+const cssCache = Tokenami.createLRUCache();
+const calcCache = Tokenami.createLRUCache();
 const composeStylesMap = new WeakMap<object, Record<string, any>>();
 
 /* -------------------------------------------------------------------------------------------------
@@ -52,7 +54,7 @@ function createCss(
 
   function css(...allStyles: [TokenamiProperties, ...TokenamiOverride[]]): TokenamiCSS {
     const cacheId = generateCacheId(allStyles);
-    const cached = lruCache.get(cacheId);
+    const cached = cssCache.get(cacheId);
     if (cached) return cached;
 
     const opts = (globalThis as any)[_TOKENAMI_CSS];
@@ -94,13 +96,20 @@ function createCss(
           target[parsedProperty] = value;
 
           if (isComposedProperty) continue;
-          if (propertyConfig.isCalc) overriddenStyles[calcToggle] = '/*on*/';
-          else delete overriddenStyles[calcToggle];
+
+          if (propertyConfig.isCalc) {
+            overriddenStyles[calcToggle] = '/*on*/';
+            calcCache.set(parsedProperty, 1);
+          } else if (value === 'inherit' && calcCache.get(parsedProperty)) {
+            overriddenStyles[calcToggle] = 'inherit';
+          } else {
+            delete overriddenStyles[calcToggle];
+          }
         }
       }
     }
 
-    lruCache.set(cacheId, overriddenStyles);
+    cssCache.set(cacheId, overriddenStyles);
     return overriddenStyles as any as TokenamiCSS;
   }
 
@@ -110,7 +119,7 @@ function createCss(
 
     return function generate(selectedVariants = {}) {
       const cacheId = generateCacheId([baseStyles, variants, selectedVariants, ...includes]);
-      const cached = lruCache.get(cacheId);
+      const cached = cssCache.get(cacheId);
       if (cached) return cached;
 
       const selectedVariantsEntries = Object.entries(selectedVariants);
@@ -135,7 +144,9 @@ function createCss(
       }
 
       const result: ReturnType<TokenamiComposeOutput<T>> = [
-        cn.bind(null, ...includeClassNames, className),
+        (...classNames: ClassName[]) => {
+          return [...includeClassNames, className, ...classNames].filter(Boolean).join(' ');
+        },
         (...overrides) => {
           const styles = {};
           composeStylesMap.set(styles, baseStyles);
@@ -143,7 +154,7 @@ function createCss(
         },
       ];
 
-      lruCache.set(cacheId, result);
+      cssCache.set(cacheId, result);
       return result;
     };
   };
@@ -162,20 +173,6 @@ function generateCacheId(objs: (object | TokenamiOverride)[]) {
     }
     return value;
   });
-}
-
-/* -------------------------------------------------------------------------------------------------
- * lruCache
- * -----------------------------------------------------------------------------------------------*/
-
-const lruCache = Tokenami.createLRUCache(1_500);
-
-/* -------------------------------------------------------------------------------------------------
- * cn
- * -----------------------------------------------------------------------------------------------*/
-
-function cn(...classNames: ClassName[]) {
-  return classNames.filter(Boolean).join(' ');
 }
 
 /* -------------------------------------------------------------------------------------------------
