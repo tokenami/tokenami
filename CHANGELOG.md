@@ -1,3 +1,20 @@
+# v0.0.92 (Fri Nov 07 2025)
+
+#### 🐛 Bug Fix
+
+- add reset for grid calc toggles [#473](https://github.com/tokenami/tokenami/pull/473) ([@jjenzz](https://github.com/jjenzz))
+- fix `::-webkit-scrollbar` revert-layer behaviour [#472](https://github.com/tokenami/tokenami/pull/472) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- add audio player and improve homescreen for nextjs example [#474](https://github.com/tokenami/tokenami/pull/474) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.91 (Sun Oct 26 2025)
 
 #### 🚀 Enhancement
