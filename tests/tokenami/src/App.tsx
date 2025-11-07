@@ -162,6 +162,12 @@ export default function Index() {
         Button
       </button>
       <DS.Button style={{ '--border-color': 'var(---, red)' }}>Button</DS.Button>
+
+      <div style={css({ '--width': 100, '--background': 'var(--color_indigo10)', '--mt': 5 })}>
+        <div style={css({ '--width': 'var(--size_half)', '--background': 'var(--color_indigo8)' })}>
+          should be 50% width
+        </div>
+      </div>
     </div>
   );
 }

@@ -91,6 +91,7 @@ function createSheet(params: {
 
       if (!isInheritable && !selectorConfig.some(isChildSelector)) {
         sheet.addReset(prop.tokenProperty);
+        if (prop.isGrid) sheet.addReset(Tokenami.calcProperty(prop.tokenProperty));
       }
 
       if (prop.variant) {
@@ -524,7 +525,8 @@ function createVariantValue(
 
 function createGridToggleValue(property: string) {
   const gridProperty = Tokenami.gridProperty();
-  return `var(${property}__calc) calc(var(${property}) * var(${gridProperty}))`;
+  const gridToggleProperty = Tokenami.calcProperty(property);
+  return `var(${gridToggleProperty}) calc(var(${property}) * var(${gridProperty}))`;
 }
 
 /* -------------------------------------------------------------------------------------------------
