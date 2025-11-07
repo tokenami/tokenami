@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@base-ui-components/react": "1.0.0-alpha.7",
-    "@radix-ui/react-compose-refs": "^1.1.2",
+    "@radix-ui/react-slot": "^1.2.4",
     "@sly-cli/sly": "^2.1.1",
     "@tokenami/css": "workspace:*",
     "@tokenami/ds": "workspace:*",

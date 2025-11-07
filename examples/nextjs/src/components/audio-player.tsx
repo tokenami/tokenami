@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Slot } from './slot';
+import { Slot } from '@radix-ui/react-slot';
 import { css, type TokenamiStyle } from '@/css';
 import { Icon } from '@/components/icon';
 import { IconButton } from '@/components/icon-button';

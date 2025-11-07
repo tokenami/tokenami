@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Slot } from './slot';
+import { Slot } from '@radix-ui/react-slot';
 import * as mockLibrary from '@/mock/library';
 import { css, type TokenamiStyle, type TokenValue } from '@/css';
 
