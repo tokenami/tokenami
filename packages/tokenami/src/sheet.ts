@@ -284,6 +284,7 @@ class Sheet {
   }
 
   #generateThemeTokens(styleSelector: string | string[]) {
+    if (styleSelector.length === 0) return '';
     const theme = utils.getThemeFromConfig(this.config.theme);
     const rootSelector = this.config.themeSelector('root');
     const gridStyles = `${rootSelector} { ${Tokenami.gridProperty()}: ${this.config.grid}; }`;
