@@ -25,6 +25,9 @@
   "bin": {
     "tokenami": "bin.js"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "files": [
     "dist",
     "stubs",
