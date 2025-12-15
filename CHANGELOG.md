@@ -1,3 +1,22 @@
+# v0.0.93 (Mon Dec 15 2025)
+
+#### 🐛 Bug Fix
+
+- fix empty selector error [#477](https://github.com/tokenami/tokenami/pull/477) ([@jjenzz](https://github.com/jjenzz))
+- fix compose cache when passed variants as css override [#476](https://github.com/tokenami/tokenami/pull/476) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- upgrade to node version 22 [#480](https://github.com/tokenami/tokenami/pull/480) ([@jjenzz](https://github.com/jjenzz))
+- upgrade auto release tool [#479](https://github.com/tokenami/tokenami/pull/479) ([@jjenzz](https://github.com/jjenzz))
+- upgrade pnpm [#478](https://github.com/tokenami/tokenami/pull/478) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.92 (Fri Nov 07 2025)
 
 #### 🐛 Bug Fix
