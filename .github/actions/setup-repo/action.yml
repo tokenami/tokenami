@@ -4,7 +4,7 @@ description: Prepare and install everything for the repo
 inputs:
   pnpm-version:
     description: Version of pnpm to use
-    default: 8.x
+    default: 9.x
 
 runs:
   using: composite
