@@ -73,28 +73,29 @@ const buttonIncludes = css.compose({
   },
 });
 
+const icon = css.compose({
+  '--size': 4,
+  variants: {
+    size: {
+      sm: { '--size': 3 },
+      lg: { '--size': 5 },
+    },
+  },
+} as {});
+
 /* -------------------------------------------------------------------------------------------------
  * tests
  * -----------------------------------------------------------------------------------------------*/
 
 interface TestContext {
-  button: typeof button;
-  link: typeof link;
-  buttonIncludes: typeof buttonIncludes;
   className: string;
   output: ReturnType<ReturnType<typeof button>[1]>;
 }
 
 describe('css compose', () => {
-  beforeEach<TestContext>((context) => {
-    context.button = button;
-    context.link = link;
-    context.buttonIncludes = buttonIncludes;
-  });
-
   describe('when invoked without a config', () => {
     beforeEach<TestContext>((context) => {
-      const [cn, style] = context.button();
+      const [cn, style] = button();
       context.output = style();
       context.className = cn();
     });
@@ -110,7 +111,7 @@ describe('css compose', () => {
 
   describe('when invoked with a variant', () => {
     beforeEach<TestContext>((context) => {
-      const [, style] = context.button({ type: 'primary' });
+      const [, style] = button({ type: 'primary' });
       context.output = style();
     });
 
@@ -129,7 +130,7 @@ describe('css compose', () => {
 
   describe('when invoked with style overrides', () => {
     beforeEach<TestContext>((context) => {
-      const [, style] = context.button({ type: 'secondary' });
+      const [, style] = button({ type: 'secondary' });
       context.output = style({ '--color': 'red' } as any, { '--border-color': 'red' } as any);
     });
 
@@ -145,7 +146,7 @@ describe('css compose', () => {
 
   describe('when invoked with shorthand override', () => {
     beforeEach<TestContext>((context) => {
-      const [, style] = context.button({ type: 'secondary' });
+      const [, style] = button({ type: 'secondary' });
       context.output = style(
         { '--padding-left': 10, '--border': '1px dashed' } as any,
         { '--font': 'arial', '--padding': 30 } as any
@@ -174,8 +175,8 @@ describe('css compose', () => {
 
   describe('when invoked with compose override', () => {
     beforeEach<TestContext>((context) => {
-      const [buttonClassName, buttonStyle] = context.button();
-      const [linkClassName, linkStyle] = context.link();
+      const [buttonClassName, buttonStyle] = button();
+      const [linkClassName, linkStyle] = link();
       context.output = buttonStyle(
         css({ '--color': 'red' } as any),
         linkStyle(css({ '--border-color': 'green' } as any))
@@ -206,7 +207,7 @@ describe('css compose', () => {
 
   describe('when providing includes', () => {
     beforeEach<TestContext>((context) => {
-      const [cn, style] = context.buttonIncludes({ disabled: true });
+      const [cn, style] = buttonIncludes({ disabled: true });
       context.output = style();
       context.className = cn();
     });
@@ -225,6 +226,20 @@ describe('css compose', () => {
         '--border-color': 'initial', // inline because it overrides link base style
         '--font-weight': 'normal', // inline because it's a button variant
       });
+    });
+  });
+
+  describe('when used as a css override', () => {
+    it('should respect variant overrides when styles are cached', () => {
+      const [, style1] = icon({ size: 'sm' });
+      const [, style2] = icon({ size: 'lg' });
+      // cache icon styles
+      const output1 = css({}, style1());
+      // should not reuse icon cache
+      const output2 = css({}, style2());
+
+      expect(output1).toEqual({ '--size': 3, '--size__calc': '/*on*/' });
+      expect(output2).toEqual({ '--size': 5, '--size__calc': '/*on*/' });
     });
   });
 });

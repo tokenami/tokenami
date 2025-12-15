@@ -169,7 +169,7 @@ function createCss(
 function generateCacheId(objs: (object | TokenamiOverride)[]) {
   return JSON.stringify(objs, (_, value) => {
     if (typeof value === 'object' && value !== null && composeStylesMap.has(value)) {
-      return { ...value, ...composeStylesMap.get(value) };
+      return { ...composeStylesMap.get(value), ...value };
     }
     return value;
   });
