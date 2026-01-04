@@ -338,17 +338,27 @@ class TokenamiPlugin {
     const contextual = checker.getContextualType(objLit);
     if (!contextual) return false;
 
-    let isTokenami = contextual.getProperties().some((p) => p.name === '__tokenami__');
-
-    if (!isTokenami) {
-      const typeString = checker.typeToString(contextual);
-      const isTokenamiProperties = typeString.includes('TokenamiProperties');
-      const isTokenamiOverride = typeString.includes('TokenamiOverride');
-      isTokenami = isTokenamiProperties || isTokenamiOverride;
-    }
-
+    const isTokenami = this.#hasTokenamiType(contextual);
     if (isTokenami) this.#isTokenamiObjectCache.set(cacheKey, true);
     return isTokenami;
+  }
+
+  #hasTokenamiType(type: ts.Type): boolean {
+    const symbol = type.getSymbol();
+    const name = symbol?.getName();
+
+    if (name?.startsWith('Tokenami')) return true;
+
+    const aliasSymbol = type.aliasSymbol;
+    const aliasName = aliasSymbol?.getName();
+
+    if (aliasName?.startsWith('Tokenami')) return true;
+
+    if (type.isUnion() || type.isIntersection()) {
+      return type.types.some((t) => this.#hasTokenamiType(t));
+    }
+
+    return false;
   }
 }
 
