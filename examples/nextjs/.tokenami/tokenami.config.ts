@@ -46,7 +46,7 @@ export default createConfig({
   },
   aliases: {
     ...designSystemConfig.aliases,
-    'scrollbar-display': ['-ms-overflow-style', 'scrollbar-width'],
+    'scrollbar-width': ['-ms-overflow-style'],
   },
   properties: {
     ...designSystemConfig.properties,
