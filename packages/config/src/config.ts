@@ -56,6 +56,7 @@ interface Config<
   properties?: P & ExactProperties<P, T>;
   customProperties?: C & ExactProperties<C, T>;
 }
+
 /* -------------------------------------------------------------------------------------------------
  * createConfig
  * -----------------------------------------------------------------------------------------------*/
@@ -72,9 +73,12 @@ type ExactConfig<Shape, T> = T extends Shape
     : Shape
   : Shape;
 
-function createConfig<C extends Config, T extends ThemeConfig, P extends Properties>(
-  config: ExactConfig<Config, C> & Config<T, P>
-): C {
+function createConfig<
+  C extends Config,
+  T extends ThemeConfig,
+  P extends Properties,
+  CP extends CustomProperties
+>(config: ExactConfig<Config, C> & Config<T, P, CP>): C {
   return config as any;
 }
 
