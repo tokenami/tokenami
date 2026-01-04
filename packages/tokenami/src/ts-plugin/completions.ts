@@ -43,27 +43,20 @@ class TokenamiCompletions {
   #responsiveArbitrarySelectorSnippets: SelectorCompletionEntries;
 
   // lazily instantiate and cache these
-  #_values?: ValueCompletionEntries;
   #_responsiveSelectorSnippets?: SelectorCompletionEntries;
   #_validProperties: string[];
-  #_validTokenValues: (readonly [string, string])[];
   #_colorThemeKeys: Set<string>;
 
   constructor(config: TokenamiConfig.Config, context: TokenamiCompletionsContext) {
     this.#config = config;
     this.#ctx = { ...context, insertFormatter: context.insertFormatter ?? ((name) => name) };
     this.#_validProperties = Array.from(tokenami.getValidProperties(this.#config));
-    this.#_validTokenValues = tokenami.getValidValues(this.#config);
     this.#_colorThemeKeys = this.#computeColorThemeKeys();
     this.#selectorEntries = Object.entries(this.#config.selectors || {});
     this.#responsiveEntries = Object.entries(this.#config.responsive || {});
     this.#base = this.#getBaseCompletions();
     this.#selectorSnippets = this.#getSelectorSnippetCompletions();
     this.#responsiveArbitrarySelectorSnippets = this.#getResponsiveArbitrarySelectorSnippets();
-  }
-
-  get #values() {
-    return (this.#_values ??= this.#getValueCompletions());
   }
 
   get #responsiveSelectorSnippets() {
@@ -81,11 +74,26 @@ class TokenamiCompletions {
   }
 
   valueSearch(original: ts.CompletionEntry[]): ValueCompletionEntries[string] {
-    let result: ValueCompletionEntries[string] = {};
+    const result: ValueCompletionEntries[string] = {};
 
-    for (const entry of original) {
-      const valueByEntryName = this.#values[entry.name.replace(/['"]/g, '')];
-      if (valueByEntryName) Object.assign(result, valueByEntryName);
+    for (const [index, entry] of original.entries()) {
+      const entryName = entry.name.replace(/['"]/g, '');
+      const tokenValue = TokenamiConfig.TokenValue.safeParse(entryName);
+      if (!tokenValue.success) continue;
+
+      const { themeKey, token } = TokenamiConfig.getTokenValueParts(tokenValue.output);
+      const name = `$${token}`;
+      const isColor = this.#_colorThemeKeys.has(themeKey);
+
+      result[name] = {
+        name,
+        kind: ts.ScriptElementKind.string,
+        kindModifiers: isColor ? 'color' : themeKey,
+        sortText: this.#createSortText(`${index}${entryName}`),
+        insertText: this.#ctx.insertFormatter(entryName, { type: 'value' }),
+        labelDetails: { detail: '', description: entryName },
+        details: { themeKey, token },
+      };
     }
 
     return result;
@@ -228,30 +236,6 @@ class TokenamiCompletions {
     for (const [selector, value] of entries) {
       const entry = create([selector, value]);
       result[entry.name] = entry;
-    }
-
-    return result;
-  }
-
-  #getValueCompletions(): ValueCompletionEntries {
-    const result: ValueCompletionEntries = {};
-
-    for (const [index, value] of this.#_validTokenValues.entries()) {
-      const [themeKey, token] = value;
-      const entryName = TokenamiConfig.tokenValue(themeKey, token);
-      const name = `$${token}`;
-      const isColor = this.#_colorThemeKeys.has(themeKey);
-
-      result[entryName] ??= {};
-      result[entryName]![name] = {
-        name,
-        kind: ts.ScriptElementKind.string,
-        kindModifiers: isColor ? 'color' : themeKey,
-        sortText: this.#createSortText(`${index}${entryName}`),
-        insertText: this.#ctx.insertFormatter(entryName, { type: 'value' }),
-        labelDetails: { detail: '', description: entryName },
-        details: { themeKey, token },
-      };
     }
 
     return result;

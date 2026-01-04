@@ -125,13 +125,14 @@ class TokenamiPlugin {
     const node = findNodeAtPosition(sourceFile, position);
     if (!node) return original();
 
-    const input = this.#parseCompletionsInput(node, fileName, position);
+    const input = this.#parseTokenamiCompletionsInput(node, fileName, position);
     if (!input) return original();
 
+    const rawInput = removeQuotes(input.value);
+    const hasQuotes = input.value.startsWith('"') || input.value.startsWith("'");
+    const completions = hasQuotes ? this.#completions : this.#quotedCompletions;
+
     if (input.isTokenamiProperty) {
-      const rawInput = removeQuotes(input.value);
-      const hasQuotes = input.value.startsWith('"') || input.value.startsWith("'");
-      const completions = hasQuotes ? this.#completions : this.#quotedCompletions;
       const results = completions.propertySearch(rawInput);
       this.#completionsForPosition = results;
 
@@ -148,15 +149,6 @@ class TokenamiPlugin {
       };
     } else {
       const result = original();
-      const isTokenValue = result?.entries?.some((entry) => {
-        return TokenamiConfig.TokenValue.safeParse(entry.name).success;
-      });
-
-      if (!isTokenValue) return result;
-
-      const rawInput = removeQuotes(input.value);
-      const hasQuotes = input.value.startsWith('"') || input.value.startsWith("'");
-      const completions = hasQuotes ? this.#completions : this.#quotedCompletions;
       const results = completions.valueSearch(result?.entries ?? []);
       this.#completionsForPosition = results;
 
@@ -286,41 +278,63 @@ class TokenamiPlugin {
     ];
   }
 
-  #parseCompletionsInput(
+  #parseTokenamiCompletionsInput(
     node: ts.Node,
     fileName: string,
     position: number
   ): { value: string; isTokenamiProperty: boolean } | null {
     const objLit = ts.findAncestor(node, ts.isObjectLiteralExpression);
 
+    // No object literal - check for standalone value position
     if (!objLit) {
-      const text = node.getText();
-      return ts.isStringLiteral(node) ? { isTokenamiProperty: false, value: text } : null;
+      if (!ts.isStringLiteral(node)) return null;
+      if (!this.#isTokenValueContext(node)) return null;
+      return { isTokenamiProperty: false, value: node.getText() };
     }
 
-    const isTokenami = this.#isTokenamiObject(objLit, fileName);
-    if (!isTokenami) return null;
+    // Find the property at cursor position
+    const prop = objLit.properties.find((p) => p.getStart() <= position && position <= p.getEnd());
+    if (!prop) return null;
 
-    const assignmentAtPosition = objLit.properties.find((prop) => {
-      const start = prop.getStart();
-      const end = prop.getEnd();
-      return start <= position && position <= end;
-    });
+    const isTokenamiObj = this.#isTokenamiObject(objLit, fileName);
 
-    if (!assignmentAtPosition) return null;
-    const assignmentText = assignmentAtPosition.getText();
-
-    if (!ts.isPropertyAssignment(assignmentAtPosition)) {
-      return { isTokenamiProperty: true, value: assignmentText };
+    // Not a property assignment (e.g. shorthand) - only valid in tokenami objects
+    if (!ts.isPropertyAssignment(prop)) {
+      return isTokenamiObj ? { isTokenamiProperty: true, value: prop.getText() } : null;
     }
 
-    const propertyStart = assignmentAtPosition.getStart();
-    const relativePosition = position - propertyStart;
-    const key = assignmentAtPosition.name.getText();
-    const value = assignmentAtPosition.initializer.getText();
-    const isTokenamiProperty = !!(key && relativePosition < key.length);
+    // Determine if cursor is on property name or value
+    const keyLength = prop.name.getText().length;
+    const isOnProperty = position - prop.getStart() < keyLength;
 
-    return { isTokenamiProperty, value: isTokenamiProperty ? key : value };
+    if (isTokenamiObj) {
+      const value = isOnProperty ? prop.name.getText() : prop.initializer.getText();
+      return { isTokenamiProperty: isOnProperty, value };
+    }
+
+    // Not a tokenami object - only handle value position with TokenValue context
+    if (isOnProperty) return null;
+    if (!this.#isTokenValueContext(prop.initializer)) return null;
+    return { isTokenamiProperty: false, value: prop.initializer.getText() };
+  }
+
+  #isTokenValueContext(node: ts.Expression): boolean {
+    const checker = this.#ctx.info.languageService.getProgram()?.getTypeChecker();
+    const contextualType = checker?.getContextualType(node);
+    if (!contextualType) return false;
+    return this.#hasTokenValueType(contextualType);
+  }
+
+  #hasTokenValueType(type: ts.Type): boolean {
+    if (type.isStringLiteral()) {
+      return TokenamiConfig.TokenValue.safeParse(type.value).success;
+    }
+
+    if (type.isUnion()) {
+      return type.types.some((t) => this.#hasTokenValueType(t));
+    }
+
+    return false;
   }
 
   #isTokenamiObjectCache = TokenamiConfig.createLRUCache();
@@ -336,9 +350,7 @@ class TokenamiPlugin {
     if (this.#isTokenamiObjectCache.get(cacheKey)) return true;
 
     const checker = this.#ctx.info.languageService.getProgram()?.getTypeChecker();
-    if (!checker) return false;
-
-    const contextual = checker.getContextualType(objLit);
+    const contextual = checker?.getContextualType(objLit);
     if (!contextual) return false;
 
     const isTokenami = this.#hasTokenamiType(contextual);
@@ -348,15 +360,10 @@ class TokenamiPlugin {
 
   #hasTokenamiType(type: ts.Type): boolean {
     const symbol = type.getSymbol();
-    const name = symbol?.getName();
+    const aliasSymbol = type.aliasSymbol;
+    const name = symbol?.getName() || aliasSymbol?.getName();
 
     if (name?.startsWith('Tokenami')) return true;
-
-    const aliasSymbol = type.aliasSymbol;
-    const aliasName = aliasSymbol?.getName();
-
-    if (aliasName?.startsWith('Tokenami')) return true;
-
     if (type.isUnion() || type.isIntersection()) {
       return type.types.some((t) => this.#hasTokenamiType(t));
     }
