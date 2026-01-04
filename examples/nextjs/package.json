@@ -12,6 +12,8 @@
     "lint": "next lint",
     "icons:add": "pnpx @sly-cli/sly add remixicon",
     "icons:build": "icons build -i ./svg-icons -o ./src/components/icons --optimize",
+    "test": "pnpm run \"/test:/\"",
+    "test:types": "vitest run",
     "typecheck": "tokenami check; tsc --noEmit"
   },
   "dependencies": {
@@ -30,7 +32,8 @@
     "@types/react-dom": "19.1.9",
     "svg-icons-cli": "^0.0.8",
     "tokenami": "workspace:*",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^0.34.6"
   },
   "browserslist": [
     "supports css-cascade-layers and supports css-has"
