@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './src',
+  testMatch: '**/*.vis-test.ts',
   reporter: 'dot',
   use: {
     baseURL: 'http://localhost:4173',
