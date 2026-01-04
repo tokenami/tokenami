@@ -5,7 +5,7 @@ import * as culori from 'culori';
 import * as TokenamiConfig from '@tokenami/config';
 import * as tokenami from '../utils';
 import * as ERROR_CODES from './error-codes';
-import { isColorThemeEntry, replaceCssVarsWithFallback } from './common';
+import { isColorThemeEntry, isColorValue, replaceCssVarsWithFallback } from './common';
 import { LanguageServiceLogger } from './logger';
 import { TokenamiDiagnostics } from './diagnostics';
 import { TokenamiCompletions } from './completions';
@@ -195,17 +195,20 @@ class TokenamiPlugin {
     const entry = this.#completionsForPosition?.[entryName];
     if (!entry) return original;
 
-    const selector = (entry as any).details?.selector;
+    const selector: string | undefined = (entry as any).details?.selector;
     if (selector) return createEntryDetails(original, entry, selector);
 
-    const modeValues: ModeValues = (entry as any).details?.modeValues;
-    if (!modeValues) return original;
+    const themeKey: string | undefined = (entry as any).details?.themeKey;
+    const token: string | undefined = (entry as any).details?.token;
+    if (!themeKey || !token) return original;
 
+    const tokenValue = TokenamiConfig.tokenValue(themeKey, token);
+    const modeValues = tokenami.getThemeValuesByThemeMode(tokenValue, this.#config.theme);
     const themeEntries = Object.entries(modeValues);
     const [mode, firstValue] = themeEntries[0] || [];
     if (!firstValue) return original;
 
-    if (isColorThemeEntry(modeValues)) {
+    if (isColorValue(firstValue)) {
       const colorDescription = createColorTokenDescription(modeValues);
       const rgb = convertToRgb(replaceCssVarsWithFallback(firstValue), mode);
       return createEntryDetails(original, entry, `${rgb}\n\n${colorDescription}`);
