@@ -11,6 +11,7 @@
     "dev:ds": "turbo run storylite --filter=@tokenami/example-design-system",
     "dev:nextjs": "turbo watch dev --filter=@tokenami/example-nextjs",
     "build": "turbo run build --filter=@tokenami/example-design-system...",
+    "build:types": "tsx ./packages/tokenami/scripts/generate-declarations.ts",
     "clean": "pnpm exec rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules .turbo dist",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
@@ -28,6 +29,7 @@
     "lerna": "^9.0.3",
     "prettier": "^2.8.8",
     "size-limit": "^11.2.0",
+    "tsx": "^4.21.0",
     "turbo": "latest",
     "typescript": "^5.1.3"
   },

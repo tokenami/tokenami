@@ -15,7 +15,7 @@ const buttonGroup = css.compose({
   '--display': 'flex',
   '--gap': 1.5,
   '--overflow-x': 'auto',
-  '--scrollbar-display': 'none',
+  '--scrollbar-width': 'none',
   '--webkit-scrollbar_display': 'none',
   '--min-width': 0,
 });

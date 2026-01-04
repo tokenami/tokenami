@@ -3,7 +3,7 @@ import type { CSSProperty } from '@tokenami/config';
 type AllProperties = Record<CSSProperty, number>;
 
 /**
- * we use objects to ensure thry contain all properties that exist in the csstype interface
+ * we use objects to ensure they contain all properties that exist in the csstype interface
  */
 
 const supportedLogical = {

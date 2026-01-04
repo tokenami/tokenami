@@ -4,7 +4,6 @@ import * as pathe from 'pathe';
 import * as culori from 'culori';
 import * as TokenamiConfig from '@tokenami/config';
 import * as tokenami from '../utils';
-import * as supports from '../supports';
 import * as ERROR_CODES from './error-codes';
 import { isColorThemeEntry, replaceCssVarsWithFallback } from './common';
 import { LanguageServiceLogger } from './logger';
@@ -357,32 +356,12 @@ class TokenamiPlugin {
  * updateEnvFile
  * -----------------------------------------------------------------------------------------------*/
 
-function updateEnvFile(configPath: string, config: TokenamiConfig.Config) {
+function updateEnvFile(configPath: string, _config: TokenamiConfig.Config) {
   const envFilePath = tokenami.getTypeDefsPath(configPath);
   const envFileContent = ts.sys.readFile(envFilePath, 'utf-8');
 
   if (!envFileContent) throw new Error('Cannot read tokenami.env.d.ts file');
-
-  const properties = Object.keys(config.properties || {});
-  const customProperties = Object.keys(config.customProperties || {});
-  const experimentalProperties = properties.flatMap((property) => {
-    if (supports.supportedProperties.has(property as any)) return [];
-    return [property];
-  });
-
-  const customPropertyTypes = [...experimentalProperties, ...customProperties].map((property) => {
-    return [`TokenProperties<'${property}'>`];
-  });
-
-  const updatedEnvFileContent = !customProperties.length
-    ? tokenami.generateTypeDefs(configPath, '../stubs/tokenami.env.d.ts')
-    : tokenami
-        .generateTypeDefs(configPath, '../stubs/tokenami.env-custom.d.ts')
-        .replace(
-          'interface TokenamiProperties {',
-          `interface TokenamiProperties extends ${customPropertyTypes.join(', ')} {`
-        );
-
+  const updatedEnvFileContent = tokenami.generateTypeDefs(configPath, '../stubs/tokenami.env.d.ts');
   ts.sys.writeFile(envFilePath, updatedEnvFileContent);
 }
 
