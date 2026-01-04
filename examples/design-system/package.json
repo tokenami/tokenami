@@ -15,9 +15,7 @@
     "dev": "pnpm run \"/dev:/\"",
     "dev:lib": "tsup --watch",
     "dev:css": "tokenami --output dist/tokenami.css --minify --watch",
-    "storylite": "pnpm run \"/storylite:/\"",
-    "storylite:app": "vite --port=7007 --host=0.0.0.0",
-    "storylite:css": "tokenami --output ./src/tokenami.css --watch",
+    "storylite": "vite --port=7007 --host=0.0.0.0",
     "typecheck": "tokenami check; tsc --noEmit"
   },
   "dependencies": {

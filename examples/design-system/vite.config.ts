@@ -2,6 +2,7 @@
 import { resolve } from 'path';
 import storylitePlugin from '@storylite/vite-plugin';
 import react from '@vitejs/plugin-react-swc';
+import tokenami from 'tokenami/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -14,6 +15,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    tokenami(),
     storylitePlugin({
       stories: 'src/**/*.stories.tsx',
     }),

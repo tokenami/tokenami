@@ -3,6 +3,8 @@
   "include": [".tokenami/tokenami.env.d.ts", "*.ts", "*.tsx", "src/**/*", ".storylite/**/*"],
   "compilerOptions": {
     "baseUrl": ".",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "plugins": [{ "name": "tokenami" }],
     "jsx": "react-jsx",
