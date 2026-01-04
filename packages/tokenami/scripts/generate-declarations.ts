@@ -158,7 +158,6 @@ type CustomTokenamiProperties = {
  * -----------------------------------------------------------------------------------------------*/
 
 interface TokenamiProperties extends ${extendsEntries}, CustomTokenamiProperties {
-  __tokenami__?: true;
   [customProperty: \`---\${string}\`]: any;
 }
 
