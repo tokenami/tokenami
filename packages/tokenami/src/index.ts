@@ -1,5 +1,3 @@
-export type * from './declarations';
-
 import { createTSPlugin } from './ts-plugin';
 
 interface TypeScriptPluginModule {
@@ -15,3 +13,4 @@ function tokenami(mod: TypeScriptPluginModule) {
 }
 
 export default tokenami;
+export type * from './declarations';
