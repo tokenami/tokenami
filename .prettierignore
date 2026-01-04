@@ -1,3 +1,4 @@
 .github/CODEOWNERS
 pnpm-lock.yaml
 tokenami.css
+packages/tokenami/src/declarations.ts
