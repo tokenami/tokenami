@@ -1,10 +1,13 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["src", ".tokenami/tokenami.env.d.ts"],
+  "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "outDir": "dist",
-    "target": "ES2022"
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "plugins": [{ "name": "tokenami" }]
   }
 }

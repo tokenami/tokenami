@@ -1,10 +1,8 @@
+import type { Logger } from './logger';
 import ts from 'typescript/lib/tsserverlibrary.js';
 import * as TokenamiConfig from '@tokenami/config';
 import * as tokenami from '../utils';
-import { isColorThemeEntry } from './common';
-import { Logger } from './logger';
-
-type ModeValues = Record<string, string>;
+import { isColorValue } from './common';
 
 interface CompletionEntry extends ts.CompletionEntry {
   insertText: string;
@@ -15,7 +13,7 @@ interface SelectorCompletionEntry extends CompletionEntry {
 }
 
 interface ValueCompletionEntry extends CompletionEntry {
-  details: { modeValues: ModeValues; themeKey: string };
+  details: { themeKey: string; token: string };
 }
 
 type CompletionEntries = { [entryName: string]: CompletionEntry };
@@ -45,25 +43,20 @@ class TokenamiCompletions {
   #responsiveArbitrarySelectorSnippets: SelectorCompletionEntries;
 
   // lazily instantiate and cache these
-  #_values?: ValueCompletionEntries;
   #_responsiveSelectorSnippets?: SelectorCompletionEntries;
   #_validProperties: string[];
-  #_validTokenValues: (readonly [string, string])[];
+  #_colorThemeKeys: Set<string>;
 
   constructor(config: TokenamiConfig.Config, context: TokenamiCompletionsContext) {
     this.#config = config;
     this.#ctx = { ...context, insertFormatter: context.insertFormatter ?? ((name) => name) };
     this.#_validProperties = Array.from(tokenami.getValidProperties(this.#config));
-    this.#_validTokenValues = tokenami.getValidValues(this.#config);
+    this.#_colorThemeKeys = this.#computeColorThemeKeys();
     this.#selectorEntries = Object.entries(this.#config.selectors || {});
     this.#responsiveEntries = Object.entries(this.#config.responsive || {});
     this.#base = this.#getBaseCompletions();
     this.#selectorSnippets = this.#getSelectorSnippetCompletions();
     this.#responsiveArbitrarySelectorSnippets = this.#getResponsiveArbitrarySelectorSnippets();
-  }
-
-  get #values() {
-    return (this.#_values ??= this.#getValueCompletions());
   }
 
   get #responsiveSelectorSnippets() {
@@ -81,11 +74,26 @@ class TokenamiCompletions {
   }
 
   valueSearch(original: ts.CompletionEntry[]): ValueCompletionEntries[string] {
-    let result: ValueCompletionEntries[string] = {};
+    const result: ValueCompletionEntries[string] = {};
 
-    for (const entry of original) {
-      const valueByEntryName = this.#values[entry.name.replace(/['"]/g, '')];
-      if (valueByEntryName) Object.assign(result, valueByEntryName);
+    for (const [index, entry] of original.entries()) {
+      const entryName = entry.name.replace(/['"]/g, '');
+      const tokenValue = TokenamiConfig.TokenValue.safeParse(entryName);
+      if (!tokenValue.success) continue;
+
+      const { themeKey, token } = TokenamiConfig.getTokenValueParts(tokenValue.output);
+      const name = `$${token}`;
+      const isColor = this.#_colorThemeKeys.has(themeKey);
+
+      result[name] = {
+        name,
+        kind: ts.ScriptElementKind.string,
+        kindModifiers: isColor ? 'color' : themeKey,
+        sortText: this.#createSortText(`${index}${entryName}`),
+        insertText: this.#ctx.insertFormatter(entryName, { type: 'value' }),
+        labelDetails: { detail: '', description: entryName },
+        details: { themeKey, token },
+      };
     }
 
     return result;
@@ -233,29 +241,22 @@ class TokenamiCompletions {
     return result;
   }
 
-  #getValueCompletions(): ValueCompletionEntries {
-    const result: ValueCompletionEntries = {};
+  #computeColorThemeKeys(): Set<string> {
+    const colorKeys = new Set<string>();
+    const theme = tokenami.getThemeFromConfig(this.#config.theme);
+    const themes = [theme.root, ...Object.values(theme.modes)];
 
-    for (const [index, value] of this.#_validTokenValues.entries()) {
-      const [themeKey, token] = value;
-      const entryName = TokenamiConfig.tokenValue(themeKey, token);
-      const parts = TokenamiConfig.getTokenValueParts(entryName);
-      const modeValues = tokenami.getThemeValuesByThemeMode(entryName, this.#config.theme);
-      const name = `$${parts.token}`;
-
-      result[entryName] ??= {};
-      result[entryName]![name] = {
-        name,
-        kind: ts.ScriptElementKind.string,
-        kindModifiers: isColorThemeEntry(modeValues) ? 'color' : parts.themeKey,
-        sortText: this.#createSortText(`${index}${entryName}`),
-        insertText: this.#ctx.insertFormatter(entryName, { type: 'value' }),
-        labelDetails: { detail: '', description: entryName },
-        details: { modeValues, themeKey: parts.themeKey },
-      };
+    for (const themeObj of themes) {
+      for (const [themeKey, values] of Object.entries(themeObj)) {
+        if (colorKeys.has(themeKey)) continue;
+        const firstValue = Object.values(values)[0];
+        if (firstValue != null && isColorValue(String(firstValue))) {
+          colorKeys.add(themeKey);
+        }
+      }
     }
 
-    return result;
+    return colorKeys;
   }
 
   #getSelectorConfigEntries(variants?: string[], arbSelector = '') {

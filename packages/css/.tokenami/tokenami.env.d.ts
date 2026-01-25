@@ -4,5 +4,4 @@ export type Config = typeof config;
 
 declare module 'tokenami' {
   interface TokenamiConfig extends Config {}
-  interface TokenamiProperties {}
 }
