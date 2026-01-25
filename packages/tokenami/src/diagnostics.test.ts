@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import ts from 'typescript';
-import { TokenamiDiagnostics } from 'tokenami';
+import { TokenamiDiagnostics } from './ts-plugin/diagnostics';
 import type { Config } from '@tokenami/config';
 
 /* -------------------------------------------------------------------------------------------------
