@@ -21,7 +21,7 @@ function isColorValue(value: string | undefined): boolean {
  * ---------------------------------------------------------------------------------------------*/
 
 function isColorThemeEntry(modeValues: Record<string, string>) {
-  const firstValue = Object.values(modeValues || {})?.[0];
+  const firstValue = Object.values(modeValues)?.[0];
   return isColorValue(firstValue);
 }
 

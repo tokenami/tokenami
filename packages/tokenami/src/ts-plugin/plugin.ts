@@ -73,7 +73,7 @@ class TokenamiPlugin {
     context.logger.log(`Watching config at ${configPath}`);
 
     try {
-      updateEnvFile(configPath, this.#config);
+      updateEnvFile(configPath);
     } catch (e) {
       context.logger.error(`Error updating typedefs: ${e}`);
     }
@@ -84,7 +84,7 @@ class TokenamiPlugin {
       if (eventKind !== this.#ctx.ts.FileWatcherEventKind.Changed) return;
       try {
         const reloadedConfig = tokenami.getConfigAtPath(configPath, { cache: false });
-        updateEnvFile(configPath, reloadedConfig);
+        updateEnvFile(configPath);
 
         this.#ctx.logger.log(`Config changed at ${configPath}}`);
         this.#completions = new TokenamiCompletions(reloadedConfig, this.#ctx);
@@ -376,7 +376,7 @@ class TokenamiPlugin {
  * updateEnvFile
  * -----------------------------------------------------------------------------------------------*/
 
-function updateEnvFile(configPath: string, _config: TokenamiConfig.Config) {
+function updateEnvFile(configPath: string) {
   const envFilePath = tokenami.getTypeDefsPath(configPath);
   const envFileContent = ts.sys.readFile(envFilePath, 'utf-8');
 

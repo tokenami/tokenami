@@ -244,13 +244,13 @@ class TokenamiCompletions {
   #computeColorThemeKeys(): Set<string> {
     const colorKeys = new Set<string>();
     const theme = tokenami.getThemeFromConfig(this.#config.theme);
-    const themes = [theme.root, ...Object.values(theme.modes)];
+    const themeModes = [theme.root, ...Object.values(theme.modes)];
 
-    for (const themeObj of themes) {
-      for (const [themeKey, values] of Object.entries(themeObj)) {
+    for (const theme of themeModes) {
+      for (const [themeKey, values] of Object.entries(theme)) {
         if (colorKeys.has(themeKey)) continue;
         const firstValue = Object.values(values)[0];
-        if (firstValue != null && isColorValue(String(firstValue))) {
+        if (typeof firstValue === 'string' && isColorValue(firstValue)) {
           colorKeys.add(themeKey);
         }
       }
