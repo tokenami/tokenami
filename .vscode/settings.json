@@ -6,7 +6,5 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
 
   "typescript.tsdk": "node_modules/typescript/lib",
-  "editor.suggest.filterGraceful": false,
-  "editor.suggest.matchOnWordStartOnly": true,
   "editor.quickSuggestions": { "strings": true }
 }
