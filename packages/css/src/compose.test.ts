@@ -1,7 +1,7 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import { generateClassName } from '@tokenami/config';
-import { css } from '@tokenami/css';
-import { hasStyles, hasSomeStyles } from './utils';
+import { css } from './css';
+import { hasStyles, hasSomeStyles } from './test-utils';
 
 /* -------------------------------------------------------------------------------------------------
  * setup

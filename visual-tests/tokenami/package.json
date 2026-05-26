@@ -1,5 +1,5 @@
 {
-  "name": "@tokenami/tests-tokenami",
+  "name": "@tokenami/visual-tests",
   "private": true,
   "type": "module",
   "scripts": {
