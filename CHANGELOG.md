@@ -1,3 +1,21 @@
+# v0.0.94 (Tue May 26 2026)
+
+#### 🏎 Performance
+
+- improve intellisense perf w/o requiring suggest tuning in settings.json [#489](https://github.com/tokenami/tokenami/pull/489) ([@jjenzz](https://github.com/jjenzz))
+- flatten types to improve IDE performance [#481](https://github.com/tokenami/tokenami/pull/481) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- move canary release to release.yaml [#488](https://github.com/tokenami/tokenami/pull/488) ([@jjenzz](https://github.com/jjenzz))
+- ensure cjs module interop for ts plugin [#484](https://github.com/tokenami/tokenami/pull/484) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.93 (Mon Dec 15 2025)
 
 #### 🐛 Bug Fix
