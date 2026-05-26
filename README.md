@@ -51,7 +51,6 @@
   - [CI setup](#user-content-ci-setup)
 - [Troubleshooting](#user-content-troubleshooting)
   - [Enable string completions](#user-content-enable-string-completions)
-  - [Improve autocomplete speed and accuracy](#user-content-improve-autocomplete-speed-and-accuracy)
   - [Supported libraries](#user-content-supported-libraries)
   - [Supported browsers](#user-content-supported-browsers)
   - [Supported editors](#user-content-supported-editors)
@@ -93,7 +92,7 @@ npx tokenami init
 ```
 
 - Make sure your editor uses the workspace TypeScript version (see [VS Code docs](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript)).
-- For VS Code–based editors, [enable string suggestions](#user-content-enable-string-completions) and check our [autocomplete tuning guide](#user-content-improve-autocomplete-speed-and-accuracy).
+- For VS Code–based editors, [enable string suggestions](#user-content-enable-string-completions).
 
 #### 2. Run the watcher to build your CSS:
 
@@ -119,7 +118,7 @@ Benefits include:
 
 - 🏷️ **Simple naming convention** — turn any CSS property into a variable (`padding` → `--padding`)
 - 📦 **Smaller stylesheet** — one variable-driven rule instead of dozens of utility classes
-- ✨ **Streamlined markup** — one class name for your reusable components, keeping HTML clean and DRY
+- ✨ **Streamlined markup** — one class name for your reusable components, keeping HTML lean
 - 🎯 **Single source of truth** — a config file defines and enforces your design tokens
 - 💡 **Smart authoring** — autocomplete + type safety built into your workflow
 - 🔓 **Extensible by design** — atomic CSS variables give your consumers control to override
@@ -127,7 +126,6 @@ Benefits include:
 - ⚡ **Dynamic by default** — pass props directly into tokens (`--color: props.color`)
 - ✍️ **Shorthand tokens** — define aliases like `--p` for padding
 - 🎨 **Expressive selectors** — custom selectors for nesting and descendant rules
-- 🚀 **Zero bundler friction** — static styles with no bundler integration
 
 ### Why Tokenami?
 
@@ -777,20 +775,6 @@ VS Code won't suggest completions for partial strings by default. This prevents 
 | BEFORE                                                                                                               | AFTER                                                                                                                |
 | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | ![CleanShot 2024-09-08 at 14 10 10](https://github.com/user-attachments/assets/9b99edb4-dec0-402e-99c9-671525332ccf) | ![CleanShot 2024-09-08 at 14 09 43](https://github.com/user-attachments/assets/ad2ed719-c2ca-4929-902d-5fdf5142468b) |
-
-### Improve autocomplete speed and accuracy
-
-Some editors that Tokenami integrates with (such as VS Code and Cursor) support VS Code–style configuration settings. If you feel Tokenami's completions are slow or match on irrelevant suggestions, you can refine IntelliSense behaviour by adding the following settings to your workspace `.vscode/settings.json`:
-
-```json
-{
-  "editor.suggest.filterGraceful": false,
-  "editor.suggest.matchOnWordStartOnly": true
-}
-```
-
-- **"editor.suggest.filterGraceful": false**: Filters out loosely related suggestions so closer matches are shown.
-- **"editor.suggest.matchOnWordStartOnly": true**: Redcues noise by prioritising suggestions that begin with your typed characters.
 
 ### Supported libraries
 

@@ -1,6 +1,4 @@
 import ts from 'typescript/lib/tsserverlibrary.js';
-import * as findUp from 'find-up';
-import * as pathe from 'pathe';
 import * as culori from 'culori';
 import * as TokenamiConfig from '@tokenami/config';
 import * as tokenami from '../utils';
@@ -51,17 +49,11 @@ class TokenamiPlugin {
   #completions: TokenamiCompletions;
   #quotedCompletions: TokenamiCompletions;
   #completionsForPosition: { [entryName: string]: ts.CompletionEntry } | null = null;
-  #isIncompleteCompletions = true;
 
   constructor(configPath: string, context: TokenamiPluginContext) {
-    const projectCwd = context.info.project.getCurrentDirectory();
-    const projectRoot = findProjectRoot(projectCwd);
-    const settingsPath = pathe.join(projectRoot, '.vscode', 'settings.json');
-
     this.#config = tokenami.getConfigAtPath(configPath);
     this.#diagnostics = new TokenamiDiagnostics(this.#config, context);
     this.#completions = new TokenamiCompletions(this.#config, context);
-    this.#isIncompleteCompletions = getIsIncompleteCompletionsSetting(context.ts, settingsPath);
     this.#ctx = context;
 
     this.#quotedCompletions = new TokenamiCompletions(this.#config, {
@@ -141,7 +133,6 @@ class TokenamiPlugin {
         isGlobalCompletion: false,
         isMemberCompletion: false,
         isNewIdentifierLocation: false,
-        ...(this.#isIncompleteCompletions && { isIncomplete: true }),
         optionalReplacementSpan: {
           start: position - rawInput.length,
           length: rawInput.length,
@@ -500,49 +491,6 @@ function convertToRgb(fill: string, mode?: string) {
     return culori.formatRgb(color);
   } catch {
     return fill;
-  }
-}
-
-/* -------------------------------------------------------------------------------------------------
- * getIsIncompleteCompletionsSetting
- * -----------------------------------------------------------------------------------------------*/
-
-function getIsIncompleteCompletionsSetting(tsserver: typeof ts, settingsPath: string): boolean {
-  if (!tsserver.sys.fileExists(settingsPath)) return true;
-
-  const text = tsserver.sys.readFile(settingsPath, 'utf8');
-  if (!text) return true;
-
-  const parsed = tsserver.parseConfigFileTextToJson(settingsPath, text);
-  const json = parsed.config as Record<string, any> | undefined;
-  if (!json) return true;
-
-  const matchOnWordStartOnly = json['editor.suggest.matchOnWordStartOnly'];
-  const filterGraceful = json['editor.suggest.filterGraceful'];
-
-  return matchOnWordStartOnly !== true && filterGraceful !== false;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * findProjectRoot
- * -----------------------------------------------------------------------------------------------*/
-
-const workspaceFiles = ['pnpm-workspace.yaml', 'lerna.json', 'nx.json', 'turbo.json'];
-
-function findProjectRoot(cwd: string): string {
-  try {
-    const wsMarker = findUp.sync(workspaceFiles, { cwd });
-    if (wsMarker) return pathe.dirname(wsMarker);
-
-    const gitDir = findUp.sync('.git', { cwd, type: 'directory' as const });
-    if (gitDir) return pathe.dirname(gitDir);
-
-    const pkg = findUp.sync('package.json', { cwd });
-    if (pkg) return pathe.dirname(pkg);
-
-    return cwd;
-  } catch {
-    return cwd;
   }
 }
 

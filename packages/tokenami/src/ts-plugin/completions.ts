@@ -40,7 +40,6 @@ class TokenamiCompletions {
   #responsiveEntries: [string, string][];
   #base: CompletionEntries;
   #selectorSnippets: SelectorCompletionEntries;
-  #responsiveArbitrarySelectorSnippets: SelectorCompletionEntries;
 
   // lazily instantiate and cache these
   #_responsiveSelectorSnippets?: SelectorCompletionEntries;
@@ -56,7 +55,6 @@ class TokenamiCompletions {
     this.#responsiveEntries = Object.entries(this.#config.responsive || {});
     this.#base = this.#getBaseCompletions();
     this.#selectorSnippets = this.#getSelectorSnippetCompletions();
-    this.#responsiveArbitrarySelectorSnippets = this.#getResponsiveArbitrarySelectorSnippets();
   }
 
   get #responsiveSelectorSnippets() {
@@ -103,7 +101,7 @@ class TokenamiCompletions {
     const parts = TokenamiConfig.getTokenPropertySplit(input as any);
 
     if (!parts.variants.length) {
-      return { ...this.#selectorSnippets, ...this.#responsiveArbitrarySelectorSnippets };
+      return this.#selectorSnippets;
     }
 
     if (parts.variants.length === 1) {
@@ -117,12 +115,6 @@ class TokenamiCompletions {
   #arbitrarySelectorRegex = /\{(.*)\}/;
   #getArbitrarySelector(input: string) {
     return input.match(this.#arbitrarySelectorRegex)?.[1];
-  }
-
-  #getResponsiveArbitrarySelectorSnippets() {
-    const selectorConfig = [[`{}`, '']] as [string, string][];
-    const completions = this.#getResponsiveSelectorSnippetCompletions(selectorConfig);
-    return completions;
   }
 
   #selectorsSearch(input: string, alias: string, variants: string[]) {
@@ -314,10 +306,14 @@ class TokenamiCompletions {
   #createPropertyEntry(name: string, sortText = this.#createSortText(name)): CompletionEntry {
     const kind = ts.ScriptElementKind.memberVariableElement;
     const kindModifiers = ts.ScriptElementKindModifier.optionalModifier;
+    const isSelector = name.slice(-1) === '_';
+    const filterText = isSelector ? name.slice(0, -1) : name;
     const insertText = this.#ctx.insertFormatter(name, { type: 'property' });
     const isSnippet = insertText.includes('${');
+
     return {
       name,
+      filterText,
       kind,
       kindModifiers,
       sortText,
