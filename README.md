@@ -171,11 +171,11 @@ Tokenami bridges the gap between CSS-in-JS and utility-first frameworks. You get
 
 ### Why the CSS variable syntax?
 
-To keep things fast, Tokenami applies styles directly to the `style` attribute when needed instead of injecting runtime CSS. Since inline styles can't handle media queries or pseudo-selectors, Tokenami expresses everything as CSS variables.
+To keep things fast, Tokenami applies styles directly to the `style` attribute when needed instead of injecting runtime CSS. Since inline styles can't express media queries or pseudo-selectors, Tokenami represents styles as CSS variables. This enables responsive and state-based styling inline while keeping specificity low, so your design system stays easy to integrate and override. You're never locked into Tokenami.
 
-This approach not only enables responsive and state-based styling—it also keeps specificity low, so others can easily integrate your design system and override its styles when needed. You're never locked into Tokenami.
+It also enables [selector toggles](#user-content-selector-specificity), letting you write complex selectors without increasing specificity or fighting the cascade.
 
-And don’t worry about typing all those dashes—just type `bord`, and Tokenami's IntelliSense completes the variable for you.
+Don't worry about typing all those dashes though—just type `bord`, and Tokenami's IntelliSense completes the variable for you.
 
 ## Core concepts
 
@@ -573,6 +573,41 @@ Use them in your components:
   <button style={css({ '--parent-hover_color': 'var(--color_primary)' })} />
 </div>
 ```
+
+#### Selector specificity
+
+Tokenami selectors are [CSS variable toggles](https://css-tricks.com/the-css-custom-property-toggle-trick/), so properties like `--hover_color` have a `--_hover` toggle that activates when your selector matches. Because of that, **selector complexity does not increase specificity**. You can make selectors as elaborate as you need without fighting the cascade.
+
+For example, the [official design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/src/index.ts) uses a `hover` selector that only applies on fine pointers and skips disabled elements:
+
+```ts
+hover: ['@media (hover: hover) and (pointer: fine)', '&:not(:disabled):hover'],
+```
+
+That level of guard-railing would often push you toward higher-specificity CSS in other systems and make things harder for teams to maintain over time. In Tokenami it does not.
+
+What matters when multiple selectors match at once is the **order you define selectors in your config**. Selectors defined later override those that come before.
+
+```ts
+export default createConfig({
+  selectors: {
+    hover: '&:hover',
+    focus: '&:focus', // wins over hover when both match
+  },
+});
+```
+
+```tsx
+<button
+  style={css({
+    '--color': 'var(--color_neutral-700)',
+    '--hover_color': 'var(--color_neutral-800)',
+    '--focus_color': 'var(--color_primary)',
+  })}
+/>
+```
+
+With `hover` listed before `focus`, `--focus_color` overrides `--hover_color` when the element is both hovered and focused.
 
 ### Property aliases
 
