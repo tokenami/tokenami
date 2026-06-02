@@ -141,6 +141,14 @@ class TokenamiPlugin {
     } else {
       const result = original();
       const results = completions.valueSearch(result?.entries ?? []);
+
+      // if Tokenami can't provide value completions, fall back to the
+      // default TypeScript completions (e.g. CSS.Properties unions).
+      if (Object.keys(results).length === 0) {
+        this.#completionsForPosition = null;
+        return result;
+      }
+
       this.#completionsForPosition = results;
 
       return {
