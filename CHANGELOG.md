@@ -1,3 +1,21 @@
+# v0.0.95 (Tue Jun 02 2026)
+
+#### 🐛 Bug Fix
+
+- fix `CSS.Properties` fallback completions for values [#491](https://github.com/tokenami/tokenami/pull/491) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- update "why tokenami" section in readme [#493](https://github.com/tokenami/tokenami/pull/493) ([@jjenzz](https://github.com/jjenzz))
+- update initial example in readme to use compose [#492](https://github.com/tokenami/tokenami/pull/492) ([@jjenzz](https://github.com/jjenzz))
+- updates readme to emphasise how specificity works with tokenami selectors [#490](https://github.com/tokenami/tokenami/pull/490) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.94 (Tue May 26 2026)
 
 #### 🏎 Performance
