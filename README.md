@@ -103,10 +103,36 @@ npx tokenami --output ./public/styles.css --watch
 #### 3. Reference the CSS file in the `<head>` of your document, and start styling with Tokenami:
 
 ```tsx
-import { css } from '@tokenami/css';
+import { css, type Variants, type TokenamiStyle } from '@tokenami/css';
 
-function Page() {
-  return <h1 style={css({ '--margin-top': 0, '--margin-bottom': 5 })}>Hello, World!</h1>;
+const button = css.compose({
+  '--display': 'flex',
+  '--align-items': 'center',
+  '--justify-content': 'center',
+  '--font': 'var(--text_sm)',
+  '--border-radius': 'var(--radii_full)',
+  '--background-color': 'var(--color_gray5)',
+  '--color': 'var(--color_gray12)',
+  '--gap': 0.5,
+
+  '--hover_background-color': 'var(--color_gray6)',
+  '--hover_color': 'var(--color_gray12)',
+
+  variants: {
+    size: {
+      default: { '--py': 1, '--px': 3 },
+      medium: { '--py': 2, '--px': 5 },
+    },
+  },
+});
+
+type ButtonVariants = Variants<typeof button>;
+type ButtonElementProps = TokenamiStyle<React.ComponentProps<'button'>>;
+interface ButtonProps extends ButtonElementProps, ButtonVariants {}
+
+function Button({ size = 'default', ...props }: ButtonProps) {
+  const [cn, sx] = button({ size });
+  return <button {...props} className={cn(props.className)} style={sx(props.style)} />;
 }
 ```
 
@@ -357,8 +383,8 @@ const button = css.compose({
 });
 
 function Button(props) {
-  const [cn, css] = button();
-  return <button {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = button();
+  return <button {...props} className={cn(props.className)} style={sx(props.style)} />;
 }
 ```
 
@@ -395,8 +421,8 @@ Use multiple variants together:
 
 ```tsx
 function Card(props) {
-  const [cn, css] = card({ color: 'blue', size: 'large' });
-  return <div {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = card({ color: 'blue', size: 'large' });
+  return <div {...props} className={cn(props.className)} style={sx(props.style)} />;
 }
 ```
 
