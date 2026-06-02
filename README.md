@@ -155,45 +155,23 @@ Benefits include:
 
 ### Why Tokenami?
 
-The React team [no longer recommends](https://github.com/reactwg/react-18/discussions/110) CSS-in-JS solutions that inject styles at runtime. Instead, they suggest:
+CSS-in-JS gives design systems type safety, variants, and composition, but often comes with runtime or build-time complexity and a relatively broad API surface to learn.
 
-> [...] use [`<link rel="stylesheet">`](https://github.com/reactwg/react-18/discussions/108) for static styles and plain inline styles for dynamic values. E.g. `<div style={{...}}>`
+Utility-first frameworks like Tailwind CSS keep styles fast, small, and token-driven, but styling is expressed through framework-specific utility classes rather than familiar CSS property names, and larger codebases often need extra tooling for variants, composition, and class conflicts, e.g. [tailwind-merge](https://bundlephobia.com/package/tailwind-merge).
 
-In other words—write CSS like we used to. But what about the benefits CSS-in-JS gave us?
+Tokenami bridges the gap with a small set of primitives built on atomic CSS variables, selectors, and tokens.
 
 <details>
 <summary>Read more</summary>
 <br/>
 
-Some CSS-in-JS tools already extract static styles into `.css` files, but they often need [bundler setup](https://vanilla-extract.style/documentation/integrations/next/) and have [build-time limitations](https://panda-css.com/docs/guides/dynamic-styling).
+Like utility-first CSS, Tokenami generates static styles and keeps design tokens at the centre of the workflow. Like CSS-in-JS, it provides type-safe tokens, variants, and composition.
 
-Developers use them for their design systems despite the learning curve, because they want:
+The difference is that styles are authored with CSS variables instead of utility classes. This produces fewer CSS rules, keeps runtime small, and avoids many specificity issues because [custom selectors](#user-content-custom-selectors) act as state toggles rather than increasingly complex overrides.
 
-- Type-checked tokens with autocomplete
-- Enforced theme constraints to ensure consistency
-- Style deduplication and critical path CSS
-- Scoped, conflict-free styles
-- Composable building blocks
+The result is a styling system designed for long-term maintainability, that combines the type safety and composition of CSS-in-JS with the performance and simplicity of static CSS.
 
-Tailwind CSS offers a different approach:
-
-- Atomic utility classes to limit stylesheet growth
-- Editor extensions that suggest theme values
-- Statically generated styles with a simple CLI, no bundler needed
-- Quick prototyping using inline classes
-
-But when building a design system, Tailwind has drawbacks:
-
-- Removing a token in the theme does not show redundant usage in code
-- Reused components bloat markup with repetitive utility classes
-- Developers must memorise many class names (see [Tailwind Cheatsheet](https://tailwindcomponents.com/cheatsheet/))
-- Style composition can create specificity conflicts (solved with third-party tools like [tailwind-merge](https://www.npmjs.com/package/tailwind-merge))
-- Styling inline is not always ideal, leading to third-party tools like [cva](https://cva.style/docs)
-- Classes must be written as [complete unbroken strings](https://tailwindcss.com/docs/content-configuration#dynamic-class-names) making dynamic styling trickier
-- Debugging is harder because styles are spread across many atomic classes
 </details>
-
-Tokenami bridges the gap between CSS-in-JS and utility-first frameworks. You get the type safety, composability, and design token discipline of CSS-in-JS, with the performance and simplicity of plain CSS. No build plugins, no runtime injection, no class soup—just clean, predictable styling powered by tokens.
 
 ### Why the CSS variable syntax?
 
