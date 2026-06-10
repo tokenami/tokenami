@@ -237,12 +237,6 @@ importers:
       '@tokenami/config':
         specifier: workspace:*
         version: link:../@tokenami-config
-      acorn:
-        specifier: ^8.11.3
-        version: 8.12.0
-      acorn-walk:
-        specifier: ^8.3.2
-        version: 8.3.3
       css-tree:
         specifier: ^3.0.0
         version: 3.1.0
