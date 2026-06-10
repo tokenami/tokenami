@@ -12,7 +12,7 @@
     "dev:nextjs": "turbo watch dev --filter=@tokenami/example-nextjs",
     "build": "pnpm run \"/build:/\"",
     "build:tokenami": "turbo run build --filter=./packages/** --filter=./examples/design-system",
-    "build:types": "tsx ./packages/tokenami/scripts/generate-declarations.ts",
+    "build:types": "tsx ./packages/node/scripts/generate-declarations.ts",
     "clean": "pnpm exec rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules .turbo dist",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",

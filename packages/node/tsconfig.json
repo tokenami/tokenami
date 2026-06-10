@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
+  "include": ["src", "stubs"],
   "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
     "baseUrl": ".",
@@ -8,8 +8,8 @@
     "outDir": "dist",
     "target": "ES2022",
     "paths": {
-      "@tokenami/node": ["../node/src"],
-      "@tokenami/css": ["../css/src"] // used in stubs
+      "@tokenami/config": ["../config/src"],
+      "@tokenami/css": ["../css/src"]
     }
   }
 }

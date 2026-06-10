@@ -420,7 +420,7 @@ function parseComposeBlocks(
         const parsedProperty = Tokenami.parseProperty(longProperty);
         const calcToggle = Tokenami.calcProperty(parsedProperty);
 
-        styles[parsedProperty] = value;
+        styles[parsedProperty as keyof TokenamiProperties] = value;
         if (propertyConfig.isCalc) (styles as any)[calcToggle] = '/**/';
       }
     }
@@ -470,7 +470,7 @@ function getBaseSelectors(
   property: Tokenami.TokenProperty
 ): string[] {
   const composeSelectors = Object.entries(composeBlocks).flatMap(([selector, styles]) => {
-    return styles[property] !== undefined ? [selector] : [];
+    return styles[property as keyof TokenamiProperties] !== undefined ? [selector] : [];
   });
   return [DEFAULT_SELECTOR, ...composeSelectors];
 }

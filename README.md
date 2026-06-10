@@ -557,7 +557,7 @@ Tokenami has some advanced features that can help you build more powerful design
 
 ### Custom selectors
 
-Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/tokenami/stubs/tokenami.config.ts#L28) are included, but you can configure your own. Use the ampersand (`&`) to mark where the current element's selector should be injected:
+Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/node/stubs/tokenami.config.ts#L28) are included, but you can configure your own. Use the ampersand (`&`) to mark where the current element's selector should be injected:
 
 ```ts
 export default createConfig({
@@ -648,7 +648,7 @@ export default createConfig({
 
 ### Theming properties
 
-Tokenami maps your properties to some [default theme keys](https://github.com/tokenami/tokenami/blob/main/packages/tokenami/stubs/tokenami.config.ts#L43) out of the box. For example, `--border-color` accepts tokens from your `color` theme object, while `--padding` works with your grid system. You can customise these mappings in the `properties` key:
+Tokenami maps your properties to some [default theme keys](https://github.com/tokenami/tokenami/blob/main/packages/node/stubs/tokenami.config.ts#L43) out of the box. For example, `--border-color` accepts tokens from your `color` theme object, while `--padding` works with your grid system. You can customise these mappings in the `properties` key:
 
 ```ts
 export default createConfig({
