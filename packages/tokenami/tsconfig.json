@@ -9,6 +9,7 @@
     "target": "ES2022",
     "paths": {
       "@tokenami/node": ["../@tokenami-node/src"],
+      "@tokenami/node/ts-plugin": ["../@tokenami-node/src/ts-plugin"],
       "@tokenami/css": ["../@tokenami-css/src"] // used in stubs
     }
   }

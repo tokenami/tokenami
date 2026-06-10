@@ -1,4 +1,4 @@
-import { createTSPlugin } from '@tokenami/node';
+import { createTSPlugin } from '@tokenami/node/ts-plugin';
 
 interface TypeScriptPluginModule {
   typescript: typeof import('typescript');

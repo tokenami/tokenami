@@ -8,7 +8,8 @@
     "target": "ES2022",
     "paths": {
       "@tokenami/config": ["../@tokenami-config/src"],
-      "@tokenami/node": ["../@tokenami-node/src"]
+      "@tokenami/node": ["../@tokenami-node/src"],
+      "@tokenami/node/ts-plugin": ["../@tokenami-node/src/ts-plugin"]
     }
   }
 }
