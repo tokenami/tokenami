@@ -635,7 +635,8 @@ function isElementSelector(selector = '') {
  * -----------------------------------------------------------------------------------------------*/
 
 function isCombinatorSelector(selector = '') {
-  return isChildSelector(selector) || /(.+)\s\&/.test(selector);
+  const ampersandIndex = selector.indexOf('&');
+  return isChildSelector(selector) || (ampersandIndex > 1 && selector[ampersandIndex - 1] === ' ');
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -659,7 +660,8 @@ function removePseudoElementSelector(selector = '') {
  * -----------------------------------------------------------------------------------------------*/
 
 function isChildSelector(selector = '') {
-  return /&\s(.+)/.test(selector);
+  const ampersandIndex = selector.indexOf('&');
+  return ampersandIndex !== -1 && selector.length > ampersandIndex + 2 && selector[ampersandIndex + 1] === ' ';
 }
 
 /* -------------------------------------------------------------------------------------------------
