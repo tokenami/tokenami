@@ -194,7 +194,7 @@ Tokenami is built around a few key ideas:
 ### Theming
 
 > [!Tip]
-> Want to skip theme setup? Use our [official design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) which comes with dark mode, fluid typography, RTL support, and more.
+> Want to skip theme setup? Use our [official design system](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-ds/README.md) which comes with dark mode, fluid typography, RTL support, and more.
 
 Tokenami relies on your theme to provide design system constraints. Create one in `.tokenami/tokenami.config`:
 
@@ -452,7 +452,7 @@ Tokenami eases the friction of creating portable design systems, whether you're 
 
 ### Using the official system
 
-Our [official design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) comes with:
+Our [official design system](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-ds/README.md) comes with:
 
 - Global reset based on [Preflight from Tailwind](https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/preflight.css)
 - [Radix UI colours](https://www.radix-ui.com/colors) with automatic dark mode
@@ -460,7 +460,7 @@ Our [official design system](https://github.com/tokenami/tokenami/blob/main/pack
 - Right-to-left support built in (`padding-left` becomes `padding-inline-start` etc.)
 - Short aliases for common properties (e.g. `--p` for padding)
 
-Follow [the `@tokenami/ds` docs](https://github.com/tokenami/tokenami/blob/main/packages/ds/README.md) to get started.
+Follow [the `@tokenami/ds` docs](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-ds/README.md) to get started.
 
 ### Building your own system
 
@@ -557,7 +557,7 @@ Tokenami has some advanced features that can help you build more powerful design
 
 ### Custom selectors
 
-Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/node/stubs/tokenami.config.ts#L28) are included, but you can configure your own. Use the ampersand (`&`) to mark where the current element's selector should be injected:
+Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-node/stubs/tokenami.config.ts#L28) are included, but you can configure your own. Use the ampersand (`&`) to mark where the current element's selector should be injected:
 
 ```ts
 export default createConfig({
@@ -582,7 +582,7 @@ Use them in your components:
 
 Tokenami selectors are [CSS variable toggles](https://css-tricks.com/the-css-custom-property-toggle-trick/), so properties like `--hover_color` have a `--_hover` toggle that activates when your selector matches. Because of that, **selector complexity does not increase specificity**. You can make selectors as elaborate as you need without fighting the cascade.
 
-For example, the [official design system](https://github.com/tokenami/tokenami/blob/main/packages/ds/src/index.ts) uses a `hover` selector that only applies on fine pointers and skips disabled elements:
+For example, the [official design system](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-ds/src/index.ts) uses a `hover` selector that only applies on fine pointers and skips disabled elements:
 
 ```ts
 hover: ['@media (hover: hover) and (pointer: fine)', '&:not(:disabled):hover'],
@@ -648,7 +648,7 @@ export default createConfig({
 
 ### Theming properties
 
-Tokenami maps your properties to some [default theme keys](https://github.com/tokenami/tokenami/blob/main/packages/node/stubs/tokenami.config.ts#L43) out of the box. For example, `--border-color` accepts tokens from your `color` theme object, while `--padding` works with your grid system. You can customise these mappings in the `properties` key:
+Tokenami maps your properties to some [default theme keys](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-node/stubs/tokenami.config.ts#L43) out of the box. For example, `--border-color` accepts tokens from your `color` theme object, while `--padding` works with your grid system. You can customise these mappings in the `properties` key:
 
 ```ts
 export default createConfig({

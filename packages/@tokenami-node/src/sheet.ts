@@ -26,11 +26,23 @@ type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   isGrid: boolean;
 };
 
+type GenerateSheetParams = {
+  output: string;
+  config: Tokenami.Config;
+  minify?: boolean;
+  targets?: lightning.Targets;
+  tokens: {
+    properties: Tokenami.TokenProperty[];
+    values: Tokenami.TokenValue[];
+    composeBlocks: Record<`.${string}`, TokenamiProperties>;
+  };
+};
+
 /* -------------------------------------------------------------------------------------------------
  * generate
  * -----------------------------------------------------------------------------------------------*/
 
-function generate(params: Parameters<typeof createSheet>[0]) {
+function generate(params: GenerateSheetParams) {
   try {
     const sheet = createSheet(params);
     const transformed = lightning.transform({
@@ -53,17 +65,7 @@ function generate(params: Parameters<typeof createSheet>[0]) {
  * createSheet
  * -----------------------------------------------------------------------------------------------*/
 
-function createSheet(params: {
-  output: string;
-  config: Tokenami.Config;
-  minify?: boolean;
-  targets?: lightning.Targets;
-  tokens: {
-    properties: Tokenami.TokenProperty[];
-    values: Tokenami.TokenValue[];
-    composeBlocks: Record<`.${string}`, TokenamiProperties>;
-  };
-}): string {
+function createSheet(params: GenerateSheetParams): string {
   if (!params.tokens.properties.length) return '';
 
   const sheet = new Sheet(params.tokens.values, params.config);

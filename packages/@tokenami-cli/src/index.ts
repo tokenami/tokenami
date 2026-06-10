@@ -7,10 +7,11 @@ import inquirer from 'inquirer';
 import * as fs from 'fs';
 import * as chokidar from 'chokidar';
 import * as pathe from 'pathe';
-import { findUsedTokens, log, sheet, TokenamiDiagnostics, utils } from '@tokenami/node';
+import { findUsedTokens, generateSheet, TokenamiDiagnostics, utils, log } from '@tokenami/node';
 import pkgJson from './../package.json';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+type GenerateSheetParams = Parameters<typeof generateSheet>[0];
 
 const questions = [
   {
@@ -65,10 +66,12 @@ function run() {
 
       if (!projectConfig) {
         log.error('Could not find a valid tsconfig.json.');
+        return;
       }
 
       if (projectConfig.error) {
         log.error(`Error reading tsconfig.json: ${projectConfig.error.messageText}`);
+        return;
       }
 
       const parsedConfig = ts.parseJsonConfigFileContent(
@@ -190,15 +193,13 @@ function getProjectConfig(cwd: string) {
  * generateStyles
  * -----------------------------------------------------------------------------------------------*/
 
-type GenerateSheetParams = Parameters<typeof sheet.generate>[0];
-
 function generateStyles(
   params: Omit<GenerateSheetParams, 'output'> & { cwd: string; out: string }
 ) {
   const { cwd, out, ...generateParams } = params;
   const outDir = pathe.join(cwd, pathe.dirname(out));
   const outPath = pathe.join(cwd, out);
-  const output = sheet.generate({ ...generateParams, output: outPath });
+  const output = generateSheet({ ...generateParams, output: outPath });
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(outPath, output, { flag: 'w' });
 }

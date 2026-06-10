@@ -243,15 +243,5 @@ function findSheetComposeBlocks(fileContents: string) {
   return stylesObject;
 }
 
-export {
-  COMPOSE_BLOCKS_REGEX,
-  CSS_VARIABLE_REGEX,
-  TokenStore,
-  findComposeBlocks,
-  findSheetComposeBlocks,
-  findUsedTokens,
-  matchBaseComposeBlocks,
-  matchTokens,
-  scanFileContent,
-};
-export type { FileTokens, UsedTokens };
+export { findUsedTokens };
+export type { UsedTokens };

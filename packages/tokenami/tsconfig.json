@@ -8,8 +8,8 @@
     "outDir": "dist",
     "target": "ES2022",
     "paths": {
-      "@tokenami/node": ["../node/src"],
-      "@tokenami/css": ["../css/src"] // used in stubs
+      "@tokenami/node": ["../@tokenami-node/src"],
+      "@tokenami/css": ["../@tokenami-css/src"] // used in stubs
     }
   }
 }

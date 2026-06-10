@@ -7,8 +7,8 @@
     "outDir": "dist",
     "target": "ES2022",
     "paths": {
-      "@tokenami/config": ["../config/src"],
-      "@tokenami/node": ["../node/src"],
+      "@tokenami/config": ["../@tokenami-config/src"],
+      "@tokenami/node": ["../@tokenami-node/src"],
       "tokenami": ["../tokenami/src"]
     }
   }
