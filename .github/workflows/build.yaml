@@ -1,6 +1,9 @@
 name: build
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
@@ -33,10 +36,12 @@ jobs:
       - run: pnpm test
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+          PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
           PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
-          PERCY_TARGET_BRANCH: main
+          PERCY_TARGET_BRANCH: ${{ github.base_ref }}
 
   size:
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     needs: [build, test]
     env:
