@@ -1,20 +1,13 @@
 import * as Tokenami from '@tokenami/config';
 import glob from 'fast-glob';
 import * as fs from 'fs';
-import * as acorn from 'acorn';
-import * as acornWalk from 'acorn-walk';
 import * as csstree from 'css-tree';
+import ts from 'typescript/lib/tsserverlibrary.js';
 import { type TokenamiProperties } from './declarations';
 import * as sheet from './sheet';
 import * as utils from './utils';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
-
-// - ^.* captures any characters from the start of the line up until css.compose
-// - [\s\S]*? non-greedily captures everything within the braces, including line breaks
-// - the m (multiline) flag allows ^ to match the start of each line, not just the start
-//   of the file contents
-const COMPOSE_BLOCKS_REGEX = /(const|let|var)\s+(.+)\s*=\s*css\.compose\(\{[\s\S]*?\}\)/gm;
 
 // we match all css variable looking things (including special chars within curly brackets
 // for arbitrary selectors) and determine whether they're a tokenami value/property
@@ -84,16 +77,7 @@ class TokenStore {
 
 function scanFileContent(content: string, theme: Tokenami.Config['theme']): FileTokens {
   const tokens = matchTokens(content, theme);
-  const composeBlocksContents = content.match(COMPOSE_BLOCKS_REGEX) ?? [];
-  let composeBlocks: Record<`.${string}`, TokenamiProperties> = {};
-
-  for (const composeBlock of composeBlocksContents) {
-    try {
-      const ast = acorn.parse(composeBlock, { ecmaVersion: 'latest' });
-      const composeBlockStyles = matchBaseComposeBlocks(ast);
-      composeBlocks = { ...composeBlocks, ...composeBlockStyles };
-    } catch {}
-  }
+  let composeBlocks = findComposeBlocks(content);
 
   if (content.includes(sheet.LAYERS.COMPONENTS)) {
     const sheetComposeBlocks = findSheetComposeBlocks(content);
@@ -117,45 +101,70 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
   return store.getTokens();
 }
 
-function matchBaseComposeBlocks(ast: acorn.AnyNode): Record<`.${string}`, TokenamiProperties> {
-  const composeBlocks = findComposeBlocks(ast);
+function findComposeBlocks(content: string): Record<`.${string}`, TokenamiProperties> {
+  const sourceFile = ts.createSourceFile('tokenami.tsx', content, ts.ScriptTarget.Latest, true);
   let result: Record<`.${string}`, TokenamiProperties> = {};
 
-  if (!composeBlocks) return result;
+  function visit(node: ts.Node) {
+    if (
+      isComposeCall(node) &&
+      node.arguments[0] &&
+      ts.isObjectLiteralExpression(node.arguments[0])
+    ) {
+      const styles = getComposeBlockStyles(node.arguments[0]);
 
-  for (const node of composeBlocks) {
-    let styles: TokenamiProperties | undefined;
-
-    for (const tokenProperty of node.properties) {
-      if (tokenProperty.type === 'Property' && tokenProperty.key.type === 'Literal') {
-        let valueExpression = tokenProperty.value;
-        let value: acorn.Literal['value'];
-
-        if (
-          valueExpression.type === 'UnaryExpression' &&
-          valueExpression.operator === '-' &&
-          valueExpression.argument.type === 'Literal' &&
-          valueExpression.argument.value
-        ) {
-          value = -valueExpression.argument.value;
-        } else if (valueExpression.type === 'Literal') {
-          value = valueExpression.value;
-        } else {
-          continue;
-        }
-
-        styles ??= {};
-        styles[tokenProperty.key.value as any] = value;
+      if (styles) {
+        const className = Tokenami.generateClassName(styles);
+        result[`.${className}`] = styles;
       }
     }
 
-    if (styles) {
-      const className = Tokenami.generateClassName(styles);
-      result[`.${className}`] = styles;
-    }
+    ts.forEachChild(node, visit);
   }
 
+  visit(sourceFile);
   return result;
+}
+
+function isComposeCall(node: ts.Node): node is ts.CallExpression {
+  if (!ts.isCallExpression(node)) return false;
+  if (!ts.isPropertyAccessExpression(node.expression)) return false;
+
+  return (
+    ts.isIdentifier(node.expression.expression) &&
+    node.expression.expression.text === 'css' &&
+    node.expression.name.text === 'compose'
+  );
+}
+
+function getComposeBlockStyles(node: ts.ObjectLiteralExpression): TokenamiProperties | undefined {
+  let styles: TokenamiProperties | undefined;
+
+  for (const property of node.properties) {
+    if (!ts.isPropertyAssignment(property)) continue;
+    if (!ts.isStringLiteral(property.name) && !ts.isNumericLiteral(property.name)) continue;
+
+    const value = getLiteralValue(property.initializer);
+    if (value === undefined) continue;
+
+    styles ??= {};
+    styles[property.name.text as any] = value;
+  }
+
+  return styles;
+}
+
+function getLiteralValue(node: ts.Expression) {
+  if (ts.isStringLiteral(node)) return node.text;
+  if (ts.isNumericLiteral(node)) return Number(node.text);
+
+  if (
+    ts.isPrefixUnaryExpression(node) &&
+    node.operator === ts.SyntaxKind.MinusToken &&
+    ts.isNumericLiteral(node.operand)
+  ) {
+    return -Number(node.operand.text);
+  }
 }
 
 function matchTokens(content: string, theme: Tokenami.Config['theme']) {
@@ -179,28 +188,6 @@ function matchTokens(content: string, theme: Tokenami.Config['theme']) {
   });
 
   return { properties, values };
-}
-
-function findComposeBlocks(node: acorn.AnyNode): acorn.ObjectExpression[] | undefined {
-  let result: acorn.ObjectExpression[] | undefined;
-
-  acornWalk.simple(node, {
-    CallExpression(node) {
-      if (
-        node.callee.type === 'MemberExpression' &&
-        node.callee.object.type === 'Identifier' &&
-        node.callee.object.name === 'css' &&
-        node.callee.property.type === 'Identifier' &&
-        node.callee.property.name === 'compose' &&
-        node.arguments?.[0]?.type === 'ObjectExpression'
-      ) {
-        result ??= [];
-        result.push(node.arguments[0]);
-      }
-    },
-  });
-
-  return result;
 }
 
 function findSheetComposeBlocks(fileContents: string) {
