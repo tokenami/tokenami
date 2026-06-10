@@ -1,12 +1,9 @@
 import * as Tokenami from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
-import * as lightning from 'lightningcss';
 import { type TokenamiProperties } from './declarations';
 import * as utils from './utils';
 import * as Supports from './supports';
-import * as log from './log';
 
-const UNUSED_LAYERS_REGEX = /[\n\s]*@layer[^;{]+;/g;
 const DEFAULT_SELECTOR = '[style]';
 const CUSTOM_PROP_PREFIX = '--_';
 
@@ -26,11 +23,8 @@ type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   isGrid: boolean;
 };
 
-type GenerateSheetParams = {
-  output: string;
+type CreateSheetParams = {
   config: Tokenami.Config;
-  minify?: boolean;
-  targets?: lightning.Targets;
   tokens: {
     properties: Tokenami.TokenProperty[];
     values: Tokenami.TokenValue[];
@@ -38,34 +32,7 @@ type GenerateSheetParams = {
   };
 };
 
-/* -------------------------------------------------------------------------------------------------
- * generate
- * -----------------------------------------------------------------------------------------------*/
-
-function generate(params: GenerateSheetParams) {
-  try {
-    const sheet = createSheet(params);
-    const transformed = lightning.transform({
-      code: Buffer.from(sheet),
-      filename: params.output,
-      minify: params.minify,
-      targets: params.targets,
-    });
-
-    return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
-  } catch (e) {
-    const message = e instanceof Error ? e.message : 'Unknown error';
-    const escapedMessage = message.replace(/(['"])/g, '\\$1');
-    log.debug(`Error generating stylesheet: ${message}`);
-    return `body::after { content: 'Error generating stylesheet: ${escapedMessage}'; position: fixed; inset: 0; background: #ec6142; color: white; padding: 20px; font-family: sans-serif; z-index: 9999; }`;
-  }
-}
-
-/* -------------------------------------------------------------------------------------------------
- * createSheet
- * -----------------------------------------------------------------------------------------------*/
-
-function createSheet(params: GenerateSheetParams): string {
+function createSheet(params: CreateSheetParams): string {
   if (!params.tokens.properties.length) return '';
 
   const sheet = new Sheet(params.tokens.values, params.config);
@@ -289,7 +256,7 @@ class Sheet {
     if (styleSelector.length === 0) return '';
     const theme = utils.getThemeFromConfig(this.config.theme);
     const rootSelector = this.config.themeSelector('root');
-    const gridStyles = `${rootSelector} { ${Tokenami.gridProperty()}: ${this.config.grid}; }`;
+    const gridStyles = this.#getGridStyles();
     const rootStyles = this.#getThemeStyles(styleSelector, rootSelector, theme.root);
     const themeToModes: Record<string, string[]> = {};
     const modeEntries = Object.entries(theme.modes || {});
@@ -308,6 +275,13 @@ class Sheet {
 
     const themeTokens = [gridStyles, rootStyles, modeStyles.join(' ')];
     return themeTokens.join(' ');
+  }
+
+  #getGridStyles() {
+    const rootSelector = this.config.themeSelector('root');
+    return this.config.grid
+      ? `${rootSelector} { ${Tokenami.gridProperty()}: ${this.config.grid}; }`
+      : '';
   }
 
   #getThemeStyles(
@@ -661,7 +635,11 @@ function removePseudoElementSelector(selector = '') {
 
 function isChildSelector(selector = '') {
   const ampersandIndex = selector.indexOf('&');
-  return ampersandIndex !== -1 && selector.length > ampersandIndex + 2 && selector[ampersandIndex + 1] === ' ';
+  return (
+    ampersandIndex !== -1 &&
+    selector.length > ampersandIndex + 2 &&
+    selector[ampersandIndex + 1] === ' '
+  );
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -788,4 +766,5 @@ function parseSelectorList(selector: string) {
 
 /* ---------------------------------------------------------------------------------------------- */
 
-export { generate, LAYERS };
+export { createSheet, LAYERS };
+export type { CreateSheetParams };
