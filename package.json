@@ -8,8 +8,8 @@
   },
   "scripts": {
     "postinstall": "pnpm build",
-    "dev:ds": "turbo run storylite --filter=@tokenami/example-design-system",
-    "dev:nextjs": "turbo watch dev --filter=@tokenami/example-nextjs",
+    "dev:ds": "turbo run storylite:app storylite:css --filter=@tokenami/example-design-system",
+    "dev:nextjs": "turbo run dev:app dev:css --filter=@tokenami/example-nextjs",
     "build": "pnpm run \"/build:/\"",
     "build:tokenami": "turbo run build --filter=./packages/** --filter=./examples/design-system",
     "build:types": "tsx ./packages/@tokenami-node/scripts/generate-declarations.ts",

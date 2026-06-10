@@ -227,21 +227,23 @@
 
   * {
     --background-color: initial;
+    --hover_background-color: initial;
     --hover: initial;
     --_1gqxh9p: initial;
-    --hover_background-color: initial;
+    --\{\&\;focus\;hover\}_background-color: initial;
     --\{\&\;focus\;hover\}: initial;
     --_aoiy32: initial;
-    --\{\&\;focus\;hover\}_background-color: initial;
     --border-block-end: initial;
     --border-block-color: initial;
     --border-inline-color: initial;
     --border-radius: initial;
     --inline-size: initial;
+    --inline-size__calc: initial;
     --block-size: initial;
+    --block-size__calc: initial;
     --transition: initial;
-    --_xgpg9b: initial;
     --hover_animation: initial;
+    --_xgpg9b: initial;
   }
 
   @media (hover: hover) and (pointer: fine) {
