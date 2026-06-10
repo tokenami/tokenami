@@ -86,10 +86,9 @@ function tokenValue<TK extends string, N extends string>(themeKey: TK, name: N):
  * -----------------------------------------------------------------------------------------------*/
 
 type ArbitraryValue = `var(---,${string})`;
-const arbitraryValueRegex = /var\(---,(.+)\)/;
 
 const ArbitraryValue = {
-  safeParse: (input: unknown) => validate<ArbitraryValue>(arbitraryValueRegex, input),
+  safeParse: (input: unknown) => validateArbitraryValue(input),
 };
 
 function arbitraryValue(value: string): ArbitraryValue {
@@ -128,6 +127,18 @@ function validateTokenValue(input: unknown): Validated<TokenValue> {
 
   if (value.startsWith(prefix) && value.endsWith(suffix) && hasSingleInternalUnderscore) {
     return { success: true, output: value as TokenValue };
+  }
+
+  return { success: false };
+}
+
+function validateArbitraryValue(input: unknown): Validated<ArbitraryValue> {
+  const value = String(input);
+  const prefix = 'var(---,';
+  const suffix = ')';
+
+  if (value.startsWith(prefix) && value.endsWith(suffix) && value.length > prefix.length + 1) {
+    return { success: true, output: value as ArbitraryValue };
   }
 
   return { success: false };
