@@ -72,10 +72,9 @@ function parsedVariantProperty(variant: string, name: string): VariantProperty {
  * -----------------------------------------------------------------------------------------------*/
 
 type TokenValue<TK extends string = string, V extends string = string> = `var(--${TK}_${V})`;
-const tokenValueRegex = /var\((--([\w-]+)_([\w-]+))\)/;
 
 const TokenValue = {
-  safeParse: (input: unknown) => validate<TokenValue>(tokenValueRegex, input),
+  safeParse: (input: unknown) => validateTokenValue(input),
 };
 
 function tokenValue<TK extends string, N extends string>(themeKey: TK, name: N): TokenValue<TK, N> {
@@ -114,6 +113,24 @@ function validate<T>(regex: RegExp, input: unknown): Validated<T> {
   } catch (e) {
     return { success: false };
   }
+}
+
+function validateTokenValue(input: unknown): Validated<TokenValue> {
+  const value = String(input);
+  const prefix = 'var(--';
+  const suffix = ')';
+  const tokenParts = value.slice(prefix.length, -suffix.length);
+  const underscoreIndex = tokenParts.indexOf('_');
+  const hasSingleInternalUnderscore =
+    underscoreIndex > 0 &&
+    underscoreIndex < tokenParts.length - 1 &&
+    underscoreIndex === tokenParts.lastIndexOf('_');
+
+  if (value.startsWith(prefix) && value.endsWith(suffix) && hasSingleInternalUnderscore) {
+    return { success: true, output: value as TokenValue };
+  }
+
+  return { success: false };
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -196,8 +213,11 @@ function getArbitrarySelector(selector: string | undefined) {
  * -----------------------------------------------------------------------------------------------*/
 
 function getTokenValueParts(tokenValue: TokenValue) {
-  type Parts = [string, string, string, string];
-  const [, property, themeKey, token] = tokenValue.split(tokenValueRegex) as Parts;
+  const property = tokenValue.slice('var('.length, -')'.length);
+  const separatorIndex = property.indexOf('_');
+  const themeKey = property.slice('--'.length, separatorIndex);
+  const token = property.slice(separatorIndex + 1);
+
   return { property, themeKey, token };
 }
 

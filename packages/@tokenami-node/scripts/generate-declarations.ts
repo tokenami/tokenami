@@ -189,6 +189,6 @@ export type {
 };
 `;
 
-fs.writeFileSync('./packages/tokenami/src/declarations.ts', fileContent);
+fs.writeFileSync('./packages/@tokenami-node/src/declarations.ts', fileContent);
 console.log('File written successfully');
 console.log('Total properties:', properties.length);

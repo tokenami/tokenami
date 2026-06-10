@@ -7,7 +7,11 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "build/**"]
     },
-    "dev": {
+    "dev:app": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:css": {
       "cache": false,
       "persistent": true
     },
@@ -20,6 +24,13 @@
     "typecheck": {
       "dependsOn": ["topo"]
     },
-    "storylite": {}
+    "storylite:app": {
+      "cache": false,
+      "persistent": true
+    },
+    "storylite:css": {
+      "cache": false,
+      "persistent": true
+    }
   }
 }

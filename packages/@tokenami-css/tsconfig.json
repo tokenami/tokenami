@@ -1,16 +1,16 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
-  "exclude": ["src/**/*.test.ts"],
+  "include": ["src", ".tokenami/tokenami.env.d.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "outDir": "dist",
     "target": "ES2022",
     "paths": {
+      "@tokenami/config": ["../@tokenami-config/src"],
       "@tokenami/node": ["../@tokenami-node/src"],
       "@tokenami/node/ts-plugin": ["../@tokenami-node/src/ts-plugin"],
-      "@tokenami/css": ["../@tokenami-css/src"] // used in stubs
+      "tokenami": ["../tokenami/src"]
     }
   }
 }

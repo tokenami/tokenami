@@ -218,8 +218,11 @@ class TokenamiPlugin {
     if (!node || !node.parent || !ts.isPropertyAssignment(node.parent)) return original;
 
     const property = node.parent;
+    const objLit = ts.findAncestor(property, ts.isObjectLiteralExpression);
+    if (!objLit || !this.#isTokenamiObject(objLit, fileName)) return original;
+
     const propertyName = property.name.getText(sourceFile);
-    const propertyValue = property.initializer.getText();
+    const propertyValue = getExpressionText(property.initializer, sourceFile);
     const tokenProperty = TokenamiConfig.TokenProperty.safeParse(propertyName);
     const tokenValue = TokenamiConfig.TokenValue.safeParse(propertyValue);
 
@@ -413,6 +416,15 @@ function findNodeAtPosition(sourceFile: ts.SourceFile, position: number) {
 
 function createTextSpanFromNode(node: ts.Node): ts.TextSpan {
   return { start: node.getStart(), length: node.getEnd() - node.getStart() };
+}
+
+/* -----------------------------------------------------------------------------------------------
+ * getExpressionText
+ * ---------------------------------------------------------------------------------------------*/
+
+function getExpressionText(node: ts.Expression, sourceFile: ts.SourceFile) {
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
+  return node.getText(sourceFile);
 }
 
 /* ---------------------------------------------------------------------------------------------

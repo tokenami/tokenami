@@ -26,11 +26,23 @@ type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   isGrid: boolean;
 };
 
+type GenerateSheetParams = {
+  output: string;
+  config: Tokenami.Config;
+  minify?: boolean;
+  targets?: lightning.Targets;
+  tokens: {
+    properties: Tokenami.TokenProperty[];
+    values: Tokenami.TokenValue[];
+    composeBlocks: Record<`.${string}`, TokenamiProperties>;
+  };
+};
+
 /* -------------------------------------------------------------------------------------------------
  * generate
  * -----------------------------------------------------------------------------------------------*/
 
-function generate(params: Parameters<typeof createSheet>[0]) {
+function generate(params: GenerateSheetParams) {
   try {
     const sheet = createSheet(params);
     const transformed = lightning.transform({
@@ -53,17 +65,7 @@ function generate(params: Parameters<typeof createSheet>[0]) {
  * createSheet
  * -----------------------------------------------------------------------------------------------*/
 
-function createSheet(params: {
-  output: string;
-  config: Tokenami.Config;
-  minify?: boolean;
-  targets?: lightning.Targets;
-  tokens: {
-    properties: Tokenami.TokenProperty[];
-    values: Tokenami.TokenValue[];
-    composeBlocks: Record<`.${string}`, TokenamiProperties>;
-  };
-}): string {
+function createSheet(params: GenerateSheetParams): string {
   if (!params.tokens.properties.length) return '';
 
   const sheet = new Sheet(params.tokens.values, params.config);
@@ -420,7 +422,7 @@ function parseComposeBlocks(
         const parsedProperty = Tokenami.parseProperty(longProperty);
         const calcToggle = Tokenami.calcProperty(parsedProperty);
 
-        styles[parsedProperty] = value;
+        styles[parsedProperty as keyof TokenamiProperties] = value;
         if (propertyConfig.isCalc) (styles as any)[calcToggle] = '/**/';
       }
     }
@@ -470,7 +472,7 @@ function getBaseSelectors(
   property: Tokenami.TokenProperty
 ): string[] {
   const composeSelectors = Object.entries(composeBlocks).flatMap(([selector, styles]) => {
-    return styles[property] !== undefined ? [selector] : [];
+    return styles[property as keyof TokenamiProperties] !== undefined ? [selector] : [];
   });
   return [DEFAULT_SELECTOR, ...composeSelectors];
 }
@@ -633,7 +635,8 @@ function isElementSelector(selector = '') {
  * -----------------------------------------------------------------------------------------------*/
 
 function isCombinatorSelector(selector = '') {
-  return isChildSelector(selector) || /(.+)\s\&/.test(selector);
+  const ampersandIndex = selector.indexOf('&');
+  return isChildSelector(selector) || (ampersandIndex > 1 && selector[ampersandIndex - 1] === ' ');
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -657,7 +660,8 @@ function removePseudoElementSelector(selector = '') {
  * -----------------------------------------------------------------------------------------------*/
 
 function isChildSelector(selector = '') {
-  return /&\s(.+)/.test(selector);
+  const ampersandIndex = selector.indexOf('&');
+  return ampersandIndex !== -1 && selector.length > ampersandIndex + 2 && selector[ampersandIndex + 1] === ' ';
 }
 
 /* -------------------------------------------------------------------------------------------------

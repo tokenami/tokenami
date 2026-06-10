@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
 
@@ -17,28 +18,24 @@ import { cwd } from 'node:process';
 
 describe('tokenami CJS export', () => {
   const cjsPath = resolve(cwd(), 'dist/index.cjs');
+  const require = createRequire(import.meta.url);
 
-  const loadCjsModule = async () => {
-    const module = await import(cjsPath);
-    return module.default;
-  };
-
-  it('should export the plugin function directly on module.exports', async () => {
-    const exported = await loadCjsModule();
+  it('should export the plugin function directly on module.exports', () => {
+    const exported = require(cjsPath);
 
     // The export must be a function, not an object with a default property
     expect(typeof exported).toBe('function');
   });
 
-  it('should NOT have a default property wrapping the export', async () => {
-    const exported = await loadCjsModule();
+  it('should NOT have a default property wrapping the export', () => {
+    const exported = require(cjsPath);
 
     // If there's a default property, the export structure is wrong for TS plugins
     expect(exported).not.toHaveProperty('default');
   });
 
-  it('should return a plugin initializer when called with typescript module', async () => {
-    const exported = await loadCjsModule();
+  it('should return a plugin initializer when called with typescript module', () => {
+    const exported = require(cjsPath);
 
     // Mock the typescript module structure that tsserver passes
     const mockTypescript = {
@@ -57,8 +54,8 @@ describe('tokenami CJS export', () => {
     expect(result).toHaveProperty('create');
   });
 
-  it('should throw an error when called without typescript module', async () => {
-    const exported = await loadCjsModule();
+  it('should throw an error when called without typescript module', () => {
+    const exported = require(cjsPath);
 
     expect(() => exported()).toThrow();
     expect(() => exported({})).toThrow();

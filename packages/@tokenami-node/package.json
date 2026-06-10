@@ -1,12 +1,13 @@
 {
-  "name": "tokenami",
+  "name": "@tokenami/node",
   "version": "0.0.95",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": "tokenami/tokenami",
+  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   },
@@ -15,22 +16,18 @@
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
-      },
+      }
+    },
+    "./ts-plugin": {
       "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
+        "types": "./dist/ts-plugin.d.cts",
+        "default": "./dist/ts-plugin.cjs"
       }
     }
   },
-  "bin": {
-    "tokenami": "bin.js"
-  },
-  "engines": {
-    "node": ">=20"
-  },
   "files": [
     "dist",
-    "bin.js"
+    "stubs"
   ],
   "scripts": {
     "build": "tsup",
@@ -39,15 +36,27 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@stitches/stringify": "^1.2.8",
+    "@tokenami/config": "workspace:*",
+    "acorn": "^8.11.3",
+    "acorn-walk": "^8.3.2",
+    "css-tree": "^3.0.0",
+    "csstype": "^3.1.2",
+    "culori": "^4.0.1",
+    "fast-glob": "^3.2.12",
+    "jiti": "^1.21.0",
+    "lightningcss": "1.29.1",
+    "pathe": "^1.1.1",
+    "sucrase": "^3.34.0"
+  },
   "devDependencies": {
+    "@types/css-tree": "^2.3.8",
+    "@types/culori": "^2.1.0",
     "@types/node": "^20.3.1",
     "tsup": "^8.4.0",
     "typescript": "^5.1.3",
     "vitest": "^0.34.6"
-  },
-  "dependencies": {
-    "@tokenami/cli": "workspace:*",
-    "@tokenami/node": "workspace:*"
   },
   "peerDependencies": {
     "typescript": ">= 5"

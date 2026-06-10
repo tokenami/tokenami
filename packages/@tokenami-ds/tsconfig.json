@@ -1,14 +1,12 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", ".tokenami/tokenami.env.d.ts"],
+  "include": ["src"],
   "compilerOptions": {
     "baseUrl": ".",
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "outDir": "dist",
-    "target": "ES2022",
     "paths": {
-      "@tokenami/config": ["../config/src"],
-      "tokenami": ["../tokenami/src"]
+      "@tokenami/config": ["../@tokenami-config/src"]
     }
   }
 }

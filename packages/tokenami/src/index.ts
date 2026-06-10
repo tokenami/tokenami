@@ -1,4 +1,4 @@
-import { createTSPlugin } from './ts-plugin';
+import { createTSPlugin } from '@tokenami/node/ts-plugin';
 
 interface TypeScriptPluginModule {
   typescript: typeof import('typescript');
@@ -13,4 +13,4 @@ function tokenami(mod: TypeScriptPluginModule) {
 }
 
 export default tokenami;
-export type * from './declarations';
+export type * from '@tokenami/node';

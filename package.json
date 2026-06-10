@@ -8,11 +8,11 @@
   },
   "scripts": {
     "postinstall": "pnpm build",
-    "dev:ds": "turbo run storylite --filter=@tokenami/example-design-system",
-    "dev:nextjs": "turbo watch dev --filter=@tokenami/example-nextjs",
+    "dev:ds": "turbo run storylite:app storylite:css --filter=@tokenami/example-design-system",
+    "dev:nextjs": "turbo run dev:app dev:css --filter=@tokenami/example-nextjs",
     "build": "pnpm run \"/build:/\"",
     "build:tokenami": "turbo run build --filter=./packages/** --filter=./examples/design-system",
-    "build:types": "tsx ./packages/tokenami/scripts/generate-declarations.ts",
+    "build:types": "tsx ./packages/@tokenami-node/scripts/generate-declarations.ts",
     "clean": "pnpm exec rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules .turbo dist",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
@@ -51,7 +51,7 @@
   },
   "size-limit": [
     {
-      "path": "packages/css/dist/index.js",
+      "path": "packages/@tokenami-css/dist/index.js",
       "limit": "3.5 kB",
       "gzip": true
     }
@@ -100,8 +100,8 @@
       {
         "name": "changelog: chore",
         "changelogTitle": "🏠 Housekeeping",
-        "description": "Add chore to changelog when merged, no versioning required",
-        "releaseType": "none",
+        "description": "Add chore to changelog when merged",
+        "releaseType": "patch",
         "color": "#696969"
       },
       {
