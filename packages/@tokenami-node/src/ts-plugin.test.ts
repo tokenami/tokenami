@@ -32,7 +32,7 @@ function createPluginTestContext(code = '', fileName = 'test.tsx') {
       projectService: { logger: { info: () => {} } },
       refreshDiagnostics: () => {},
     },
-  } as ts.server.PluginCreateInfo);
+  } as unknown as ts.server.PluginCreateInfo);
   const diagnostics = new TokenamiDiagnostics(testConfig);
 
   return {
@@ -159,7 +159,7 @@ describe('ts plugin', () => {
           css({ '--invalidbp_padding': 10 });
         `);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].messageText).toContain("Selector 'invalidbp' does not exist");
+        expect(diagnostics[0]?.messageText).toContain("Selector 'invalidbp' does not exist");
       });
 
       it('errors on invalid selector', () => {
@@ -167,7 +167,7 @@ describe('ts plugin', () => {
           css({ '--notasel_color': 'red' });
         `);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].messageText).toContain("Selector 'notasel' does not exist");
+        expect(diagnostics[0]?.messageText).toContain("Selector 'notasel' does not exist");
       });
 
       it('errors on invalid combined responsive + selector', () => {
@@ -175,7 +175,7 @@ describe('ts plugin', () => {
           css({ '--badbp_hover_color': 'red' });
         `);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].messageText).toContain('does not exist');
+        expect(diagnostics[0]?.messageText).toContain('does not exist');
       });
 
       it('errors on empty arbitrary selector', () => {
@@ -183,7 +183,7 @@ describe('ts plugin', () => {
           css({ '--{}_color': 'red' });
         `);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].messageText).toContain('Add an arbitrary selector or remove');
+        expect(diagnostics[0]?.messageText).toContain('Add an arbitrary selector or remove');
       });
     });
 
@@ -194,7 +194,7 @@ describe('ts plugin', () => {
           css.compose({ ...base });
         `);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].messageText).toContain('statically extractable');
+        expect(diagnostics[0]?.messageText).toContain('statically extractable');
       });
 
       it('errors on computed property names in compose', () => {
@@ -203,7 +203,7 @@ describe('ts plugin', () => {
           css.compose({ [key]: 'red' });
         `);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].messageText).toContain('statically extractable');
+        expect(diagnostics[0]?.messageText).toContain('statically extractable');
       });
     });
   });
