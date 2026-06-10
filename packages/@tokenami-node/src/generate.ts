@@ -24,7 +24,7 @@ function generate(params: GenerateSheetParams) {
       targets: params.targets,
     });
 
-    return transformed.code.toString().replace(UNUSED_LAYERS_REGEX, '');
+    return removeUnusedLayers(transformed.code.toString());
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Unknown error';
     const escapedMessage = message.replace(/(['"])/g, '\\$1');
@@ -33,6 +33,10 @@ function generate(params: GenerateSheetParams) {
   }
 }
 
+function removeUnusedLayers(sheet: string) {
+  return sheet.replace(UNUSED_LAYERS_REGEX, '');
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
-export { generate };
+export { generate, removeUnusedLayers };

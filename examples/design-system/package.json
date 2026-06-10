@@ -17,7 +17,7 @@
     "dev:css": "tokenami --output dist/tokenami.css --minify --watch",
     "storylite": "pnpm run \"/storylite:/\"",
     "storylite:app": "vite --port=7007 --host=0.0.0.0",
-    "storylite:css": "tokenami --output ./src/tokenami.css --watch",
+    "preview": "vite build && vite preview",
     "typecheck": "tokenami check; tsc --noEmit"
   },
   "dependencies": {
@@ -27,6 +27,7 @@
   "devDependencies": {
     "@storylite/storylite": "^0.14.0",
     "@storylite/vite-plugin": "^0.14.0",
+    "@tokenami/unplugin": "workspace:*",
     "@vitejs/plugin-react-swc": "^3.6.0",
     "tokenami": "workspace:*",
     "tsup": "^8.4.0",

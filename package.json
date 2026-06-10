@@ -8,7 +8,7 @@
   },
   "scripts": {
     "postinstall": "pnpm build",
-    "dev:ds": "turbo run storylite:app storylite:css --filter=@tokenami/example-design-system",
+    "dev:ds": "turbo run storylite:app --filter=@tokenami/example-design-system",
     "dev:nextjs": "turbo run dev:app dev:css --filter=@tokenami/example-nextjs",
     "build": "pnpm run \"/build:/\"",
     "build:tokenami": "turbo run build --filter=./packages/** --filter=./examples/design-system",

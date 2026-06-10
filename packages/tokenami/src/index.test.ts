@@ -18,7 +18,7 @@ import { cwd } from 'node:process';
 
 describe('tokenami CJS export', () => {
   const cjsPath = resolve(cwd(), 'dist/index.cjs');
-  const require = createRequire(import.meta.url);
+  const require = createRequire(resolve(cwd(), 'package.json'));
 
   it('should export the plugin function directly on module.exports', () => {
     const exported = require(cjsPath);

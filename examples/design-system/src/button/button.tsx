@@ -30,7 +30,7 @@ const button = css.compose({
   '--border-bottom': 'var(--line_px)',
   '--border-color': 'var(--color_violet11)',
   '--border-radius': 'var(--radii_lg)',
-  '--width': 'var(---,180px)',
+  '--width': 45,
   '--height': 15,
   '--transition': 'var(--morph_all)',
 

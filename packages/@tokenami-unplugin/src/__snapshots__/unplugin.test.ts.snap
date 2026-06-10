@@ -1,0 +1,6 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`@tokenami/unplugin > emits tokenami.css during Vite builds 1`] = `
+"@layer tkb{:root{--color_blue:#00f;--color_red:red;--space_sm:4px}*{--background-color:initial;--padding:initial}}@layer tk1{[style]{color:var(--color,revert-layer);padding:var(--padding,revert-layer)}}@layer tk2{[style]{background-color:var(--background-color,revert-layer)}}
+"
+`;
