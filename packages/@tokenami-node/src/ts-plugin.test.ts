@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import ts from 'typescript/lib/tsserverlibrary.js';
 import type { Config } from '@tokenami/config';
 import { TokenamiDiagnostics } from './ts-plugin/diagnostics';
+import { TokenamiCompletions } from './ts-plugin/completions';
 import { createTSPlugin } from './ts-plugin/plugin';
 
 const testConfig: Config = {
@@ -90,6 +91,34 @@ function createSourceFile(code: string) {
 }
 
 describe('ts plugin', () => {
+  it('sorts token value completions by theme config order', () => {
+    const completions = new TokenamiCompletions(
+      {
+        ...testConfig,
+        theme: {
+          color: {
+            zebra: '#000',
+            apple: '#111',
+            mango: '#222',
+          },
+        },
+      },
+      { logger: { log: () => {}, error: () => {} } }
+    );
+
+    const result = completions.valueSearch([
+      { name: "'var(--color_mango)'", kind: ts.ScriptElementKind.string, sortText: '11' },
+      { name: "'var(--color_zebra)'", kind: ts.ScriptElementKind.string, sortText: '11' },
+      { name: "'var(--color_apple)'", kind: ts.ScriptElementKind.string, sortText: '11' },
+    ]);
+
+    expect(Object.values(result).map((entry) => [entry.name, entry.sortText])).toEqual([
+      ['$mango', '$color000002'],
+      ['$zebra', '$color000000'],
+      ['$apple', '$color000001'],
+    ]);
+  });
+
   it('adds quick info documentation for quoted token values in tokenami objects only', () => {
     const fileName = 'test.ts';
     const code = `
