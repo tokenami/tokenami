@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/cli",
-  "version": "0.0.95",
+  "version": "0.0.96",
   "license": "MIT",
   "type": "module",
   "module": "./dist/index.js",

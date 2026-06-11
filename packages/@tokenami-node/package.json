@@ -1,6 +1,6 @@
 {
   "name": "@tokenami/node",
-  "version": "0.0.95",
+  "version": "0.0.96",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
