@@ -24,6 +24,11 @@ type ValueCompletionEntries = {
   };
 };
 
+type ThemeMeta = {
+  colorThemeKeys: Set<string>;
+  tokenValueOrders: Map<TokenamiConfig.TokenValue, number>;
+};
+
 /* -------------------------------------------------------------------------------------------------
  * TokenamiCompletions
  * -----------------------------------------------------------------------------------------------*/
@@ -44,13 +49,13 @@ class TokenamiCompletions {
   // lazily instantiate and cache these
   #_responsiveSelectorSnippets?: SelectorCompletionEntries;
   #_validProperties: string[];
-  #_colorThemeKeys: Set<string>;
+  #_themeMeta: ThemeMeta;
 
   constructor(config: TokenamiConfig.Config, context: TokenamiCompletionsContext) {
     this.#config = config;
     this.#ctx = { ...context, insertFormatter: context.insertFormatter ?? ((name) => name) };
     this.#_validProperties = Array.from(tokenami.getValidProperties(this.#config));
-    this.#_colorThemeKeys = this.#computeColorThemeKeys();
+    this.#_themeMeta = this.#computeThemeMeta();
     this.#selectorEntries = Object.entries(this.#config.selectors || {});
     this.#responsiveEntries = Object.entries(this.#config.responsive || {});
     this.#base = this.#getBaseCompletions();
@@ -81,13 +86,14 @@ class TokenamiCompletions {
 
       const { themeKey, token } = TokenamiConfig.getTokenValueParts(tokenValue.output);
       const name = `$${token}`;
-      const isColor = this.#_colorThemeKeys.has(themeKey);
+      const isColor = this.#_themeMeta.colorThemeKeys.has(themeKey);
+      const order = this.#_themeMeta.tokenValueOrders.get(tokenValue.output);
 
       result[name] = {
         name,
         kind: ts.ScriptElementKind.string,
         kindModifiers: isColor ? 'color' : themeKey,
-        sortText: this.#createSortText(`${index}${entryName}`),
+        sortText: this.#createSortText(`${themeKey + (order ?? index)}`),
         insertText: this.#ctx.insertFormatter(entryName, { type: 'value' }),
         labelDetails: { detail: '', description: entryName },
         details: { themeKey, token },
@@ -136,8 +142,9 @@ class TokenamiCompletions {
     return index > 0 && entryName[index] === '-';
   }
 
-  #createSortText(name: string) {
-    const sortText = name.replace(/[0-9]+/g, (m) => m.padStart(6, '0')).replaceAll('-', '');
+  #createSortText(name: string | number) {
+    const text = String(name);
+    const sortText = text.replace(/[0-9]+/g, (m) => m.padStart(6, '0')).replaceAll('-', '');
     return `$${sortText}`;
   }
 
@@ -233,22 +240,28 @@ class TokenamiCompletions {
     return result;
   }
 
-  #computeColorThemeKeys(): Set<string> {
+  #computeThemeMeta(): ThemeMeta {
     const colorKeys = new Set<string>();
     const theme = tokenami.getThemeFromConfig(this.#config.theme);
-    const themeModes = [theme.root, ...Object.values(theme.modes)];
+    const modes = Object.values(theme.modes);
+    const flatTheme = Object.assign({}, theme.root, ...modes) as TokenamiConfig.Theme;
+    const tokenValueOrders = new Map<TokenamiConfig.TokenValue, number>();
 
-    for (const theme of themeModes) {
-      for (const [themeKey, values] of Object.entries(theme)) {
-        if (colorKeys.has(themeKey)) continue;
-        const firstValue = Object.values(values)[0];
-        if (typeof firstValue === 'string' && isColorValue(firstValue)) {
-          colorKeys.add(themeKey);
-        }
+    for (const [themeKey, tokens] of Object.entries(flatTheme)) {
+      const tokenKeys = Object.keys(tokens);
+      const tokenValues = Object.values(tokens);
+      const firstValue = tokenValues[0];
+
+      if (typeof firstValue === 'string' && isColorValue(firstValue)) {
+        colorKeys.add(themeKey);
+      }
+
+      for (const [index, token] of tokenKeys.entries()) {
+        tokenValueOrders.set(TokenamiConfig.tokenValue(themeKey, token), index);
       }
     }
 
-    return colorKeys;
+    return { colorThemeKeys: colorKeys, tokenValueOrders };
   }
 
   #getSelectorConfigEntries(variants?: string[], arbSelector = '') {
