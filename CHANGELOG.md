@@ -1,3 +1,26 @@
+# v0.0.96 (Thu Jun 11 2026)
+
+#### 🚀 Enhancement
+
+- add vite bundler support [#496](https://github.com/tokenami/tokenami/pull/496) ([@jjenzz](https://github.com/jjenzz))
+- match config order for value completions [#499](https://github.com/tokenami/tokenami/pull/499) ([@jjenzz](https://github.com/jjenzz))
+- remove acorn/acorn-walk deps [#497](https://github.com/tokenami/tokenami/pull/497) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- remove undefined grid value from generated css [#498](https://github.com/tokenami/tokenami/pull/498) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- split cli dep out of `tokenami` pkg so it can be optional [#494](https://github.com/tokenami/tokenami/pull/494) ([@jjenzz](https://github.com/jjenzz))
+- fix percy base builds from main [#495](https://github.com/tokenami/tokenami/pull/495) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.95 (Tue Jun 02 2026)
 
 #### 🐛 Bug Fix
