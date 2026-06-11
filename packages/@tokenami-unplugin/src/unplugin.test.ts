@@ -1,0 +1,653 @@
+import { randomUUID } from 'node:crypto';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { build as viteBuild } from 'vite';
+import * as tokenami from './index';
+
+const timeout = 60_000;
+
+describe('@tokenami/unplugin', () => {
+  it('exposes the Vite adapter as a named export', () => {
+    expect(tokenami.vite).toBeTypeOf('function');
+  });
+
+  it('configures Vite to process CSS with Lightning CSS', async () => {
+    const fixture = await createFixture();
+
+    try {
+      const plugin = createTestPlugin({ cwd: fixture.root });
+      const buildCommand = { command: 'build', mode: '' } as const;
+
+      expect(plugin.config({}, buildCommand)).toMatchObject({
+        css: { transformer: 'lightningcss' },
+        build: { cssMinify: 'lightningcss' },
+      });
+      expect(plugin.config({ build: { minify: false } }, buildCommand)).toMatchObject({
+        css: { transformer: 'lightningcss' },
+        build: { minify: false, cssMinify: false },
+      });
+      expect(plugin.config({ build: { cssMinify: 'esbuild' } }, buildCommand)).toMatchObject({
+        css: { transformer: 'lightningcss' },
+        build: { cssMinify: 'lightningcss' },
+      });
+    } finally {
+      await fixture.remove();
+    }
+  });
+
+  it(
+    'allows the stylesheet import path to be customized',
+    async () => {
+      const fixture = await createFixture({
+        importStyles: true,
+        styleImport: 'styles/theme.css',
+      });
+
+      try {
+        await viteBuild({
+          root: fixture.root,
+          configFile: false,
+          logLevel: 'silent',
+          plugins: [tokenami.vite({ cwd: fixture.root, output: 'styles/theme.css' })],
+          build: {
+            emptyOutDir: true,
+            outDir: fixture.dist,
+          },
+        });
+
+        const cssFile = await findCssFile(fixture.dist, '--color_red');
+        expect(await readCssFile(fixture.dist, cssFile)).toContain('--color_red');
+      } finally {
+        await fixture.remove();
+      }
+    },
+    timeout
+  );
+
+  it(
+    'processes external Tokenami stylesheets',
+    async () => {
+      const fixture = await createFixture({
+        externalStylesheet: '@layer tkc { .acme-button { --color: var(--color_blue); } }',
+        importStyles: true,
+      });
+
+      try {
+        await viteBuild({
+          root: fixture.root,
+          configFile: false,
+          logLevel: 'silent',
+          plugins: [tokenami.vite({ cwd: fixture.root })],
+          build: {
+            emptyOutDir: true,
+            outDir: fixture.dist,
+          },
+        });
+
+        const cssFile = await findCssFile(fixture.dist, '.acme-button');
+        const css = await readCssFile(fixture.dist, cssFile);
+
+        expect(css).toContain('@layer tk1{.acme-button,[style]{color:var(--color,revert-layer)}');
+        expect(css).toContain('@layer tkc{.acme-button{--color:var(--color_blue)}}');
+      } finally {
+        await fixture.remove();
+      }
+    },
+    timeout
+  );
+
+  it(
+    'emits tokenami.css during Vite builds',
+    async () => {
+      const fixture = await createFixture({ importStyles: true });
+
+      try {
+        await viteBuild({
+          root: fixture.root,
+          configFile: false,
+          logLevel: 'silent',
+          plugins: [tokenami.vite({ cwd: fixture.root })],
+          build: {
+            emptyOutDir: true,
+            outDir: fixture.dist,
+          },
+        });
+
+        const cssFile = await findCssFile(fixture.dist, '--color_red');
+        expect(await readCssFile(fixture.dist, cssFile)).toMatchSnapshot();
+        expect(await readFile(join(fixture.dist, 'index.html'), 'utf8')).toContain(`/${cssFile}`);
+      } finally {
+        await fixture.remove();
+      }
+    },
+    timeout
+  );
+
+  it(
+    'scans Tokenami config includes before emitting CSS during Vite builds',
+    async () => {
+      const fixture = await createFixture();
+
+      try {
+        await writeFile(
+          fixture.entry,
+          ['import "tokenami.css";', 'import "./button.js";', 'export {};'].join('\n')
+        );
+        await writeFile(
+          join(fixture.root, 'src/button.js'),
+          ['const css = { compose() {} };', 'css.compose({ "--color": "var(--color_red)" });'].join(
+            '\n'
+          )
+        );
+
+        await viteBuild({
+          root: fixture.root,
+          configFile: false,
+          logLevel: 'silent',
+          plugins: [tokenami.vite({ cwd: fixture.root })],
+          build: {
+            emptyOutDir: true,
+            outDir: fixture.dist,
+          },
+        });
+
+        const cssFile = await findCssFile(fixture.dist, '--color_red');
+        const css = await readCssFile(fixture.dist, cssFile);
+
+        expect(css).toContain('@layer tkc{.');
+        expect(css).toContain('--color:var(--color_red)');
+      } finally {
+        await fixture.remove();
+      }
+    },
+    timeout
+  );
+
+  it('updates generated CSS during Vite hot updates', async () => {
+    const fixture = await createFixture({ importStyles: true });
+
+    try {
+      const plugin = createTestPlugin({ cwd: fixture.root });
+      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
+        isEntry: false,
+      });
+      expect(resolvedCssId).toBe('\0tokenami.css');
+
+      await plugin.buildStart.call({
+        addWatchFile() {},
+        emitFile() {},
+      });
+
+      expect(await plugin.load(resolvedCssId as string)).not.toContain('margin');
+
+      const updatedEntry = [
+        'import "tokenami.css";',
+        'document.body.innerHTML = \'<button style="--color: var(--color_red); --background-color: var(--color_blue); --padding: var(--space_sm); --margin: var(--space_sm)">Button</button>\';',
+        'export {};',
+      ].join('\n');
+
+      const sourceModule = { id: fixture.entry };
+      const cssModule = { id: resolvedCssId };
+      const invalidated: unknown[] = [];
+      const modules = await plugin.handleHotUpdate({
+        file: fixture.entry,
+        read: async () => updatedEntry,
+        modules: [sourceModule],
+        server: {
+          moduleGraph: {
+            getModuleById(id: string) {
+              return id === resolvedCssId ? cssModule : undefined;
+            },
+            invalidateModule(module: unknown) {
+              invalidated.push(module);
+            },
+          },
+          ws: {
+            send() {},
+          },
+        },
+      });
+
+      expect(modules).toEqual([sourceModule, cssModule]);
+      expect(invalidated).toEqual([cssModule]);
+      expect(await plugin.load(resolvedCssId as string)).toContain('margin');
+    } finally {
+      await fixture.remove();
+    }
+  });
+
+  it('pre-scans includes before loading dev CSS', async () => {
+    const fixture = await createFixture();
+
+    try {
+      const plugin = createTestPlugin({ cwd: fixture.root });
+      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
+        isEntry: false,
+      });
+
+      await writeFile(
+        fixture.entry,
+        [
+          'import "tokenami.css";',
+          'const css = { compose() {} };',
+          'css.compose({ "--color": "var(--color_red)" });',
+        ].join('\n')
+      );
+
+      await plugin.configResolved({
+        build: { minify: false },
+        command: 'serve',
+        createResolver: () => async () => undefined,
+      });
+      await plugin.buildStart.call({
+        addWatchFile() {},
+        emitFile() {},
+      });
+
+      expect(await plugin.load(resolvedCssId as string)).toContain('var(--color_red)');
+    } finally {
+      await fixture.remove();
+    }
+  });
+
+  it('removes unused placeholder layers from dev CSS', async () => {
+    const fixture = await createFixture({ importStyles: true });
+
+    try {
+      const plugin = createTestPlugin({ cwd: fixture.root });
+      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
+        isEntry: false,
+      });
+
+      await plugin.configResolved({
+        build: { minify: false },
+        command: 'serve',
+        createResolver: () => async () => undefined,
+      });
+      await plugin.buildStart.call({
+        addWatchFile() {},
+        emitFile() {},
+      });
+
+      const css = await plugin.load(resolvedCssId as string);
+
+      expect(css).toContain('@layer tkb');
+      expect(css).not.toMatch(/@layer\s+tks\d/);
+      expect(css).not.toMatch(/@layer\s+tkc\d/);
+    } finally {
+      await fixture.remove();
+    }
+  });
+
+  it('keeps stale compose classes in dev stylesheets during Vite hot updates', async () => {
+    const fixture = await createFixture();
+
+    try {
+      const initialEntry = [
+        'import "tokenami.css";',
+        'const css = { compose() {} };',
+        'css.compose({ "--color": "var(--color_red)" });',
+        'export {};',
+      ].join('\n');
+      const updatedEntry = [
+        'import "tokenami.css";',
+        'const css = { compose() {} };',
+        'css.compose({ "--color": "var(--color_blue)" });',
+        'export {};',
+      ].join('\n');
+      const nextEntry = [
+        'import "tokenami.css";',
+        'const css = { compose() {} };',
+        'css.compose({ "--color": "var(--space_sm)" });',
+        'export {};',
+      ].join('\n');
+
+      await writeFile(fixture.entry, initialEntry);
+
+      const plugin = createTestPlugin({ cwd: fixture.root });
+      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
+        isEntry: false,
+      });
+
+      await plugin.buildStart.call({
+        addWatchFile() {},
+        emitFile() {},
+      });
+      await plugin.transform(initialEntry, fixture.entry);
+
+      const initialCss = await plugin.load(resolvedCssId as string);
+      expect(initialCss).toContain('var(--color_red)');
+      expect(initialCss).not.toContain('var(--color_blue)');
+
+      const cssModule = { id: resolvedCssId };
+      await writeFile(fixture.entry, updatedEntry);
+      await plugin.handleHotUpdate({
+        file: fixture.entry,
+        read: async () => updatedEntry,
+        modules: [{ id: fixture.entry }],
+        server: {
+          moduleGraph: {
+            getModuleById(id: string) {
+              return id === resolvedCssId ? cssModule : undefined;
+            },
+            invalidateModule() {},
+          },
+          ws: {
+            send() {},
+          },
+        },
+      });
+
+      const updatedCss = await plugin.load(resolvedCssId as string);
+      expect(updatedCss).toContain('var(--color_red)');
+      expect(updatedCss).toContain('var(--color_blue)');
+
+      await writeFile(fixture.entry, nextEntry);
+      await plugin.handleHotUpdate({
+        file: fixture.entry,
+        read: async () => nextEntry,
+        modules: [{ id: fixture.entry }],
+        server: {
+          moduleGraph: {
+            getModuleById(id: string) {
+              return id === resolvedCssId ? cssModule : undefined;
+            },
+            invalidateModule() {},
+          },
+          ws: {
+            send() {},
+          },
+        },
+      });
+
+      const nextCss = await plugin.load(resolvedCssId as string);
+      expect(nextCss).toContain('var(--color_red)');
+      expect(nextCss).toContain('var(--color_blue)');
+      expect(nextCss).toContain('var(--space_sm)');
+    } finally {
+      await fixture.remove();
+    }
+  });
+
+  it('removes tokens for deleted files', async () => {
+    const fixture = await createFixture();
+
+    try {
+      const entry = [
+        'import "tokenami.css";',
+        'const css = { compose() {} };',
+        'css.compose({ "--color": "var(--color_red)" });',
+        'export {};',
+      ].join('\n');
+
+      await writeFile(fixture.entry, entry);
+
+      const plugin = createTestPlugin({ cwd: fixture.root });
+      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
+        isEntry: false,
+      });
+
+      await plugin.configResolved({
+        build: { minify: false },
+        command: 'serve',
+        createResolver: () => async () => undefined,
+      });
+      await plugin.buildStart.call({
+        addWatchFile() {},
+        emitFile() {},
+      });
+      await plugin.transform(entry, fixture.entry);
+
+      expect(await plugin.load(resolvedCssId as string)).toContain('var(--color_red)');
+
+      await rm(fixture.entry);
+      plugin.watchChange(fixture.entry, { event: 'delete' });
+
+      expect(await plugin.load(resolvedCssId as string)).not.toContain('var(--color_red)');
+    } finally {
+      await fixture.remove();
+    }
+  });
+
+  it('ignores Vite hot updates outside Tokenami config includes', async () => {
+    const fixture = await createFixture({ importStyles: true });
+
+    try {
+      const plugin = createTestPlugin({ cwd: fixture.root });
+      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
+        isEntry: false,
+      });
+
+      await plugin.buildStart.call({
+        addWatchFile() {},
+        emitFile() {},
+      });
+
+      expect(await plugin.load(resolvedCssId as string)).not.toContain('margin');
+
+      const ignoredFile = join(fixture.root, 'scripts/ignored.js');
+      const modules = await plugin.handleHotUpdate({
+        file: ignoredFile,
+        read: async () => 'document.body.style = "--margin: var(--space_sm)";',
+        modules: [{ id: ignoredFile }],
+        server: {
+          moduleGraph: {
+            getModuleById() {
+              return { id: resolvedCssId };
+            },
+            invalidateModule() {},
+          },
+          ws: {
+            send() {},
+          },
+        },
+      });
+
+      expect(modules).toBeUndefined();
+      expect(await plugin.load(resolvedCssId as string)).not.toContain('margin');
+    } finally {
+      await fixture.remove();
+    }
+  });
+
+  it('updates generated CSS during external stylesheet hot updates', async () => {
+    const fixture = await createFixture({
+      externalStylesheet: '@layer tkc { .acme-initial { --color: var(--color_red); } }',
+      importStyles: true,
+    });
+
+    try {
+      const plugin = createTestPlugin({ cwd: fixture.root });
+      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
+        isEntry: false,
+      });
+      const externalStylesheet = join(
+        fixture.root,
+        'node_modules/@acme/design-system/tokenami.css'
+      );
+
+      await plugin.configResolved({
+        build: { minify: false },
+        command: 'serve',
+        createResolver: () => async () => externalStylesheet,
+      });
+
+      await plugin.buildStart.call({
+        addWatchFile() {},
+        emitFile() {},
+      });
+
+      expect(await plugin.load(resolvedCssId as string)).not.toContain('.acme-button');
+
+      const invalidated: unknown[] = [];
+      const modules = await plugin.handleHotUpdate({
+        file: externalStylesheet,
+        read: async () => '@layer tkc { .acme-button { --color: var(--color_blue); } }',
+        modules: [{ id: externalStylesheet }],
+        server: {
+          moduleGraph: {
+            getModuleById(id: string) {
+              return id === resolvedCssId ? { id: resolvedCssId } : undefined;
+            },
+            invalidateModule(module: unknown) {
+              invalidated.push(module);
+            },
+          },
+          ws: {
+            send() {},
+          },
+        },
+      });
+
+      expect(modules).toEqual([{ id: externalStylesheet }, { id: resolvedCssId }]);
+      expect(invalidated).toEqual([{ id: resolvedCssId }]);
+      expect(await plugin.load(resolvedCssId as string)).toContain('.acme-button');
+    } finally {
+      await fixture.remove();
+    }
+  });
+});
+
+async function createFixture(
+  options: {
+    externalStylesheet?: string;
+    importStyles?: boolean;
+    styleImport?: string;
+  } = {}
+) {
+  const root = join(process.cwd(), '.tmp', `tokenami-unplugin-${randomUUID()}`);
+  const src = join(root, 'src');
+  const tokenamiDir = join(root, '.tokenami');
+  const dist = join(root, 'dist');
+  const entry = join(src, 'main.js');
+
+  await mkdir(src, { recursive: true });
+  await mkdir(tokenamiDir, { recursive: true });
+  if (options.externalStylesheet) {
+    const externalPackagePath = join(root, 'node_modules/@acme/design-system');
+    const externalCssPath = join(externalPackagePath, 'tokenami.css');
+    await mkdir(externalPackagePath, { recursive: true });
+    await writeFile(
+      join(externalPackagePath, 'package.json'),
+      JSON.stringify({
+        name: '@acme/design-system',
+        exports: { './tokenami.css': './tokenami.css' },
+      })
+    );
+    await writeFile(externalCssPath, options.externalStylesheet);
+  }
+  await writeFile(
+    join(root, 'index.html'),
+    '<!doctype html><html><head></head><body><script type="module" src="/src/main.js"></script></body></html>'
+  );
+  await writeFile(
+    entry,
+    [
+      options.importStyles
+        ? `import ${JSON.stringify(options.styleImport ?? 'tokenami.css')};`
+        : '',
+      'document.body.innerHTML = \'<button style="--color: var(--color_red); --background-color: var(--color_blue); --padding: var(--space_sm)">Button</button>\';',
+      'export {};',
+    ]
+      .filter(Boolean)
+      .join('\n')
+  );
+  await writeFile(
+    join(tokenamiDir, 'tokenami.config.mjs'),
+    [
+      'export default {',
+      `  include: ${JSON.stringify(
+        [
+          './src/**/*.{js,ts,tsx}',
+          options.externalStylesheet ? '@acme/design-system/tokenami.css' : undefined,
+        ].filter(Boolean)
+      )},`,
+      "  themeSelector: (mode) => mode === 'root' ? ':root' : `[data-theme=${mode}]`,",
+      '  theme: {',
+      "    color: { red: '#f00', blue: '#00f' },",
+      "    space: { sm: '4px' },",
+      '  },',
+      '  properties: {',
+      "    color: ['color'],",
+      "    'background-color': ['color'],",
+      "    padding: ['space'],",
+      "    margin: ['space'],",
+      '  },',
+      '};',
+    ].join('\n')
+  );
+
+  return {
+    root,
+    dist,
+    entry,
+    async remove() {
+      if (existsSync(root)) await rm(root, { recursive: true, force: true });
+    },
+  };
+}
+
+async function findCssFile(dist: string, content: string) {
+  const { readdir } = await import('node:fs/promises');
+  const files = await readdir(dist, { recursive: true });
+  for (const file of files) {
+    const fileName = file.toString();
+    if (!fileName.endsWith('.css')) continue;
+    const css = await readFile(join(dist, fileName), 'utf8');
+    if (css.includes(content)) return fileName;
+  }
+
+  throw new Error(`Could not find Tokenami CSS asset in ${dist}`);
+}
+
+async function readCssFile(dist: string, file: string) {
+  return readFile(join(dist, file), 'utf8');
+}
+
+interface TestPlugin {
+  buildStart: (this: TestBuildContext) => Promise<void> | void;
+  config: (config: Record<string, any>, env: { command: 'build'; mode: string }) => unknown;
+  configResolved: (config: TestResolvedConfig) => Promise<void> | void;
+  handleHotUpdate: (ctx: TestHmrContext) => Promise<unknown[] | void> | unknown[] | void;
+  load: (id: string) => Promise<string | null> | string | null;
+  resolveId: (
+    id: string,
+    importer: string | undefined,
+    options: { isEntry: boolean }
+  ) => Promise<string | null | undefined> | string | null | undefined;
+  transform: (code: string, id: string) => Promise<null> | null;
+  watchChange: (id: string, change: { event: 'create' | 'update' | 'delete' }) => void;
+}
+
+interface TestBuildContext {
+  addWatchFile: (file: string) => void;
+  emitFile: () => void;
+}
+
+interface TestResolvedConfig {
+  build: { minify: boolean };
+  command: 'serve';
+  createResolver: () => (id: string) => Promise<string | undefined>;
+}
+
+interface TestHmrContext {
+  file: string;
+  read: () => Promise<string>;
+  modules: unknown[];
+  server: {
+    moduleGraph: {
+      getModuleById: (id: string) => unknown;
+      invalidateModule: (module: unknown) => void;
+    };
+    ws: {
+      send: () => void;
+    };
+  };
+}
+
+function createTestPlugin(options: tokenami.TokenamiUnpluginOptions) {
+  const plugin = tokenami.vite(options);
+  return plugin as unknown as TestPlugin;
+}

@@ -3,6 +3,7 @@ import glob from 'fast-glob';
 import * as fs from 'fs';
 import * as csstree from 'css-tree';
 import ts from 'typescript/lib/tsserverlibrary.js';
+import * as pathe from 'pathe';
 import { type TokenamiProperties } from './declarations';
 import * as sheet from './sheet';
 import * as utils from './utils';
@@ -22,7 +23,12 @@ interface UsedTokens {
   composeBlocks: Record<`.${string}`, TokenamiProperties>;
 }
 
-interface FileTokens extends UsedTokens {}
+interface FileTokens {
+  prevComposeBlocks: Record<`.${string}`, TokenamiProperties>[];
+  current: UsedTokens;
+}
+
+const HMR_COMPOSE_BLOCK_HISTORY_LIMIT = 3;
 
 class TokenStore {
   #config: Tokenami.Config;
@@ -40,8 +46,12 @@ class TokenStore {
     return this.#config;
   }
 
-  updateFile(filePath: string, content: string) {
-    this.#tokensByFile.set(filePath, scanFileContent(content, this.#config.theme));
+  updateFile(filePath: string, content: string, options?: { mode?: 'hmr' | 'build' }) {
+    const tokens = scanFileContent(content, this.#config.theme);
+    const fileTokens = this.#tokensByFile.get(filePath);
+    const isHmr = options?.mode === 'hmr';
+    const prevComposeBlocks = isHmr && fileTokens ? this.#mergePrevComposeBlocks(fileTokens) : [];
+    this.#tokensByFile.set(filePath, { prevComposeBlocks, current: tokens });
   }
 
   removeFile(filePath: string) {
@@ -66,16 +76,26 @@ class TokenStore {
     let composeBlocks: Record<`.${string}`, TokenamiProperties> = {};
 
     for (const fileTokens of this.#tokensByFile.values()) {
-      properties = [...properties, ...fileTokens.properties];
-      values = [...values, ...fileTokens.values];
-      composeBlocks = { ...composeBlocks, ...fileTokens.composeBlocks };
+      properties = [...properties, ...fileTokens.current.properties];
+      values = [...values, ...fileTokens.current.values];
+      composeBlocks = Object.assign(
+        {},
+        composeBlocks,
+        ...fileTokens.prevComposeBlocks,
+        fileTokens.current.composeBlocks
+      );
     }
 
     return { properties, values, composeBlocks };
   }
+
+  #mergePrevComposeBlocks(fileTokens: FileTokens) {
+    const merged = [fileTokens.current.composeBlocks, ...fileTokens.prevComposeBlocks];
+    return merged.slice(0, HMR_COMPOSE_BLOCK_HISTORY_LIMIT);
+  }
 }
 
-function scanFileContent(content: string, theme: Tokenami.Config['theme']): FileTokens {
+function scanFileContent(content: string, theme: Tokenami.Config['theme']): UsedTokens {
   const tokens = matchTokens(content, theme);
   let composeBlocks = findComposeBlocks(content);
 
@@ -94,7 +114,7 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
   const store = new TokenStore(config);
 
   entries.forEach((entry) => {
-    const fileContent = fs.readFileSync(entry, 'utf8');
+    const fileContent = fs.readFileSync(pathe.join(cwd, entry), 'utf8');
     store.updateFile(entry, fileContent);
   });
 
@@ -230,5 +250,5 @@ function findSheetComposeBlocks(fileContents: string) {
   return stylesObject;
 }
 
-export { findUsedTokens };
+export { TokenStore, findUsedTokens };
 export type { UsedTokens };

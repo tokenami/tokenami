@@ -75,10 +75,13 @@ importers:
         version: 0.14.0(@types/node@20.17.19)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.4.5)
       '@storylite/vite-plugin':
         specifier: ^0.14.0
-        version: 0.14.0(@types/node@20.17.19)(lightningcss@1.29.1)
+        version: 0.14.0(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)
+      '@tokenami/unplugin':
+        specifier: workspace:*
+        version: link:../../packages/@tokenami-unplugin
       '@vitejs/plugin-react-swc':
         specifier: ^3.6.0
-        version: 3.7.0(@swc/helpers@0.5.15)(vite@5.3.1(@types/node@20.17.19)(lightningcss@1.29.1))
+        version: 3.7.0(@swc/helpers@0.5.15)(vite@5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0))
       tokenami:
         specifier: workspace:*
         version: link:../../packages/tokenami
@@ -90,7 +93,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.1.6
-        version: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)
+        version: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)
 
   examples/nextjs:
     dependencies:
@@ -211,7 +214,7 @@ importers:
         version: 5.4.5
       vitest:
         specifier: ^0.34.6
-        version: 0.34.6(lightningcss@1.29.1)(playwright@1.55.1)
+        version: 0.34.6(lightningcss@1.29.1)(playwright@1.55.1)(terser@5.48.0)
 
   packages/@tokenami-ds:
     dependencies:
@@ -279,7 +282,41 @@ importers:
         version: 5.4.5
       vitest:
         specifier: ^0.34.6
-        version: 0.34.6(lightningcss@1.29.1)(playwright@1.55.1)
+        version: 0.34.6(lightningcss@1.29.1)(playwright@1.55.1)(terser@5.48.0)
+
+  packages/@tokenami-unplugin:
+    dependencies:
+      '@tokenami/config':
+        specifier: workspace:*
+        version: link:../@tokenami-config
+      '@tokenami/node':
+        specifier: workspace:*
+        version: link:../@tokenami-node
+      lightningcss:
+        specifier: 1.29.1
+        version: 1.29.1
+      pathe:
+        specifier: ^1.1.1
+        version: 1.1.2
+      unplugin:
+        specifier: ^3.0.0
+        version: 3.0.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.3.1
+        version: 20.17.19
+      tsup:
+        specifier: ^8.4.0
+        version: 8.4.0(@swc/core@1.5.29(@swc/helpers@0.5.15))(jiti@2.4.2)(postcss@8.4.38)(tsx@4.21.0)(typescript@5.4.5)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.1.3
+        version: 5.4.5
+      vite:
+        specifier: ^5.1.6
+        version: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)
+      vitest:
+        specifier: ^0.34.6
+        version: 0.34.6(lightningcss@1.29.1)(playwright@1.55.1)(terser@5.48.0)
 
   packages/tokenami:
     dependencies:
@@ -301,7 +338,7 @@ importers:
         version: 5.4.5
       vitest:
         specifier: ^0.34.6
-        version: 0.34.6(lightningcss@1.29.1)(playwright@1.55.1)
+        version: 0.34.6(lightningcss@1.29.1)(playwright@1.55.1)(terser@5.48.0)
 
   visual-tests/tokenami:
     dependencies:
@@ -338,7 +375,7 @@ importers:
         version: 19.1.9(@types/react@19.1.13)
       '@vitejs/plugin-react':
         specifier: ^4.0.0
-        version: 4.7.0(vite@5.3.1(@types/node@20.17.19)(lightningcss@1.29.1))
+        version: 4.7.0(vite@5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0))
       tokenami:
         specifier: workspace:*
         version: link:../../packages/tokenami
@@ -347,7 +384,7 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.1.0
-        version: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)
+        version: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)
 
 packages:
 
@@ -1335,6 +1372,9 @@ packages:
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
     engines: {node: '>=6.0.0'}
 
+  '@jridgewell/source-map@0.3.11':
+    resolution: {integrity: sha512-ZMp1V8ZFcPG5dIWnQLr3NSI1MiCU7UETdS/A0G8V/XWHvJv3ZsFqutJn1Y5RPmAPX6F3BiE397OqveU/9NCuIA==}
+
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
 
@@ -2275,6 +2315,11 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
+  acorn@8.16.0:
+    resolution: {integrity: sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
   add-stream@1.0.0:
     resolution: {integrity: sha512-qQLMr+8o0WC4FZGQTcJiKBVC59JylcPSrTtk6usvmIDFUOCKegapy1VHQwRbFMOFyb/inzUVqHs+eMYKDM1YeQ==}
 
@@ -2675,6 +2720,9 @@ packages:
   commander@11.1.0:
     resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
     engines: {node: '>=16'}
+
+  commander@2.20.3:
+    resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
@@ -4506,8 +4554,8 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
 
-  picomatch@4.0.2:
-    resolution: {integrity: sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==}
+  picomatch@4.0.4:
+    resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
 
   pify@2.3.0:
@@ -5135,6 +5183,11 @@ packages:
     resolution: {integrity: sha512-un0FmiRUQNr5PJqy9kP7c40F5BOfpGlYTrxonDChEZB7pzZxRNp/bt+ymiy9/npwXya9KH99nJ/GXFIiUkYGFQ==}
     engines: {node: '>=8'}
 
+  terser@5.48.0:
+    resolution: {integrity: sha512-J/9An6vs9Us6wKRriSFXBWdRZapREHqFzdNUKk0pmu804EMR6dr6winwo7e5JDxN4xahxQsuysyYFwlwj4XN/Q==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   text-extensions@1.9.0:
     resolution: {integrity: sha512-wiBrwC1EhBelW12Zy26JeOUkQ5mRu+5o8rpsJk5+2t+Y5vE7e842qtZDQ2g1NpX/29HdyFeJ4nSIhI47ENSxlQ==}
     engines: {node: '>=0.10'}
@@ -5355,6 +5408,10 @@ packages:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
 
+  unplugin@3.0.0:
+    resolution: {integrity: sha512-0Mqk3AT2TZCXWKdcoaufeXNukv2mTrEZExeXlHIOZXdqYoHHr4n51pymnwV8x2BOVxwXbK2HLlI7usrqMpycdg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+
   upath@2.0.1:
     resolution: {integrity: sha512-1uEe95xksV1O0CYKXo8vQvN1JEbtJp7lb7C5U9HMsIp6IVwntkH/oNUzyVNQSd4S1sYk2FpSSW44FqMc8qee5w==}
     engines: {node: '>=4'}
@@ -5475,6 +5532,9 @@ packages:
 
   webidl-conversions@4.0.2:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
+
+  webpack-virtual-modules@0.6.2:
+    resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
 
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
@@ -6548,6 +6608,12 @@ snapshots:
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
+  '@jridgewell/source-map@0.3.11':
+    dependencies:
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
+    optional: true
+
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
   '@jridgewell/trace-mapping@0.3.31':
@@ -7479,9 +7545,9 @@ snapshots:
     transitivePeerDependencies:
       - immer
 
-  '@storylite/vite-plugin@0.14.0(@types/node@20.17.19)(lightningcss@1.29.1)':
+  '@storylite/vite-plugin@0.14.0(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)':
     dependencies:
-      vite: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)
+      vite: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -7664,14 +7730,14 @@ snapshots:
       '@types/node': 20.17.19
     optional: true
 
-  '@vitejs/plugin-react-swc@3.7.0(@swc/helpers@0.5.15)(vite@5.3.1(@types/node@20.17.19)(lightningcss@1.29.1))':
+  '@vitejs/plugin-react-swc@3.7.0(@swc/helpers@0.5.15)(vite@5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0))':
     dependencies:
       '@swc/core': 1.5.29(@swc/helpers@0.5.15)
-      vite: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)
+      vite: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)
     transitivePeerDependencies:
       - '@swc/helpers'
 
-  '@vitejs/plugin-react@4.7.0(vite@5.3.1(@types/node@20.17.19)(lightningcss@1.29.1))':
+  '@vitejs/plugin-react@4.7.0(vite@5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0))':
     dependencies:
       '@babel/core': 7.28.4
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.4)
@@ -7679,7 +7745,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)
+      vite: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -7734,6 +7800,9 @@ snapshots:
       acorn: 8.12.0
 
   acorn@8.12.0: {}
+
+  acorn@8.16.0:
+    optional: true
 
   add-stream@1.0.0: {}
 
@@ -8156,6 +8225,9 @@ snapshots:
 
   commander@11.1.0: {}
 
+  commander@2.20.3:
+    optional: true
+
   commander@4.1.1: {}
 
   commander@7.2.0: {}
@@ -8508,7 +8580,7 @@ snapshots:
   esbuild-visualizer@0.7.0:
     dependencies:
       open: 8.4.2
-      picomatch: 4.0.2
+      picomatch: 4.0.4
       yargs: 17.7.2
 
   esbuild@0.21.5:
@@ -8690,9 +8762,9 @@ snapshots:
     dependencies:
       pend: 1.2.0
 
-  fdir@6.4.3(picomatch@4.0.2):
+  fdir@6.4.3(picomatch@4.0.4):
     optionalDependencies:
-      picomatch: 4.0.2
+      picomatch: 4.0.4
 
   figures@2.0.0:
     dependencies:
@@ -10208,7 +10280,7 @@ snapshots:
 
   picomatch@2.3.1: {}
 
-  picomatch@4.0.2: {}
+  picomatch@4.0.4: {}
 
   pify@2.3.0: {}
 
@@ -10867,6 +10939,14 @@ snapshots:
       ansi-escapes: 4.3.2
       supports-hyperlinks: 2.3.0
 
+  terser@5.48.0:
+    dependencies:
+      '@jridgewell/source-map': 0.3.11
+      acorn: 8.16.0
+      commander: 2.20.3
+      source-map-support: 0.5.21
+    optional: true
+
   text-extensions@1.9.0: {}
 
   thenify-all@1.6.0:
@@ -10894,8 +10974,8 @@ snapshots:
 
   tinyglobby@0.2.12:
     dependencies:
-      fdir: 6.4.3(picomatch@4.0.2)
-      picomatch: 4.0.2
+      fdir: 6.4.3(picomatch@4.0.4)
+      picomatch: 4.0.4
 
   tinypool@0.7.0: {}
 
@@ -11098,6 +11178,12 @@ snapshots:
 
   universalify@2.0.1: {}
 
+  unplugin@3.0.0:
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      picomatch: 4.0.4
+      webpack-virtual-modules: 0.6.2
+
   upath@2.0.1: {}
 
   update-browserslist-db@1.1.3(browserslist@4.26.3):
@@ -11133,14 +11219,14 @@ snapshots:
 
   validate-npm-package-name@6.0.2: {}
 
-  vite-node@0.34.6(@types/node@20.17.19)(lightningcss@1.29.1):
+  vite-node@0.34.6(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3
       mlly: 1.7.1
       pathe: 1.1.2
       picocolors: 1.1.1
-      vite: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)
+      vite: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -11151,7 +11237,7 @@ snapshots:
       - supports-color
       - terser
 
-  vite@5.3.1(@types/node@20.17.19)(lightningcss@1.29.1):
+  vite@5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.38
@@ -11160,8 +11246,9 @@ snapshots:
       '@types/node': 20.17.19
       fsevents: 2.3.3
       lightningcss: 1.29.1
+      terser: 5.48.0
 
-  vitest@0.34.6(lightningcss@1.29.1)(playwright@1.55.1):
+  vitest@0.34.6(lightningcss@1.29.1)(playwright@1.55.1)(terser@5.48.0):
     dependencies:
       '@types/chai': 4.3.16
       '@types/chai-subset': 1.3.5
@@ -11184,8 +11271,8 @@ snapshots:
       strip-literal: 1.3.0
       tinybench: 2.8.0
       tinypool: 0.7.0
-      vite: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)
-      vite-node: 0.34.6(@types/node@20.17.19)(lightningcss@1.29.1)
+      vite: 5.3.1(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)
+      vite-node: 0.34.6(@types/node@20.17.19)(lightningcss@1.29.1)(terser@5.48.0)
       why-is-node-running: 2.2.2
     optionalDependencies:
       playwright: 1.55.1
@@ -11207,6 +11294,8 @@ snapshots:
   webidl-conversions@3.0.1: {}
 
   webidl-conversions@4.0.2: {}
+
+  webpack-virtual-modules@0.6.2: {}
 
   whatwg-url@5.0.0:
     dependencies:

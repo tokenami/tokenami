@@ -19,12 +19,11 @@
 
 ## Contents
 
-- [Quick start](#user-content-quick-start)
-  - [Installation](#user-content-installation)
-  - [Basic setup](#user-content-basic-setup)
+- [Installation](#user-content-installation)
+- [Get started](#user-content-get-started)
 - [Introduction](#user-content-introduction)
   - [Why Tokenami?](#user-content-why-tokenami)
-  - [Why the CSS variable syntax?](#user-content-why-the-css-variable-syntax)
+  - [Why CSS variables?](#user-content-why-css-variables)
 - [Core concepts](#user-content-core-concepts)
   - [Theming](#user-content-theming)
   - [Grid values](#user-content-grid-values)
@@ -32,7 +31,7 @@
   - [Arbitrary values](#user-content-arbitrary-values)
 - [Styling](#user-content-styling)
   - [CSS utility](#user-content-css-utility)
-  - [CSS compose](#user-content-css-compose)
+  - [Composing components](#user-content-composing-components)
     - [Variants](#user-content-variants)
     - [Extending styles](#user-content-extending-styles)
 - [Design systems](#user-content-design-systems)
@@ -60,27 +59,26 @@
   - [Contributors](#user-content-contributors)
   - [Credits](#user-content-credits)
 
-## Quick start
+## Installation
 
-Jump right in with our [vite starter](https://github.com/tokenami/tokenami-vite), or configure your own project. Tokenami offers a CLI tool for generating static styles, a [~2.5kb](https://bundlephobia.com/package/@tokenami/css) CSS utility for authoring your styles, and a TypeScript plugin to enhance the developer experience.
+Jump right in with our [Vite starter](https://github.com/tokenami/tokenami-vite), or configure your own project. Tokenami generates static styles, provides a lightweight [~2.5kb](https://bundlephobia.com/package/@tokenami/css) utility for specificity-safe style composition, and includes a TypeScript plugin to enhance the developer experience.
 
-### Installation
+<details>
+<summary>Using Vite</summary>
 
-Install using your package manager of choice:
+#### 1. Install packages
 
 ```sh
-npm install -D tokenami && npm install @tokenami/css
+npm install -D tokenami @tokenami/unplugin && npm install @tokenami/css
 ```
 
-Then initialise your project:
+#### 2. Initialise your project
 
 ```sh
 npx tokenami init
 ```
 
-### Basic setup
-
-#### 1. Configure TypeScript (`tsconfig.json` or `jsconfig.json`):
+#### 3. Configure TypeScript (`tsconfig.json` or `jsconfig.json`)
 
 ```json
 {
@@ -94,37 +92,78 @@ npx tokenami init
 - Make sure your editor uses the workspace TypeScript version (see [VS Code docs](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript)).
 - For VS Code–based editors, [enable string suggestions](#user-content-enable-string-completions).
 
-#### 2. Run the watcher to build your CSS:
+#### 4. Add the Vite plugin
+
+```ts
+import * as tokenami from '@tokenami/unplugin';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  plugins: [tokenami.vite({ output: 'styles.css' })],
+});
+```
+
+#### 5. Import the generated stylesheet
+
+Import the configured `output` path in your app root:
+
+```ts
+import 'styles.css';
+```
+
+Only Vite is supported for now. For other bundlers and frameworks, use the CLI setup instead, or feel free to open a GitHub issue if plugin support for another tool is something you need.
+
+</details>
+
+<details>
+<summary>Using CLI</summary>
+
+#### 1. Install packages
+
+```sh
+npm install -D tokenami && npm install @tokenami/css
+```
+
+#### 2. Initialise your project
+
+```sh
+npx tokenami init
+```
+
+#### 3. Configure TypeScript (`tsconfig.json` or `jsconfig.json`)
+
+```json
+{
+  "include": [".tokenami/tokenami.env.d.ts", "src"],
+  "compilerOptions": {
+    "plugins": [{ "name": "tokenami" }]
+  }
+}
+```
+
+- Make sure your editor uses the workspace TypeScript version (see [VS Code docs](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript)).
+- For VS Code–based editors, [enable string suggestions](#user-content-enable-string-completions).
+
+#### 4. Start the Tokenami CLI build process
 
 ```sh
 npx tokenami --output ./public/styles.css --watch
 ```
 
-#### 3. Reference the CSS file in the `<head>` of your document, and start styling with Tokenami:
+#### 5. Reference the generated CSS file
+
+Add the generated CSS file to the `<head>` of your document:
+
+```html
+<link rel="stylesheet" href="/styles.css" />
+```
+
+</details>
+
+## Get started
 
 ```tsx
 import { css, type Variants, type TokenamiStyle } from '@tokenami/css';
-
-const button = css.compose({
-  '--display': 'flex',
-  '--align-items': 'center',
-  '--justify-content': 'center',
-  '--font': 'var(--text_sm)',
-  '--border-radius': 'var(--radii_full)',
-  '--background-color': 'var(--color_gray5)',
-  '--color': 'var(--color_gray12)',
-  '--gap': 0.5,
-
-  '--hover_background-color': 'var(--color_gray6)',
-  '--hover_color': 'var(--color_gray12)',
-
-  variants: {
-    size: {
-      default: { '--py': 1, '--px': 3 },
-      medium: { '--py': 2, '--px': 5 },
-    },
-  },
-});
 
 type ButtonVariants = Variants<typeof button>;
 type ButtonElementProps = TokenamiStyle<React.ComponentProps<'button'>>;
@@ -134,62 +173,67 @@ function Button({ size = 'default', ...props }: ButtonProps) {
   const [cn, sx] = button({ size });
   return <button {...props} className={cn(props.className)} style={sx(props.style)} />;
 }
+
+const button = css.compose({
+  '--display': 'flex',
+  '--align-items': 'center',
+  '--justify-content': 'center',
+  '--background-color': 'var(--color_gray5)',
+  '--color': 'var(--color_gray12)',
+  '--gap': 0.5,
+
+  '--hover_background-color': 'var(--color_gray6)',
+  '--hover_color': 'var(--color_gray12)',
+
+  variants: {
+    size: {
+      default: { '--padding-block': 1, '--padding-inline': 3 },
+      medium: { '--padding-block': 2, '--padding-inline': 5 },
+    },
+  },
+});
 ```
 
 ## Introduction
 
-Tokenami isn't another design system. It's a toolkit for building your own. By replacing atomic classes with **atomic CSS variables** and providing a unified set of tools, Tokenami makes it simple to create portable, type-safe design systems with tokens at the heart of your CSS.
+Tokenami isn't another design system. It's a toolkit for building your own that bridges the gap between utility-first CSS frameworks like Tailwind, and CSS-in-JS libraries.
 
 Benefits include:
 
-- 🏷️ **Simple naming convention** — turn any CSS property into a variable (`padding` → `--padding`)
-- 📦 **Smaller stylesheet** — one variable-driven rule instead of dozens of utility classes
-- ✨ **Streamlined markup** — one class name for your reusable components, keeping HTML lean
-- 🎯 **Single source of truth** — a config file defines and enforces your design tokens
-- 💡 **Smart authoring** — autocomplete + type safety built into your workflow
-- 🔓 **Extensible by design** — atomic CSS variables give your consumers control to override
-- ☮️ **No specificity wars** — a tiny first-class `css` utility handles safe composition
-- ⚡ **Dynamic by default** — pass props directly into tokens (`--color: props.color`)
-- ✍️ **Shorthand tokens** — define aliases like `--p` for padding
-- 🎨 **Expressive selectors** — custom selectors for nesting and descendant rules
+- 🏷️ **Familiar CSS syntax** — turn any CSS property into a variable (`padding` → `--padding`)
+- 🎯 **Token-first workflow** — define and enforce design decisions from one config
+- 💡 **Smart authoring** — autocomplete and type safety built into your editor
+- ☮️ **Specificity-safe primitives** — compose styles and complex selectors without fighting the cascade
+- 📦 **Streamlined output** — one variable-driven rule instead of lots of utility classes
+- ⚡ **Dynamic by default** — pass token values through props, inline styles, and variants
 
 ### Why Tokenami?
 
-CSS-in-JS gives design systems type safety, variants, and composition, but often comes with runtime or build-time complexity and a relatively broad API surface to learn.
+Utility-first CSS is fast and themed, but reusable component styles often end up as long class strings or move into `@apply`, away from the component you are working on. CSS-in-JS keeps styles colocated, but often leaves design-system structure up to you. In both cases, composition and arbitrary selectors can quickly turn into cascade or specificity problems.
 
-Utility-first frameworks like Tailwind CSS keep styles fast, small, and token-driven, but styling is expressed through framework-specific utility classes rather than familiar CSS property names, and larger codebases often need extra tooling for variants, composition, and class conflicts, e.g. [tailwind-merge](https://bundlephobia.com/package/tailwind-merge).
+Tokenami is a styling toolkit for teams building design systems that need to scale without specificity creep. It keeps the colocated workflow while providing first-class primitives for [component styles](#user-content-composing-components), [utilities](#user-content-css-utility), [variants](#user-content-variants), [selectors](#user-content-custom-selectors), and [overrides](#user-content-overrides).
 
-Tokenami bridges the gap with a small set of primitives built on atomic CSS variables, selectors, and tokens.
+It extracts what can live in the stylesheet, leaves dynamic values inline when needed, and _manages the cascade for you_. Define selector order once in your config, then compose styles and write complex selectors without having to worry about the cascade again.
 
-<details>
-<summary>Read more</summary>
-<br/>
+### Why CSS variables?
 
-Like utility-first CSS, Tokenami generates static styles and keeps design tokens at the centre of the workflow. Like CSS-in-JS, it provides type-safe tokens, variants, and composition.
+Tokenami uses CSS variables because they let inline styles do more than inline styles normally can.
 
-The difference is that styles are authored with CSS variables instead of utility classes. This produces fewer CSS rules, keeps runtime small, and avoids many specificity issues because [custom selectors](#user-content-custom-selectors) act as state toggles rather than increasingly complex overrides.
+A variable like `--padding` maps directly to the CSS property you already know, while prefixes like `--hover_color` or `--md_padding` add pseudo-classes and breakpoints. Tokenami can pass those values inline, then let the generated stylesheet decide when they apply.
 
-The result is a styling system designed for long-term maintainability, that combines the type safety and composition of CSS-in-JS with the performance and simplicity of static CSS.
+Those selectors are powered by [CSS variable toggles](#user-content-selector-specificity), so selector complexity does not turn into higher specificity.
 
-</details>
-
-### Why the CSS variable syntax?
-
-To keep things fast, Tokenami applies styles directly to the `style` attribute when needed instead of injecting runtime CSS. Since inline styles can't express media queries or pseudo-selectors, Tokenami represents styles as CSS variables. This enables responsive and state-based styling inline while keeping specificity low, so your design system stays easy to integrate and override. You're never locked into Tokenami.
-
-It also enables [selector toggles](#user-content-selector-specificity), letting you write complex selectors without increasing specificity or fighting the cascade.
-
-Don't worry about typing all those dashes though—just type `bord`, and Tokenami's IntelliSense completes the variable for you.
+And you do not have to type the whole var. Start writing `bord` and Tokenami will autocomplete the property for you.
 
 ## Core concepts
 
-Tokenami is built around a few key ideas:
+Tokenami styles follow a small naming pattern:
 
-- Turn any CSS property into a variable by adding `--` (e.g. `--padding`)
-- Add selectors with underscores (e.g. `--hover_padding`)
-- Add breakpoints the same way (e.g. `--md_padding`)
-- Combine selectors and breakpoints (e.g. `--md_hover_padding`)
-- Use `---` (triple dash) for custom CSS variables
+- Add `--` to any CSS property (`padding` → `--padding`)
+- Prefix selectors with underscores (`--hover_padding`)
+- Prefix breakpoints the same way (`--md_padding`)
+- Combine them when needed (`--md_hover_padding`)
+- Use `---` for custom CSS variables
 
 ### Theming
 
@@ -348,7 +392,7 @@ function Button(props) {
 }
 ```
 
-### CSS compose
+### Composing components
 
 The `css.compose` API helps you build reusable components with variants. Styles in the compose block are extracted into your stylesheet and replaced with a class name to reduce repetition in your markup.
 
@@ -464,7 +508,7 @@ Follow [the `@tokenami/ds` docs](https://github.com/tokenami/tokenami/blob/main/
 
 ### Building your own system
 
-Create a shared Tokenami config + stylesheet package, and publish it for projects to consume. If consumer is using Tokenami also, they should include your design system in their config:
+Create a shared Tokenami config + stylesheet package, and publish it for projects to consume. If the consuming project also uses Tokenami, they should include your design system in their config:
 
 ```tsx
 import designSystemConfig from '@acme/design-system';
@@ -797,7 +841,7 @@ tokenami check; tsc --noEmit
 
 ## Troubleshooting
 
-Common questions and how to solve them. If you need additional support or encounter any issues, please don't hesitate to join the [discord server](https://discord.gg/CAU4HNR4XK).
+Common questions and how to solve them. If you need additional support or encounter any issues, Need help? Join the [Discord server](https://discord.gg/CAU4HNR4XK).
 
 ### Enable string completions
 
