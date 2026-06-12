@@ -5,6 +5,9 @@ inputs:
   pnpm-version:
     description: Version of pnpm to use
     default: 9.x
+  ignore-scripts:
+    description: Skip lifecycle scripts during install
+    default: 'true'
 
 runs:
   using: composite
@@ -36,5 +39,12 @@ runs:
           ${{ runner.os }}-pnpm-store-
 
     - name: 📦 Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: |
+        install_args=(--frozen-lockfile)
+
+        if [[ "${{ inputs.ignore-scripts }}" == 'true' ]]; then
+          install_args+=(--ignore-scripts)
+        fi
+
+        pnpm install "${install_args[@]}"
       shell: bash

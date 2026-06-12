@@ -4,9 +4,17 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**/*.md'
+      - '.github/CODEOWNERS'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
 
   pull_request:
     types: [opened, synchronize, reopened]
+    paths-ignore:
+      - '**/*.md'
+      - '.github/CODEOWNERS'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -27,6 +35,7 @@ jobs:
           token: ${{ secrets.AUTO_PAT_PROD }}
       - run: git fetch --unshallow --tags
       - uses: ./.github/actions/setup-repo
+      - run: pnpm build
       - run: pnpm release
 
   canary:
@@ -50,4 +59,5 @@ jobs:
           token: ${{ secrets.AUTO_PAT }}
       - run: git fetch --unshallow --tags
       - uses: ./.github/actions/setup-repo
+      - run: pnpm build
       - run: pnpm release
