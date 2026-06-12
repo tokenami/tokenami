@@ -43,7 +43,9 @@
     "overrides": {
       "@types/react": "19.1.13",
       "@types/react-dom": "19.1.9",
-      "axios": "1.16.0"
+      "axios": "1.16.0",
+      "rollup": "4.61.1",
+      "vite": "5.4.21"
     }
   },
   "prettier": {
