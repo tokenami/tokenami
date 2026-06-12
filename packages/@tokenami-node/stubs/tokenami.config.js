@@ -3,7 +3,13 @@ import { createConfig } from '@tokenami/css';
 export default createConfig({
   include: [],
   grid: '0.25rem',
-  responsive: {},
+  responsive: {
+    sm: '@media (width >= 40rem)',
+    md: '@media (width >= 48rem)',
+    lg: '@media (width >= 64rem)',
+    xl: '@media (width >= 80rem)',
+    '2xl': '@media (width >= 96rem)',
+  },
   themeSelector: (mode) => (mode === 'root' ? ':root' : `.theme-${mode}`),
   theme: {
     alpha: {},
