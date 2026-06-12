@@ -46,7 +46,7 @@
     "jiti": "^1.21.0",
     "lightningcss": "1.29.1",
     "pathe": "^1.1.1",
-    "sucrase": "^3.34.0"
+    "sucrase": "^3.35.1"
   },
   "devDependencies": {
     "@types/css-tree": "^2.3.8",
