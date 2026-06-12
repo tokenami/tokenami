@@ -696,6 +696,7 @@ Tokenami maps your properties to some [default theme keys](https://github.com/to
 
 ```ts
 export default createConfig({
+  grid: '0.25rem',
   theme: {
     container: {
       half: '50%',
@@ -707,6 +708,7 @@ export default createConfig({
     },
   },
   properties: {
+    padding: ['grid'],
     width: ['grid', 'container'],
     height: ['grid', 'container'],
     content: ['pet'],
@@ -714,7 +716,7 @@ export default createConfig({
 });
 ```
 
-With this configuration, passing `var(--container_half)` to a `content` property would error because `container` does not exist in its property config, but `var(--pet_dog)` would be allowed:
+With this configuration, passing `--padding: 4` would use the `grid` mapping to output `1rem` of padding. Passing `var(--container_half)` to a `content` property would error because `container` does not exist in its property config, but `var(--pet_dog)` would be allowed:
 
 ```tsx
 <div
