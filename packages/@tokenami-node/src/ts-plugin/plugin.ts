@@ -45,14 +45,16 @@ type TokenamiPluginContext = {
 class TokenamiPlugin {
   #diagnostics: TokenamiDiagnostics;
   #config: TokenamiConfig.Config;
+  #configPath: string;
   #ctx: TokenamiPluginContext;
   #completions: TokenamiCompletions;
   #quotedCompletions: TokenamiCompletions;
   #completionsForPosition: { [entryName: string]: ts.CompletionEntry } | null = null;
 
   constructor(configPath: string, context: TokenamiPluginContext) {
+    this.#configPath = configPath;
     this.#config = tokenami.getConfigAtPath(configPath);
-    this.#diagnostics = new TokenamiDiagnostics(this.#config, context);
+    this.#diagnostics = new TokenamiDiagnostics(this.#config, { ...context, configPath });
     this.#completions = new TokenamiCompletions(this.#config, context);
     this.#ctx = context;
 
@@ -75,18 +77,9 @@ class TokenamiPlugin {
     this.#ctx.ts.sys.watchFile?.(configPath, (_fileName, eventKind) => {
       if (eventKind !== this.#ctx.ts.FileWatcherEventKind.Changed) return;
       try {
-        const reloadedConfig = tokenami.getConfigAtPath(configPath, { cache: false });
-        updateEnvFile(configPath);
-
-        this.#ctx.logger.log(`Config changed at ${configPath}}`);
-        this.#completions = new TokenamiCompletions(reloadedConfig, this.#ctx);
-        this.#quotedCompletions = new TokenamiCompletions(reloadedConfig, {
-          insertFormatter: quotedInsertFormatter,
-          logger: this.#ctx.logger,
-        });
-        this.#diagnostics = new TokenamiDiagnostics(reloadedConfig, this.#ctx);
+        this.#reloadConfig();
+        this.#ctx.logger.log(`Config changed at ${configPath}`);
         this.#ctx.info.project.refreshDiagnostics();
-        this.#config = reloadedConfig;
       } catch (e) {
         this.#ctx.logger.error(`Error processing config at ${configPath}: ${e}`);
       }
@@ -100,6 +93,23 @@ class TokenamiPlugin {
     const sourceFile = this.#ctx.info.languageService.getProgram()?.getSourceFile(fileName);
     if (!sourceFile) return original;
     return [...this.#diagnostics.getSemanticDiagnostics(sourceFile), ...original];
+  }
+
+  #reloadConfig() {
+    const reloadedConfig = tokenami.getConfigAtPath(this.#configPath, { cache: false });
+    updateEnvFile(this.#configPath);
+
+    this.#config = reloadedConfig;
+    this.#completionsForPosition = null;
+    this.#completions = new TokenamiCompletions(reloadedConfig, this.#ctx);
+    this.#quotedCompletions = new TokenamiCompletions(reloadedConfig, {
+      insertFormatter: quotedInsertFormatter,
+      logger: this.#ctx.logger,
+    });
+    this.#diagnostics = new TokenamiDiagnostics(reloadedConfig, {
+      ...this.#ctx,
+      configPath: this.#configPath,
+    });
   }
 
   getCompletionsAtPosition(

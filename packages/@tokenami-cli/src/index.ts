@@ -86,23 +86,30 @@ function run() {
 
       const configPath = utils.getConfigPath(cwd, flags?.config, projectConfig.type);
       const config: Writeable<Tokenami.Config> = utils.getConfigAtPath(configPath);
-      const plugin = new TokenamiDiagnostics(config);
+      const plugin = new TokenamiDiagnostics(config, { configPath });
       const formatHost: ts.FormatDiagnosticsHost = {
         getCanonicalFileName: (path) => path,
         getCurrentDirectory: ts.sys.getCurrentDirectory,
         getNewLine: () => ts.sys.newLine,
       };
+      const reportDiagnostics = (sourceFile: ts.SourceFile) => {
+        const diagnostics = plugin.getSemanticDiagnostics(sourceFile);
+        if (diagnostics.length > 0) {
+          console.log(ts.formatDiagnosticsWithColorAndContext(diagnostics, formatHost));
+          process.exit(1);
+        }
+      };
+
+      const configSourceFile = createSourceFile(configPath);
+      if (configSourceFile) reportDiagnostics(configSourceFile);
 
       for (const sourceFile of program.getSourceFiles()) {
         if (sourceFile.isDeclarationFile || sourceFile.fileName.includes('node_modules')) {
           continue;
         }
 
-        const diagnostics = plugin.getSemanticDiagnostics(sourceFile);
-        if (diagnostics.length > 0) {
-          console.log(ts.formatDiagnosticsWithColorAndContext(diagnostics, formatHost));
-          process.exit(1);
-        }
+        if (pathe.normalize(sourceFile.fileName) === pathe.normalize(configPath)) continue;
+        reportDiagnostics(sourceFile);
       }
 
       process.exit(0);
@@ -187,6 +194,39 @@ function getProjectConfig(cwd: string) {
   }
 
   return null;
+}
+
+function createSourceFile(fileName: string) {
+  const contents = ts.sys.readFile(fileName);
+  if (!contents) return null;
+
+  return ts.createSourceFile(
+    fileName,
+    contents,
+    ts.ScriptTarget.Latest,
+    true,
+    getScriptKind(fileName)
+  );
+}
+
+function getScriptKind(fileName: string) {
+  const extension = pathe.extname(fileName);
+
+  switch (extension) {
+    case '.ts':
+    case '.mts':
+    case '.cts':
+      return ts.ScriptKind.TS;
+    case '.tsx':
+      return ts.ScriptKind.TSX;
+    case '.jsx':
+      return ts.ScriptKind.JSX;
+    case '.js':
+    case '.mjs':
+    case '.cjs':
+    default:
+      return ts.ScriptKind.JS;
+  }
 }
 
 /* -------------------------------------------------------------------------------------------------
