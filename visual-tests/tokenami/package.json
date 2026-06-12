@@ -20,7 +20,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@percy/cli": "1.31.2",
+    "@percy/cli": "1.31.14",
     "@percy/playwright": "^1.0.9",
     "@playwright/test": "^1.55.1",
     "@types/react": "^18.2.20",
@@ -28,6 +28,6 @@
     "@vitejs/plugin-react": "^4.0.0",
     "tokenami": "workspace:*",
     "typescript": "^5.1.3",
-    "vite": "^5.1.0"
+    "vite": "^5.4.21"
   }
 }
