@@ -2,7 +2,7 @@
 import { resolve } from 'path';
 import storylitePlugin from '@storylite/vite-plugin';
 import * as tokenami from '@tokenami/unplugin';
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
