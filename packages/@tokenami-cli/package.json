@@ -41,7 +41,7 @@
     "browserslist": "^4.26.3",
     "cac": "^6.7.14",
     "chokidar": "^3.5.3",
-    "inquirer": "^9.2.12",
+    "inquirer": "^9.3.8",
     "lightningcss": "1.29.1",
     "pathe": "^1.1.1",
     "typescript": "^5.1.3"
