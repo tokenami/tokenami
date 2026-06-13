@@ -31,7 +31,12 @@ function getConfigAtPath(
   path: string,
   opts: { cache: boolean } = { cache: true }
 ): Tokenami.Config {
+  const ext = pathe.extname(path);
   const config = (() => {
+    if (['.mjs', '.ts', '.cts', '.mts'].includes(ext)) {
+      return lazyJiti({ cache: opts.cache })(path);
+    }
+
     try {
       if (!opts.cache) delete require.cache[require.resolve(path)];
       return require(path);
