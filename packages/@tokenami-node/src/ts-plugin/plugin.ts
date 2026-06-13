@@ -139,8 +139,9 @@ class TokenamiPlugin {
         },
       };
     } else {
-      const contextualType = this.#getTokenValueContext(node);
+      const contextualType = this.#getContextualType(node);
       if (!contextualType) return original();
+      if (completions.getTokenValuesFromType(contextualType).length === 0) return original();
 
       const results = completions.valueSearch(contextualType);
 
@@ -324,24 +325,10 @@ class TokenamiPlugin {
     return { isTokenamiProperty: false, value: prop.initializer.getText() };
   }
 
-  #getTokenValueContext(node: ts.Node): ts.Type | undefined {
+  #getContextualType(node: ts.Node): ts.Type | undefined {
     if (!ts.isExpression(node)) return;
     const checker = this.#ctx.info.languageService.getProgram()?.getTypeChecker();
-    const contextualType = checker?.getContextualType(node);
-    if (!contextualType) return;
-    return this.#hasTokenValueType(contextualType) ? contextualType : undefined;
-  }
-
-  #hasTokenValueType(type: ts.Type): boolean {
-    if (type.isStringLiteral()) {
-      return TokenamiConfig.TokenValue.safeParse(type.value).success;
-    }
-
-    if (type.isUnion()) {
-      return type.types.some((t) => this.#hasTokenValueType(t));
-    }
-
-    return false;
+    return checker?.getContextualType(node);
   }
 
   #isTokenamiObjectCache = TokenamiConfig.createLRUCache();

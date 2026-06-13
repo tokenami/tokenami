@@ -80,7 +80,7 @@ class TokenamiCompletions {
 
   valueSearch(input: ts.Type): ValueCompletionEntries[string] {
     const result: ValueCompletionEntries[string] = {};
-    const tokenValues = this.#getTokenValuesFromType(input);
+    const tokenValues = this.getTokenValuesFromType(input);
 
     for (const [index, tokenValue] of tokenValues.entries()) {
       const entry = this.#valueEntries[tokenValue] ?? this.#createValueEntry(tokenValue, index);
@@ -90,14 +90,14 @@ class TokenamiCompletions {
     return result;
   }
 
-  #getTokenValuesFromType(type: ts.Type): TokenamiConfig.TokenValue[] {
+  getTokenValuesFromType(type: ts.Type): TokenamiConfig.TokenValue[] {
     if (type.isStringLiteral()) {
       const tokenValue = TokenamiConfig.TokenValue.safeParse(type.value);
       return tokenValue.success ? [tokenValue.output] : [];
     }
 
     if (type.isUnion()) {
-      return type.types.flatMap((t) => this.#getTokenValuesFromType(t));
+      return type.types.flatMap((t) => this.getTokenValuesFromType(t));
     }
 
     return [];
