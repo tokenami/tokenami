@@ -1,3 +1,31 @@
+# v0.0.97 (Sat Jun 13 2026)
+
+#### 🚀 Enhancement
+
+- flag invalid token references in config [#508](https://github.com/tokenami/tokenami/pull/508) ([@jjenzz](https://github.com/jjenzz))
+- add default responsive selectors to config stubs [#503](https://github.com/tokenami/tokenami/pull/503) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- fix config reloading in plugin [#509](https://github.com/tokenami/tokenami/pull/509) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- reduce unnecessary action builds [#507](https://github.com/tokenami/tokenami/pull/507) ([@jjenzz](https://github.com/jjenzz))
+- limit release Discord workflow permissions [#506](https://github.com/tokenami/tokenami/pull/506) ([@jjenzz](https://github.com/jjenzz))
+- address moderate dependabot alerts [#505](https://github.com/tokenami/tokenami/pull/505) ([@jjenzz](https://github.com/jjenzz))
+- fix high severity dependabot alerts [#501](https://github.com/tokenami/tokenami/pull/501) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- add grid value to theme property mapping example [#502](https://github.com/tokenami/tokenami/pull/502) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.96 (Thu Jun 11 2026)
 
 #### 🚀 Enhancement
