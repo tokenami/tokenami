@@ -128,19 +128,19 @@ describe('ts plugin', () => {
       { logger: { log: () => {}, error: () => {} } }
     );
 
-    const result = completions.valueSearch(
-      createTokenValueUnionType([
-        'var(--color_mango)',
-        'var(--color_zebra)',
-        'var(--color_apple)',
-      ])
-    );
+    const type = createTokenValueUnionType([
+      'var(--color_mango)',
+      'var(--color_zebra)',
+      'var(--color_apple)',
+    ]);
+    const result = completions.valueSearch(type);
 
     expect(Object.values(result).map((entry) => [entry.name, entry.sortText])).toEqual([
       ['$mango', '$color000002'],
       ['$zebra', '$color000000'],
       ['$apple', '$color000001'],
     ]);
+    expect(completions.valueSearch(type)).toBe(result);
   });
 
   it('provides token value completions without calling TypeScript completions', () => {

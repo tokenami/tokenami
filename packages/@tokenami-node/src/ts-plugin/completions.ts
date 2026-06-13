@@ -46,6 +46,7 @@ class TokenamiCompletions {
   #base: CompletionEntries;
   #selectorSnippets: SelectorCompletionEntries;
   #valueEntries: ValueCompletionEntries[string];
+  #valueSearches = new WeakMap<ts.Type, ValueCompletionEntries[string]>();
 
   // lazily instantiate and cache these
   #_responsiveSelectorSnippets?: SelectorCompletionEntries;
@@ -79,6 +80,9 @@ class TokenamiCompletions {
   }
 
   valueSearch(input: ts.Type): ValueCompletionEntries[string] {
+    const cached = this.#valueSearches.get(input);
+    if (cached) return cached;
+
     const result: ValueCompletionEntries[string] = {};
     const tokenValues = this.getTokenValuesFromType(input);
 
@@ -87,6 +91,7 @@ class TokenamiCompletions {
       result[entry.name] = entry;
     }
 
+    this.#valueSearches.set(input, result);
     return result;
   }
 
