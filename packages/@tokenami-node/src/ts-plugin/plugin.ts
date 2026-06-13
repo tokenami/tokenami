@@ -139,7 +139,8 @@ class TokenamiPlugin {
         },
       };
     } else {
-      const results = completions.valueSearch(input.tokenValues);
+      if (!input.contextualType) return original();
+      const results = completions.valueSearch(input.contextualType);
 
       // If Tokenami can't provide value completions, fall back to the default
       // TypeScript completions (e.g. CSS.Properties unions).
@@ -287,16 +288,16 @@ class TokenamiPlugin {
   ): {
     value: string;
     isTokenamiProperty: boolean;
-    tokenValues: TokenamiConfig.TokenValue[];
+    contextualType?: ts.Type;
   } | null {
     const objLit = ts.findAncestor(node, ts.isObjectLiteralExpression);
 
     // No object literal - check for standalone value position
     if (!objLit) {
       if (!ts.isStringLiteral(node)) return null;
-      const tokenValues = this.#getTokenValuesForContext(node);
-      if (tokenValues.length === 0) return null;
-      return { isTokenamiProperty: false, value: node.getText(), tokenValues };
+      const contextualType = this.#getTokenValueContext(node);
+      if (!contextualType) return null;
+      return { isTokenamiProperty: false, value: node.getText(), contextualType };
     }
 
     // Find the property at cursor position
@@ -307,9 +308,7 @@ class TokenamiPlugin {
 
     // Not a property assignment (e.g. shorthand) - only valid in tokenami objects
     if (!ts.isPropertyAssignment(prop)) {
-      return isTokenamiObj
-        ? { isTokenamiProperty: true, value: prop.getText(), tokenValues: [] }
-        : null;
+      return isTokenamiObj ? { isTokenamiProperty: true, value: prop.getText() } : null;
     }
 
     // Determine if cursor is on property name or value
@@ -318,35 +317,35 @@ class TokenamiPlugin {
 
     if (isTokenamiObj) {
       const value = isOnProperty ? prop.name.getText() : prop.initializer.getText();
-      const tokenValues = isOnProperty ? [] : this.#getTokenValuesForContext(prop.initializer);
-      return { isTokenamiProperty: isOnProperty, value, tokenValues };
+      const contextualType = isOnProperty ? undefined : this.#getTokenValueContext(prop.initializer);
+      if (!isOnProperty && !contextualType) return null;
+      return { isTokenamiProperty: isOnProperty, value, contextualType };
     }
 
     // Not a tokenami object - only handle value position with TokenValue context
     if (isOnProperty) return null;
-    const tokenValues = this.#getTokenValuesForContext(prop.initializer);
-    if (tokenValues.length === 0) return null;
-    return { isTokenamiProperty: false, value: prop.initializer.getText(), tokenValues };
+    const contextualType = this.#getTokenValueContext(prop.initializer);
+    if (!contextualType) return null;
+    return { isTokenamiProperty: false, value: prop.initializer.getText(), contextualType };
   }
 
-  #getTokenValuesForContext(node: ts.Expression): TokenamiConfig.TokenValue[] {
+  #getTokenValueContext(node: ts.Expression): ts.Type | undefined {
     const checker = this.#ctx.info.languageService.getProgram()?.getTypeChecker();
     const contextualType = checker?.getContextualType(node);
-    if (!contextualType) return [];
-    return this.#getTokenValuesFromType(contextualType);
+    if (!contextualType) return;
+    return this.#hasTokenValueType(contextualType) ? contextualType : undefined;
   }
 
-  #getTokenValuesFromType(type: ts.Type): TokenamiConfig.TokenValue[] {
+  #hasTokenValueType(type: ts.Type): boolean {
     if (type.isStringLiteral()) {
-      const tokenValue = TokenamiConfig.TokenValue.safeParse(type.value);
-      return tokenValue.success ? [tokenValue.output] : [];
+      return TokenamiConfig.TokenValue.safeParse(type.value).success;
     }
 
     if (type.isUnion()) {
-      return type.types.flatMap((t) => this.#getTokenValuesFromType(t));
+      return type.types.some((t) => this.#hasTokenValueType(t));
     }
 
-    return [];
+    return false;
   }
 
   #isTokenamiObjectCache = TokenamiConfig.createLRUCache();
