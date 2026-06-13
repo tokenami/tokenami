@@ -1,6 +1,7 @@
 import * as Tokenami from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
 import { type TokenamiProperties } from './declarations';
+import { type ComposeBlocks } from './core';
 import * as utils from './utils';
 import * as Supports from './supports';
 
@@ -28,7 +29,7 @@ type CreateSheetParams = {
   tokens: {
     properties: Tokenami.TokenProperty[];
     values: Tokenami.TokenValue[];
-    composeBlocks: Record<`.${string}`, TokenamiProperties>;
+    composeBlocks: ComposeBlocks;
   };
 };
 
@@ -142,7 +143,7 @@ class Sheet {
     this.themeTokenSelectors.push(...baseSelectors.map(removePseudoElementSelector));
   }
 
-  addDeclaration(layer: string, selector: string, property: string, value: string) {
+  addDeclaration(layer: string, selector: string, property: string, value: string | number) {
     const declaration = `${property}: ${value}`;
     const template = `@layer ${layer} { ${SELECTOR_TAG} { ${declaration} } }`;
     this.layers[template] ??= new Set<string>();
@@ -376,25 +377,40 @@ class Sheet {
  * parseComposeBlocks
  * -----------------------------------------------------------------------------------------------*/
 
-function parseComposeBlocks(
-  composeBlocks: Record<`.${string}`, TokenamiProperties>,
-  config: Tokenami.Config
-) {
-  let parsedComposeBlocks: Record<`.${string}`, TokenamiProperties> = {};
+function parseComposeBlocks(composeBlocks: ComposeBlocks, config: Tokenami.Config) {
+  let parsedComposeBlocks: ComposeBlocks = {};
   const entries = Object.entries(composeBlocks);
 
   for (const [selector, tokenamiProperties] of entries) {
     const entries = Object.entries(tokenamiProperties);
     const aliasProperties = Tokenami.iterateAliasProperties(entries, config);
-    let styles: TokenamiProperties = {};
+    let styles: Record<string, string> = {};
 
     for (let [key, value, propertyConfig] of aliasProperties) {
       const tokenProperty = key as Tokenami.TokenProperty;
+      const parts = Tokenami.getTokenPropertySplit(tokenProperty);
 
       for (const cssProperty of propertyConfig.cssProperties) {
         const longProperty = Tokenami.createLonghandProperty(tokenProperty, cssProperty);
         const parsedProperty = Tokenami.parseProperty(longProperty);
         const calcToggle = Tokenami.calcProperty(parsedProperty);
+        const shouldUseBaseProperty = parts.variants.length === 0 && isCSSWideKeyword(value);
+
+        if (shouldUseBaseProperty) {
+          const isGrid = isGridProperty(cssProperty, config);
+          const propertyValue = isGrid
+            ? createGridPropertyValue(parsedProperty, value)
+            : createBasePropertyValue(parsedProperty, value);
+
+          styles[cssProperty] = propertyValue;
+
+          if (isGrid) {
+            const hashGridProperty = hashVariantProperty('grid', parsedProperty);
+            styles[hashGridProperty] = createGridToggleValue(parsedProperty);
+          }
+
+          continue;
+        }
 
         styles[parsedProperty as keyof TokenamiProperties] = value;
         if (propertyConfig.isCalc) (styles as any)[calcToggle] = '/**/';
@@ -407,12 +423,24 @@ function parseComposeBlocks(
   return parsedComposeBlocks;
 }
 
+const CSS_WIDE_KEYWORDS = new Set(['inherit', 'initial', 'unset', 'revert', 'revert-layer']);
+
+function isCSSWideKeyword(value: unknown) {
+  return typeof value === 'string' && CSS_WIDE_KEYWORDS.has(value);
+}
+
+function isGridProperty(cssProperty: string, config: Tokenami.Config) {
+  const customConfig = config.customProperties?.[cssProperty];
+  const propertyConfig = config.properties?.[cssProperty];
+  return customConfig?.includes('grid') ?? propertyConfig?.includes('grid') ?? false;
+}
+
 /* -------------------------------------------------------------------------------------------------
  * getPropertySelectors
  * -----------------------------------------------------------------------------------------------*/
 
 function getPropertySelectors(
-  composeBlocks: Record<`.${string}`, TokenamiProperties>,
+  composeBlocks: ComposeBlocks,
   prop: PropertyConfig,
   selectorConfig: string[]
 ) {
@@ -442,7 +470,7 @@ function getPropertySelectors(
  * -----------------------------------------------------------------------------------------------*/
 
 function getBaseSelectors(
-  composeBlocks: Record<`.${string}`, TokenamiProperties>,
+  composeBlocks: ComposeBlocks,
   property: Tokenami.TokenProperty
 ): string[] {
   const composeSelectors = Object.entries(composeBlocks).flatMap(([selector, styles]) => {
@@ -551,9 +579,8 @@ function getPropertyConfigs(
       const tokenProperty = Tokenami.parseProperty(longhandProperty);
       const currentConfigs = propertyConfigs.get(cssProperty as any) || [];
       const customConfig = config.customProperties?.[cssProperty];
-      const propertyConfig = config.properties?.[cssProperty];
       const isLogical = Supports.supportedLogicalProperties.has(cssProperty as any);
-      const isGrid = customConfig?.includes('grid') ?? propertyConfig?.includes('grid') ?? false;
+      const isGrid = isGridProperty(cssProperty, config);
       const isCustom = Boolean(customConfig);
       const layer = parts.variant
         ? `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerIndex}`
