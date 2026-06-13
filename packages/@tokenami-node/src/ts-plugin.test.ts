@@ -22,9 +22,15 @@ const testConfig: Config = {
   },
 };
 
-function createPluginTestContext(code = '', fileName = 'test.tsx') {
-  const cwd = createTokenamiProject(testConfig);
+function createPluginTestContext(
+  code = '',
+  fileName = 'test.tsx',
+  overrides: Partial<ts.LanguageService> = {},
+  config = testConfig
+) {
+  const cwd = createTokenamiProject(config);
   const languageService = createLanguageService(fileName, code);
+  Object.assign(languageService, overrides);
   const plugin = createTSPlugin({ typescript: ts }).create({
     languageService,
     config: { configPath: './.tokenami/tokenami.config.cjs' },
@@ -45,6 +51,10 @@ function createPluginTestContext(code = '', fileName = 'test.tsx') {
       const position = code.indexOf('--color', code.indexOf(search)) + 2;
       const quickInfo = plugin.getQuickInfoAtPosition(fileName, position);
       return quickInfo?.documentation?.map((part) => part.text).join('\n');
+    },
+    completions(search: string) {
+      const position = code.indexOf(search) + search.length;
+      return plugin.getCompletionsAtPosition(fileName, position, {});
     },
   };
 }
@@ -117,6 +127,35 @@ describe('ts plugin', () => {
       ['$zebra', '$color000000'],
       ['$apple', '$color000001'],
     ]);
+  });
+
+  it('provides token value completions without calling TypeScript completions', () => {
+    const fileName = 'test.ts';
+    const code = `
+      const value: 'var(--color_accent)' | 'var(--color_brand)' = 'var(--color_accent)';
+    `;
+    const ctx = createPluginTestContext(code, fileName, {
+      getCompletionsAtPosition: () => {
+        throw new Error('Original completions should not be called');
+      },
+    }, {
+      ...testConfig,
+      theme: {
+        color: {
+          accent: '#ff0000',
+          brand: '#0000ff',
+        },
+        size: {
+          sm: '4px',
+        },
+      },
+    });
+
+    const result = ctx.completions("= 'var");
+
+    expect(result?.entries.map((entry) => entry.name)).toContain('$accent');
+    expect(result?.entries.map((entry) => entry.name)).toContain('$brand');
+    expect(result?.entries.map((entry) => entry.name)).not.toContain('$sm');
   });
 
   it('adds quick info documentation for quoted token values in tokenami objects only', () => {

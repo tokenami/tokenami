@@ -76,11 +76,11 @@ class TokenamiCompletions {
     return { ...this.#base, ...variantResults };
   }
 
-  valueSearch(original: ts.CompletionEntry[]): ValueCompletionEntries[string] {
+  valueSearch(original: (ts.CompletionEntry | TokenamiConfig.TokenValue)[]): ValueCompletionEntries[string] {
     const result: ValueCompletionEntries[string] = {};
 
     for (const [index, entry] of original.entries()) {
-      const entryName = entry.name.replace(/['"]/g, '');
+      const entryName = typeof entry === 'string' ? entry : entry.name.replace(/['"]/g, '');
       const tokenValue = TokenamiConfig.TokenValue.safeParse(entryName);
       if (!tokenValue.success) continue;
 
@@ -249,15 +249,16 @@ class TokenamiCompletions {
 
     for (const [themeKey, tokens] of Object.entries(flatTheme)) {
       const tokenKeys = Object.keys(tokens);
-      const tokenValues = Object.values(tokens);
-      const firstValue = tokenValues[0];
+      const themeValues = Object.values(tokens);
+      const firstValue = themeValues[0];
 
       if (typeof firstValue === 'string' && isColorValue(firstValue)) {
         colorKeys.add(themeKey);
       }
 
       for (const [index, token] of tokenKeys.entries()) {
-        tokenValueOrders.set(TokenamiConfig.tokenValue(themeKey, token), index);
+        const tokenValue = TokenamiConfig.tokenValue(themeKey, token);
+        tokenValueOrders.set(tokenValue, index);
       }
     }
 
