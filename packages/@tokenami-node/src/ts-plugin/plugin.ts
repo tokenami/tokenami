@@ -343,8 +343,7 @@ class TokenamiPlugin {
     const cacheKey = `${fileName}:${objLit.pos}:${textBeforeBrace}`;
     if (this.#isTokenamiObjectCache.get(cacheKey)) return true;
 
-    const checker = this.#ctx.info.languageService.getProgram()?.getTypeChecker();
-    const contextual = checker?.getContextualType(objLit);
+    const contextual = this.#getContextualType(objLit);
     if (!contextual) return false;
 
     const isTokenami = this.#hasTokenamiType(contextual);
