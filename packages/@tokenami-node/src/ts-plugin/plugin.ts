@@ -139,8 +139,10 @@ class TokenamiPlugin {
         },
       };
     } else {
-      if (!input.contextualType) return original();
-      const results = completions.valueSearch(input.contextualType);
+      const contextualType = this.#getTokenValueContext(node);
+      if (!contextualType) return original();
+
+      const results = completions.valueSearch(contextualType);
 
       // If Tokenami can't provide value completions, fall back to the default
       // TypeScript completions (e.g. CSS.Properties unions).
@@ -288,16 +290,13 @@ class TokenamiPlugin {
   ): {
     value: string;
     isTokenamiProperty: boolean;
-    contextualType?: ts.Type;
   } | null {
     const objLit = ts.findAncestor(node, ts.isObjectLiteralExpression);
 
     // No object literal - check for standalone value position
     if (!objLit) {
       if (!ts.isStringLiteral(node)) return null;
-      const contextualType = this.#getTokenValueContext(node);
-      if (!contextualType) return null;
-      return { isTokenamiProperty: false, value: node.getText(), contextualType };
+      return { isTokenamiProperty: false, value: node.getText() };
     }
 
     // Find the property at cursor position
@@ -317,19 +316,16 @@ class TokenamiPlugin {
 
     if (isTokenamiObj) {
       const value = isOnProperty ? prop.name.getText() : prop.initializer.getText();
-      const contextualType = isOnProperty ? undefined : this.#getTokenValueContext(prop.initializer);
-      if (!isOnProperty && !contextualType) return null;
-      return { isTokenamiProperty: isOnProperty, value, contextualType };
+      return { isTokenamiProperty: isOnProperty, value };
     }
 
     // Not a tokenami object - only handle value position with TokenValue context
     if (isOnProperty) return null;
-    const contextualType = this.#getTokenValueContext(prop.initializer);
-    if (!contextualType) return null;
-    return { isTokenamiProperty: false, value: prop.initializer.getText(), contextualType };
+    return { isTokenamiProperty: false, value: prop.initializer.getText() };
   }
 
-  #getTokenValueContext(node: ts.Expression): ts.Type | undefined {
+  #getTokenValueContext(node: ts.Node): ts.Type | undefined {
+    if (!ts.isExpression(node)) return;
     const checker = this.#ctx.info.languageService.getProgram()?.getTypeChecker();
     const contextualType = checker?.getContextualType(node);
     if (!contextualType) return;
