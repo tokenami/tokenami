@@ -158,6 +158,29 @@ describe('ts plugin', () => {
     expect(result?.entries.map((entry) => entry.name)).not.toContain('$sm');
   });
 
+  it('falls back to TypeScript completions outside token value contexts', () => {
+    const fileName = 'test.ts';
+    const code = `
+      const value: string = 'hello';
+    `;
+    const ctx = createPluginTestContext(code, fileName, {
+      getCompletionsAtPosition: () => ({
+        entries: [
+          {
+            name: 'toString',
+            kind: ts.ScriptElementKind.memberFunctionElement,
+            sortText: '0',
+          },
+        ],
+        isGlobalCompletion: false,
+        isMemberCompletion: true,
+        isNewIdentifierLocation: false,
+      }),
+    });
+
+    expect(ctx.completions("= 'h")?.entries.map((entry) => entry.name)).toEqual(['toString']);
+  });
+
   it('adds quick info documentation for quoted token values in tokenami objects only', () => {
     const fileName = 'test.ts';
     const code = `
