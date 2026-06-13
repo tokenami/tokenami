@@ -78,11 +78,9 @@ class TokenamiCompletions {
     return { ...this.#base, ...variantResults };
   }
 
-  valueSearch(input: ts.Type | ts.CompletionEntry[]): ValueCompletionEntries[string] {
+  valueSearch(input: ts.Type): ValueCompletionEntries[string] {
     const result: ValueCompletionEntries[string] = {};
-    const tokenValues = Array.isArray(input)
-      ? this.#getTokenValuesFromCompletionEntries(input)
-      : this.#getTokenValuesFromType(input);
+    const tokenValues = this.#getTokenValuesFromType(input);
 
     for (const [index, tokenValue] of tokenValues.entries()) {
       const entry = this.#valueEntries[tokenValue] ?? this.#createValueEntry(tokenValue, index);
@@ -90,14 +88,6 @@ class TokenamiCompletions {
     }
 
     return result;
-  }
-
-  #getTokenValuesFromCompletionEntries(entries: ts.CompletionEntry[]): TokenamiConfig.TokenValue[] {
-    return entries.flatMap((entry) => {
-      const entryName = entry.name.replace(/['"]/g, '');
-      const tokenValue = TokenamiConfig.TokenValue.safeParse(entryName);
-      return tokenValue.success ? [tokenValue.output] : [];
-    });
   }
 
   #getTokenValuesFromType(type: ts.Type): TokenamiConfig.TokenValue[] {

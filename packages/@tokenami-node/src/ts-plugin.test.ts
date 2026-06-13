@@ -100,6 +100,18 @@ function createSourceFile(code: string) {
   return ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 }
 
+function createTokenValueUnionType(values: string[]): ts.Type {
+  return {
+    isStringLiteral: () => false,
+    isUnion: () => true,
+    types: values.map((value) => ({
+      isStringLiteral: () => true,
+      isUnion: () => false,
+      value,
+    })),
+  } as unknown as ts.Type;
+}
+
 describe('ts plugin', () => {
   it('sorts token value completions by theme config order', () => {
     const completions = new TokenamiCompletions(
@@ -116,11 +128,13 @@ describe('ts plugin', () => {
       { logger: { log: () => {}, error: () => {} } }
     );
 
-    const result = completions.valueSearch([
-      { name: "'var(--color_mango)'", kind: ts.ScriptElementKind.string, sortText: '11' },
-      { name: "'var(--color_zebra)'", kind: ts.ScriptElementKind.string, sortText: '11' },
-      { name: "'var(--color_apple)'", kind: ts.ScriptElementKind.string, sortText: '11' },
-    ]);
+    const result = completions.valueSearch(
+      createTokenValueUnionType([
+        'var(--color_mango)',
+        'var(--color_zebra)',
+        'var(--color_apple)',
+      ])
+    );
 
     expect(Object.values(result).map((entry) => [entry.name, entry.sortText])).toEqual([
       ['$mango', '$color000002'],
