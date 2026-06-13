@@ -12,6 +12,9 @@ const DEFAULT_PATHS = {
   mjs: './.tokenami/tokenami.config.mjs',
 };
 
+// Match css variable looking things, including arbitrary selectors inside curly brackets.
+const CSS_VARIABLE_REGEX = /--(?:[\w-]+|\{[^\{\}]*\})+/g;
+
 type ProjectType = keyof typeof DEFAULT_PATHS;
 
 /* -------------------------------------------------------------------------------------------------
@@ -189,6 +192,21 @@ function getValidProperties(config: Tokenami.Config): Set<string> {
 }
 
 /* -------------------------------------------------------------------------------------------------
+ * findTokens
+ * -----------------------------------------------------------------------------------------------*/
+
+function* findTokens(content: string) {
+  for (const match of content.matchAll(CSS_VARIABLE_REGEX)) {
+    const [value] = match;
+    yield Tokenami.stringifyProperty(value);
+  }
+}
+
+function findUniqueTokens(content: string) {
+  return unique(Array.from(findTokens(content)));
+}
+
+/* -------------------------------------------------------------------------------------------------
  * unique
  * -----------------------------------------------------------------------------------------------*/
 
@@ -222,5 +240,7 @@ export {
   getThemeValuesByTokenValues,
   getThemeFromConfig,
   getThemeValuesByThemeMode,
+  findTokens,
+  findUniqueTokens,
   unique,
 };

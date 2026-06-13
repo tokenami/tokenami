@@ -90,6 +90,12 @@ function createSourceFile(code: string) {
   return ts.createSourceFile('test.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 }
 
+function getDiagnosticsWithConfig(input: string, config: Config) {
+  const sourceFile = createSourceFile(input);
+  const diagnostics = new TokenamiDiagnostics(config);
+  return diagnostics.getSemanticDiagnostics(sourceFile);
+}
+
 describe('ts plugin', () => {
   it('sorts token value completions by theme config order', () => {
     const completions = new TokenamiCompletions(
@@ -213,6 +219,372 @@ describe('ts plugin', () => {
         `);
         expect(diagnostics).toHaveLength(1);
         expect(diagnostics[0]?.messageText).toContain('Add an arbitrary selector or remove');
+      });
+
+      it('errors on missing theme values referenced by config theme values', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            createConfig({
+              theme: {
+                color: {
+                  primary: 'red',
+                },
+                surface: {
+                  gradient: 'linear-gradient(var(--color_missing), transparent)',
+                },
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              color: { primary: 'red' },
+              surface: { gradient: 'linear-gradient(var(--color_missing), transparent)' },
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0]?.messageText).toContain(
+          "Config value 'theme.surface.gradient' references 'var(--color_missing)'"
+        );
+      });
+
+      it('errors on missing theme values resolved from config template literals', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            const color = 'var(--color_missing)';
+
+            createConfig({
+              theme: {
+                color: {
+                  primary: 'red',
+                },
+                surface: {
+                  gradient: \`linear-gradient(\${color}, transparent)\`,
+                },
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              color: { primary: 'red' },
+              surface: { gradient: 'linear-gradient(var(--color_missing), transparent)' },
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0]?.messageText).toContain(
+          "Config value 'theme.surface.gradient' references 'var(--color_missing)'"
+        );
+      });
+
+      it('errors on missing tokenami properties referenced by config values', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            createConfig({
+              theme: {
+                surface: {
+                  gradient: 'linear-gradient(var(--gradient-from), transparent)',
+                },
+              },
+              customProperties: {
+                'gradient-to': ['color'],
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              surface: { gradient: 'linear-gradient(var(--gradient-from), transparent)' },
+            },
+            customProperties: {
+              'gradient-to': ['color'],
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0]?.messageText).toContain(
+          "Config value 'theme.surface.gradient' references '--gradient-from'"
+        );
+      });
+
+      it('errors on missing config values loaded from spreads', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            const externalTheme = {
+              surface: {
+                gradient: 'linear-gradient(var(--color_missing), transparent)',
+              },
+            };
+
+            createConfig({
+              theme: {
+                ...externalTheme,
+                color: {
+                  primary: 'red',
+                },
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              color: { primary: 'red' },
+              surface: { gradient: 'linear-gradient(var(--color_missing), transparent)' },
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0]?.messageText).toContain(
+          "Config value 'theme.surface.gradient' references 'var(--color_missing)'"
+        );
+      });
+
+      it('reports every missing reference in a config value', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            createConfig({
+              theme: {
+                surface: {
+                  gradient: 'linear-gradient(var(--color_missing), var(--space_missing))',
+                },
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              surface: {
+                gradient: 'linear-gradient(var(--color_missing), var(--space_missing))',
+              },
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(2);
+        expect(diagnostics.map((diagnostic) => diagnostic.messageText)).toEqual([
+          expect.stringContaining("references 'var(--color_missing)'"),
+          expect.stringContaining("references 'var(--space_missing)'"),
+        ]);
+      });
+    });
+
+    describe('theme value validation', () => {
+      it('accepts existing theme values referenced by config theme values', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            createConfig({
+              theme: {
+                color: {
+                  primary: 'red',
+                },
+                surface: {
+                  gradient: 'linear-gradient(var(--color_primary), transparent)',
+                },
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              color: { primary: 'red' },
+              surface: { gradient: 'linear-gradient(var(--color_primary), transparent)' },
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it('accepts references with var fallbacks', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            createConfig({
+              theme: {
+                color: {
+                  primary: 'red',
+                },
+                surface: {
+                  gradient: 'linear-gradient(var(--color_primary, red), var(--gradient-from, red))',
+                },
+              },
+              customProperties: {
+                'gradient-from': ['color'],
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              color: { primary: 'red' },
+              surface: {
+                gradient: 'linear-gradient(var(--color_primary, red), var(--gradient-from, red))',
+              },
+            },
+            customProperties: {
+              'gradient-from': ['color'],
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it('accepts existing tokenami properties referenced by config values', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            createConfig({
+              theme: {
+                surface: {
+                  gradient: 'linear-gradient(var(--gradient-from), transparent)',
+                },
+              },
+              customProperties: {
+                'gradient-from': ['color'],
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              surface: { gradient: 'linear-gradient(var(--gradient-from), transparent)' },
+            },
+            customProperties: {
+              'gradient-from': ['color'],
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it('ignores non-css config strings', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            createConfig({
+              include: ['src/--missing.ts'],
+              selectors: {
+                hover: '&:hover --missing',
+              },
+              theme: {
+                color: {
+                  primary: 'red',
+                },
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            include: ['src/--missing.ts'],
+            selectors: {
+              hover: '&:hover --missing',
+            },
+            theme: {
+              color: { primary: 'red' },
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it('ignores custom css variables referenced by config values', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            createConfig({
+              theme: {
+                surface: {
+                  gradient: 'linear-gradient(var(---, red), var(---custom-color), transparent)',
+                },
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              surface: {
+                gradient: 'linear-gradient(var(---, red), var(---custom-color), transparent)',
+              },
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it('accepts references to theme values loaded from spreads', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            const externalTheme = {
+              color: {
+                primary: 'red',
+              },
+            };
+
+            createConfig({
+              theme: {
+                ...externalTheme,
+                surface: {
+                  gradient: 'linear-gradient(var(--color_primary), transparent)',
+                },
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              color: { primary: 'red' },
+              surface: {
+                gradient: 'linear-gradient(var(--color_primary), transparent)',
+              },
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it('accepts mode theme values that reference root theme values', () => {
+        const diagnostics = getDiagnosticsWithConfig(
+          `
+            createConfig({
+              theme: {
+                root: {
+                  color: {
+                    primary: 'red',
+                  },
+                },
+                modes: {
+                  dark: {
+                    surface: {
+                      gradient: 'linear-gradient(var(--color_primary), transparent)',
+                    },
+                  },
+                },
+              },
+            });
+          `,
+          {
+            ...testConfig,
+            theme: {
+              root: {
+                color: { primary: 'red' },
+              },
+              modes: {
+                dark: {
+                  surface: { gradient: 'linear-gradient(var(--color_primary), transparent)' },
+                },
+              },
+            },
+          }
+        );
+
+        expect(diagnostics).toHaveLength(0);
       });
     });
 

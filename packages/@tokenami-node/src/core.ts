@@ -10,13 +10,6 @@ import * as utils from './utils';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
-// we match all css variable looking things (including special chars within curly brackets
-// for arbitrary selectors) and determine whether they're a tokenami value/property
-// based on tokenami config. we purposefully don't match `var(...)` for values because we want
-// consumers to be able to pass a generated stylesheet to `includes` to support external design
-// system packages (thanks chat gpt for the regex).
-const CSS_VARIABLE_REGEX = /--(?:[\w-]+|\{[^\{\}]*\})+/g;
-
 interface UsedTokens {
   properties: Tokenami.TokenProperty[];
   values: Tokenami.TokenValue[];
@@ -188,10 +181,9 @@ function getLiteralValue(node: ts.Expression) {
 }
 
 function matchTokens(content: string, theme: Tokenami.Config['theme']) {
-  const matches = content.match(CSS_VARIABLE_REGEX) || [];
-  const stringMatches = Array.from(matches).map(Tokenami.stringifyProperty);
-  const uniqueMatches = utils.unique(stringMatches);
-  const variableMatches = uniqueMatches.filter((match) => match !== Tokenami.gridProperty());
+  const variableMatches = utils
+    .findUniqueTokens(content)
+    .filter((match) => match !== Tokenami.gridProperty());
 
   const values = variableMatches.flatMap((match) => {
     const valueProperty = Tokenami.TokenValue.safeParse(`var(${match})`);
