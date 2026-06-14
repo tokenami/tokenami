@@ -389,31 +389,28 @@ function parseComposeBlocks(composeBlocks: ComposeBlocks, config: Tokenami.Confi
     for (let [key, value, propertyConfig] of aliasProperties) {
       const tokenProperty = key as Tokenami.TokenProperty;
       const parts = Tokenami.getTokenPropertySplit(tokenProperty);
+      const shouldUseBaseProperty = parts.variants.length === 0 && isCSSWideKeyword(value);
 
       for (const cssProperty of propertyConfig.cssProperties) {
         const longProperty = Tokenami.createLonghandProperty(tokenProperty, cssProperty);
         const parsedProperty = Tokenami.parseProperty(longProperty);
         const calcToggle = Tokenami.calcProperty(parsedProperty);
-        const shouldUseBaseProperty = parts.variants.length === 0 && isCSSWideKeyword(value);
 
         if (shouldUseBaseProperty) {
           const isGrid = isGridProperty(cssProperty, config);
-          const propertyValue = isGrid
-            ? createGridPropertyValue(parsedProperty, value)
-            : createBasePropertyValue(parsedProperty, value);
-
-          styles[cssProperty] = propertyValue;
+          let propertyValue = createBasePropertyValue(parsedProperty, value);
 
           if (isGrid) {
             const hashGridProperty = hashVariantProperty('grid', parsedProperty);
+            propertyValue = createGridPropertyValue(parsedProperty, value);
             styles[hashGridProperty] = createGridToggleValue(parsedProperty);
           }
 
-          continue;
+          styles[cssProperty] = propertyValue;
+        } else {
+          styles[parsedProperty as keyof TokenamiProperties] = value;
+          if (propertyConfig.isCalc) (styles as any)[calcToggle] = '/**/';
         }
-
-        styles[parsedProperty as keyof TokenamiProperties] = value;
-        if (propertyConfig.isCalc) (styles as any)[calcToggle] = '/**/';
       }
     }
 

@@ -71,7 +71,6 @@ const selectableListItem = css.compose({
 });
 
 const selectableListTrigger = css.compose({
-  '--background-color': 'inherit',
   '--transition': 'var(--morph_colors)',
   '--position': 'absolute',
   '--inset': 0,
