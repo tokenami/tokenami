@@ -4,20 +4,21 @@ import * as fs from 'fs';
 import * as csstree from 'css-tree';
 import ts from 'typescript/lib/tsserverlibrary.js';
 import * as pathe from 'pathe';
-import { type TokenamiProperties } from './declarations';
 import * as sheet from './sheet';
 import * as utils from './utils';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+type ComposeBlock = Record<string, string | number>;
+type ComposeBlocks = Record<`.${string}`, ComposeBlock>;
 
 interface UsedTokens {
   properties: Tokenami.TokenProperty[];
   values: Tokenami.TokenValue[];
-  composeBlocks: Record<`.${string}`, TokenamiProperties>;
+  composeBlocks: ComposeBlocks;
 }
 
 interface FileTokens {
-  prevComposeBlocks: Record<`.${string}`, TokenamiProperties>[];
+  prevComposeBlocks: ComposeBlocks[];
   current: UsedTokens;
 }
 
@@ -66,7 +67,7 @@ class TokenStore {
   getTokens(): UsedTokens {
     let properties: Tokenami.TokenProperty[] = [];
     let values: Tokenami.TokenValue[] = [];
-    let composeBlocks: Record<`.${string}`, TokenamiProperties> = {};
+    let composeBlocks: ComposeBlocks = {};
 
     for (const fileTokens of this.#tokensByFile.values()) {
       properties = [...properties, ...fileTokens.current.properties];
@@ -114,9 +115,9 @@ async function findUsedTokens(cwd: string, config: Tokenami.Config): Promise<Use
   return store.getTokens();
 }
 
-function findComposeBlocks(content: string): Record<`.${string}`, TokenamiProperties> {
+function findComposeBlocks(content: string): ComposeBlocks {
   const sourceFile = ts.createSourceFile('tokenami.tsx', content, ts.ScriptTarget.Latest, true);
-  let result: Record<`.${string}`, TokenamiProperties> = {};
+  let result: ComposeBlocks = {};
 
   function visit(node: ts.Node) {
     if (
@@ -150,8 +151,8 @@ function isComposeCall(node: ts.Node): node is ts.CallExpression {
   );
 }
 
-function getComposeBlockStyles(node: ts.ObjectLiteralExpression): TokenamiProperties | undefined {
-  let styles: TokenamiProperties | undefined;
+function getComposeBlockStyles(node: ts.ObjectLiteralExpression): ComposeBlock | undefined {
+  let styles: ComposeBlock | undefined;
 
   for (const property of node.properties) {
     if (!ts.isPropertyAssignment(property)) continue;
@@ -161,7 +162,7 @@ function getComposeBlockStyles(node: ts.ObjectLiteralExpression): TokenamiProper
     if (value === undefined) continue;
 
     styles ??= {};
-    styles[property.name.text as any] = value;
+    styles[property.name.text] = value;
   }
 
   return styles;
@@ -204,7 +205,7 @@ function matchTokens(content: string, theme: Tokenami.Config['theme']) {
 
 function findSheetComposeBlocks(fileContents: string) {
   const ast = csstree.parse(fileContents);
-  let stylesObject: Record<`.${string}`, TokenamiProperties> | undefined;
+  let stylesObject: ComposeBlocks | undefined;
 
   csstree.walk(ast, {
     visit: 'Atrule',
@@ -219,7 +220,7 @@ function findSheetComposeBlocks(fileContents: string) {
           enter(ruleNode) {
             if (!ruleNode.prelude || !ruleNode.block) return;
             const selector = csstree.generate(ruleNode.prelude).trim();
-            let styles: TokenamiProperties = {};
+            let styles: ComposeBlock = {};
 
             csstree.walk(ruleNode.block, {
               visit: 'Declaration',
@@ -243,4 +244,4 @@ function findSheetComposeBlocks(fileContents: string) {
 }
 
 export { TokenStore, findUsedTokens };
-export type { UsedTokens };
+export type { UsedTokens, ComposeBlocks };
