@@ -1,12 +1,5 @@
 import type * as Tokenami from '@tokenami/config';
-import {
-  createSheet,
-  findUsedTokens,
-  removeUnusedLayers,
-  TokenStore,
-  type UsedTokens,
-  utils,
-} from '@tokenami/node';
+import { createSheet, findUsedTokens, TokenStore, type UsedTokens, utils } from '@tokenami/node';
 import * as fs from 'node:fs';
 import * as pathe from 'pathe';
 import { createUnplugin } from 'unplugin';
@@ -109,7 +102,7 @@ const tokenami = /* #__PURE__ */ createUnplugin<TokenamiUnpluginOptions | undefi
       async load(id) {
         if (id !== resolvedOutputId) return null;
         const tokens = await getTokens();
-        return removeUnusedLayers(createSheet({ tokens, config }));
+        return createSheet({ tokens, config });
       },
 
       transform(code, id) {
@@ -140,13 +133,6 @@ const tokenami = /* #__PURE__ */ createUnplugin<TokenamiUnpluginOptions | undefi
         configResolved(viteConfig) {
           command = viteConfig.command;
           resolveExternalStylesheet = viteConfig.createResolver();
-        },
-
-        generateBundle: {
-          order: 'post',
-          handler(_, bundle) {
-            removeBundleUnusedLayers(bundle);
-          },
         },
 
         async handleHotUpdate(ctx) {
@@ -212,14 +198,6 @@ function mergeTokens(a: UsedTokens, b: UsedTokens): UsedTokens {
     values: Array.from(new Set([...a.values, ...b.values])),
     composeBlocks: { ...a.composeBlocks, ...b.composeBlocks },
   };
-}
-
-function removeBundleUnusedLayers(bundle: Record<string, any>) {
-  for (const asset of Object.values(bundle)) {
-    if (asset.type !== 'asset' || !asset.fileName.endsWith('.css')) continue;
-    if (typeof asset.source === 'string') asset.source = removeUnusedLayers(asset.source);
-    else asset.source = Buffer.from(removeUnusedLayers(asset.source.toString()));
-  }
 }
 
 const vite = tokenami.vite;

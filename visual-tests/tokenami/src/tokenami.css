@@ -215,7 +215,7 @@
     --weight_medium: 500;
   }
 
-  :root, :root [style], :root .tk-1ddz3jq, :root [style] > p, :root [style*="selection_"], :root [style] p, :root [style] .card, :root .tk-erz9s7, :root .tk-rychtn {
+  :root, :root [style], :root .tk-utbdlz, :root [style] > p, :root [style*="selection_"], :root [style] p, :root [style] .card, :root .tk-erz9s7, :root .tk-rychtn {
     --gradient_to-b: linear-gradient(to bottom in var(--_color-space, srgb), var(--_gradient-from) var(--_gradient-from-stop, ), var(---via, var(--_gradient-to) var(--_gradient-to-stop, )));
     ---via: var(--_gradient-via) var(--_gradient-via-stop, ), var(--_gradient-to);
     --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
@@ -437,7 +437,7 @@
   }
 
   @media (hover: hover) and (pointer: fine) {
-    [style]:not(:disabled):hover, .tk-1ddz3jq:not(:disabled):hover {
+    [style]:not(:disabled):hover, .tk-utbdlz:not(:disabled):hover {
       --hover: ;
     }
   }
@@ -458,7 +458,7 @@
     --prose-card: ;
   }
 
-  [style]:focus:hover, .tk-1ddz3jq:focus:hover {
+  [style]:focus:hover, .tk-utbdlz:focus:hover {
     --\{\&\;focus\;hover\}: ;
   }
 
@@ -498,7 +498,7 @@
     overflow: var(--overflow, revert-layer);
   }
 
-  .tk-1ddz3jq, [style] {
+  .tk-utbdlz, [style] {
     border-radius: var(--border-radius, revert-layer);
     transition: var(--transition, revert-layer);
     color: var(--color, revert-layer);
@@ -532,7 +532,7 @@
     border-start-end-radius: var(--border-start-end-radius, revert-layer);
   }
 
-  .tk-1ddz3jq, [style] {
+  .tk-utbdlz, [style] {
     background-color: var(--background-color, revert-layer);
   }
 }
@@ -547,7 +547,7 @@
 }
 
 @layer tkl1 {
-  .tk-1ddz3jq, [style] {
+  .tk-utbdlz, [style] {
     inline-size: var(--_a9n10r, var(--inline-size, revert-layer));
     --_a9n10r: var(--inline-size__calc) calc(var(--inline-size) * var(--_grid));
     block-size: var(--_19kaxgm, var(--block-size, revert-layer));
@@ -580,7 +580,7 @@
     padding-block-start: var(--_193cv1f, var(--padding-block-start, revert-layer));
   }
 
-  .tk-1ddz3jq, [style] {
+  .tk-utbdlz, [style] {
     border-block-end: var(--border-block-end, revert-layer);
   }
 }
@@ -591,7 +591,7 @@
     border-inline-width: var(--border-inline-width, revert-layer);
   }
 
-  .tk-1ddz3jq, .tk-erz9s7, .tk-rychtn, [style] {
+  .tk-erz9s7, .tk-rychtn, .tk-utbdlz, [style] {
     border-block-color: var(--border-block-color, revert-layer);
     border-inline-color: var(--border-inline-color, revert-layer);
   }
@@ -623,7 +623,7 @@
     --_18hd4n5: var(--md) var(--md_text-align);
   }
 
-  .tk-1ddz3jq, [style] {
+  .tk-utbdlz, [style] {
     animation: var(--_xgpg9b, revert-layer);
     --_xgpg9b: var(--hover) var(--hover_animation);
   }
@@ -663,12 +663,12 @@
     --_axuivf: var(--xxl) var(--xxl_font-size);
   }
 
-  .tk-1ddz3jq, [style] {
+  .tk-utbdlz, [style] {
     --_1gqxh9p: var(--hover) var(--hover_background-color);
     --_aoiy32: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
   }
 
-  .tk-1ddz3jq, [style], [style] .card, [style] > p, [style] p {
+  .tk-utbdlz, [style], [style] .card, [style] > p, [style] p {
     background-color: var(--_aoiy32, var(--_134znwc, var(--_nf2ooy, var(--_163r6xx, var(--_1gqxh9p, revert-layer)))));
   }
 
@@ -713,14 +713,15 @@
 }
 
 @layer tkc {
-  .tk-1ddz3jq {
+  .tk-utbdlz {
     --background-color: var(--color_violet9);
     --color: var(--color_white);
     --border-block-end: var(--line_px);
     --border-block-color: var(--color_violet11);
     --border-inline-color: var(--color_violet11);
     --border-radius: var(--radii_lg);
-    --inline-size: var(---, 180px);
+    --inline-size: 45;
+    --inline-size__calc: ;
     --block-size: 15;
     --block-size__calc: ;
     --transition: var(--morph_all);

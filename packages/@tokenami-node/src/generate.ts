@@ -2,8 +2,6 @@ import * as lightning from 'lightningcss';
 import * as log from './log';
 import { createSheet, type CreateSheetParams } from './sheet';
 
-const UNUSED_LAYERS_REGEX = /[\n\s]*@layer[^;{]+;/g;
-
 type GenerateSheetParams = CreateSheetParams & {
   output: string;
   minify?: boolean;
@@ -24,7 +22,7 @@ function generate(params: GenerateSheetParams) {
       targets: params.targets,
     });
 
-    return removeUnusedLayers(transformed.code.toString());
+    return transformed.code.toString();
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Unknown error';
     const escapedMessage = message.replace(/(['"])/g, '\\$1');
@@ -33,10 +31,6 @@ function generate(params: GenerateSheetParams) {
   }
 }
 
-function removeUnusedLayers(sheet: string) {
-  return sheet.replace(UNUSED_LAYERS_REGEX, '');
-}
-
 /* ---------------------------------------------------------------------------------------------- */
 
-export { generate, removeUnusedLayers };
+export { generate };
