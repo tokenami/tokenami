@@ -1,3 +1,16 @@
+# v0.0.98 (Fri Jun 19 2026)
+
+#### 🐛 Bug Fix
+
+- fix vite layer ordering (cascade) [#512](https://github.com/tokenami/tokenami/pull/512) ([@jjenzz](https://github.com/jjenzz))
+- fix inherit overrides in compose blocks [#511](https://github.com/tokenami/tokenami/pull/511) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.97 (Sat Jun 13 2026)
 
 #### 🚀 Enhancement
