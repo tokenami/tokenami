@@ -109,7 +109,7 @@ const tokenami = /* #__PURE__ */ createUnplugin<TokenamiUnpluginOptions | undefi
       async load(id) {
         if (id !== resolvedOutputId) return null;
         const tokens = await getTokens();
-        return removeUnusedLayers(createSheet({ tokens, config }));
+        return createSheet({ tokens, config });
       },
 
       transform(code, id) {

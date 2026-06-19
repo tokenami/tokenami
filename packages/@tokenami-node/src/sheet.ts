@@ -119,7 +119,6 @@ function createSheet(params: CreateSheetParams): string {
  * Sheet
  * -----------------------------------------------------------------------------------------------*/
 
-const SELECTOR_TAG = '<selector>';
 const CUSTOM_PROP_REGEX = /\(--[^-][\w-]+/g;
 
 class Sheet {
@@ -128,7 +127,7 @@ class Sheet {
   themeTokenSelectors: string[] = [];
   reset = new Set<string>();
   toggles: Record<string, Set<string>> = {};
-  layers: Record<string, Set<string>> = {};
+  layers: Record<string, Record<string, Set<string>>> = {};
 
   constructor(tokenValues: Tokenami.TokenValue[], config: Tokenami.Config) {
     this.tokenValues = tokenValues;
@@ -145,9 +144,9 @@ class Sheet {
 
   addDeclaration(layer: string, selector: string, property: string, value: string | number) {
     const declaration = `${property}: ${value}`;
-    const template = `@layer ${layer} { ${SELECTOR_TAG} { ${declaration} } }`;
-    this.layers[template] ??= new Set<string>();
-    this.layers[template]!.add(selector);
+    this.layers[layer] ??= {};
+    this.layers[layer]![declaration] ??= new Set<string>();
+    this.layers[layer]![declaration]!.add(selector);
   }
 
   addToggleFlagDeclaration(
@@ -189,38 +188,48 @@ class Sheet {
   }
 
   #generatePlaceholderLayers(prefix: string) {
-    // this 20 is arbitrary for now, will make this more correct later.
-    return `@layer ${Array.from({ length: 20 })
-      .map((_, layer) => `${prefix}${layer}`)
-      .join(', ')};`;
+    const regex = new RegExp(`^(${prefix}\\d+)$`);
+    const layers = Object.keys(this.layers).flatMap((layer) => {
+      if (prefix === LAYERS.COMPONENTS && layer === LAYERS.COMPONENTS) return [layer];
+      return layer.match(regex) ? [layer] : [];
+    });
+
+    if (layers.length === 0) return '';
+    return `@layer ${layers.sort((a, b) => a.localeCompare(b)).join(', ')};`;
   }
 
   #generateLayerStyles() {
     const entries = Object.entries(this.layers);
     const groupedBySelectors = new Map<string, string>();
 
-    for (const [template, selectors] of entries) {
-      // separate pseudo elements from other selectors
-      const { pseudoElements, otherSelectors } = this.#separateSelectors(selectors);
+    for (const [layer, styles] of entries) {
+      for (const [declaration, selectors] of Object.entries(styles)) {
+        // separate pseudo elements from other selectors
+        const { pseudoElements, otherSelectors } = this.#separateSelectors(selectors);
 
-      // group other selectors (comma-separated) and add their styles
-      if (otherSelectors.length > 0) {
-        const groupedSelector = otherSelectors.sort().join(',');
-        const existingStyles = groupedBySelectors.get(groupedSelector) || '';
-        const newStyles = template.replace(SELECTOR_TAG, groupedSelector);
-        groupedBySelectors.set(groupedSelector, existingStyles + ' ' + newStyles);
-      }
+        // group other selectors (comma-separated) and add their styles
+        if (otherSelectors.length > 0) {
+          const groupedSelector = otherSelectors.sort().join(',');
+          const existingStyles = groupedBySelectors.get(groupedSelector) || '';
+          const newStyles = this.#createLayerStyles(layer, groupedSelector, declaration);
+          groupedBySelectors.set(groupedSelector, existingStyles + ' ' + newStyles);
+        }
 
-      // add pseudo element styles individually (NOT grouped) to avoid breaking
-      // ungroupable selectors like ::selection
-      for (const pseudoElement of pseudoElements) {
-        const existingStyles = groupedBySelectors.get(pseudoElement) || '';
-        const newStyles = template.replace(SELECTOR_TAG, pseudoElement);
-        groupedBySelectors.set(pseudoElement, existingStyles + ' ' + newStyles);
+        // add pseudo element styles individually (NOT grouped) to avoid breaking
+        // ungroupable selectors like ::selection
+        for (const pseudoElement of pseudoElements) {
+          const existingStyles = groupedBySelectors.get(pseudoElement) || '';
+          const newStyles = this.#createLayerStyles(layer, pseudoElement, declaration);
+          groupedBySelectors.set(pseudoElement, existingStyles + ' ' + newStyles);
+        }
       }
     }
 
     return Array.from(groupedBySelectors.values()).join(' ');
+  }
+
+  #createLayerStyles(layer: string, selector: string, declaration: string) {
+    return `@layer ${layer} { ${selector} { ${declaration} } }`;
   }
 
   #separateSelectors(selectors: Set<string>) {
