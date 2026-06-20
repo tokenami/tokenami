@@ -321,25 +321,31 @@ const calcProperty = (property: string) => (property + '__calc') as TokenPropert
  * createLRUCache
  * -----------------------------------------------------------------------------------------------*/
 
-const createLRUCache = <T = any>(limit: number = 1_500) => ({
-  limit,
-  cache: new Map(),
-  get(key: string): T | undefined {
-    const value = this.cache.get(key);
-    if (!value) return;
-    // re-insert as most recently used
-    this.cache.delete(key);
-    this.cache.set(key, value);
-    return value;
-  },
-  set(key: string, value: T) {
-    // ensure inserts are most recent
-    this.cache.delete(key);
-    // remove oldest entry
-    if (this.cache.size === this.limit) this.cache.delete(this.cache.keys().next().value);
-    this.cache.set(key, value);
-  },
-});
+const createLRUCache = <T = any>(limit = 1_500) => {
+  let cache = new Map<string, T>();
+  let prevCache = new Map<string, T>();
+  let size = 0;
+
+  const set = (key: string, value: T) => {
+    if (!cache.has(key) && ++size > limit) {
+      prevCache = cache;
+      cache = new Map();
+      size = 1;
+    }
+    cache.set(key, value);
+  };
+
+  return {
+    get(key: string): T | undefined {
+      const curr = cache.get(key);
+      if (curr !== undefined) return curr;
+      const prev = prevCache.get(key);
+      if (prev !== undefined) set(key, prev);
+      return prev;
+    },
+    set,
+  };
+};
 
 /* ---------------------------------------------------------------------------------------------- */
 
