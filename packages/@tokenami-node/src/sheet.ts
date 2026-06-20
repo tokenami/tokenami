@@ -1,6 +1,5 @@
 import * as Tokenami from '@tokenami/config';
 import { stringify } from '@stitches/stringify';
-import { type TokenamiProperties } from './declarations';
 import { type ComposeBlocks } from './core';
 import * as utils from './utils';
 import * as Supports from './supports';
@@ -417,7 +416,7 @@ function parseComposeBlocks(composeBlocks: ComposeBlocks, config: Tokenami.Confi
 
           styles[cssProperty] = propertyValue;
         } else {
-          styles[parsedProperty as keyof TokenamiProperties] = value;
+          styles[parsedProperty] = value;
           if (propertyConfig.isCalc) (styles as any)[calcToggle] = '/**/';
         }
       }
@@ -480,7 +479,7 @@ function getBaseSelectors(
   property: Tokenami.TokenProperty
 ): string[] {
   const composeSelectors = Object.entries(composeBlocks).flatMap(([selector, styles]) => {
-    return styles[property as keyof TokenamiProperties] !== undefined ? [selector] : [];
+    return styles[property] !== undefined ? [selector] : [];
   });
   return [DEFAULT_SELECTOR, ...composeSelectors];
 }

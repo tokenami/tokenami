@@ -5,7 +5,8 @@ import type * as Tokenami from '@tokenami/config';
 type Merge<A, B> = B extends never ? A : Omit<A, keyof B> & B;
 
 // consumer will override this interface
-interface TokenamiConfig {}
+export interface TokenamiConfig {}
+
 interface TokenamiFinalConfig extends Merge<Tokenami.Config, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
@@ -2023,7 +2024,6 @@ type TokenamiPropertiesOmit<P extends keyof SupportedTokenPropertiesMap> = Omit<
   : never;
 
 export type {
-  TokenamiConfig,
   TokenamiFinalConfig,
   TokenamiProperties,
   TokenamiPropertiesPick,

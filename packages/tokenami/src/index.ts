@@ -13,4 +13,3 @@ function tokenami(mod: TypeScriptPluginModule) {
 }
 
 export default tokenami;
-export type * from '@tokenami/node';

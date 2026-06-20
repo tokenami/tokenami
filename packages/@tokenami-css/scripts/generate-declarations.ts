@@ -1,6 +1,9 @@
 import fs from 'node:fs';
-import * as supports from '../src/supports';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import * as supports from '../../@tokenami-node/src/supports';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const properties = [...supports.supportedProperties];
 
 const toPascalCase = (str: string) => {
@@ -54,7 +57,8 @@ import type * as Tokenami from '@tokenami/config';
 type Merge<A, B> = B extends never ? A : Omit<A, keyof B> & B;
 
 // consumer will override this interface
-interface TokenamiConfig {}
+export interface TokenamiConfig {}
+
 interface TokenamiFinalConfig extends Merge<Tokenami.Config, TokenamiConfig> {}
 
 type ThemeConfig = TokenamiFinalConfig['theme'];
@@ -180,7 +184,6 @@ type TokenamiPropertiesOmit<P extends keyof SupportedTokenPropertiesMap> = Omit<
   : never;
 
 export type {
-  TokenamiConfig,
   TokenamiFinalConfig,
   TokenamiProperties,
   TokenamiPropertiesPick,
@@ -189,6 +192,6 @@ export type {
 };
 `;
 
-fs.writeFileSync('./packages/@tokenami-node/src/declarations.ts', fileContent);
+fs.writeFileSync(join(__dirname, '../src/declarations.ts'), fileContent);
 console.log('File written successfully');
 console.log('Total properties:', properties.length);
