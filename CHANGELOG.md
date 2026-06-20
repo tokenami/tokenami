@@ -1,3 +1,15 @@
+# v0.0.99 (Sat Jun 20 2026)
+
+#### 🏎 Performance
+
+- small css utility performance improvements [#514](https://github.com/tokenami/tokenami/pull/514) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.98 (Fri Jun 19 2026)
 
 #### 🐛 Bug Fix
