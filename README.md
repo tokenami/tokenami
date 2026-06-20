@@ -61,7 +61,7 @@
 
 ## Installation
 
-Jump right in with our [Vite starter](https://github.com/tokenami/tokenami-vite), or configure your own project. Tokenami generates static styles, provides a lightweight [~2.5kb](https://bundlephobia.com/package/@tokenami/css) utility for specificity-safe style composition, and includes a TypeScript plugin to enhance the developer experience.
+Jump right in with our [Vite starter](https://github.com/tokenami/tokenami-vite), or configure your own project. Tokenami generates static styles, provides a lightweight [~2.6kb](https://bundlephobia.com/package/@tokenami/css) utility for specificity-safe style composition, and includes a TypeScript plugin to enhance the developer experience.
 
 <details>
 <summary>Using Vite</summary>
