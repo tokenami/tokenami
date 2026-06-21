@@ -224,15 +224,14 @@ Utility-first solutions (like Tailwind) and CSS-in-JS both eventually run into t
 
 Tokenami is a styling toolkit for teams building design systems that need to scale without specificity creep. It provides first-class primitives for [component styles](#user-content-composing-components), [utilities](#user-content-css-utility), [variants](#user-content-variants), [selectors](#user-content-named-selectors), and [overrides](#user-content-overrides), while keeping styles colocated with the components that use them.
 
-It extracts what can live in the stylesheet, leaves dynamic values inline when needed, and _manages the cascade for you_. Name selectors and order them once in your config, then compose styles with complex selectors without having to think about the cascade or specificity again.
+It extracts what can live in the stylesheet, leaves dynamic values inline when needed, and _manages the cascade for you_. Name complex selectors in your config, then compose styles without having to think about the cascade or specificity again.
 
 ### Why CSS variables?
 
 Tokenami uses CSS variables because they let inline styles do more than inline styles normally can.
 
 A variable like `--padding` maps directly to the CSS property you already know, while named selector
-prefixes like `--hover_color` and breakpoint prefixes like `--md_padding` decide when values apply.
-Tokenami can pass those values inline, then let the generated stylesheet handle the cascade.
+prefixes like `--hover_color` and `--md_padding` add pseudo-classes and breakpoints. Tokenami can pass those values inline, then let the generated stylesheet handle when they apply.
 
 Those selectors are powered by [CSS variable toggles](#user-content-selector-specificity), so selector complexity does not turn into higher specificity.
 
