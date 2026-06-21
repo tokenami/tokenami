@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import * as Tokenami from '@tokenami/config';
 import type { Config } from '@tokenami/config';
 import { createSheet } from './sheet';
 
@@ -17,6 +18,7 @@ const testConfig: Config = {
   grid: '0.25rem',
   selectors: {
     hover: '&:hover',
+    focus: '&:focus',
   },
 };
 
@@ -91,4 +93,85 @@ describe('sheet', () => {
     );
     expect(sheet).not.toMatch(/@layer tkc\s*{\s*\.tk-child\s*{\s*--block-size: inherit/);
   });
+
+  it('orders named selector overrides by config order', () => {
+    const sheet1 = createSheet({
+      config: testConfig,
+      tokens: {
+        properties: ['--focus_color', '--hover_color'],
+        values: [],
+        composeBlocks: {},
+      },
+    });
+    const sheet2 = createSheet({
+      config: testConfig,
+      tokens: {
+        properties: ['--hover_color', '--focus_color'],
+        values: [],
+        composeBlocks: {},
+      },
+    });
+
+    const hoverProperty = variantProperty('hover', 'color');
+    const focusProperty = variantProperty('focus', 'color');
+    const result = `color: var(${focusProperty}, var(${hoverProperty}, revert-layer))`;
+
+    expect(sheet1).toContain(result);
+    expect(sheet2).toContain(result);
+  });
+
+  it('orders named selector overrides after arbitrary selector overrides', () => {
+    const sheet1 = createSheet({
+      config: testConfig,
+      tokens: {
+        properties: ['--hover_color', '--{&:hover}_color'],
+        values: [],
+        composeBlocks: {},
+      },
+    });
+    const sheet2 = createSheet({
+      config: testConfig,
+      tokens: {
+        properties: ['--{&:hover}_color', '--hover_color'],
+        values: [],
+        composeBlocks: {},
+      },
+    });
+
+    const arbitraryProperty = variantProperty('{&:hover}', 'color');
+    const hoverProperty = variantProperty('hover', 'color');
+    const result = `color: var(${hoverProperty}, var(${arbitraryProperty}, revert-layer))`;
+
+    expect(sheet1).toContain(result);
+    expect(sheet2).toContain(result);
+  });
+
+  it('orders arbitrary selector overrides deterministically', () => {
+    const firstSheet = createSheet({
+      config: testConfig,
+      tokens: {
+        properties: ['--{&:focus}_color', '--{&:hover}_color'],
+        values: [],
+        composeBlocks: {},
+      },
+    });
+    const secondSheet = createSheet({
+      config: testConfig,
+      tokens: {
+        properties: ['--{&:hover}_color', '--{&:focus}_color'],
+        values: [],
+        composeBlocks: {},
+      },
+    });
+
+    expect(getColorDeclaration(firstSheet)).toEqual(getColorDeclaration(secondSheet));
+  });
 });
+
+function variantProperty(variant: string, property: string) {
+  return `--_${Tokenami.hash(variant + property)}`;
+}
+
+function getColorDeclaration(sheet: string) {
+  return sheet.match(/color: var\(--_[^;}]+/)?.[0];
+}
