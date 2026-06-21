@@ -103,9 +103,20 @@ export default defineConfig({
 });
 ```
 
-#### 5. Import the generated stylesheet
+#### 5. Configure the `css` utility
 
-Import the configured `output` path in your app root:
+Vite handles special character escaping for style attributes, so prevent Tokenami from double-escaping, and then use your configured `css` utility instead of importing from `@tokenami/css`:
+
+```ts
+import { createCss } from '@tokenami/css';
+import config from '../.tokenami/tokenami.config';
+
+export const css = createCss(config, { escapeSpecialChars: false });
+```
+
+#### 6. Import the generated stylesheet
+
+Import the configured `output` stylesheet in your app root:
 
 ```ts
 import 'styles.css';
@@ -209,11 +220,11 @@ Benefits include:
 
 ### Why Tokenami?
 
-Utility-first CSS is fast and themed, but reusable component styles often end up as long class strings or move into `@apply`, away from the component you are working on. CSS-in-JS keeps styles colocated, but often leaves design-system structure up to you. In both cases, composition and arbitrary selectors can quickly turn into cascade or specificity problems.
+Utility-first solutions (like Tailwind) and CSS-in-JS both eventually run into the same challenge: composition. As reusable styles, variants, overrides, and composition across component boundaries accumulate, ensuring styles compose predictably without cascade or specificity issues becomes increasingly difficult.
 
-Tokenami is a styling toolkit for teams building design systems that need to scale without specificity creep. It keeps the colocated workflow while providing first-class primitives for [component styles](#user-content-composing-components), [utilities](#user-content-css-utility), [variants](#user-content-variants), [selectors](#user-content-custom-selectors), and [overrides](#user-content-overrides).
+Tokenami is a styling toolkit for teams building design systems that need to scale without specificity creep. It provides first-class primitives for [component styles](#user-content-composing-components), [utilities](#user-content-css-utility), [variants](#user-content-variants), [selectors](#user-content-custom-selectors), and [overrides](#user-content-overrides), while keeping styles colocated with the components that use them.
 
-It extracts what can live in the stylesheet, leaves dynamic values inline when needed, and _manages the cascade for you_. Define selector order once in your config, then compose styles and write complex selectors without having to worry about the cascade again.
+It extracts what can live in the stylesheet, leaves dynamic values inline when needed, and _manages the cascade for you_. Define selector order once in your config, then compose styles and use complex selectors without having to think about the cascade or specificity again.
 
 ### Why CSS variables?
 
@@ -391,6 +402,30 @@ function Button(props) {
   );
 }
 ```
+
+#### createCss
+
+Configure the CSS utility using `createCss` when your Tokenami config changes how properties are parsed, e.g. [property aliases](#user-content-property-aliases).
+
+```ts
+// css.ts
+import { createCss } from '@tokenami/css';
+import config from '../.tokenami/tokenami.config';
+
+export const css = createCss(config);
+```
+
+This ensures runtime styles are transformed the same way as your generated stylesheet.
+
+`createCss` also accepts an optional `escapeSpecialChars` setting. It defaults to `true`, which makes Tokenami escape special characters in generated property names for runtimes that pass style attributes as written.
+
+When using Vite, set `escapeSpecialChars` to `false` because Vite already escapes special characters in style attributes:
+
+```ts
+export const css = createCss(config, { escapeSpecialChars: false });
+```
+
+This is important because leaving Tokenami's escaping enabled in Vite can double-escape the property names, and inline styles won't match the generated stylesheet.
 
 ### Composing components
 
@@ -659,19 +694,7 @@ With `hover` listed before `focus`, `--focus_color` overrides `--hover_color` wh
 
 ### Property aliases
 
-Aliases allow you to create shorthand names for properties. When using custom aliases, the `css` utility must be configured to ensure conflicts are resolved correctly across component boundaries.
-
-#### 1. Create a file in your project to configure the utility. You can name this file however you like:
-
-```ts
-// css.ts
-import { createCss } from '@tokenami/css';
-import config from '../.tokenami/tokenami.config';
-
-export const css = createCss(config);
-```
-
-#### 2. Configure the aliases in your config file:
+Aliases allow you to create shorthand names for properties. Configure aliases in your Tokenami config:
 
 ```ts
 export default createConfig({
@@ -684,7 +707,9 @@ export default createConfig({
 });
 ```
 
-#### 3. Use the aliases:
+Aliases change how Tokenami properties map to CSS properties, so use [createCss](#user-content-createcss) to configure the runtime utility with your generated config. This keeps runtime styles aligned with the generated stylesheet and enables alias composition across component boundaries.
+
+Use aliases the same way as any other Tokenami property:
 
 ```tsx
 <div style={css({ '--p': 4, '--px': 2, '--size': '100%' })} />

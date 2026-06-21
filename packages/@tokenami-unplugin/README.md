@@ -30,11 +30,3 @@ vite({
   output: 'tokenami.css',
 });
 ```
-
-### External Stylesheets
-
-Add Tokenami-powered design-system stylesheets to your Tokenami config `include` array:
-
-```ts
-include: ['./src/**/*.{ts,tsx}', '@acme/design-system/tokenami.css'];
-```
