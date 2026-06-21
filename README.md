@@ -233,7 +233,7 @@ Tokenami uses CSS variables because they let inline styles do more than inline s
 A variable like `--padding` maps directly to the CSS property you already know, while named selector
 prefixes like `--hover_color` and `--md_padding` add pseudo-classes and breakpoints. Tokenami can pass those values inline, then let the generated stylesheet handle when they apply.
 
-Those selectors are powered by [CSS variable toggles](#user-content-selector-specificity), so selector complexity does not turn into higher specificity.
+Those selectors are powered by [CSS variable toggles](#user-content-selector-specificity), so selector complexity [does not turn into higher specificity](#user-content-selector-specificity).
 
 And you do not have to type the whole var. Start writing `bord` and Tokenami will autocomplete the property for you.
 
@@ -671,7 +671,7 @@ so properties like `--hover_color` have a `--hover` toggle that activates when y
 matches. Because of that, **selector complexity does not increase specificity**. You can make named
 selectors as elaborate as you need without fighting the cascade.
 
-For example, the [official design system](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-ds/src/index.ts) uses a `hover` selector that only applies on fine pointers and skips disabled elements:
+For example, the [official design system](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-ds/src/index.ts) uses a `hover` selector that only applies with fine pointers and skips disabled elements:
 
 ```ts
 hover: ['@media (hover: hover) and (pointer: fine)', '&:not(:disabled):hover'],
@@ -684,8 +684,8 @@ What matters when multiple selectors match at once is the **order you define sel
 ```ts
 export default createConfig({
   selectors: {
-    hover: '&:hover',
-    focus: '&:focus', // wins over hover when both match
+    hover: '&:not(:disabled):hover',
+    focus: '&:focus',
   },
 });
 ```
@@ -694,13 +694,13 @@ export default createConfig({
 <button
   style={css({
     '--color': 'var(--color_neutral-700)',
-    '--hover_color': 'var(--color_neutral-800)',
     '--focus_color': 'var(--color_primary)',
+    '--hover_color': 'var(--color_neutral-800)',
   })}
 />
 ```
 
-With `hover` listed before `focus`, `--focus_color` overrides `--hover_color` when the element is both hovered and focused.
+With `focus` listed after `hover` in config, `--focus_color` overrides `--hover_color` when the element is both hovered and focused.
 
 ### Property aliases
 
