@@ -1,3 +1,19 @@
+# v0.0.100 (Sun Jun 21 2026)
+
+#### 🚀 Enhancement
+
+- reduce arbitrary selector specificity [#516](https://github.com/tokenami/tokenami/pull/516) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- add vite css config to readme [#515](https://github.com/tokenami/tokenami/pull/515) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.99 (Sat Jun 20 2026)
 
 #### 🏎 Performance
