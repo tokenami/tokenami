@@ -575,7 +575,8 @@ function getPropertyConfigs(
     const properties = Tokenami.getCSSPropertiesForAlias(parts.alias, config.aliases);
     const responsiveOrder = parts.responsive ? 1 : 0;
     const selectorOrder = parts.selector ? 2 : 0;
-    const order = responsiveOrder + selectorOrder;
+    const selectorRank = getSelectorRank(parts.selector, config);
+    const order = responsiveOrder + selectorOrder + selectorRank;
 
     for (const cssProperty of properties) {
       const layerIndex = getPropertyLayerIndex(cssProperty, config);
@@ -600,6 +601,29 @@ function getPropertyConfigs(
   }
 
   return propertyConfigs;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getSelectorRank
+ * -----------------------------------------------------------------------------------------------*/
+
+function getSelectorRank(selector: string | undefined, config: Tokenami.Config): number {
+  const arbitrarySelector = Tokenami.getArbitrarySelector(selector);
+  if (arbitrarySelector) return getArbitrarySelectorRank(arbitrarySelector);
+  if (!selector) return 0;
+
+  const selectorIndex = Object.keys(config.selectors || {}).indexOf(selector);
+  return selectorIndex === -1 ? 0 : (selectorIndex + 1) / 1000;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * getArbitrarySelectorRank
+ * -----------------------------------------------------------------------------------------------*/
+
+function getArbitrarySelectorRank(selector: string): number {
+  const hash = Tokenami.hash(selector);
+  const value = parseInt(hash, 36);
+  return value / 36 ** hash.length / 1000;
 }
 
 /* -------------------------------------------------------------------------------------------------

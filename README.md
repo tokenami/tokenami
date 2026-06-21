@@ -41,7 +41,7 @@
   - [Breakpoints](#user-content-breakpoints)
   - [Animation](#user-content-animation)
 - [Advanced usage](#user-content-advanced-usage)
-  - [Custom selectors](#user-content-custom-selectors)
+  - [Named selectors](#user-content-named-selectors)
   - [Property aliases](#user-content-property-aliases)
   - [Theming properties](#user-content-theming-properties)
   - [Custom properties](#user-content-custom-properties)
@@ -222,15 +222,17 @@ Benefits include:
 
 Utility-first solutions (like Tailwind) and CSS-in-JS both eventually run into the same challenge: composition. As reusable styles, variants, overrides, and composition across component boundaries accumulate, ensuring styles compose predictably without cascade or specificity issues becomes increasingly difficult.
 
-Tokenami is a styling toolkit for teams building design systems that need to scale without specificity creep. It provides first-class primitives for [component styles](#user-content-composing-components), [utilities](#user-content-css-utility), [variants](#user-content-variants), [selectors](#user-content-custom-selectors), and [overrides](#user-content-overrides), while keeping styles colocated with the components that use them.
+Tokenami is a styling toolkit for teams building design systems that need to scale without specificity creep. It provides first-class primitives for [component styles](#user-content-composing-components), [utilities](#user-content-css-utility), [variants](#user-content-variants), [selectors](#user-content-named-selectors), and [overrides](#user-content-overrides), while keeping styles colocated with the components that use them.
 
-It extracts what can live in the stylesheet, leaves dynamic values inline when needed, and _manages the cascade for you_. Define selector order once in your config, then compose styles and use complex selectors without having to think about the cascade or specificity again.
+It extracts what can live in the stylesheet, leaves dynamic values inline when needed, and _manages the cascade for you_. Name selectors and order them once in your config, then compose styles with complex selectors without having to think about the cascade or specificity again.
 
 ### Why CSS variables?
 
 Tokenami uses CSS variables because they let inline styles do more than inline styles normally can.
 
-A variable like `--padding` maps directly to the CSS property you already know, while prefixes like `--hover_color` or `--md_padding` add pseudo-classes and breakpoints. Tokenami can pass those values inline, then let the generated stylesheet decide when they apply.
+A variable like `--padding` maps directly to the CSS property you already know, while named selector
+prefixes like `--hover_color` and breakpoint prefixes like `--md_padding` decide when values apply.
+Tokenami can pass those values inline, then let the generated stylesheet handle the cascade.
 
 Those selectors are powered by [CSS variable toggles](#user-content-selector-specificity), so selector complexity does not turn into higher specificity.
 
@@ -344,6 +346,10 @@ Use arbitrary selectors to prototype quickly:
 ```
 
 They can be used to style the **current element, and its descendants** only.
+
+Arbitrary selectors are intended for one-off local selectors. They have lower priority than
+[named selectors](#user-content-named-selectors). If ordering matters, promote the selector to
+your config.
 
 ### Arbitrary values
 
@@ -634,9 +640,11 @@ Apply the animation to an element:
 
 Tokenami has some advanced features that can help you build more powerful design systems.
 
-### Custom selectors
+### Named selectors
 
-Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-node/stubs/tokenami.config.ts#L28) are included, but you can configure your own. Use the ampersand (`&`) to mark where the current element's selector should be injected:
+Named selectors let you give complex selectors simple names and controls their override order. Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-node/stubs/tokenami.config.ts#L34)
+are included, but you can configure your own. Use the ampersand (`&`) to mark where the current
+element's selector should be injected:
 
 ```ts
 export default createConfig({
@@ -659,7 +667,10 @@ Use them in your components:
 
 #### Selector specificity
 
-Tokenami selectors are [CSS variable toggles](https://css-tricks.com/the-css-custom-property-toggle-trick/), so properties like `--hover_color` have a `--_hover` toggle that activates when your selector matches. Because of that, **selector complexity does not increase specificity**. You can make selectors as elaborate as you need without fighting the cascade.
+Tokenami selectors are [CSS variable toggles](https://css-tricks.com/the-css-custom-property-toggle-trick/),
+so properties like `--hover_color` have a `--hover` toggle that activates when your selector
+matches. Because of that, **selector complexity does not increase specificity**. You can make named
+selectors as elaborate as you need without fighting the cascade.
 
 For example, the [official design system](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-ds/src/index.ts) uses a `hover` selector that only applies on fine pointers and skips disabled elements:
 
