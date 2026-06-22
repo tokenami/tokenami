@@ -1,3 +1,20 @@
+# v0.0.101 (Mon Jun 22 2026)
+
+#### 🐛 Bug Fix
+
+- fix vite hmr when `tokenami.config` changes [#519](https://github.com/tokenami/tokenami/pull/519) ([@jjenzz](https://github.com/jjenzz))
+
+#### 📝 Documentation
+
+- add selector specificity link from why tokenami section [#518](https://github.com/tokenami/tokenami/pull/518) ([@jjenzz](https://github.com/jjenzz))
+- docs tweaks [#517](https://github.com/tokenami/tokenami/pull/517) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.100 (Sun Jun 21 2026)
 
 #### 🚀 Enhancement
