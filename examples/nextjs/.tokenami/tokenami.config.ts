@@ -7,12 +7,12 @@ export default createConfig({
     ...designSystemConfig.globalStyles,
     ':root': {
       ...designSystemConfig.globalStyles[':root'],
-      ['--focus-ring' as string]: '2px solid white',
-      ['--focus-ring-offset' as string]: '-2px',
+      ['---focus-ring' as string]: '2px solid white',
+      ['---focus-ring-offset' as string]: '-2px',
     },
     '*:focus-visible': {
-      outline: 'var(--focus-ring)',
-      outlineOffset: 'var(--focus-ring-offset)',
+      outline: 'var(---focus-ring)',
+      outlineOffset: 'var(---focus-ring-offset)',
     },
   },
   include: ['./src/**/*.{ts,tsx}'],
@@ -22,11 +22,11 @@ export default createConfig({
       ...designSystemConfig.theme.root,
       line: {
         ...designSystemConfig.theme.root.line,
-        ring: 'var(--focus-ring)',
+        ring: 'var(---focus-ring)',
       },
       offset: {
         ...designSystemConfig.theme.root.offset,
-        ring: 'var(--focus-ring-offset)',
+        ring: 'var(---focus-ring-offset)',
       },
     },
   },

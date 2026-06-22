@@ -13,36 +13,13 @@ describe('@tokenami/unplugin', () => {
     expect(tokenami.vite).toBeTypeOf('function');
   });
 
-  it('configures Vite to process CSS with Lightning CSS', async () => {
-    const fixture = await createFixture();
-
-    try {
-      const plugin = createTestPlugin({ cwd: fixture.root });
-      const buildCommand = { command: 'build', mode: '' } as const;
-
-      expect(plugin.config({}, buildCommand)).toMatchObject({
-        css: { transformer: 'lightningcss' },
-        build: { cssMinify: 'lightningcss' },
-      });
-      expect(plugin.config({ build: { minify: false } }, buildCommand)).toMatchObject({
-        css: { transformer: 'lightningcss' },
-        build: { minify: false, cssMinify: false },
-      });
-      expect(plugin.config({ build: { cssMinify: 'esbuild' } }, buildCommand)).toMatchObject({
-        css: { transformer: 'lightningcss' },
-        build: { cssMinify: 'lightningcss' },
-      });
-    } finally {
-      await fixture.remove();
-    }
-  });
-
   it(
     'allows the stylesheet import path to be customized',
     async () => {
       const fixture = await createFixture({
         importStyles: true,
-        styleImport: 'styles/theme.css',
+        output: 'src/styles/theme.css',
+        styleImport: './styles/theme.css',
       });
 
       try {
@@ -50,7 +27,7 @@ describe('@tokenami/unplugin', () => {
           root: fixture.root,
           configFile: false,
           logLevel: 'silent',
-          plugins: [tokenami.vite({ cwd: fixture.root, output: 'styles/theme.css' })],
+          plugins: [tokenami.vite({ cwd: fixture.root, output: fixture.output })],
           build: {
             emptyOutDir: true,
             outDir: fixture.dist,
@@ -66,6 +43,27 @@ describe('@tokenami/unplugin', () => {
     timeout
   );
 
+  it('transforms the generated stylesheet with Lightning CSS', async () => {
+    const fixture = await createFixture({ importStyles: true });
+
+    try {
+      const plugin = createTestPlugin({ cwd: fixture.root, output: fixture.output });
+
+      await plugin.buildStart.call({
+        addWatchFile() {},
+        emitFile() {},
+      });
+
+      const css = await readFile(fixture.stylesheet, 'utf8');
+
+      expect(css).toContain('--color_red: red');
+      expect(css).toContain('color: var(--color, revert-layer)');
+      expect(css).not.toContain('color: var(--color,revert-layer)');
+    } finally {
+      await fixture.remove();
+    }
+  });
+
   it(
     'processes external Tokenami stylesheets',
     async () => {
@@ -79,7 +77,7 @@ describe('@tokenami/unplugin', () => {
           root: fixture.root,
           configFile: false,
           logLevel: 'silent',
-          plugins: [tokenami.vite({ cwd: fixture.root })],
+          plugins: [tokenami.vite({ cwd: fixture.root, output: fixture.output })],
           build: {
             emptyOutDir: true,
             outDir: fixture.dist,
@@ -89,8 +87,8 @@ describe('@tokenami/unplugin', () => {
         const cssFile = await findCssFile(fixture.dist, '.acme-button');
         const css = await readCssFile(fixture.dist, cssFile);
 
-        expect(css).toContain('@layer tk1{.acme-button,[style]{color:var(--color,revert-layer)}');
-        expect(css).toContain('@layer tkc{.acme-button{--color:var(--color_blue)}}');
+        expect(css).toContain('.acme-button,[style]{color:var(--color, revert-layer)}');
+        expect(css).toContain('.acme-button{--color: var(--color_blue)}');
       } finally {
         await fixture.remove();
       }
@@ -108,7 +106,7 @@ describe('@tokenami/unplugin', () => {
           root: fixture.root,
           configFile: false,
           logLevel: 'silent',
-          plugins: [tokenami.vite({ cwd: fixture.root })],
+          plugins: [tokenami.vite({ cwd: fixture.root, output: fixture.output })],
           build: {
             emptyOutDir: true,
             outDir: fixture.dist,
@@ -133,7 +131,7 @@ describe('@tokenami/unplugin', () => {
       try {
         await writeFile(
           fixture.entry,
-          ['import "tokenami.css";', 'import "./button.js";', 'export {};'].join('\n')
+          ['import "./style.css";', 'import "./button.js";', 'export {};'].join('\n')
         );
         await writeFile(
           join(fixture.root, 'src/button.js'),
@@ -146,7 +144,7 @@ describe('@tokenami/unplugin', () => {
           root: fixture.root,
           configFile: false,
           logLevel: 'silent',
-          plugins: [tokenami.vite({ cwd: fixture.root })],
+          plugins: [tokenami.vite({ cwd: fixture.root, output: fixture.output })],
           build: {
             emptyOutDir: true,
             outDir: fixture.dist,
@@ -157,7 +155,7 @@ describe('@tokenami/unplugin', () => {
         const css = await readCssFile(fixture.dist, cssFile);
 
         expect(css).toContain('@layer tkc{.');
-        expect(css).toContain('--color:var(--color_red)');
+        expect(css).toContain('--color: var(--color_red)');
       } finally {
         await fixture.remove();
       }
@@ -169,27 +167,23 @@ describe('@tokenami/unplugin', () => {
     const fixture = await createFixture({ importStyles: true });
 
     try {
-      const plugin = createTestPlugin({ cwd: fixture.root });
-      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
-        isEntry: false,
-      });
-      expect(resolvedCssId).toBe('\0tokenami.css');
+      const plugin = createTestPlugin({ cwd: fixture.root, output: fixture.output });
 
       await plugin.buildStart.call({
         addWatchFile() {},
         emitFile() {},
       });
 
-      expect(await plugin.load(resolvedCssId as string)).not.toContain('margin');
+      expect(await readFile(fixture.stylesheet, 'utf8')).not.toContain('margin');
 
       const updatedEntry = [
-        'import "tokenami.css";',
+        'import "./style.css";',
         'document.body.innerHTML = \'<button style="--color: var(--color_red); --background-color: var(--color_blue); --padding: var(--space_sm); --margin: var(--space_sm)">Button</button>\';',
         'export {};',
       ].join('\n');
 
       const sourceModule = { id: fixture.entry };
-      const cssModule = { id: resolvedCssId };
+      const cssModule = { id: fixture.stylesheet };
       const invalidated: unknown[] = [];
       const modules = await plugin.handleHotUpdate({
         file: fixture.entry,
@@ -197,8 +191,11 @@ describe('@tokenami/unplugin', () => {
         modules: [sourceModule],
         server: {
           moduleGraph: {
+            getModulesByFile(file: string) {
+              return file === fixture.stylesheet ? new Set([cssModule]) : undefined;
+            },
             getModuleById(id: string) {
-              return id === resolvedCssId ? cssModule : undefined;
+              return id === fixture.stylesheet ? cssModule : undefined;
             },
             invalidateModule(module: unknown) {
               invalidated.push(module);
@@ -212,7 +209,64 @@ describe('@tokenami/unplugin', () => {
 
       expect(modules).toEqual([sourceModule, cssModule]);
       expect(invalidated).toEqual([cssModule]);
-      expect(await plugin.load(resolvedCssId as string)).toContain('margin');
+      expect(await readFile(fixture.stylesheet, 'utf8')).toContain('margin');
+    } finally {
+      await fixture.remove();
+    }
+  });
+
+  it('updates generated CSS during Tokenami config hot updates', async () => {
+    const fixture = await createFixture({ importStyles: true });
+
+    try {
+      const plugin = createTestPlugin({ cwd: fixture.root, output: fixture.output });
+
+      await plugin.configResolved({
+        build: { minify: false },
+        command: 'serve',
+        createResolver: () => async () => undefined,
+      });
+      await plugin.buildStart.call({
+        addWatchFile() {},
+        emitFile() {},
+      });
+
+      expect(await readFile(fixture.stylesheet, 'utf8')).toContain('--color_red: red');
+
+      const cssModule = { id: fixture.stylesheet };
+      const invalidated: unknown[] = [];
+      const reloads: unknown[] = [];
+      const config = await readFile(fixture.configPath, 'utf8');
+      await writeFile(fixture.configPath, config.replace("'#f00'", "'#123456'"));
+
+      const modules = await plugin.handleHotUpdate({
+        file: fixture.configPath,
+        read: async () => readFile(fixture.configPath, 'utf8'),
+        modules: [],
+        server: {
+          moduleGraph: {
+            getModulesByFile(file: string) {
+              return file === fixture.stylesheet ? new Set([cssModule]) : undefined;
+            },
+            getModuleById(id: string) {
+              return id === fixture.stylesheet ? cssModule : undefined;
+            },
+            invalidateModule(module: unknown) {
+              invalidated.push(module);
+            },
+          },
+          ws: {
+            send(message: unknown) {
+              reloads.push(message);
+            },
+          },
+        },
+      });
+
+      expect(modules).toEqual([cssModule]);
+      expect(invalidated).toEqual([cssModule]);
+      expect(reloads).toEqual([]);
+      expect(await readFile(fixture.stylesheet, 'utf8')).toContain('--color_red: #123456');
     } finally {
       await fixture.remove();
     }
@@ -222,15 +276,12 @@ describe('@tokenami/unplugin', () => {
     const fixture = await createFixture();
 
     try {
-      const plugin = createTestPlugin({ cwd: fixture.root });
-      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
-        isEntry: false,
-      });
+      const plugin = createTestPlugin({ cwd: fixture.root, output: fixture.output });
 
       await writeFile(
         fixture.entry,
         [
-          'import "tokenami.css";',
+          'import "./style.css";',
           'const css = { compose() {} };',
           'css.compose({ "--color": "var(--color_red)" });',
         ].join('\n')
@@ -246,7 +297,7 @@ describe('@tokenami/unplugin', () => {
         emitFile() {},
       });
 
-      expect(await plugin.load(resolvedCssId as string)).toContain('var(--color_red)');
+      expect(await readFile(fixture.stylesheet, 'utf8')).toContain('var(--color_red)');
     } finally {
       await fixture.remove();
     }
@@ -256,10 +307,7 @@ describe('@tokenami/unplugin', () => {
     const fixture = await createFixture({ importStyles: true });
 
     try {
-      const plugin = createTestPlugin({ cwd: fixture.root });
-      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
-        isEntry: false,
-      });
+      const plugin = createTestPlugin({ cwd: fixture.root, output: fixture.output });
 
       await plugin.configResolved({
         build: { minify: false },
@@ -271,7 +319,7 @@ describe('@tokenami/unplugin', () => {
         emitFile() {},
       });
 
-      const css = await plugin.load(resolvedCssId as string);
+      const css = await readFile(fixture.stylesheet, 'utf8');
 
       expect(css).toContain('@layer tkb');
       expect(css).not.toMatch(/@layer\s+tks\d/);
@@ -286,19 +334,19 @@ describe('@tokenami/unplugin', () => {
 
     try {
       const initialEntry = [
-        'import "tokenami.css";',
+        'import "./style.css";',
         'const css = { compose() {} };',
         'css.compose({ "--color": "var(--color_red)" });',
         'export {};',
       ].join('\n');
       const updatedEntry = [
-        'import "tokenami.css";',
+        'import "./style.css";',
         'const css = { compose() {} };',
         'css.compose({ "--color": "var(--color_blue)" });',
         'export {};',
       ].join('\n');
       const nextEntry = [
-        'import "tokenami.css";',
+        'import "./style.css";',
         'const css = { compose() {} };',
         'css.compose({ "--color": "var(--space_sm)" });',
         'export {};',
@@ -306,10 +354,7 @@ describe('@tokenami/unplugin', () => {
 
       await writeFile(fixture.entry, initialEntry);
 
-      const plugin = createTestPlugin({ cwd: fixture.root });
-      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
-        isEntry: false,
-      });
+      const plugin = createTestPlugin({ cwd: fixture.root, output: fixture.output });
 
       await plugin.buildStart.call({
         addWatchFile() {},
@@ -317,11 +362,11 @@ describe('@tokenami/unplugin', () => {
       });
       await plugin.transform(initialEntry, fixture.entry);
 
-      const initialCss = await plugin.load(resolvedCssId as string);
+      const initialCss = await readFile(fixture.stylesheet, 'utf8');
       expect(initialCss).toContain('var(--color_red)');
       expect(initialCss).not.toContain('var(--color_blue)');
 
-      const cssModule = { id: resolvedCssId };
+      const cssModule = { id: fixture.stylesheet };
       await writeFile(fixture.entry, updatedEntry);
       await plugin.handleHotUpdate({
         file: fixture.entry,
@@ -329,8 +374,11 @@ describe('@tokenami/unplugin', () => {
         modules: [{ id: fixture.entry }],
         server: {
           moduleGraph: {
+            getModulesByFile(file: string) {
+              return file === fixture.stylesheet ? new Set([cssModule]) : undefined;
+            },
             getModuleById(id: string) {
-              return id === resolvedCssId ? cssModule : undefined;
+              return id === fixture.stylesheet ? cssModule : undefined;
             },
             invalidateModule() {},
           },
@@ -340,7 +388,7 @@ describe('@tokenami/unplugin', () => {
         },
       });
 
-      const updatedCss = await plugin.load(resolvedCssId as string);
+      const updatedCss = await readFile(fixture.stylesheet, 'utf8');
       expect(updatedCss).toContain('var(--color_red)');
       expect(updatedCss).toContain('var(--color_blue)');
 
@@ -351,8 +399,11 @@ describe('@tokenami/unplugin', () => {
         modules: [{ id: fixture.entry }],
         server: {
           moduleGraph: {
+            getModulesByFile(file: string) {
+              return file === fixture.stylesheet ? new Set([cssModule]) : undefined;
+            },
             getModuleById(id: string) {
-              return id === resolvedCssId ? cssModule : undefined;
+              return id === fixture.stylesheet ? cssModule : undefined;
             },
             invalidateModule() {},
           },
@@ -362,7 +413,7 @@ describe('@tokenami/unplugin', () => {
         },
       });
 
-      const nextCss = await plugin.load(resolvedCssId as string);
+      const nextCss = await readFile(fixture.stylesheet, 'utf8');
       expect(nextCss).toContain('var(--color_red)');
       expect(nextCss).toContain('var(--color_blue)');
       expect(nextCss).toContain('var(--space_sm)');
@@ -376,7 +427,7 @@ describe('@tokenami/unplugin', () => {
 
     try {
       const entry = [
-        'import "tokenami.css";',
+        'import "./style.css";',
         'const css = { compose() {} };',
         'css.compose({ "--color": "var(--color_red)" });',
         'export {};',
@@ -384,10 +435,7 @@ describe('@tokenami/unplugin', () => {
 
       await writeFile(fixture.entry, entry);
 
-      const plugin = createTestPlugin({ cwd: fixture.root });
-      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
-        isEntry: false,
-      });
+      const plugin = createTestPlugin({ cwd: fixture.root, output: fixture.output });
 
       await plugin.configResolved({
         build: { minify: false },
@@ -400,12 +448,12 @@ describe('@tokenami/unplugin', () => {
       });
       await plugin.transform(entry, fixture.entry);
 
-      expect(await plugin.load(resolvedCssId as string)).toContain('var(--color_red)');
+      expect(await readFile(fixture.stylesheet, 'utf8')).toContain('var(--color_red)');
 
       await rm(fixture.entry);
-      plugin.watchChange(fixture.entry, { event: 'delete' });
+      await plugin.watchChange(fixture.entry, { event: 'delete' });
 
-      expect(await plugin.load(resolvedCssId as string)).not.toContain('var(--color_red)');
+      expect(await readFile(fixture.stylesheet, 'utf8')).not.toContain('var(--color_red)');
     } finally {
       await fixture.remove();
     }
@@ -415,17 +463,14 @@ describe('@tokenami/unplugin', () => {
     const fixture = await createFixture({ importStyles: true });
 
     try {
-      const plugin = createTestPlugin({ cwd: fixture.root });
-      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
-        isEntry: false,
-      });
+      const plugin = createTestPlugin({ cwd: fixture.root, output: fixture.output });
 
       await plugin.buildStart.call({
         addWatchFile() {},
         emitFile() {},
       });
 
-      expect(await plugin.load(resolvedCssId as string)).not.toContain('margin');
+      expect(await readFile(fixture.stylesheet, 'utf8')).not.toContain('margin');
 
       const ignoredFile = join(fixture.root, 'scripts/ignored.js');
       const modules = await plugin.handleHotUpdate({
@@ -434,8 +479,11 @@ describe('@tokenami/unplugin', () => {
         modules: [{ id: ignoredFile }],
         server: {
           moduleGraph: {
+            getModulesByFile() {
+              return new Set([{ id: fixture.stylesheet }]);
+            },
             getModuleById() {
-              return { id: resolvedCssId };
+              return { id: fixture.stylesheet };
             },
             invalidateModule() {},
           },
@@ -446,7 +494,7 @@ describe('@tokenami/unplugin', () => {
       });
 
       expect(modules).toBeUndefined();
-      expect(await plugin.load(resolvedCssId as string)).not.toContain('margin');
+      expect(await readFile(fixture.stylesheet, 'utf8')).not.toContain('margin');
     } finally {
       await fixture.remove();
     }
@@ -459,10 +507,7 @@ describe('@tokenami/unplugin', () => {
     });
 
     try {
-      const plugin = createTestPlugin({ cwd: fixture.root });
-      const resolvedCssId = await plugin.resolveId('tokenami.css', fixture.entry, {
-        isEntry: false,
-      });
+      const plugin = createTestPlugin({ cwd: fixture.root, output: fixture.output });
       const externalStylesheet = join(
         fixture.root,
         'node_modules/@acme/design-system/tokenami.css'
@@ -479,17 +524,21 @@ describe('@tokenami/unplugin', () => {
         emitFile() {},
       });
 
-      expect(await plugin.load(resolvedCssId as string)).not.toContain('.acme-button');
+      expect(await readFile(fixture.stylesheet, 'utf8')).not.toContain('.acme-button');
 
       const invalidated: unknown[] = [];
+      const cssModule = { id: fixture.stylesheet };
       const modules = await plugin.handleHotUpdate({
         file: externalStylesheet,
         read: async () => '@layer tkc { .acme-button { --color: var(--color_blue); } }',
         modules: [{ id: externalStylesheet }],
         server: {
           moduleGraph: {
+            getModulesByFile(file: string) {
+              return file === fixture.stylesheet ? new Set([cssModule]) : undefined;
+            },
             getModuleById(id: string) {
-              return id === resolvedCssId ? { id: resolvedCssId } : undefined;
+              return id === fixture.stylesheet ? cssModule : undefined;
             },
             invalidateModule(module: unknown) {
               invalidated.push(module);
@@ -501,9 +550,9 @@ describe('@tokenami/unplugin', () => {
         },
       });
 
-      expect(modules).toEqual([{ id: externalStylesheet }, { id: resolvedCssId }]);
-      expect(invalidated).toEqual([{ id: resolvedCssId }]);
-      expect(await plugin.load(resolvedCssId as string)).toContain('.acme-button');
+      expect(modules).toEqual([{ id: externalStylesheet }, cssModule]);
+      expect(invalidated).toEqual([cssModule]);
+      expect(await readFile(fixture.stylesheet, 'utf8')).toContain('.acme-button');
     } finally {
       await fixture.remove();
     }
@@ -514,6 +563,7 @@ async function createFixture(
   options: {
     externalStylesheet?: string;
     importStyles?: boolean;
+    output?: string;
     styleImport?: string;
   } = {}
 ) {
@@ -522,6 +572,9 @@ async function createFixture(
   const tokenamiDir = join(root, '.tokenami');
   const dist = join(root, 'dist');
   const entry = join(src, 'main.js');
+  const configPath = join(tokenamiDir, 'tokenami.config.mjs');
+  const output = options.output ?? 'src/style.css';
+  const stylesheet = join(root, output);
 
   await mkdir(src, { recursive: true });
   await mkdir(tokenamiDir, { recursive: true });
@@ -545,9 +598,7 @@ async function createFixture(
   await writeFile(
     entry,
     [
-      options.importStyles
-        ? `import ${JSON.stringify(options.styleImport ?? 'tokenami.css')};`
-        : '',
+      options.importStyles ? `import ${JSON.stringify(options.styleImport ?? './style.css')};` : '',
       'document.body.innerHTML = \'<button style="--color: var(--color_red); --background-color: var(--color_blue); --padding: var(--space_sm)">Button</button>\';',
       'export {};',
     ]
@@ -555,7 +606,7 @@ async function createFixture(
       .join('\n')
   );
   await writeFile(
-    join(tokenamiDir, 'tokenami.config.mjs'),
+    configPath,
     [
       'export default {',
       `  include: ${JSON.stringify(
@@ -583,6 +634,9 @@ async function createFixture(
     root,
     dist,
     entry,
+    configPath,
+    output,
+    stylesheet,
     async remove() {
       if (existsSync(root)) await rm(root, { recursive: true, force: true });
     },
@@ -611,14 +665,11 @@ interface TestPlugin {
   config: (config: Record<string, any>, env: { command: 'build'; mode: string }) => unknown;
   configResolved: (config: TestResolvedConfig) => Promise<void> | void;
   handleHotUpdate: (ctx: TestHmrContext) => Promise<unknown[] | void> | unknown[] | void;
-  load: (id: string) => Promise<string | null> | string | null;
-  resolveId: (
-    id: string,
-    importer: string | undefined,
-    options: { isEntry: boolean }
-  ) => Promise<string | null | undefined> | string | null | undefined;
   transform: (code: string, id: string) => Promise<null> | null;
-  watchChange: (id: string, change: { event: 'create' | 'update' | 'delete' }) => void;
+  watchChange: (
+    id: string,
+    change: { event: 'create' | 'update' | 'delete' }
+  ) => Promise<void> | void;
 }
 
 interface TestBuildContext {
@@ -638,11 +689,12 @@ interface TestHmrContext {
   modules: unknown[];
   server: {
     moduleGraph: {
+      getModulesByFile: (file: string) => Set<unknown> | undefined;
       getModuleById: (id: string) => unknown;
       invalidateModule: (module: unknown) => void;
     };
     ws: {
-      send: () => void;
+      send: (message?: unknown) => void;
     };
   };
 }

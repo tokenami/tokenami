@@ -1,7 +1,7 @@
 import '@storylite/storylite/styles.css';
 import './styles/storylite-iframe.css';
 import './styles/storylite-ui.css';
-import 'tokenami.css';
+import '../src/tokenami.css';
 
 // import iframe-scope styles here
 

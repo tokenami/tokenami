@@ -8,14 +8,14 @@ Vite plugin for Tokenami built with unplugin.
 import * as tokenami from '@tokenami/unplugin';
 
 export default {
-  plugins: [tokenami.vite()],
+  plugins: [tokenami.vite({ output: './src/style.css' })],
 };
 ```
 
-Import the configured `output` path in your app root. By default, this is `tokenami.css`:
+Import the generated stylesheet in your app root:
 
 ```ts
-import 'tokenami.css';
+import './style.css';
 ```
 
 Only Vite is supported for now. For other bundlers and frameworks, use the Tokenami CLI instead,
@@ -27,6 +27,6 @@ and feel free to open a GitHub issue if plugin support for another tool is somet
 vite({
   cwd: process.cwd(),
   config: './.tokenami/tokenami.config.ts',
-  output: 'tokenami.css',
+  output: './src/style.css',
 });
 ```

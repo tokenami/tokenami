@@ -15,7 +15,7 @@ export default defineConfig({
     },
   },
   plugins: [
-    tokenami.vite(),
+    tokenami.vite({ output: resolve(__dirname, './src/tokenami.css') }),
     storylitePlugin({
       stories: 'src/**/*.stories.tsx',
     }),
