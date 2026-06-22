@@ -1,9 +1,9 @@
 import type * as Tokenami from '@tokenami/config';
-import { createSheet, findUsedTokens, TokenStore, type UsedTokens, utils } from '@tokenami/node';
+import { findUsedTokens, generateSheet, TokenStore, type UsedTokens, utils } from '@tokenami/node';
 import * as fs from 'node:fs';
 import * as pathe from 'pathe';
 import { createUnplugin } from 'unplugin';
-import { createFilter, normalizePath, type ResolveFn } from 'vite';
+import { createFilter, normalizePath, type ResolveFn, type ViteDevServer } from 'vite';
 
 const PLUGIN_NAME = 'tokenami';
 
@@ -34,8 +34,8 @@ const tokenami = /* #__PURE__ */ createUnplugin<TokenamiUnpluginOptions | undefi
   (opts = {}) => {
     const cwd = pathe.resolve(opts.cwd ?? process.cwd());
     const output = opts.output ?? 'tokenami.css';
+    const outputPath = pathe.resolve(cwd, output);
     const configPath = utils.getConfigPath(cwd, opts.config);
-    const resolvedOutputId = `\0${output}`;
     const initialConfig = utils.getConfigAtPath(configPath, { cache: false });
     const store = new TokenStore(initialConfig);
     let config = initialConfig;
@@ -46,6 +46,19 @@ const tokenami = /* #__PURE__ */ createUnplugin<TokenamiUnpluginOptions | undefi
 
     async function getTokens() {
       return mergeTokens(await findUsedTokens(cwd, config), store.getTokens());
+    }
+
+    async function writeStylesheet() {
+      const tokens = await getTokens();
+      const stylesheet = generateSheet({ tokens, config, output });
+
+      fs.mkdirSync(pathe.dirname(outputPath), { recursive: true });
+
+      try {
+        if (fs.readFileSync(outputPath, 'utf8') === stylesheet) return;
+      } catch {}
+
+      fs.writeFileSync(outputPath, stylesheet);
     }
 
     function updateFile(file: string, content: string) {
@@ -60,7 +73,28 @@ const tokenami = /* #__PURE__ */ createUnplugin<TokenamiUnpluginOptions | undefi
     }
 
     function shouldScanFile(file: string) {
+      if (pathe.resolve(file) === outputPath) return false;
       return sourceFilter(normalizePath(file));
+    }
+
+    async function getStylesheetModules(server: ViteDevServer) {
+      await writeStylesheet();
+
+      const modules = server.moduleGraph.getModulesByFile(outputPath);
+      if (modules) return Array.from(modules);
+
+      const module = server.moduleGraph.getModuleById(outputPath);
+      return module ? [module] : [];
+    }
+
+    async function invalidateStylesheetModules(server: ViteDevServer) {
+      const modules = await getStylesheetModules(server);
+
+      for (const module of modules) {
+        server.moduleGraph.invalidateModule(module);
+      }
+
+      return modules;
     }
 
     async function* scanExternalStylesheets() {
@@ -92,22 +126,11 @@ const tokenami = /* #__PURE__ */ createUnplugin<TokenamiUnpluginOptions | undefi
         for await (const file of scanExternalStylesheets()) {
           this.addWatchFile(file);
         }
-      },
 
-      resolveId(id) {
-        if (getOutputId(id) !== output) return null;
-        return resolvedOutputId;
-      },
-
-      async load(id) {
-        if (id !== resolvedOutputId) return null;
-        const tokens = await getTokens();
-        return createSheet({ tokens, config });
+        await writeStylesheet();
       },
 
       transform(code, id) {
-        if (id === resolvedOutputId) return null;
-
         const file = getFileFromId(id);
         if (!file || !shouldScanFile(file)) return null;
 
@@ -115,21 +138,14 @@ const tokenami = /* #__PURE__ */ createUnplugin<TokenamiUnpluginOptions | undefi
         return null;
       },
 
-      watchChange(id, change) {
+      async watchChange(id, change) {
         if (change.event !== 'delete') return;
         if (!externalStylesheetFiles.has(id) && !shouldScanFile(id)) return;
         removeFile(id);
+        await writeStylesheet();
       },
 
       vite: {
-        config(userConfig) {
-          const cssMinify = userConfig.build?.minify === false ? false : 'lightningcss';
-          return {
-            css: { ...userConfig.css, transformer: 'lightningcss' },
-            build: { ...userConfig.build, cssMinify },
-          };
-        },
-
         configResolved(viteConfig) {
           command = viteConfig.command;
           resolveExternalStylesheet = viteConfig.createResolver();
@@ -146,6 +162,9 @@ const tokenami = /* #__PURE__ */ createUnplugin<TokenamiUnpluginOptions | undefi
               ctx.server.watcher.add(file);
             }
 
+            const modules = await invalidateStylesheetModules(ctx.server);
+            if (modules.length) return modules;
+
             ctx.server.ws.send({ type: 'full-reload' });
             return [];
           }
@@ -160,11 +179,10 @@ const tokenami = /* #__PURE__ */ createUnplugin<TokenamiUnpluginOptions | undefi
             return;
           }
 
-          const cssModule = ctx.server.moduleGraph.getModuleById(resolvedOutputId);
-          if (!cssModule) return;
+          const cssModules = await invalidateStylesheetModules(ctx.server);
+          if (!cssModules.length) return;
 
-          ctx.server.moduleGraph.invalidateModule(cssModule);
-          return [...ctx.modules, cssModule];
+          return [...ctx.modules, ...cssModules];
         },
       },
     };
@@ -178,11 +196,7 @@ function isExternalStylesheet(pattern: string) {
 }
 
 function getFileFromId(id: string) {
-  return getOutputId(id).split('?')[0];
-}
-
-function getOutputId(id: string) {
-  return id.replace(/^\0/, '');
+  return id.split('?')[0];
 }
 
 function createSourceFilter(cwd: string, config: Tokenami.Config) {

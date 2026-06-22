@@ -99,7 +99,7 @@ import * as tokenami from '@tokenami/unplugin';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [tokenami.vite({ output: 'styles.css' })],
+  plugins: [tokenami.vite({ output: './src/styles.css' })],
 });
 ```
 
@@ -119,7 +119,7 @@ export const css = createCss(config, { escapeSpecialChars: false });
 Import the configured `output` stylesheet in your app root:
 
 ```ts
-import 'styles.css';
+import './styles.css';
 ```
 
 Only Vite is supported for now. For other bundlers and frameworks, use the CLI setup instead, or feel free to open a GitHub issue if plugin support for another tool is something you need.
