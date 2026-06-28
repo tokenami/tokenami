@@ -1,68 +1,70 @@
+'use client';
+
 import * as React from 'react';
 import { Slider as SliderPrimitive } from '@base-ui-components/react/slider';
-import { css, type TokenamiStyle } from '@/css';
+import { css, type TokenamiStyle } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * Slider
  * -----------------------------------------------------------------------------------------------*/
 
-interface SliderProps extends React.ComponentProps<typeof SliderPrimitive.Root> {}
+export interface SliderProps extends React.ComponentProps<typeof SliderPrimitive.Root> {}
 
-const Slider = (props: SliderProps) => {
+function Slider(props: SliderProps) {
   return <SliderPrimitive.Root {...props} />;
-};
+}
 
 /* -------------------------------------------------------------------------------------------------
  * SliderControl
  * -----------------------------------------------------------------------------------------------*/
 
-interface SliderControlProps
+export interface SliderControlProps
   extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Control>> {}
 
-const SliderControl = (props: SliderControlProps) => {
+function SliderControl(props: SliderControlProps) {
   const [cn, compose] = sliderControl();
   const { className, style, ...rest } = props;
   return <SliderPrimitive.Control {...rest} className={cn()} style={compose(style)} />;
-};
+}
 
 /* -------------------------------------------------------------------------------------------------
  * SliderTrack
  * -----------------------------------------------------------------------------------------------*/
 
-interface SliderTrackProps
+export interface SliderTrackProps
   extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Track>> {}
 
-const SliderTrack = (props: SliderTrackProps) => {
+function SliderTrack(props: SliderTrackProps) {
   const [cn, compose] = sliderTrack();
   const { className, style, ...rest } = props;
   return <SliderPrimitive.Track {...rest} className={cn()} style={compose(style)} />;
-};
+}
 
 /* -------------------------------------------------------------------------------------------------
  * SliderIndicator
  * -----------------------------------------------------------------------------------------------*/
 
-interface SliderIndicatorProps
+export interface SliderIndicatorProps
   extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Indicator>> {}
 
-const SliderIndicator = (props: SliderIndicatorProps) => {
+function SliderIndicator(props: SliderIndicatorProps) {
   const [cn, compose] = sliderIndicator();
   const { className, style, ...rest } = props;
   return <SliderPrimitive.Indicator {...rest} className={cn()} style={compose(style)} />;
-};
+}
 
 /* -------------------------------------------------------------------------------------------------
  * SliderThumb
  * -----------------------------------------------------------------------------------------------*/
 
-interface SliderThumbProps
+export interface SliderThumbProps
   extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Thumb>> {}
 
-const SliderThumb = (props: SliderThumbProps) => {
+function SliderThumb(props: SliderThumbProps) {
   const [cn, compose] = sliderThumb();
   const { className, style, ...rest } = props;
   return <SliderPrimitive.Thumb {...rest} className={cn()} style={compose(style)} />;
-};
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 

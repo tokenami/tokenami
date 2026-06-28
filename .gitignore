@@ -3,8 +3,10 @@ node_modules
 public/styles
 public/build
 **/dist
+**/storylite-dist
 **/bin
 .env
 .nx/cache
 esbuild-why.html
 .turbo
+storylite-dist

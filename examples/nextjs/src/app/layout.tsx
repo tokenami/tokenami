@@ -1,30 +1,22 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import { css } from '@/css';
-import { Icon } from '@/components/icon';
-import { IconButton } from '@/components/icon-button';
-import { Heading } from '@/components/heading';
-import { Frame } from '@/components/frame';
-import { Search } from '@/components/search';
+import {
+  Button,
+  ButtonGroup,
+  AudioPlayer,
+  Frame,
+  Heading,
+  Icon,
+  IconButton,
+  Search,
+  TitleCard,
+  srOnly,
+} from '@tokenami/example-design-system';
 import * as mockLibrary from '@/mock/library';
 import * as LibraryNavigation from '@/components/library-navigation';
-import * as TitleCard from '@/components/title-card';
-import * as Button from '@/components/button';
-import * as ButtonGroup from '@/components/button-group';
-import * as AudioPlayer from '@/components/audio-player';
-import * as cssUtil from '@/css/utils';
 
+import '@tokenami/example-design-system/font.css';
 import './tokenami.css';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -39,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" data-theme="dark">
-      <body className={bodyCn(`${geistSans.variable} ${geistMono.variable}`)}>
+      <body className={bodyCn()}>
         <header className={headerCn()}>
           <Search />
         </header>
@@ -173,9 +165,9 @@ const LibraryCard = ({ title, type, author, color }: LibraryCardProps) => {
       </TitleCard.Title>
       <TitleCard.Description asChild style={{ '--display': 'flex', '--gap': 1 }}>
         <dl>
-          <dt className={cssUtil.srOnly()}>Type</dt>
+          <dt className={srOnly()}>Type</dt>
           <dd>{type}</dd>
-          <dt className={cssUtil.srOnly()}>Author</dt>
+          <dt className={srOnly()}>Author</dt>
           <dd>{author}</dd>
         </dl>
       </TitleCard.Description>

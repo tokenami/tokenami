@@ -7,6 +7,8 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   build: {
+    assetsInlineLimit: 0,
+    outDir: 'storylite-dist',
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
@@ -15,15 +17,8 @@ export default defineConfig({
     },
   },
   plugins: [
-    tokenami.vite({ output: resolve(__dirname, './src/tokenami.css') }),
-    storylitePlugin({
-      stories: 'src/**/*.stories.tsx',
-    }),
+    tokenami.vite({ output: 'src/tokenami.css' }),
+    storylitePlugin({ stories: 'src/**/*.stories.tsx' }),
     react(),
   ],
-  resolve: {
-    alias: {
-      '~': resolve(__dirname, 'src'),
-    },
-  },
 });

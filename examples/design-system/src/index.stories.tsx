@@ -1,4 +1,5 @@
 import { withDefaultConfig } from '../.storylite/with-default-config';
+import { css } from './css';
 
 export default withDefaultConfig({
   title: 'Welcome',
@@ -7,5 +8,11 @@ export default withDefaultConfig({
     order: 0,
     hidden: false,
   },
-  component: () => <div>Welcome to the example Tokenami design system.</div>,
+  component: () => (
+    <div
+      style={css({ '--dark_color': 'var(--color_white)', '--light_color': 'var(--color_black)' })}
+    >
+      Welcome to the example Tokenami design system.
+    </div>
+  ),
 });

@@ -1,34 +1,32 @@
 import * as React from 'react';
-import { type Variants, type TokenamiStyle, css } from '@/css';
+import { type Variants, type TokenamiStyle, css } from '../css';
 import { Icon } from './icon';
 
 /* -------------------------------------------------------------------------------------------------
  * Button
  * -----------------------------------------------------------------------------------------------*/
 
-interface ButtonProps
+export interface ButtonProps
   extends TokenamiStyle<React.ComponentProps<'button'>>,
     Variants<typeof button> {}
 
-const Button = (props: ButtonProps) => {
+function Button(props: ButtonProps) {
   const [cn, css] = button();
   return <button {...props} className={cn(props.className)} style={css(props.style)} />;
-};
-
-Button.displayName = 'Button';
+}
 
 /* -------------------------------------------------------------------------------------------------
  * ButtonIcon
  * -----------------------------------------------------------------------------------------------*/
 
-interface ButtonIconProps
+export interface ButtonIconProps
   extends TokenamiStyle<React.ComponentProps<typeof Icon>>,
     Variants<typeof buttonIcon> {}
 
-const ButtonIcon = (props: ButtonIconProps) => {
+function ButtonIcon(props: ButtonIconProps) {
   const [cn, css] = buttonIcon();
   return <Icon size="md" {...props} className={cn(props.className)} style={css(props.style)} />;
-};
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 

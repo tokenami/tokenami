@@ -1,8 +1,7 @@
 import * as React from 'react';
-import * as mockLibrary from '@/mock/library';
-import { type TokenamiStyle, type Variants, type TokenValue, css } from '@/css';
+import { type TokenamiStyle, type Variants, type TokenValue, css } from '../css';
 
-type Color = (typeof mockLibrary.colors)[number];
+type Color = 'green' | 'sky' | 'orange' | 'yellow' | 'iris' | 'crimson';
 
 const COLORS = {
   green: 'var(--color_green9)',
@@ -17,11 +16,13 @@ const COLORS = {
  * Cover
  * -----------------------------------------------------------------------------------------------*/
 
-interface CoverProps extends TokenamiStyle<React.ComponentProps<'div'>>, Variants<typeof cover> {
+export interface CoverProps
+  extends TokenamiStyle<React.ComponentProps<'div'>>,
+    Variants<typeof cover> {
   color?: Color;
 }
 
-const Cover = ({ color, size = 'md', ...props }: CoverProps) => {
+function Cover({ color, size = 'md', ...props }: CoverProps) {
   const [cn, css] = cover({ size });
   return (
     <div
@@ -30,9 +31,7 @@ const Cover = ({ color, size = 'md', ...props }: CoverProps) => {
       style={css(color && { '--background-color': COLORS[color] }, props.style)}
     />
   );
-};
-
-Cover.displayName = 'Cover';
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 

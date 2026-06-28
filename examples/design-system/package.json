@@ -2,33 +2,61 @@
   "name": "@tokenami/example-design-system",
   "version": "0.0.101",
   "private": true,
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "type": "module",
-  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./config": {
+      "types": "./dist/tokenami.config.d.ts",
+      "import": "./dist/tokenami.config.js",
+      "default": "./dist/tokenami.config.js"
+    },
+    "./font.css": "./dist/font.css",
+    "./tokenami.css": "./dist/tokenami.css"
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup && tokenami --output dist/tokenami.css --minify",
+    "build": "pnpm run build:ds && pnpm run build:assets && pnpm run build:css",
+    "build:ds": "tsup",
+    "build:assets": "pnpm run build:icons && cp src/font.css dist/font.css",
+    "build:css": "tokenami --output dist/tokenami.css --minify",
+    "build:icons": "mkdir -p dist/components/icons && cp src/components/icons/sprite.svg dist/components/icons/sprite.svg && cp src/components/icons/name.d.ts dist/components/icons/name.d.ts",
     "dev": "pnpm run \"/dev:/\"",
     "dev:lib": "tsup --watch",
     "dev:css": "tokenami --output dist/tokenami.css --minify --watch",
     "storylite": "pnpm run \"/storylite:/\"",
+    "storylite:build": "vite build",
     "storylite:app": "vite --port=7007 --host=0.0.0.0",
     "preview": "vite build && vite preview",
+    "icons:add": "pnpx @sly-cli/sly add remixicon",
+    "icons:build": "icons build -i ./svg-icons -o ./src/components/icons --optimize",
     "typecheck": "tokenami check; tsc --noEmit"
   },
   "dependencies": {
+    "@base-ui-components/react": "1.0.0-alpha.7",
+    "@fontsource-variable/geist": "^5.2.9",
+    "@fontsource-variable/geist-mono": "^5.2.8",
+    "@radix-ui/react-slot": "^1.2.4",
     "@tokenami/css": "workspace:*",
     "@tokenami/ds": "workspace:*"
   },
   "devDependencies": {
+    "@sly-cli/sly": "^2.1.1",
     "@storylite/storylite": "^0.14.0",
     "@storylite/vite-plugin": "^0.14.0",
     "@tokenami/unplugin": "workspace:*",
     "@vitejs/plugin-react": "^4.7.0",
+    "svg-icons-cli": "^0.0.8",
     "tokenami": "workspace:*",
     "tsup": "^8.4.0",
     "typescript": "^5.1.3",
@@ -37,8 +65,8 @@
   "peerDependencies": {
     "@types/react": "*",
     "@types/react-dom": "*",
-    "react": "^16.8 || ^17.0 || ^18.0",
-    "react-dom": "^16.8 || ^17.0 || ^18.0"
+    "react": "^19.0",
+    "react-dom": "^19.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {

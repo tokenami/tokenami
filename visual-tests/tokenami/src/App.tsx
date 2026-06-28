@@ -31,12 +31,12 @@ export default function Index() {
         '--child-p_px': 2,
       })}
     >
-      <DS.Button
+      <DS.Button.Root
         data-testid="theme-button"
         onClick={() => setTheme((theme) => (theme === 'light' ? 'dark' : 'light'))}
       >
         Switch theme
-      </DS.Button>
+      </DS.Button.Root>
 
       <div
         style={css({
@@ -161,7 +161,7 @@ export default function Index() {
       >
         Button
       </button>
-      <DS.Button style={{ '--border-color': 'var(---, red)' }}>Button</DS.Button>
+      <DS.Button.Root style={{ '--border-color': 'var(---, red)' }}>Button</DS.Button.Root>
 
       <div style={css({ '--width': 100, '--background': 'var(--color_indigo10)', '--mt': 5 })}>
         <div style={css({ '--width': 'var(--size_half)', '--background': 'var(--color_indigo8)' })}>

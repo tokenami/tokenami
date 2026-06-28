@@ -1,48 +1,43 @@
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import { css, type TokenamiStyle } from '@/css';
-import { Heading } from './heading';
+import { css, type TokenamiStyle } from '../css';
+import { Heading, type HeadingProps } from './heading';
 import { Cover } from './cover';
 
 /* -------------------------------------------------------------------------------------------------
  * TitleCard
  * -----------------------------------------------------------------------------------------------*/
 
-interface TitleCardProps extends TokenamiStyle<React.ComponentProps<'div'>> {
+export interface TitleCardProps extends TokenamiStyle<React.ComponentProps<'div'>> {
   asChild?: boolean;
 }
 
-const TitleCard = ({ asChild = false, ...props }: TitleCardProps) => {
+function TitleCard({ asChild = false, ...props }: TitleCardProps) {
   const Comp = asChild ? Slot : 'div';
   const [cn, css] = titleCard();
   return <Comp {...props} className={cn(props.className)} style={css(props.style)} />;
-};
-
-TitleCard.displayName = 'TitleCard';
+}
 
 /* -------------------------------------------------------------------------------------------------
  * TitleCardGraphic
  * -----------------------------------------------------------------------------------------------*/
 
-interface TitleCardGraphicProps extends React.ComponentProps<typeof Cover> {}
+export interface TitleCardGraphicProps extends React.ComponentProps<typeof Cover> {}
 
-const TitleCardGraphic = (props: TitleCardGraphicProps) => {
+function TitleCardGraphic(props: TitleCardGraphicProps) {
   const [cn, css] = titleCardGraphic();
   return <Cover {...props} className={cn(props.className)} style={css(props.style)} />;
-};
-
-TitleCardGraphic.displayName = 'TitleCardGraphic';
+}
 
 /* -------------------------------------------------------------------------------------------------
  * TitleCardTitle
  * -----------------------------------------------------------------------------------------------*/
 
-type HeadingProps = React.ComponentProps<typeof Heading>;
-interface TitleCardTitleProps extends Omit<HeadingProps, 'level'> {
+export interface TitleCardTitleProps extends Omit<HeadingProps, 'level'> {
   level?: HeadingProps['level'];
 }
 
-const TitleCardTitle = (props: TitleCardTitleProps) => {
+function TitleCardTitle(props: TitleCardTitleProps) {
   const [cn, css] = titleCardTitle();
   return (
     <Heading
@@ -53,25 +48,21 @@ const TitleCardTitle = (props: TitleCardTitleProps) => {
       style={css(props.style)}
     />
   );
-};
-
-TitleCardTitle.displayName = 'TitleCardTitle';
+}
 
 /* -------------------------------------------------------------------------------------------------
  * TitleCardDescription
  * -----------------------------------------------------------------------------------------------*/
 
-interface TitleCardDescriptionProps extends TokenamiStyle<React.ComponentProps<'p'>> {
+export interface TitleCardDescriptionProps extends TokenamiStyle<React.ComponentProps<'p'>> {
   asChild?: boolean;
 }
 
-const TitleCardDescription = ({ asChild = false, ...props }: TitleCardDescriptionProps) => {
+function TitleCardDescription({ asChild = false, ...props }: TitleCardDescriptionProps) {
   const Comp = asChild ? Slot : 'p';
   const [cn, css] = titleCardDescription();
   return <Comp {...props} className={cn(props.className)} style={css(props.style)} />;
-};
-
-TitleCardDescription.displayName = 'TitleCardDescription';
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 

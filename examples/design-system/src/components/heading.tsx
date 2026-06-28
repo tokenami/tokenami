@@ -1,21 +1,20 @@
 import * as React from 'react';
-import { type Variants, type TokenamiStyle, css } from '@/css';
+import { type TokenamiStyle, css } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * Heading
  * -----------------------------------------------------------------------------------------------*/
 
-interface HeadingProps extends TokenamiStyle<React.ComponentProps<'h1'>>, Variants<typeof heading> {
+export interface HeadingProps extends TokenamiStyle<React.ComponentProps<'h1'>> {
   level: 1 | 2 | 3 | 4 | 5 | 6;
+  variant?: 1 | 2 | 3 | 4 | 5 | 6;
 }
 
-const Heading = ({ level = 2, variant = level, ...props }: HeadingProps) => {
+function Heading({ level = 2, variant = level, ...props }: HeadingProps) {
   const [cn, css] = heading({ variant });
   const Comp = `h${level}` as const;
   return <Comp {...props} className={cn(props.className)} style={css(props.style)} />;
-};
-
-Heading.displayName = 'Heading';
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 
