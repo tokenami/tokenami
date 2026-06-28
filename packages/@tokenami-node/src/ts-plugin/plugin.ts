@@ -2,7 +2,6 @@ import ts from 'typescript/lib/tsserverlibrary.js';
 import * as culori from 'culori';
 import * as TokenamiConfig from '@tokenami/config';
 import * as tokenami from '../utils';
-import * as ERROR_CODES from './error-codes';
 import { isColorThemeEntry, isColorValue, replaceCssVarsWithFallback } from './common';
 import { LanguageServiceLogger } from './logger';
 import { TokenamiDiagnostics } from './diagnostics';
@@ -249,47 +248,6 @@ class TokenamiPlugin {
     return { ...original, documentation: [{ text, kind: 'markdown' }] };
   }
 
-  getCodeFixesAtPosition(
-    fileName: string,
-    start: number,
-    end: number,
-    errorCodes: readonly number[],
-    formatOptions: ts.FormatCodeSettings,
-    preferences: ts.UserPreferences
-  ) {
-    const original = this.#ctx.info.languageService.getCodeFixesAtPosition(
-      fileName,
-      start,
-      end,
-      errorCodes,
-      formatOptions,
-      preferences
-    );
-
-    const sourceFile = this.#ctx.info.languageService.getProgram()?.getSourceFile(fileName);
-    if (!sourceFile || !errorCodes.includes(ERROR_CODES.INVALID_VALUE)) return original;
-
-    const node = findNodeAtPosition(sourceFile, start);
-    if (!node?.parent || !ts.isPropertyAssignment(node.parent)) return original;
-
-    const assignment = node.parent;
-    const valueSpan = createTextSpanFromNode(assignment.initializer);
-    const value = ts.isStringLiteral(assignment.initializer) && assignment.initializer.text;
-    if (!value) return original;
-
-    const quoteMark = assignment.initializer.getText().slice(-1);
-    const arbitraryValue = TokenamiConfig.arbitraryValue(value);
-    const arbitraryText = `${quoteMark}${arbitraryValue}${quoteMark}`;
-
-    return [
-      {
-        description: `Use ${arbitraryText} to mark as arbitrary`,
-        fixName: 'replaceWithArbitrary',
-        changes: [{ fileName, textChanges: [{ span: valueSpan, newText: arbitraryText }] }],
-      },
-    ];
-  }
-
   #parseTokenamiCompletionsInput(
     node: ts.Node,
     fileName: string,
@@ -418,14 +376,6 @@ function findNodeAtPosition(sourceFile: ts.SourceFile, position: number) {
     }
   }
   return find(sourceFile);
-}
-
-/* -----------------------------------------------------------------------------------------------
- * createTextSpanFromNode
- * ---------------------------------------------------------------------------------------------*/
-
-function createTextSpanFromNode(node: ts.Node): ts.TextSpan {
-  return { start: node.getStart(), length: node.getEnd() - node.getStart() };
 }
 
 /* -----------------------------------------------------------------------------------------------

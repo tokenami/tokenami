@@ -1,6 +1,7 @@
 import { createConfig } from '@tokenami/css';
 
 export default createConfig({
+  strict: false,
   include: [],
   grid: '0.25rem',
   responsive: {

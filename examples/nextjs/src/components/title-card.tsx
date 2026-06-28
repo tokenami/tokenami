@@ -78,23 +78,23 @@ TitleCardDescription.displayName = 'TitleCardDescription';
 const titleCard = css.compose({
   '--display': 'grid',
   '--grid-template-areas': "'graphic title' 'graphic description'",
-  '--grid-template-columns': 'var(---, auto 1fr)',
-  '--grid-template-rows': 'var(---, auto auto)',
+  '--grid-template-columns': 'auto 1fr',
+  '--grid-template-rows': 'auto auto',
   '--gap-x': 3,
 });
 
 const titleCardGraphic = css.compose({
-  '--grid-area': 'var(---, graphic)',
+  '--grid-area': 'graphic',
 });
 
 const titleCardTitle = css.compose({
-  '--grid-area': 'var(---, title)',
+  '--grid-area': 'title',
 });
 
 const titleCardDescription = css.compose({
   '--font': 'var(--text_xs)',
   '--color': 'var(--color_gray11)',
-  '--grid-area': 'var(---, description)',
+  '--grid-area': 'description',
 });
 
 export {
