@@ -34,9 +34,9 @@ describe('css returned from createCss', () => {
 
       context.output = css(
         {
-          '--color': 'var(---, red)',
-          '--padding': 'var(---, 10px)',
-          '--padding-left': 'var(---, 30px)',
+          '--color': 'red',
+          '--padding': '10px',
+          '--padding-left': '30px',
         },
         ...overrides
       );
@@ -44,8 +44,8 @@ describe('css returned from createCss', () => {
 
     it<TestContext>('should remove base padding styles', (context) => {
       const unexpected = {
-        '--padding': 'var(---, 10px)',
-        '--padding-left': 'var(---, 30px)',
+        '--padding': '10px',
+        '--padding-left': '30px',
       };
       expect(hasSomeStyles(context.output, unexpected)).toBe(false);
     });
@@ -84,9 +84,9 @@ describe('css returned from createCss', () => {
 
         context.outputReorderedAliases = css(
           {
-            '--color': 'var(---, red)',
-            '--padding': 'var(---, 10px)',
-            '--padding-left': 'var(---, 30px)',
+            '--color': 'red',
+            '--padding': '10px',
+            '--padding-left': '30px',
           },
           ...overrides
         );

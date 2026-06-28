@@ -17,8 +17,8 @@ export default function Index() {
         '--min-height': 'var(--size_screen-h)',
         '---radial-gradient': 'radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px)',
         '---grid-bg-size': 'calc(var(--_grid) * 5)',
-        '--background-size': 'var(---,var(---grid-bg-size) var(---grid-bg-size))',
-        '--background-image': 'var(---,var(---radial-gradient))',
+        '--background-size': 'var(---grid-bg-size) var(---grid-bg-size)',
+        '--background-image': 'var(---radial-gradient)',
         '--background-color': 'var(--color_indigo6)',
         '--background-position-x': 1,
         '--background-position-y': 0.5,
@@ -45,7 +45,7 @@ export default function Index() {
           '--padding': 5,
           '--m': 2,
           '--color': 'var(--color_white)',
-          '--before_content': 'var(---, "")',
+          '--before_content': '""',
           '--before_inset': 0,
           '--before_z-index': -1,
           '--before_position': 'absolute',
@@ -74,7 +74,7 @@ export default function Index() {
           '--font-family': 'var(--font_sans)',
           '--line-height': 'var(--leading_loose)',
           '--after_content': 'var(--pet_favourite)',
-          '--md_after_content': 'var(---, "🐠")',
+          '--md_after_content': '"🐠"',
         })}
       >
         <QuoteImage />
@@ -142,8 +142,8 @@ export default function Index() {
       <button
         data-testid="hover-button"
         style={css({
-          '--border-block-end': 'var(---, 1px solid var(--color_amber12))',
-          '--width': 'var(---,180px)',
+          '--border-block-end': ' 1px solid var(--color_amber12)',
+          '--width': '180px',
           '--height': 15,
           '--border-radius': 'var(--radii_3xl)',
           '--border': 'var(--line_0)',
@@ -152,7 +152,7 @@ export default function Index() {
           '--xxl_font-size': 'var(--text-size_4xl)',
           '--bg': 'var(--color_amber9)',
           '--hover_background-color': 'var(--color_amber12)',
-          '--hover_color': 'var(---,white)',
+          '--hover_color': 'white',
           '--transition': 'var(--morph_all)',
           '--hover_animation': 'var(--anim_pulse)',
           '--{&:focus:hover}_background-color': 'var(--color_indigo10)',
@@ -161,7 +161,7 @@ export default function Index() {
       >
         Button
       </button>
-      <DS.Button style={{ '--border-color': 'var(---, red)' }}>Button</DS.Button>
+      <DS.Button style={{ '--border-color': 'red' }}>Button</DS.Button>
 
       <div style={css({ '--width': 100, '--background': 'var(--color_indigo10)', '--mt': 5 })}>
         <div style={css({ '--width': 'var(--size_half)', '--background': 'var(--color_indigo8)' })}>
@@ -209,7 +209,7 @@ const quoteImage = css.compose({
     },
     md_variant: {
       fill: {
-        '--md_width': 'var(---,11rem)',
+        '--md_width': '11rem',
         '--md_height': 'var(--size_auto)',
         '--md_border-radius': 'var(--radii_none)',
       },

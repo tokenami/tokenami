@@ -8,10 +8,15 @@ type Merge<A, B> = B extends never ? A : Omit<A, keyof B> & B;
 interface TokenamiConfig {}
 interface TokenamiFinalConfig extends Merge<Tokenami.Config, TokenamiConfig> {}
 
+type StrictMode = TokenamiFinalConfig['strict'] extends true ? true : false;
 type ThemeConfig = TokenamiFinalConfig['theme'];
-type AliasConfig = Omit<NonNullable<TokenamiFinalConfig['aliases']>, Tokenami.CSSProperty>;
-type NativePropertyConfig = NonNullable<TokenamiFinalConfig['properties']>;
-type CustomPropertyConfig = NonNullable<TokenamiFinalConfig['customProperties']>;
+type ConfigProperty<K extends keyof Tokenami.Config> = K extends keyof TokenamiConfig
+  ? NonNullable<TokenamiConfig[K]>
+  : {};
+
+type AliasConfig = Omit<ConfigProperty<'aliases'>, Tokenami.CSSProperty>;
+type NativePropertyConfig = ConfigProperty<'properties'>;
+type CustomPropertyConfig = ConfigProperty<'customProperties'>;
 type ExperimentalProperty = Exclude<keyof NativePropertyConfig, keyof SupportedTokenPropertiesMap>;
 type PropertyConfig = NativePropertyConfig & CustomPropertyConfig;
 type AliasedProperties = keyof AliasConfig;
@@ -45,9 +50,17 @@ type AliasedProperty<P extends string> = P extends keyof AliasedPropertiesMap
 
 type PropertyThemeValue<P extends string> = P extends keyof PropertyConfig
   ? NonNullable<PropertyConfig[P]>[number] extends `${infer ThemeKey}`
-    ? Tokenami.ArbitraryValue | CSS.Globals | TokenValue<ThemeKey>
+    ? StrictMode extends false
+      ? Token<ThemeKey> | CSSValue<P>
+      : Token<ThemeKey>
     : never
-  : P extends keyof Tokenami.CSSProperties ? Tokenami.CSSProperties[P] : never;
+  : CSSValue<P>;
+
+type Token<ThemeKey extends string> = TokenValue<ThemeKey> | CSS.Globals;
+
+type CSSValue<P extends string> = P extends keyof Tokenami.CSSProperties
+  ? Tokenami.CSSProperties[P]
+  : never;
 
 type TokenValue<ThemeKey extends string> =
   | (ThemeKey extends keyof TokensByThemeKey ? TokensByThemeKey[ThemeKey] : never)

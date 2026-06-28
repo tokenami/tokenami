@@ -37,10 +37,10 @@ export default async function LibraryItemPage({ params }: { params: Promise<{ id
         <div
           style={css({
             '--display': 'grid',
-            '--grid-template-columns': 'var(---, 1fr)',
-            '--grid-template-rows': 'var(---, min-content min-content)',
-            '--grid-template-areas': 'var(---, "type" "title")',
-            '--mt': 'var(---, auto)',
+            '--grid-template-columns': '1fr',
+            '--grid-template-rows': 'min-content min-content',
+            '--grid-template-areas': '"type" "title"',
+            '--mt': 'auto',
             '--gap': 1,
           })}
         >
@@ -53,7 +53,7 @@ export default async function LibraryItemPage({ params }: { params: Promise<{ id
               '--font-size': 'var(--text-size_7xl)',
               '--font-weight': 'var(--weight_extrabold)',
               '--line-height': 'var(--leading_none)',
-              '--grid-area': 'var(---, title)',
+              '--grid-area': 'title',
             }}
           >
             {item.title}
@@ -61,7 +61,7 @@ export default async function LibraryItemPage({ params }: { params: Promise<{ id
 
           <p
             style={css({
-              '--grid-area': 'var(---, type)',
+              '--grid-area': 'type',
               '--font-weight': 'var(--weight_normal)',
             })}
           >
@@ -86,9 +86,9 @@ export default async function LibraryItemPage({ params }: { params: Promise<{ id
           icon="play-large-fill"
           size="2xl"
           style={{
-            '--background-color': 'var(---, #65D368)',
+            '--background-color': '#65D368',
             '--color': 'var(--color_black)',
-            '--hover_background-color': 'var(---, #7DED80)',
+            '--hover_background-color': '#7DED80',
             '--hover_color': 'var(--color_black)',
             '--transition': 'var(--morph_colors)',
           }}

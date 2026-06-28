@@ -36,7 +36,7 @@ const button = css.compose({
 
   '--hover_background-color': 'var(--color_violet10)',
   '--hover_animation': 'var(--anim_wiggle)',
-  '--{&:focus:hover}_background-color': 'var(---, red)',
+  '--{&:focus:hover}_background-color': 'red',
 
   variants: {
     size: {
