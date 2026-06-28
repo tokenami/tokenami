@@ -352,13 +352,20 @@ your config.
 
 ### Arbitrary values
 
-You can avoid TypeScript errors for one-off inline values by using a triple-dash fallback.
+You can use one-off inline CSS values anywhere you need to step outside your theme.
 
 ```tsx
-<div style={css({ '--padding': 'var(---, 20px)' })} />
+<div style={css({ '--padding': '20px' })} />
 ```
 
-This prevents TypeScript errors and sets padding to `20px`. Tokenami intentionally adds friction to the developer experience here. This is to encourage sticking to your theme guidelines and to help you quickly spot values in your code that don't.
+If you want TypeScript to prevent arbitrary values for properties configured in your design system, enable strict mode:
+
+```ts
+export default createConfig({
+  strict: true,
+  // ...
+});
+```
 
 ## Styling
 

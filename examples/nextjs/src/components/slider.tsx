@@ -102,7 +102,7 @@ const sliderThumb = css.compose({
   '--outline': 'var(--line_px)',
   '--outline-color': 'var(--color_gray8)',
   '--hover_outline-color': 'var(--color_white)',
-  '--top': 'var(---,-0.25rem)',
+  '--top': '-0.25rem',
   '--transition': 'var(--morph_colors)',
 });
 

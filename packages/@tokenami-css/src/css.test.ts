@@ -34,11 +34,11 @@ describe('css utility', () => {
 
   describe('when called with a non-numeric override', () => {
     beforeEach<TestContext>((context) => {
-      context.output = css({ '--padding': 20 }, { '--padding': 'var(---, 30px)' });
+      context.output = css({ '--padding': 20 }, { '--padding': '30px' });
     });
 
     it<TestContext>('should replace the numeric calculation', (context) => {
-      expect(context.output).toEqual({ '--padding': 'var(---, 30px)' });
+      expect(context.output).toEqual({ '--padding': '30px' });
     });
   });
 
