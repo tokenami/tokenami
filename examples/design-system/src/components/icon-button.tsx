@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Icon } from './icon';
-import { css, type TokenamiStyle, type Variants } from '@/css';
-import * as cssUtil from '@/css/utils';
+import { css, type TokenamiStyle, type Variants } from '../css';
+import * as cssUtil from '../utils';
 
 /* -------------------------------------------------------------------------------------------------
  * IconButton
  * -----------------------------------------------------------------------------------------------*/
 
-interface IconButtonProps
+export interface IconButtonProps
   extends TokenamiStyle<React.ComponentProps<'button'>>,
     Variants<typeof iconButton> {
   icon: React.ComponentProps<typeof Icon>['name'];

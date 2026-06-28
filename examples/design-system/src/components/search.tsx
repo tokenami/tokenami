@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { type TokenamiStyle, css } from '@/css';
-import { Icon } from '@/components/icon';
+import { type TokenamiStyle, css } from '../css';
+import { Icon } from './icon';
 
 /* -------------------------------------------------------------------------------------------------
  * Search
  * -----------------------------------------------------------------------------------------------*/
 
-const Search = (props: TokenamiStyle<React.ComponentProps<'input'>>) => {
+function Search(props: TokenamiStyle<React.ComponentProps<'input'>>) {
   const [formCn, formCss] = searchForm();
   const [inputCn, inputCss] = searchInput();
   return (
@@ -29,7 +29,7 @@ const Search = (props: TokenamiStyle<React.ComponentProps<'input'>>) => {
       />
     </form>
   );
-};
+}
 
 const searchForm = css.compose({
   '--display': 'flex',

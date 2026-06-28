@@ -1,22 +1,23 @@
 import { withDefaultConfig } from '../../.storylite/with-default-config';
-import { Button } from './button';
+import { Search } from './search';
 
-const story = withDefaultConfig<typeof Button>({
-  title: 'Button',
-  component: Button,
+const story = withDefaultConfig<typeof Search>({
+  title: 'Search',
+  component: Search,
 });
 
 export const DefaultStory: typeof story = {
   name: 'Default',
   args: {
-    children: 'Boop',
+    'aria-label': 'Search library',
   },
 };
 
-export const LargeStory: typeof story = {
+export const WithValueStory: typeof story = {
+  name: 'With value',
   args: {
-    size: 'large',
-    children: 'Boop',
+    'aria-label': 'Search library',
+    defaultValue: 'Dream pop',
   },
 };
 

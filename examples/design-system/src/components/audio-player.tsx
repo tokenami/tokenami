@@ -2,42 +2,42 @@
 
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import { css, type TokenamiStyle } from '@/css';
-import { Icon } from '@/components/icon';
-import { IconButton } from '@/components/icon-button';
-import * as Slider from '@/components/slider';
+import { css, type TokenamiStyle } from '../css';
+import { Icon } from './icon';
+import { IconButton } from './icon-button';
+import * as Slider from './slider';
 
 /* -------------------------------------------------------------------------------------------------
  * AudioPlayer
  * -----------------------------------------------------------------------------------------------*/
 
-interface AudioPlayerProps extends React.ComponentProps<'div'> {
+export interface AudioPlayerProps extends React.ComponentProps<'div'> {
   asChild?: boolean;
 }
 
-const AudioPlayer = ({ asChild = false, ...props }: AudioPlayerProps) => {
+function AudioPlayer({ asChild = false, ...props }: AudioPlayerProps) {
   const Comp = asChild ? Slot : 'div';
   return <Comp {...props} />;
-};
+}
 
 /* -------------------------------------------------------------------------------------------------
  * AudioPlayerPlayer
  * -----------------------------------------------------------------------------------------------*/
 
-interface AudioPlayerPlayerProps extends TokenamiStyle<React.ComponentProps<'div'>> {}
+export interface AudioPlayerPlayerProps extends TokenamiStyle<React.ComponentProps<'div'>> {}
 
-const AudioPlayerPlayer = (props: AudioPlayerPlayerProps) => {
+function AudioPlayerPlayer(props: AudioPlayerPlayerProps) {
   const [cn, compose] = audioPlayerPlayer();
   return <div {...props} className={cn(props.className)} style={compose(props.style)} />;
-};
+}
 
 /* -------------------------------------------------------------------------------------------------
  * AudioPlayerControls
  * -----------------------------------------------------------------------------------------------*/
 
-interface AudioPlayerControlsProps extends TokenamiStyle<React.ComponentProps<'div'>> {}
+export interface AudioPlayerControlsProps extends TokenamiStyle<React.ComponentProps<'div'>> {}
 
-const AudioPlayerControls = (props: AudioPlayerControlsProps) => {
+function AudioPlayerControls(props: AudioPlayerControlsProps) {
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [cn, compose] = audioPlayerControls();
 
@@ -70,15 +70,15 @@ const AudioPlayerControls = (props: AudioPlayerControlsProps) => {
       </IconButton>
     </div>
   );
-};
+}
 
 /* -------------------------------------------------------------------------------------------------
  * AudioPlayerScrubber
  * -----------------------------------------------------------------------------------------------*/
 
-interface AudioPlayerScrubberProps extends TokenamiStyle<React.ComponentProps<'div'>> {}
+export interface AudioPlayerScrubberProps extends TokenamiStyle<React.ComponentProps<'div'>> {}
 
-const AudioPlayerScrubber = (props: AudioPlayerScrubberProps) => {
+function AudioPlayerScrubber(props: AudioPlayerScrubberProps) {
   const [value, setValue] = React.useState(149);
   const [cn, compose] = audioPlayerScrubber();
   const [timestampCn] = audioPlayerTimestamp();
@@ -104,15 +104,15 @@ const AudioPlayerScrubber = (props: AudioPlayerScrubberProps) => {
       <time className={timestampCn()}>{formatTime(duration)}</time>
     </div>
   );
-};
+}
 
 /* -------------------------------------------------------------------------------------------------
  * AudioPlayerVolume
  * -----------------------------------------------------------------------------------------------*/
 
-interface AudioPlayerVolumeProps extends TokenamiStyle<React.ComponentProps<'div'>> {}
+export interface AudioPlayerVolumeProps extends TokenamiStyle<React.ComponentProps<'div'>> {}
 
-const AudioPlayerVolume = (props: AudioPlayerVolumeProps) => {
+function AudioPlayerVolume(props: AudioPlayerVolumeProps) {
   const [volume, setVolume] = React.useState(70);
   const [cn, compose] = audioPlayerVolume();
 
@@ -140,7 +140,7 @@ const AudioPlayerVolume = (props: AudioPlayerVolumeProps) => {
       </Slider.Root>
     </div>
   );
-};
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 

@@ -12,16 +12,12 @@
     "build:css": "tokenami --output ./src/app/tokenami.css",
     "start": "next start",
     "lint": "next lint",
-    "icons:add": "pnpx @sly-cli/sly add remixicon",
-    "icons:build": "icons build -i ./svg-icons -o ./src/components/icons --optimize",
     "typecheck": "tokenami check; tsc --noEmit"
   },
   "dependencies": {
-    "@base-ui-components/react": "1.0.0-alpha.7",
-    "@radix-ui/react-slot": "^1.2.4",
-    "@sly-cli/sly": "^2.1.1",
     "@tokenami/css": "workspace:*",
     "@tokenami/ds": "workspace:*",
+    "@tokenami/example-design-system": "workspace:*",
     "next": "15.5.18",
     "react": "19.1.1",
     "react-dom": "19.1.1"
@@ -30,7 +26,6 @@
     "@types/node": "^20",
     "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
-    "svg-icons-cli": "^0.0.8",
     "tokenami": "workspace:*",
     "typescript": "^5"
   },

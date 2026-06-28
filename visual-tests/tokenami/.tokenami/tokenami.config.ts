@@ -1,4 +1,4 @@
-import designSystem from '@tokenami/example-design-system';
+import designSystem from '@tokenami/example-design-system/config';
 import { createConfig } from '@tokenami/css';
 
 export default createConfig({

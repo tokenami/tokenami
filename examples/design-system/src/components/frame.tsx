@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import * as mockLibrary from '@/mock/library';
-import { css, type TokenamiStyle, type TokenValue } from '@/css';
+import { css, type TokenamiStyle, type TokenValue } from '../css';
 
-type Color = (typeof mockLibrary.colors)[number];
+type Color = 'green' | 'sky' | 'orange' | 'yellow' | 'iris' | 'crimson';
 
 const COLORS = {
   green: 'var(--color_green8)',
@@ -18,12 +17,12 @@ const COLORS = {
  * Frame
  * -----------------------------------------------------------------------------------------------*/
 
-interface FrameProps extends TokenamiStyle<React.ComponentProps<'div'>> {
+export interface FrameProps extends TokenamiStyle<React.ComponentProps<'div'>> {
   asChild?: boolean;
   color?: Color;
 }
 
-const Frame = ({ asChild = false, color, ...props }: FrameProps) => {
+function Frame({ asChild = false, color, ...props }: FrameProps) {
   const Comp = asChild ? Slot : 'div';
   const [cn, css] = frame();
   return (
@@ -33,9 +32,7 @@ const Frame = ({ asChild = false, color, ...props }: FrameProps) => {
       style={css(color && { '--gradient-from': COLORS[color] }, props.style)}
     />
   );
-};
-
-Frame.displayName = 'Frame';
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 

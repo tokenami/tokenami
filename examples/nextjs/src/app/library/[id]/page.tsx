@@ -1,14 +1,16 @@
 import { notFound } from 'next/navigation';
-import { Frame } from '@/components/frame';
 import * as mockLibrary from '@/mock/library';
-import { Cover } from '@/components/cover';
 import { TokenamiStyle, css } from '@/css';
-import * as cssUtil from '@/css/utils';
-import { Heading } from '@/components/heading';
-import { IconButton } from '@/components/icon-button';
-import * as TitleCard from '@/components/title-card';
-import { Icon } from '@/components/icon';
-import * as ButtonGroup from '@/components/button-group';
+import {
+  ButtonGroup,
+  Cover,
+  Frame,
+  Heading,
+  Icon,
+  IconButton,
+  TitleCard,
+  srOnly,
+} from '@tokenami/example-design-system';
 
 export default async function LibraryItemPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -123,7 +125,7 @@ export default async function LibraryItemPage({ params }: { params: Promise<{ id
               <TableHead>Date added</TableHead>
               <TableHead>
                 <Icon name="time-line" role="presentation" />
-                <span className={cssUtil.srOnly()}>Duration</span>
+                <span className={srOnly()}>Duration</span>
               </TableHead>
             </TableRow>
           </TableHeader>

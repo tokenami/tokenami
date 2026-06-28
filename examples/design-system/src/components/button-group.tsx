@@ -1,15 +1,15 @@
 import * as React from 'react';
-import * as Button from '@/components/button';
-import { css, type TokenamiStyle } from '@/css';
+import * as Button from './button';
+import { css, type TokenamiStyle } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * ButtonGroup
  * -----------------------------------------------------------------------------------------------*/
 
-const ButtonGroup = (props: TokenamiStyle<React.ComponentProps<'div'>>) => {
+function ButtonGroup(props: TokenamiStyle<React.ComponentProps<'div'>>) {
   const [cn, css] = buttonGroup();
   return <div {...props} className={cn(props.className)} style={css(props.style)} />;
-};
+}
 
 const buttonGroup = css.compose({
   '--display': 'flex',

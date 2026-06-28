@@ -1,17 +1,19 @@
 import * as React from 'react';
 import { type IconName } from './icons/name';
 import spriteHref from './icons/sprite.svg';
-import { type TokenamiStyle, css, type Variants } from '@/css';
+import { type TokenamiStyle, css, type Variants } from '../css';
 
 /* -------------------------------------------------------------------------------------------------
  * Icon
  * -----------------------------------------------------------------------------------------------*/
 
-interface IconProps extends TokenamiStyle<React.ComponentProps<'svg'>>, Variants<typeof icon> {
+export interface IconProps
+  extends TokenamiStyle<React.ComponentProps<'svg'>>,
+    Variants<typeof icon> {
   name: IconName;
 }
 
-const Icon = ({ name, size, ...props }: IconProps) => {
+function Icon({ name, size, ...props }: IconProps) {
   const [cn, css] = icon({ size });
   const href = typeof spriteHref === 'string' ? spriteHref : spriteHref.src;
   return (
@@ -19,9 +21,7 @@ const Icon = ({ name, size, ...props }: IconProps) => {
       <use href={`${href}#${name}`} />
     </svg>
   );
-};
-
-Icon.displayName = 'Icon';
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 
