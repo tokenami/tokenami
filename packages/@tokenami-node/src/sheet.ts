@@ -305,11 +305,9 @@ class Sheet {
     const selectors = [selector].flat();
     const elementSelector = selectors.at(-1)!;
     const parentSelectors = selectors.slice(0, -1);
-    const elementThemeStyles = this.#getElementThemeStyles(
-      styleSelector,
-      elementSelector,
-      customPropertyThemeValues
-    );
+    const elementThemeStyles = customPropertyThemeKeys.length
+      ? this.#getScopedThemeStyles(styleSelector, elementSelector, customPropertyThemeValues)
+      : '';
 
     for (const customKey of customPropertyThemeKeys) {
       delete themeValues[customKey];
@@ -355,15 +353,15 @@ class Sheet {
     });
   }
 
-  #getElementThemeStyles(
+  #getScopedThemeStyles(
     styleSelector: string | string[],
     selector: string,
     themeValues: Record<string, string>
   ) {
-    const splitGroups = selector.split(',');
-    const themeStyles = splitGroups.map((selector) => {
-      const elemSelector = [styleSelector].flat().map((s) => `${selector} ${s}`);
-      return `${selector}, ${elemSelector} { ${stringify(themeValues)} }`;
+    const styleSelectors = [styleSelector].flat().join(', ');
+    const themeStyles = selector.split(',').map((selector) => {
+      selector = selector.trim();
+      return `${selector}, ${selector} :where(${styleSelectors}) { ${stringify(themeValues)} }`;
     });
     return themeStyles.join(' ');
   }

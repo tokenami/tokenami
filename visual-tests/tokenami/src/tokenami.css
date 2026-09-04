@@ -215,7 +215,7 @@
     --weight_medium: 500;
   }
 
-  :root, :root [style], :root .tk-utbdlz, :root [style*="selection_"], :root [style] > p, :root [style] p, :root [style] .card, :root .tk-erz9s7, :root .tk-rychtn {
+  :root, :root :where([style], .tk-utbdlz, [style*="selection_"], [style] > p, [style] p, [style] .card, .tk-erz9s7, .tk-rychtn) {
     --gradient_to-b: linear-gradient(to bottom in var(--_color-space, srgb), var(--_gradient-from) var(--_gradient-from-stop, ), var(---via, var(--_gradient-to) var(--_gradient-to-stop, )));
     ---via: var(--_gradient-via) var(--_gradient-via-stop, ), var(--_gradient-to);
     --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
