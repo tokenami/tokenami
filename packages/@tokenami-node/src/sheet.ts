@@ -21,7 +21,6 @@ type PropertyConfig = ReturnType<typeof Tokenami.getTokenPropertyParts> & {
   tokenProperty: Tokenami.TokenProperty;
   layer: string;
   isCustom: boolean;
-  isGrid: boolean;
 };
 
 type CreateSheetParams = {
@@ -41,6 +40,11 @@ function createSheet(params: CreateSheetParams): string {
   const propertyConfigsByCSSProperty = getPropertyConfigs(params.tokens.properties, params.config);
 
   for (const [cssProperty, propertyConfigs] of propertyConfigsByCSSProperty) {
+    if (isGridProperty(cssProperty, params.config)) {
+      const baseProperty = Tokenami.parsedTokenProperty(cssProperty);
+      sheet.gridProperties.add(Tokenami.calcProperty(baseProperty));
+    }
+
     const isInheritable = Supports.inheritedProperties.has(cssProperty);
     const elementConfigs = propertyConfigs.filter((c) => {
       const selectorConfig = getSelectorFromConfig(c.selector, params.config);
@@ -49,8 +53,6 @@ function createSheet(params: CreateSheetParams): string {
 
     for (const prop of propertyConfigs) {
       const baseProperty = prop.isCustom ? CUSTOM_PROP_PREFIX + cssProperty : cssProperty;
-      const gridProperty = hashVariantProperty('grid', prop.tokenProperty);
-      const gridToggleValue = createGridToggleValue(prop.tokenProperty);
       const selectorConfig = getSelectorFromConfig(prop.selector, params.config);
       const parsedSelectors = getPropertySelectors(composeBlocks, prop, selectorConfig);
       const configs = selectorConfig.some(isPseudoElementSelector)
@@ -61,7 +63,6 @@ function createSheet(params: CreateSheetParams): string {
 
       if (!isInheritable && !selectorConfig.some(isChildSelector)) {
         sheet.addReset(prop.tokenProperty);
-        if (prop.isGrid) sheet.addReset(Tokenami.calcProperty(prop.tokenProperty));
       }
 
       if (prop.variant) {
@@ -69,9 +70,7 @@ function createSheet(params: CreateSheetParams): string {
         const hashedProperty = hashVariantProperty(prop.variant, cssProperty);
         const toggleProperty = Tokenami.parsedTokenProperty(prop.variant);
         const variantValue = createVariantValue(cssProperty, prop, configs);
-        const variantToggleValue = prop.isGrid
-          ? createGridVariantToggleValue(toggleProperty, prop.tokenProperty)
-          : createVariantToggleValue(toggleProperty, prop.tokenProperty);
+        const variantToggleValue = createVariantToggleValue(toggleProperty, prop.tokenProperty);
 
         sheet.addReset(toggleProperty);
         sheet.addReset(hashedProperty);
@@ -85,20 +84,12 @@ function createSheet(params: CreateSheetParams): string {
           const baseSelector = prop.isCustom ? pseudoOwnerSelector : selector;
           sheet.addDeclaration(prop.layer, baseSelector, baseProperty, variantValue);
           sheet.addDeclaration(prop.layer, pseudoOwnerSelector, hashedProperty, variantToggleValue);
-          if (prop.isGrid) {
-            sheet.addDeclaration(prop.layer, pseudoOwnerSelector, gridProperty, gridToggleValue);
-          }
         }
       } else {
-        const propertyValue = prop.isGrid
-          ? createGridPropertyValue(prop.tokenProperty, 'revert-layer')
-          : createBasePropertyValue(prop.tokenProperty, 'revert-layer');
+        const propertyValue = createBasePropertyValue(prop.tokenProperty, 'revert-layer');
 
         for (const selector of parsedSelectors.elements) {
           sheet.addDeclaration(prop.layer, selector, baseProperty, propertyValue);
-          if (prop.isGrid) {
-            sheet.addDeclaration(prop.layer, selector, gridProperty, gridToggleValue);
-          }
         }
       }
     }
@@ -126,6 +117,7 @@ class Sheet {
   tokenValues: Tokenami.TokenValue[];
   themeTokenSelectors: string[] = [];
   reset = new Set<string>();
+  gridProperties = new Set<Tokenami.TokenProperty>();
   toggles: Record<string, Set<string>> = {};
   layers: Record<string, Record<string, Set<string>>> = {};
 
@@ -289,9 +281,13 @@ class Sheet {
 
   #getGridStyles() {
     const rootSelector = this.config.themeSelector('root');
-    return this.config.grid
-      ? `${rootSelector} { ${Tokenami.gridProperty()}: ${this.config.grid}; }`
-      : '';
+    const gridProperty = Tokenami.gridProperty();
+    const declarations = Array.from(
+      this.gridProperties,
+      (property) => `${property}: var(${gridProperty});`
+    );
+    if (this.config.grid) declarations.unshift(`${gridProperty}: ${this.config.grid};`);
+    return declarations.length ? `${rootSelector} { ${declarations.join(' ')} }` : '';
   }
 
   #getThemeStyles(
@@ -403,22 +399,15 @@ function parseComposeBlocks(composeBlocks: ComposeBlocks, config: Tokenami.Confi
       for (const cssProperty of propertyConfig.cssProperties) {
         const longProperty = Tokenami.createLonghandProperty(tokenProperty, cssProperty);
         const parsedProperty = Tokenami.parseProperty(longProperty);
-        const calcToggle = Tokenami.calcProperty(parsedProperty);
 
         if (shouldUseBaseProperty) {
-          const isGrid = isGridProperty(cssProperty, config);
-          let propertyValue = createBasePropertyValue(parsedProperty, value);
-
-          if (isGrid) {
-            const hashGridProperty = hashVariantProperty('grid', parsedProperty);
-            propertyValue = createGridPropertyValue(parsedProperty, value);
-            styles[hashGridProperty] = createGridToggleValue(parsedProperty);
-          }
-
-          styles[cssProperty] = propertyValue;
+          styles[cssProperty] = createBasePropertyValue(parsedProperty, value);
         } else {
-          styles[parsedProperty as keyof TokenamiProperties] = value;
-          if (propertyConfig.isCalc) (styles as any)[calcToggle] = '/**/';
+          const baseProperty = Tokenami.parsedTokenProperty(cssProperty);
+          styles[parsedProperty as keyof TokenamiProperties] = Tokenami.parseValue(
+            value,
+            baseProperty
+          );
         }
       }
     }
@@ -494,16 +483,6 @@ function createBasePropertyValue(property: string, fallback?: string) {
 }
 
 /* -------------------------------------------------------------------------------------------------
- * createGridPropertyValue
- * -----------------------------------------------------------------------------------------------*/
-
-function createGridPropertyValue(property: string, fallback?: string) {
-  const hashGridProperty = hashVariantProperty('grid', property);
-  const baseProperty = createBasePropertyValue(property, fallback);
-  return `var(${hashGridProperty}, ${baseProperty})`;
-}
-
-/* -------------------------------------------------------------------------------------------------
  * createVariantValue
  * -----------------------------------------------------------------------------------------------*/
 
@@ -531,30 +510,11 @@ function createVariantValue(
 }
 
 /* -------------------------------------------------------------------------------------------------
- * createGridToggleValue
- * -----------------------------------------------------------------------------------------------*/
-
-function createGridToggleValue(property: string) {
-  const gridProperty = Tokenami.gridProperty();
-  const gridToggleProperty = Tokenami.calcProperty(property);
-  return `var(${gridToggleProperty}) calc(var(${property}) * var(${gridProperty}))`;
-}
-
-/* -------------------------------------------------------------------------------------------------
  * createVariantToggleValue
  * -----------------------------------------------------------------------------------------------*/
 
 function createVariantToggleValue(toggleProperty: string, tokenProperty: string) {
   const basePropertyValue = createBasePropertyValue(tokenProperty);
-  return `var(${toggleProperty}) ${basePropertyValue};`;
-}
-
-/* -------------------------------------------------------------------------------------------------
- * createGridVariantToggleValue
- * -----------------------------------------------------------------------------------------------*/
-
-function createGridVariantToggleValue(toggleProperty: string, tokenProperty: string) {
-  const basePropertyValue = createGridPropertyValue(tokenProperty);
   return `var(${toggleProperty}) ${basePropertyValue};`;
 }
 
@@ -587,13 +547,12 @@ function getPropertyConfigs(
       const currentConfigs = propertyConfigs.get(cssProperty as any) || [];
       const customConfig = config.customProperties?.[cssProperty];
       const isLogical = Supports.supportedLogicalProperties.has(cssProperty as any);
-      const isGrid = isGridProperty(cssProperty, config);
       const isCustom = Boolean(customConfig);
       const layer = parts.variant
         ? `${isLogical ? LAYERS.SELECTORS_LOGICAL : LAYERS.SELECTORS}${layerIndex}`
         : `${isLogical ? LAYERS.LOGICAL : LAYERS.BASE}${layerIndex}`;
 
-      const nextConfig = { ...parts, tokenProperty, order, layer, isCustom, isGrid };
+      const nextConfig = { ...parts, tokenProperty, order, layer, isCustom };
       const sortedConfigs = [...currentConfigs, nextConfig].sort((a, b) => a.order - b.order);
 
       propertyConfigs.set(cssProperty, sortedConfigs);

@@ -1,6 +1,6 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import { generateClassName } from '@tokenami/config';
-import { css } from './css';
+import { createCss, css } from './css';
 import { hasStyles, hasSomeStyles } from './test-utils';
 
 /* -------------------------------------------------------------------------------------------------
@@ -17,7 +17,8 @@ const baseStyles = Object.freeze({
 
 const baseStylesOutput = Object.freeze({
   ...baseStyles,
-  '--md_padding__calc': '/*on*/',
+  '--md_padding': 'calc(2 * var(--padding__calc, 1))',
+  '--margin-left': 'calc(2 * var(--margin-left__calc, 1))',
 }) as {};
 
 const disabledStyles = Object.freeze({
@@ -157,7 +158,7 @@ describe('css compose', () => {
       const unexpected = {
         '--border-color': 'lightgray',
         '--font-family': 'serif',
-        '--padding-left': 10,
+        '--padding-left': 'calc(10 * var(--padding-left__calc, 1))',
       };
       expect(hasSomeStyles(context.output, unexpected)).toBe(false);
     });
@@ -165,8 +166,7 @@ describe('css compose', () => {
     it<TestContext>('should add shorthand styles', (context) => {
       const expected = {
         '--font': 'arial',
-        '--padding': 30,
-        '--padding__calc': '/*on*/',
+        '--padding': 'calc(30 * var(--padding__calc, 1))',
         '--border': '1px dashed',
       };
       expect(hasStyles(context.output, expected)).toBe(true);
@@ -196,7 +196,6 @@ describe('css compose', () => {
         '--border': '5px solid',
         '--border-color': 'green',
         '--margin-left': 'initial',
-        '--margin-left__calc': 'initial',
       });
     });
 
@@ -238,8 +237,85 @@ describe('css compose', () => {
       // should not reuse icon cache
       const output2 = css({}, style2());
 
-      expect(output1).toEqual({ '--size': 3, '--size__calc': '/*on*/' });
-      expect(output2).toEqual({ '--size': 5, '--size__calc': '/*on*/' });
+      expect(output1).toEqual({ '--size': 'calc(3 * var(--size__calc, 1))' });
+      expect(output2).toEqual({ '--size': 'calc(5 * var(--size__calc, 1))' });
+    });
+  });
+
+  it('should use the app escape configuration for an existing library composition', () => {
+    const localCss = createCss({}, { escapeSpecialChars: true });
+    const component = localCss.compose({
+      variants: {
+        active: {
+          true: { '--{&:hover}_color': 'red' } as any,
+        },
+      },
+    } as {});
+    const [, style] = component({ active: true });
+
+    createCss({}, { escapeSpecialChars: false });
+    expect(style()).toEqual({ '--{&;hover}_color': 'red' });
+
+    createCss({}, { escapeSpecialChars: true });
+  });
+
+  it('should preserve composed inheritance caches when numeric values are evaluated', () => {
+    const localCss = createCss({});
+    const component = localCss.compose({
+      variants: {
+        inherited: {
+          true: { '--padding': 'inherit' },
+        },
+      },
+    });
+    const [, style] = component({ inherited: true });
+
+    const inherited = style();
+    expect(inherited).toEqual({ '--padding': 'inherit' });
+    localCss({ '--padding': 4 });
+    expect(style()).toBe(inherited);
+  });
+
+  it('should reuse cached overrides after rendering different overrides', () => {
+    const localCss = createCss({});
+    const [, style] = localCss.compose({ '--padding': 1 })();
+    const first = style({ '--padding': 2 });
+    const second = style({ '--padding': 4 });
+
+    expect(first).toEqual({ '--padding': 'calc(2 * var(--padding__calc, 1))' });
+    expect(second).toEqual({ '--padding': 'calc(4 * var(--padding__calc, 1))' });
+    expect(style({ '--padding': 2 })).toBe(first);
+    expect(style({ '--padding': 4 })).toBe(second);
+  });
+
+  it('should not mutate base composition metadata when merging another composition', () => {
+    const localCss = createCss({});
+    const [, baseStyle] = localCss.compose({ '--padding-left': 1 })();
+    const [, extraStyle] = localCss.compose({ '--padding-right': 2 })();
+
+    baseStyle(extraStyle());
+
+    expect(baseStyle({ '--padding': 3 })).toEqual({
+      '--padding-left': 'initial',
+      '--padding': 'calc(3 * var(--padding__calc, 1))',
+    });
+  });
+
+  it('should reset a composed numeric longhand when a shorthand takes over', () => {
+    const localCss = createCss({});
+    const component = localCss.compose({
+      '--padding-left': 'var(---, 10px)',
+      variants: {
+        size: {
+          large: { '--padding-left': 2 },
+        },
+      },
+    });
+    const [, style] = component({ size: 'large' });
+
+    expect(style({ '--padding': 4 })).toEqual({
+      '--padding-left': 'initial',
+      '--padding': 'calc(4 * var(--padding__calc, 1))',
     });
   });
 });

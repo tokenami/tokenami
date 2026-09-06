@@ -18,6 +18,14 @@ interface TestContext {
 }
 
 describe('css returned from createCss', () => {
+  it('uses each expanded property multiplier for mixed aliases and variants', () => {
+    const css = createCss({ aliases: { mixed: ['padding', 'z-index'] } });
+    expect(css({ '--hover_mixed': 4 } as any)).toEqual({
+      '--hover_padding': 'calc(4 * var(--padding__calc, 1))',
+      '--hover_z-index': 'calc(4 * var(--z-index__calc, 1))',
+    });
+  });
+
   describe('when invoked with alias override', () => {
     beforeEach<TestContext>((context) => {
       const css = createCss({
@@ -51,20 +59,20 @@ describe('css returned from createCss', () => {
     });
 
     it<TestContext>('should remove first override padding styles', (context) => {
-      const unexpected = { '--padding-left': 10 };
+      const unexpected = { '--padding-left': 'calc(10 * var(--padding-left__calc, 1))' };
       expect(hasSomeStyles(context.output, unexpected)).toBe(false);
     });
 
     it<TestContext>('should remove second override padding styles', (context) => {
       const unexpected = {
-        '--padding-left': 20,
-        '--padding-right': 20,
+        '--padding-left': 'calc(20 * var(--padding-left__calc, 1))',
+        '--padding-right': 'calc(20 * var(--padding-right__calc, 1))',
       };
       expect(hasSomeStyles(context.output, unexpected)).toBe(false);
     });
 
     it<TestContext>('should keep final override style', (context) => {
-      const expected = { '--padding': 40, '--padding__calc': '/*on*/' };
+      const expected = { '--padding': 'calc(40 * var(--padding__calc, 1))' };
       expect(hasStyles(context.output, expected)).toBe(true);
     });
 
@@ -118,10 +126,8 @@ describe('css returned from createCss', () => {
 
     it<TestContext>('should override correctly', (context) => {
       expect(context.output).toStrictEqual({
-        '--padding-left': 20,
-        '--padding-right': 20,
-        '--padding-left__calc': '/*on*/',
-        '--padding-right__calc': '/*on*/',
+        '--padding-left': 'calc(20 * var(--padding-left__calc, 1))',
+        '--padding-right': 'calc(20 * var(--padding-right__calc, 1))',
       });
     });
   });
