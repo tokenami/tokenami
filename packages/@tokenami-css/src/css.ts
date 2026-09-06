@@ -13,9 +13,12 @@ type VariantNumber<T> = T extends `${infer N extends number}` ? N : T;
 type VariantBoolean<T> = T extends 'true' | 'false' ? boolean : T;
 type VariantValue<T> = VariantNumber<VariantBoolean<T>>;
 type Variants<C> = undefined extends C ? {} : { [V in keyof C]?: VariantValue<keyof C[V]> };
-type LonghandOverride = [longProp: Tokenami.TokenProperty, calcProp: Tokenami.TokenProperty];
-type ParsedProperty = [property: Tokenami.TokenProperty, overrides: LonghandOverride[]];
-type PropertyConfig = ParsedProperty[] | 0;
+type ParsedProperty = [
+  property: Tokenami.TokenProperty,
+  baseProperty: Tokenami.TokenProperty,
+  overrides: Tokenami.TokenProperty[]
+];
+
 type ClassName = string | undefined | null | false;
 
 type TokenamiComposeInput<T> = TokenamiProperties & {
@@ -38,77 +41,92 @@ type CreateCssOptions = {
   /**
    * When using arbitrary values, Tokenami will escape special characters. Some frameworks
    * automatically escape so this would result in double-escaping. In that case, switch this
-   * off to hand over to your framework.
+   * off to hand over to your framework. It configures every Tokenami css instance in the
+   * current runtime.
    *
    * @default true
    */
   escapeSpecialChars?: boolean;
 };
 
-function createCss(
-  config: Pick<Tokenami.Config, 'aliases'>,
-  options: CreateCssOptions = { escapeSpecialChars: true }
-) {
-  (globalThis as any)[_TOKENAMI_CSS] = options;
-  let cssCache = Tokenami.createLRUCache();
-  let propCache = Tokenami.createLRUCache<PropertyConfig>();
-  let composeMap = new WeakMap<object, Record<string, any>>();
-  // Tracks properties that have emitted numeric grid toggles during this runtime so inherited
-  // values can inherit matching parent `__calc` without requiring the user config.
-  let calcStore = new Set<Tokenami.TokenProperty>();
+function createCss(config: Pick<Tokenami.Config, 'aliases'>, options?: CreateCssOptions) {
+  let runtimeOptions: CreateCssOptions = ((globalThis as any)[_TOKENAMI_CSS] ??= {
+    escapeSpecialChars: true,
+  });
+
+  // Mutate the shared object so css instances from other package copies observe explicit options.
+  if (options) Object.assign(runtimeOptions, options);
+
+  let propertyCache = new Map<string, ParsedProperty[] | null>();
+  let composedStyles = new WeakMap<object, TokenamiCSSResult>();
+  let resultCache = Tokenami.createLRUCache<TokenamiCSS>();
+  let lastId: string | undefined;
+  let lastResult: TokenamiCSS | undefined;
 
   /* -------------------------------------------------------------------------------------------------
    * css
    * -----------------------------------------------------------------------------------------------*/
 
-  function css(...allStyles: [TokenamiProperties, ...TokenamiOverride[]]): TokenamiCSS {
-    let id = generateSxId(allStyles);
-    let cached = cssCache.get(id);
-    if (cached) return cached;
+  function css(...styles: [TokenamiProperties, ...TokenamiOverride[]]): TokenamiCSS {
+    let id = styleId(styles);
+    if (id === lastId) return lastResult!;
 
-    let opts = (globalThis as any)[_TOKENAMI_CSS];
-    let result: TokenamiCSSResult = {};
-    let composeResult: TokenamiCSSResult = {};
-    composeMap.set(result, composeResult);
+    let result = resultCache.get(id);
+    if (!result) {
+      result = flatten(styles);
+      resultCache.set(id, result);
+    }
 
-    function add(key: string, value: any, composed: boolean) {
-      let config = getProperty(key, opts);
+    lastId = id;
+    lastResult = result;
+    return result;
+  }
 
-      if (!config) {
+  function flatten(styles: TokenamiOverride[], seed?: TokenamiCSS): TokenamiCSS {
+    let result: TokenamiCSSResult = { ...seed };
+    let seedComposed = seed && composedStyles.get(seed);
+    let composed = seedComposed;
+
+    function setProperty(key: string, value: any, isComposed: boolean) {
+      let properties = getProperties(key);
+      if (!properties) {
         result[key] = value;
         return;
       }
 
-      for (let [prop, overrides] of config) {
-        if (overrides.length) overrideLonghands(result, overrides);
-        let prop__calc = Tokenami.calcProperty(prop);
-        let target = composed && composeResult[prop] == null ? composeResult : result;
-
-        // this must happen each iteration so that each override applies to the
-        // mutated css object from the previous override iteration
-        target[prop] = value;
-        if (composed) continue;
-
-        if (typeof value === 'number' && value !== 0) {
-          result[prop__calc] = '/*on*/';
-          calcStore.add(prop);
-        } else if (value === 'inherit' && calcStore.has(prop)) {
-          result[prop__calc] = 'inherit';
-        } else {
-          delete result[prop__calc];
+      for (let [property, baseProperty, overrides] of properties) {
+        for (let longhand of overrides) {
+          if (composed?.[longhand] !== undefined) {
+            result[longhand] = 'initial';
+          } else if (longhand in result) {
+            delete result[longhand];
+          }
         }
+
+        let keepComposed = isComposed && composed?.[property] === undefined;
+        let target = keepComposed ? composed! : result;
+        target[property] = keepComposed ? value : Tokenami.parseValue(value, baseProperty);
       }
     }
 
-    for (let styles of allStyles) {
-      if (!styles) continue;
-      let composeSx = composeMap.get(styles) ?? {};
-      for (let key in composeSx) add(key, composeSx[key], true);
-      for (let key in styles) add(key, (styles as any)[key], composeSx[key] != null);
+    for (let style of styles) {
+      if (!style) continue;
+      let composeStyle = composedStyles.get(style);
+
+      if (composeStyle) {
+        if (composed === seedComposed) composed = { ...composed };
+        for (let key in composeStyle) {
+          setProperty(key, composeStyle[key], true);
+        }
+      }
+
+      for (let key in style) {
+        setProperty(key, style[key as keyof typeof style], composeStyle?.[key] !== undefined);
+      }
     }
 
-    cssCache.set(id, result);
-    return result as any as TokenamiCSS;
+    if (composed) composedStyles.set(result, composed);
+    return result as TokenamiCSS;
   }
 
   /* -------------------------------------------------------------------------------------------------
@@ -116,145 +134,179 @@ function createCss(
    * -----------------------------------------------------------------------------------------------*/
 
   css.compose = <T>(input: TokenamiComposeInput<T>): TokenamiComposeOutput<T> => {
-    let { includes = [], variants, ...composeSx } = input;
-    let cn = Tokenami.generateClassName(composeSx);
-    let cache = Tokenami.createLRUCache<ReturnType<TokenamiComposeOutput<T>>>();
+    let { includes = [], variants, ...composeStyle } = input;
+    let ownClassName = Tokenami.generateClassName(composeStyle);
+    let variantCache = new Map<string, ReturnType<TokenamiComposeOutput<T>>>();
 
-    return function generate(currVariants = {}) {
-      let id = stringId(currVariants);
-      let cached = cache.get(id);
+    return function generate(selectedVariants) {
+      let id = objectId(selectedVariants);
+      let cached = variantCache.get(id);
       if (cached) return cached;
 
-      let baseSx = {} as TokenamiProperties;
-      let variantSx: TokenamiProperties[] = [];
-      let includeSx: TokenamiCSS[] = [];
-      let includeCn: string[] = [];
+      let internalStyles: TokenamiOverride[] = [];
+      let baseStyle = {} as TokenamiProperties;
+      let className = '';
 
-      for (let incl of includes) {
-        if (typeof incl === 'function') {
-          let [cn, sx] = incl(currVariants);
-          includeCn.push(cn());
-          includeSx.push(sx());
+      composedStyles.set(baseStyle, composeStyle);
+
+      for (let include of includes) {
+        if (typeof include === 'function') {
+          let [cn, sx] = include(selectedVariants);
+          className += cn() + ' ';
+          internalStyles.push(sx());
         } else {
-          includeSx.push(incl);
+          internalStyles.push(include);
         }
       }
 
-      for (const key in currVariants) {
-        const variant = currVariants[key as keyof typeof currVariants];
-        const group = variants?.[key as keyof typeof variants];
-        const value = group?.[variant as keyof typeof group];
-        if (value) variantSx.push(value);
+      className += ownClassName;
+      internalStyles.push(baseStyle);
+
+      for (let key in selectedVariants) {
+        let variant = selectedVariants[key as keyof typeof selectedVariants];
+        let group = variants?.[key as keyof typeof variants];
+        let value = group?.[variant as keyof typeof group];
+        if (value) internalStyles.push(value);
       }
 
+      let resolvedStyle: TokenamiCSS | undefined;
+      let overrideCache = Tokenami.createLRUCache<TokenamiCSS>();
+
       let result: ReturnType<TokenamiComposeOutput<T>> = [
-        (...cns: ClassName[]) => [...includeCn, cn, ...cns].filter(Boolean).join(' '),
-        // @ts-ignore
-        (...sx) => css(...includeSx, baseSx, ...variantSx, ...sx),
+        (...classNames) => {
+          let value = className;
+
+          for (let className of classNames) {
+            if (className) value += ' ' + className;
+          }
+
+          return value;
+        },
+
+        (...overrides) => {
+          resolvedStyle ??= flatten(internalStyles);
+          if (!overrides.length) return resolvedStyle;
+          let id = styleId(overrides);
+          if (!id) return resolvedStyle;
+          let cached = overrideCache.get(id);
+          if (cached) return cached;
+
+          let result = flatten(overrides, resolvedStyle);
+          overrideCache.set(id, result);
+
+          return result;
+        },
       ];
 
-      composeMap.set(baseSx, composeSx);
-      cache.set(id, result);
+      variantCache.set(id, result);
       return result;
     };
   };
 
   /* -------------------------------------------------------------------------------------------------
-   * getProperty
+   * getProperties
    * -----------------------------------------------------------------------------------------------*/
 
-  function getProperty(key: string, opts: CreateCssOptions): PropertyConfig | void {
-    let cached = propCache.get(key);
+  function getProperties(key: string): ParsedProperty[] | null {
+    let cached = propertyCache.get(key);
     if (cached !== undefined) return cached;
 
-    let tokenProperty = Tokenami.TokenProperty.safeParse(key);
-    if (!tokenProperty.success) return propCache.set(key, 0);
+    if (!isCSSVariable(key)) {
+      propertyCache.set(key, null);
+      return null;
+    }
 
-    let parts = Tokenami.getTokenPropertySplit(tokenProperty.output);
-    let cssProperties = (config.aliases as any)?.[parts.alias] || [parts.alias];
-    let properties: Exclude<PropertyConfig, 0> = [];
+    let { alias } = Tokenami.getTokenPropertySplit(key);
+    let cssProperties = (config.aliases as any)?.[alias] || [alias];
+    let prefix = key.slice(0, -alias.length);
+    let properties: ParsedProperty[] = [];
 
     for (let cssProperty of cssProperties) {
-      let longProperty = Tokenami.createLonghandProperty(tokenProperty.output, cssProperty);
-      let parsedProperty = Tokenami.parseProperty(longProperty, opts);
-      properties.push([parsedProperty, getLonghandOverrides(parsedProperty)]);
+      let expandedProperty = (prefix + cssProperty) as Tokenami.TokenProperty;
+      let property = Tokenami.parseProperty(expandedProperty, runtimeOptions);
+      let baseProperty = Tokenami.parseProperty(
+        Tokenami.tokenProperty(cssProperty),
+        runtimeOptions
+      );
+      properties.push([property, baseProperty, getLonghandOverrides(property, cssProperty)]);
     }
 
-    propCache.set(key, properties);
+    propertyCache.set(key, properties);
     return properties;
-  }
-
-  /* -------------------------------------------------------------------------------------------------
-   * generateSxId
-   * -----------------------------------------------------------------------------------------------*/
-
-  function generateSxId(objs: readonly (object | false | undefined)[]) {
-    let id = '';
-
-    for (let obj of objs) {
-      if (!obj) continue;
-      let composeSx = composeMap.get(obj);
-      if (composeSx) id += stringId(composeSx);
-      id += stringId(obj);
-    }
-
-    return id;
-  }
-
-  /* -------------------------------------------------------------------------------------------------
-   * stringId
-   * -----------------------------------------------------------------------------------------------*/
-
-  function stringId(obj: object) {
-    let id = '';
-    for (let key in obj) id += key + ':' + String((obj as any)[key]) + ';';
-    return id;
-  }
-
-  /* -------------------------------------------------------------------------------------------------
-   * overrideLonghands
-   * -----------------------------------------------------------------------------------------------*/
-
-  function overrideLonghands(result: TokenamiCSSResult, overrides: LonghandOverride[]) {
-    let composeSx = composeMap.get(result);
-
-    for (let [longProp, calcProp] of overrides) {
-      let composeValue = composeSx?.[longProp];
-
-      if (composeValue) {
-        let value = composeValue ?? result[longProp];
-        if (typeof value === 'number') result[calcProp] = 'initial';
-        result[longProp] = 'initial';
-      } else {
-        delete result[longProp];
-        delete result[calcProp];
-      }
-    }
   }
 
   /* -------------------------------------------------------------------------------------------------
    * getLonghandOverrides
    * -----------------------------------------------------------------------------------------------*/
 
-  function getLonghandOverrides(tokenProperty: Tokenami.TokenProperty) {
-    let parts = Tokenami.getTokenPropertySplit(tokenProperty);
-    let longhands = Tokenami.mapShorthandToLonghands.get(parts.alias as any) || [];
-    let overrides: LonghandOverride[] = [];
+  function getLonghandOverrides(
+    tokenProperty: Tokenami.TokenProperty,
+    cssProperty: string
+  ): Tokenami.TokenProperty[] {
+    let longhands = Tokenami.mapShorthandToLonghands.get(cssProperty as any);
+    if (!longhands) return [];
 
-    for (let long of longhands) {
-      let longProp = Tokenami.createLonghandProperty(tokenProperty, long);
-      let calcProp = Tokenami.calcProperty(longProp);
-      overrides.push([longProp, calcProp], ...getLonghandOverrides(longProp));
+    let prefix = tokenProperty.slice(0, -cssProperty.length);
+    let overrides = new Set<Tokenami.TokenProperty>();
+
+    for (let longhand of longhands) {
+      let property = (prefix + longhand) as Tokenami.TokenProperty;
+      overrides.add(property);
+
+      for (let longhandProperty of getLonghandOverrides(property, longhand)) {
+        overrides.add(longhandProperty);
+      }
     }
 
-    return overrides;
+    return [...overrides];
+  }
+
+  /* -------------------------------------------------------------------------------------------------
+   * styleId
+   * -----------------------------------------------------------------------------------------------*/
+
+  function styleId(styles: TokenamiOverride[]) {
+    let id = '';
+
+    for (let style of styles) {
+      if (!style) continue;
+      let composed = composedStyles.get(style);
+      if (composed) id += '\0c' + objectId(composed) + '\0;';
+      id += objectId(style);
+    }
+
+    return id;
   }
 
   return css;
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * objectId
+ * -----------------------------------------------------------------------------------------------*/
+
+function objectId(style?: TokenamiCSSResult) {
+  let id = '';
+
+  for (let key in style) {
+    let value = style[key];
+    id += key + ':' + (typeof value === 'number' ? '\0' + value : value) + ';}';
+  }
+
+  return id;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * isCSSVariable
+ * -----------------------------------------------------------------------------------------------*/
+
+function isCSSVariable(property: string): property is Tokenami.TokenProperty {
+  return property.length > 2 && property[0] === '-' && property[1] === '-' && property[2] !== '-';
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
 export let css = createCss({});
+
 export type { TokenamiCSS, TokenamiComposeOutput, Variants };
 export { createCss };

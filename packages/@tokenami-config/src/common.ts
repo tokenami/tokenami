@@ -272,7 +272,10 @@ function createLonghandProperty(tokenProperty: TokenProperty, cssProperty: strin
 
 const escapeSpecialCharsRegex = /[&#.:;>~*[\]=,"'()+{}]/g;
 
-function parseProperty<T extends string>(str: T, options?: { escapeSpecialChars?: boolean }) {
+function parseProperty<T extends TokenProperty>(
+  str: T,
+  options?: { escapeSpecialChars?: boolean }
+) {
   const { escapeSpecialChars = true } = options || {};
   const noColon = encodeColon(str);
   if (!escapeSpecialChars) return noColon as T;
@@ -301,13 +304,12 @@ const decodeColon = (str: string) => str.replace(/;/g, ':');
 function* iterateAliasProperties(
   styleEntries: [key: string, value: any][],
   config: Pick<Config, 'aliases'>
-): Generator<[string, any, { isCalc: boolean; cssProperties: string[] }]> {
+): Generator<[string, any, { cssProperties: string[] }]> {
   for (const [key, value] of styleEntries) {
     const tokenProperty = key as TokenProperty;
     const parts = getTokenPropertySplit(tokenProperty);
     const cssProperties = getCSSPropertiesForAlias(parts.alias, config.aliases);
-    const isCalc = typeof value === 'number' && value !== 0;
-    yield [key, value, { isCalc, cssProperties }];
+    yield [key, value, { cssProperties }];
   }
 }
 
@@ -318,10 +320,20 @@ function* iterateAliasProperties(
 const calcProperty = (property: string) => (property + '__calc') as TokenProperty;
 
 /* -------------------------------------------------------------------------------------------------
+ * parseValue
+ * -----------------------------------------------------------------------------------------------*/
+
+function parseValue<T>(value: T, baseProperty: TokenProperty): T | string {
+  return typeof value === 'number'
+    ? `calc(${value} * var(${calcProperty(baseProperty)}, 1))`
+    : value;
+}
+
+/* -------------------------------------------------------------------------------------------------
  * createLRUCache
  * -----------------------------------------------------------------------------------------------*/
 
-const createLRUCache = <T = any>(limit = 1_500) => {
+const createLRUCache = <T = any>(limit = 750) => {
   let cache = new Map<string, T>();
   let prevCache = new Map<string, T>();
   let size = 0;
@@ -366,6 +378,7 @@ export {
   parsedVariantProperty,
   createLonghandProperty,
   calcProperty,
+  parseValue,
   parseProperty,
   stringifyProperty,
   getTokenPropertyName,

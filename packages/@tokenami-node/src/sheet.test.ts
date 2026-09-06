@@ -23,6 +23,63 @@ const testConfig: Config = {
 };
 
 describe('sheet', () => {
+  it('emits only used grid multipliers at the root, shared by aliases and variants', () => {
+    const sheet = createSheet({
+      config: {
+        ...testConfig,
+        properties: { ...testConfig.properties, padding: ['grid'], 'z-index': ['number'] },
+        customProperties: { size: ['grid'], count: ['number'] },
+      },
+      tokens: {
+        properties: [
+          '--height',
+          '--hover_height',
+          '--{&:focus}_height',
+          '--z-index',
+          '--size',
+          '--count',
+        ],
+        values: [],
+        composeBlocks: {},
+      },
+    });
+
+    expect(sheet).toMatch(/:root\s*{[^}]*--block-size__calc: var\(--_grid\)/);
+    expect(sheet).toMatch(/:root\s*{[^}]*--size__calc: var\(--_grid\)/);
+    expect(sheet.match(/--block-size__calc:/g)).toHaveLength(1);
+    expect(sheet).not.toContain('--height__calc');
+    expect(sheet).not.toContain('--hover_block-size__calc');
+    expect(sheet).not.toContain('--z-index__calc:');
+    expect(sheet).not.toContain('--count__calc:');
+    expect(sheet).not.toContain('--padding__calc:');
+    expect(sheet).not.toContain('__calc: initial');
+  });
+
+  it('converts composed numbers while preserving strings, variables and keywords', () => {
+    const sheet = createSheet({
+      config: {
+        ...testConfig,
+        properties: { ...testConfig.properties, 'z-index': ['number'] },
+      },
+      tokens: {
+        properties: ['--height', '--hover_height', '--z-index'],
+        values: [],
+        composeBlocks: {
+          '.numeric': { '--height': 4, '--hover_height': '2', '--z-index': 3 } as any,
+          '.variable': { '--height': 'var(--space_large)' } as any,
+          '.keyword': { '--height': 'auto' } as any,
+        },
+      },
+    });
+
+    expect(sheet).toContain('--block-size: calc(4 * var(--block-size__calc, 1))');
+    expect(sheet).toContain('--hover_block-size: 2');
+    expect(sheet).toContain('--z-index: calc(3 * var(--z-index__calc, 1))');
+    expect(sheet).toContain('--block-size: var(--space_large)');
+    expect(sheet).toContain('--block-size: auto');
+    expect(sheet).not.toContain('--z-index__calc:');
+  });
+
   it('does not emit an undefined grid property when grid is not configured', () => {
     const sheet = createSheet({
       config: testConfig,
@@ -83,14 +140,13 @@ describe('sheet', () => {
     expect(sheet).toMatch(
       /@layer tksl\d+\s*{\s*\.tk-parent\s*,\s*\[style\]\s*{\s*block-size: var\(--_[^;}]+/
     );
-    expect(sheet).toMatch(/@layer tkc\s*{\s*\.tk-parent\s*{\s*--block-size: 10/);
-    expect(sheet).toMatch(/@layer tkc\s*{\s*\.tk-parent\s*{\s*--hover_block-size: 20/);
+    expect(sheet).toContain('--block-size: calc(10 * var(--block-size__calc, 1))');
+    expect(sheet).toContain('--hover_block-size: calc(20 * var(--block-size__calc, 1))');
     expect(sheet).toMatch(
-      /@layer tkc\s*{\s*\.tk-child\s*{\s*block-size: var\(--_[^,]+,\s*var\(--block-size, inherit\)\)/
+      /@layer tkc\s*{\s*\.tk-child\s*{\s*block-size: var\(--block-size, inherit\)/
     );
-    expect(sheet).toMatch(
-      /@layer tkc\s*{\s*\.tk-child\s*{\s*--_[^:]+: var\(--block-size__calc\) calc\(var\(--block-size\) \* var\(--_grid\)\)/
-    );
+    expect(sheet).toContain('--block-size__calc: var(--_grid)');
+    expect(sheet).not.toContain('__calc: initial');
     expect(sheet).not.toMatch(/@layer tkc\s*{\s*\.tk-child\s*{\s*--block-size: inherit/);
   });
 
