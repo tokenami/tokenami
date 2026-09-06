@@ -17,6 +17,7 @@
     "dev:css": "tokenami --output dist/tokenami.css --minify --watch",
     "storylite": "pnpm run \"/storylite:/\"",
     "storylite:app": "vite --port=7007 --host=0.0.0.0",
+    "storylite:build": "vite build",
     "preview": "vite build && vite preview",
     "typecheck": "tokenami check; tsc --noEmit"
   },
