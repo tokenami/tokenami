@@ -107,6 +107,7 @@ function getTypeDiagnosticsWithConfig(input: string, config: string) {
     allowSyntheticDefaultImports: true,
     baseUrl: packageDir,
     esModuleInterop: true,
+    lib: ['lib.es2022.d.ts'],
     module: ts.ModuleKind.ESNext,
     moduleResolution: ts.ModuleResolutionKind.NodeJs,
     noEmit: true,
@@ -116,6 +117,8 @@ function getTypeDiagnosticsWithConfig(input: string, config: string) {
     skipLibCheck: true,
     strict: true,
     target: ts.ScriptTarget.ES2022,
+    // These fixtures do not need the workspace's ambient @types packages or browser globals.
+    types: [],
   };
   const host = ts.createCompilerHost(compilerOptions);
   const originalReadFile = host.readFile.bind(host);
@@ -125,10 +128,12 @@ function getTypeDiagnosticsWithConfig(input: string, config: string) {
   host.fileExists = (name) => files.has(name) || originalFileExists(name);
 
   const program = ts.createProgram([fileName], compilerOptions, host);
-  return ts
-    .getPreEmitDiagnostics(program)
-    .filter((diagnostic) => diagnostic.file === program.getSourceFile(fileName))
-    .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
+  const sourceFile = program.getSourceFile(fileName)!;
+  const diagnostics = [
+    ...program.getSyntacticDiagnostics(sourceFile),
+    ...program.getSemanticDiagnostics(sourceFile),
+  ];
+  return diagnostics.map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
 }
 
 function getTypeDiagnostics(input: string, config = '') {
