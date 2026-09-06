@@ -111,7 +111,7 @@ describe('css utility', () => {
     '1e2',
     ' 4 ',
     'var(--space_large)',
-    'var(---, 4)',
+    'var(---spacing, 4)',
     'auto',
     'inherit',
     'initial',

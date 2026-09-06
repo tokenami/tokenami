@@ -109,7 +109,7 @@ type Token<ThemeKey extends string> = TokenValue<ThemeKey> | CSS.Globals;
 
 type CSSValue<P extends string> = P extends keyof Tokenami.CSSProperties
   ? Tokenami.CSSProperties[P]
-  : never;
+  : string & {};
 
 type TokenValue<ThemeKey extends string> =
   | (ThemeKey extends keyof TokensByThemeKey ? TokensByThemeKey[ThemeKey] : never)

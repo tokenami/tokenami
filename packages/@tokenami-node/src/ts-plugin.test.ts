@@ -435,6 +435,51 @@ describe('ts plugin', () => {
     });
 
     describe('strict type validation', () => {
+      it.each(['', 'strict: false,', 'strict: true,'])(
+        'validates custom and experimental properties with config %j',
+        (strictConfig) => {
+          const diagnostics = getTypeDiagnosticsWithConfig(
+            `
+              const literals: TokenamiProperties = {
+                '--fancy-size': '20px',
+                '--hover_fancy-size': '30px',
+                '--experimental-size': '40px',
+              };
+              const tokens: TokenamiProperties = {
+                '--fancy-size': 'var(--space_sm)',
+                '--hover_fancy-size': 'inherit',
+                '--experimental-size': 'var(--space_sm)',
+              };
+            `,
+            `
+              import type { TokenamiProperties } from './declarations';
+              import { createConfig } from '@tokenami/config';
+
+              const config = createConfig({
+                ${strictConfig}
+                include: [],
+                themeSelector: () => '',
+                theme: { space: { sm: '4px' } },
+                properties: { 'experimental-size': ['space'] },
+                customProperties: { 'fancy-size': ['space'] },
+              });
+              type Config = typeof config;
+              declare module './declarations' {
+                interface TokenamiConfig extends Config {}
+              }
+            `
+          );
+
+          const expectedDiagnostics =
+            strictConfig === 'strict: true,'
+              ? ['20px', '30px', '40px'].map(
+                  (value): unknown => expect.stringContaining(`Type '"${value}"' is not assignable`)
+                )
+              : [];
+          expect(diagnostics).toEqual(expectedDiagnostics);
+        }
+      );
+
       it('treats config as loose by default when strict is not defined', () => {
         const diagnostics = getTypeDiagnostics(`
           import type { TokenamiProperties } from './declarations';
@@ -619,7 +664,7 @@ describe('ts plugin', () => {
             createConfig({
               theme: {
                 surface: {
-                  gradient: 'linear-gradient(var(---, red), var(---custom-color), transparent)',
+                  gradient: 'linear-gradient(red, var(---custom-color), transparent)',
                 },
               },
             });
@@ -628,7 +673,7 @@ describe('ts plugin', () => {
             ...testConfig,
             theme: {
               surface: {
-                gradient: 'linear-gradient(var(---, red), var(---custom-color), transparent)',
+                gradient: 'linear-gradient(red, var(---custom-color), transparent)',
               },
             },
           }
