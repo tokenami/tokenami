@@ -1,3 +1,47 @@
+# v0.0.102 (Sun Sep 06 2026)
+
+### Release Notes
+
+#### Add `strict` config to disable arbitrary values ([#521](https://github.com/tokenami/tokenami/pull/521))
+
+Arbitrary _values_ are now authored as normal CSS property values. The old `var(---, ...)` wrapper is no longer part of the public authoring path.
+
+By default, Tokenami remains permissive for inline CSS literals. Projects that want stricter design-system guardrails can opt into strict mode:
+
+```ts
+export default createConfig({
+  strict: true,
+  // ...
+});
+```
+
+With `strict: true`, properties configured in `tokenami.config` must use configured theme tokens, grid values, or CSS globals. Unconfigured properties continue to accept native CSS values.
+
+---
+
+#### 🚀 Enhancement
+
+- Add `strict` config to disable arbitrary values [#521](https://github.com/tokenami/tokenami/pull/521) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🐛 Bug Fix
+
+- Fix theme tokens resolving element-level custom properties [#525](https://github.com/tokenami/tokenami/pull/525) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏠 Housekeeping
+
+- Add Storylite deployment build script [#527](https://github.com/tokenami/tokenami/pull/527) ([@jjenzz](https://github.com/jjenzz))
+- add link to nextjs example preview [#522](https://github.com/tokenami/tokenami/pull/522) ([@jjenzz](https://github.com/jjenzz))
+
+#### 🏎 Performance
+
+- Improve CSS runtime and composition performance [#526](https://github.com/tokenami/tokenami/pull/526) ([@jjenzz](https://github.com/jjenzz))
+
+#### Authors: 1
+
+- Jenna Smith ([@jjenzz](https://github.com/jjenzz))
+
+---
+
 # v0.0.101 (Mon Jun 22 2026)
 
 #### 🐛 Bug Fix
