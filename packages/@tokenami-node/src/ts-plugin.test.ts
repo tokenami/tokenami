@@ -1,12 +1,16 @@
 import { mkdtempSync, mkdirSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { describe, expect, it } from 'vitest';
 import ts from 'typescript/lib/tsserverlibrary.js';
 import type { Config } from '@tokenami/config';
 import { TokenamiDiagnostics } from './ts-plugin/diagnostics';
 import { TokenamiCompletions } from './ts-plugin/completions';
 import { createTSPlugin } from './ts-plugin/plugin';
+
+const currentDir = dirname(fileURLToPath(import.meta.url));
+const packageDir = join(currentDir, '..');
 
 const testConfig: Config = {
   include: [],
@@ -94,6 +98,67 @@ function getDiagnosticsWithConfig(input: string, config: Config) {
   const sourceFile = createSourceFile(input);
   const diagnostics = new TokenamiDiagnostics(config);
   return diagnostics.getSemanticDiagnostics(sourceFile);
+}
+
+function getTypeDiagnosticsWithConfig(input: string, config: string) {
+  const fileName = join(currentDir, '__tokenami-plugin-type-test.ts');
+  const files = new Map([[fileName, `${config}\n${input}`]]);
+  const compilerOptions: ts.CompilerOptions = {
+    allowSyntheticDefaultImports: true,
+    baseUrl: packageDir,
+    esModuleInterop: true,
+    lib: ['lib.es2022.d.ts'],
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.NodeJs,
+    noEmit: true,
+    paths: {
+      '@tokenami/config': ['../@tokenami-config/src'],
+    },
+    skipLibCheck: true,
+    strict: true,
+    target: ts.ScriptTarget.ES2022,
+    // These fixtures do not need the workspace's ambient @types packages or browser globals.
+    types: [],
+  };
+  const host = ts.createCompilerHost(compilerOptions);
+  const originalReadFile = host.readFile.bind(host);
+  const originalFileExists = host.fileExists.bind(host);
+
+  host.readFile = (name) => files.get(name) ?? originalReadFile(name);
+  host.fileExists = (name) => files.has(name) || originalFileExists(name);
+
+  const program = ts.createProgram([fileName], compilerOptions, host);
+  const sourceFile = program.getSourceFile(fileName)!;
+  const diagnostics = [
+    ...program.getSyntacticDiagnostics(sourceFile),
+    ...program.getSemanticDiagnostics(sourceFile),
+  ];
+  return diagnostics.map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
+}
+
+function getTypeDiagnostics(input: string, config = '') {
+  return getTypeDiagnosticsWithConfig(
+    input,
+    `
+      import './declarations';
+
+      declare module './declarations' {
+        interface TokenamiConfig {
+          ${config}
+          theme: {
+            space: { sm: '4px' };
+            color: { accent: '#ff0000' };
+          };
+          properties: {
+            padding: ['space'];
+            color: ['color'];
+          };
+          customProperties: {};
+          aliases: {};
+        }
+      }
+    `
+  );
 }
 
 describe('ts plugin', () => {
@@ -374,6 +439,111 @@ describe('ts plugin', () => {
       });
     });
 
+    describe('strict type validation', () => {
+      it.each(['', 'strict: false,', 'strict: true,'])(
+        'validates custom and experimental properties with config %j',
+        (strictConfig) => {
+          const diagnostics = getTypeDiagnosticsWithConfig(
+            `
+              const literals: TokenamiProperties = {
+                '--fancy-size': '20px',
+                '--hover_fancy-size': '30px',
+                '--experimental-size': '40px',
+              };
+              const tokens: TokenamiProperties = {
+                '--fancy-size': 'var(--space_sm)',
+                '--hover_fancy-size': 'inherit',
+                '--experimental-size': 'var(--space_sm)',
+              };
+            `,
+            `
+              import type { TokenamiProperties } from './declarations';
+              import { createConfig } from '@tokenami/config';
+
+              const config = createConfig({
+                ${strictConfig}
+                include: [],
+                themeSelector: () => '',
+                theme: { space: { sm: '4px' } },
+                properties: { 'experimental-size': ['space'] },
+                customProperties: { 'fancy-size': ['space'] },
+              });
+              type Config = typeof config;
+              declare module './declarations' {
+                interface TokenamiConfig extends Config {}
+              }
+            `
+          );
+
+          const expectedDiagnostics =
+            strictConfig === 'strict: true,'
+              ? ['20px', '30px', '40px'].map(
+                  (value): unknown => expect.stringContaining(`Type '"${value}"' is not assignable`)
+                )
+              : [];
+          expect(diagnostics).toEqual(expectedDiagnostics);
+        }
+      );
+
+      it('treats config as loose by default when strict is not defined', () => {
+        const diagnostics = getTypeDiagnostics(`
+          import type { TokenamiProperties } from './declarations';
+
+          const styles: TokenamiProperties = {
+            '--padding': '20px',
+          };
+        `);
+
+        expect(diagnostics).toEqual([]);
+      });
+
+      it('allows arbitrary CSS property values when strict is false', () => {
+        const diagnostics = getTypeDiagnostics(
+          `
+            import type { TokenamiProperties } from './declarations';
+
+            const styles: TokenamiProperties = {
+              '--padding': '20px',
+              '--color': 'red',
+            };
+          `,
+          'strict: false;'
+        );
+
+        expect(diagnostics).toEqual([]);
+      });
+
+      it('rejects CSS property values for configured properties when strict is true', () => {
+        const diagnostics = getTypeDiagnostics(
+          `
+            import type { TokenamiProperties } from './declarations';
+
+            const styles: TokenamiProperties = {
+              '--padding': '20px',
+            };
+          `,
+          'strict: true;'
+        );
+
+        expect(diagnostics).toEqual([expect.stringContaining('Type \'"20px"\' is not assignable')]);
+      });
+
+      it('allows CSS property values for unconfigured properties when strict is true', () => {
+        const diagnostics = getTypeDiagnostics(
+          `
+            import type { TokenamiProperties } from './declarations';
+
+            const styles: TokenamiProperties = {
+              '--margin': '20px',
+            };
+          `,
+          'strict: true;'
+        );
+
+        expect(diagnostics).toEqual([]);
+      });
+    });
+
     describe('theme value validation', () => {
       it('accepts existing theme values referenced by config theme values', () => {
         const diagnostics = getDiagnosticsWithConfig(
@@ -499,7 +669,7 @@ describe('ts plugin', () => {
             createConfig({
               theme: {
                 surface: {
-                  gradient: 'linear-gradient(var(---, red), var(---custom-color), transparent)',
+                  gradient: 'linear-gradient(red, var(---custom-color), transparent)',
                 },
               },
             });
@@ -508,7 +678,7 @@ describe('ts plugin', () => {
             ...testConfig,
             theme: {
               surface: {
-                gradient: 'linear-gradient(var(---, red), var(---custom-color), transparent)',
+                gradient: 'linear-gradient(red, var(---custom-color), transparent)',
               },
             },
           }

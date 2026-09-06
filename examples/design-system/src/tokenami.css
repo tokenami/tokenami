@@ -171,7 +171,7 @@
     --radii_lg: .5rem;
   }
 
-  :root, :root [style], :root .tk-utbdlz {
+  :root, :root :where([style], .tk-1c5dgkz) {
     --text_base: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1rem / 1.5rem var(--font-family);
     --text_xl: var(--font-stretch) var(--font-style) var(--font-variant) var(--font-weight) 1.25rem / 1.75rem var(--font-family);
   }
@@ -209,19 +209,19 @@
     --_xgpg9b: initial;
   }
 
-  [style]:focus:hover, .tk-utbdlz:focus:hover {
+  [style]:focus:hover, .tk-1c5dgkz:focus:hover {
     --\{\&\;focus\;hover\}: ;
   }
 
   @media (hover: hover) and (pointer: fine) {
-    [style]:not(:disabled):hover, .tk-utbdlz:not(:disabled):hover {
+    [style]:not(:disabled):hover, .tk-1c5dgkz:not(:disabled):hover {
       --hover: ;
     }
   }
 }
 
 @layer tk1 {
-  .tk-utbdlz, [style] {
+  .tk-1c5dgkz, [style] {
     color: var(--color, revert-layer);
     border-radius: var(--border-radius, revert-layer);
     transition: var(--transition, revert-layer);
@@ -233,7 +233,7 @@
 }
 
 @layer tk2 {
-  .tk-utbdlz, [style] {
+  .tk-1c5dgkz, [style] {
     background-color: var(--background-color, revert-layer);
   }
 
@@ -243,34 +243,34 @@
 }
 
 @layer tkl1 {
-  .tk-utbdlz, [style] {
+  .tk-1c5dgkz, [style] {
     inline-size: var(--inline-size, revert-layer);
     block-size: var(--block-size, revert-layer);
   }
 }
 
 @layer tkl3 {
-  .tk-utbdlz, [style] {
+  .tk-1c5dgkz, [style] {
     border-block-end: var(--border-block-end, revert-layer);
   }
 }
 
 @layer tkl5 {
-  .tk-utbdlz, [style] {
+  .tk-1c5dgkz, [style] {
     border-block-color: var(--border-block-color, revert-layer);
     border-inline-color: var(--border-inline-color, revert-layer);
   }
 }
 
 @layer tks1 {
-  .tk-utbdlz, [style] {
+  .tk-1c5dgkz, [style] {
     animation: var(--_xgpg9b, revert-layer);
     --_xgpg9b: var(--hover) var(--hover_animation);
   }
 }
 
 @layer tks2 {
-  .tk-utbdlz, [style] {
+  .tk-1c5dgkz, [style] {
     background-color: var(--_1gqxh9p, var(--_aoiy32, revert-layer));
     --_aoiy32: var(--\{\&\;focus\;hover\}) var(--\{\&\;focus\;hover\}_background-color);
     --_1gqxh9p: var(--hover) var(--hover_background-color);
@@ -278,7 +278,7 @@
 }
 
 @layer tkc {
-  .tk-utbdlz {
+  .tk-1c5dgkz {
     --background-color: var(--color_violet9);
     --color: var(--color_white);
     --border-block-end: var(--line_px);
@@ -290,6 +290,6 @@
     --transition: var(--morph_all);
     --hover_background-color: var(--color_violet10);
     --hover_animation: var(--anim_wiggle);
-    --\{\&\;focus\;hover\}_background-color: var(---, red);
+    --\{\&\;focus\;hover\}_background-color: red;
   }
 }

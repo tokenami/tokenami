@@ -45,6 +45,7 @@ interface Config<
 > {
   include: string[];
   exclude?: string[];
+  strict?: boolean;
   grid?: string;
   globalStyles?: Record<string, CSS.Properties>;
   keyframes?: { [name: string]: { [step: string]: CSS.Properties } };

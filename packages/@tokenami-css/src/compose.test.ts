@@ -304,7 +304,7 @@ describe('css compose', () => {
   it('should reset a composed numeric longhand when a shorthand takes over', () => {
     const localCss = createCss({});
     const component = localCss.compose({
-      '--padding-left': 'var(---, 10px)',
+      '--padding-left': '10px',
       variants: {
         size: {
           large: { '--padding-left': 2 },
