@@ -93,6 +93,43 @@ describe('sheet', () => {
     expect(sheet).not.toContain('--_grid: undefined');
   });
 
+  it('emits custom-property-backed theme tokens on the theme scope only', () => {
+    const sheet = createSheet({
+      config: {
+        ...testConfig,
+        theme: {
+          gradient: {
+            'to-b':
+              'linear-gradient(to bottom in var(--color-space, srgb), var(--gradient-from) var(--gradient-from-stop, ), var(---via, var(--gradient-to) var(--gradient-to-stop, ))); ---via: var(--gradient-via) var(--gradient-via-stop, ), var(--gradient-to)',
+          },
+        },
+        properties: {
+          'background-image': ['gradient'],
+        },
+        customProperties: {
+          'color-space': ['color-space'],
+          'gradient-from': ['color'],
+          'gradient-from-stop': ['stop'],
+          'gradient-to': ['color'],
+          'gradient-to-stop': ['stop'],
+          'gradient-via': ['color'],
+          'gradient-via-stop': ['stop'],
+        },
+      },
+      tokens: {
+        properties: ['--background-image'],
+        values: ['var(--gradient_to-b)'],
+        composeBlocks: {},
+      },
+    });
+
+    expect(sheet).toMatch(
+      /:root,\s*:root :where\(\[style\]\)\s*{\s*--gradient_to-b:\s*linear-gradient\(to bottom in var\(--_color-space, srgb\)/
+    );
+    expect(sheet).not.toContain(':root *');
+    expect(sheet).not.toContain(':root [style]');
+  });
+
   it('emits composed inherit values as native properties with token variable fallbacks', () => {
     const sheet = createSheet({
       config: testConfig,
