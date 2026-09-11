@@ -14,8 +14,8 @@ interface TitleCardProps extends TokenamiStyle<React.ComponentProps<'div'>> {
 
 const TitleCard = ({ asChild = false, ...props }: TitleCardProps) => {
   const Comp = asChild ? Slot : 'div';
-  const [cn, css] = titleCard();
-  return <Comp {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = titleCard();
+  return <Comp {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 TitleCard.displayName = 'TitleCard';
@@ -27,8 +27,8 @@ TitleCard.displayName = 'TitleCard';
 interface TitleCardGraphicProps extends React.ComponentProps<typeof Cover> {}
 
 const TitleCardGraphic = (props: TitleCardGraphicProps) => {
-  const [cn, css] = titleCardGraphic();
-  return <Cover {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = titleCardGraphic();
+  return <Cover {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 TitleCardGraphic.displayName = 'TitleCardGraphic';
@@ -43,14 +43,14 @@ interface TitleCardTitleProps extends Omit<HeadingProps, 'level'> {
 }
 
 const TitleCardTitle = (props: TitleCardTitleProps) => {
-  const [cn, css] = titleCardTitle();
+  const [cn, sx] = titleCardTitle();
   return (
     <Heading
       level={3}
       variant={5}
       {...props}
       className={cn(props.className)}
-      style={css(props.style)}
+      style={sx(props.style)}
     />
   );
 };
@@ -67,8 +67,8 @@ interface TitleCardDescriptionProps extends TokenamiStyle<React.ComponentProps<'
 
 const TitleCardDescription = ({ asChild = false, ...props }: TitleCardDescriptionProps) => {
   const Comp = asChild ? Slot : 'p';
-  const [cn, css] = titleCardDescription();
-  return <Comp {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = titleCardDescription();
+  return <Comp {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 TitleCardDescription.displayName = 'TitleCardDescription';

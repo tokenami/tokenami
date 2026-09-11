@@ -1,38 +1,21 @@
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import * as mockLibrary from '@/mock/library';
-import { css, type TokenamiStyle, type TokenValue } from '@/css';
-
-type Color = (typeof mockLibrary.colors)[number];
-
-const COLORS = {
-  green: 'var(--color_green8)',
-  sky: 'var(--color_sky8)',
-  orange: 'var(--color_orange8)',
-  yellow: 'var(--color_yellow8)',
-  iris: 'var(--color_iris8)',
-  crimson: 'var(--color_crimson8)',
-} satisfies Record<Color, TokenValue<'color'>>;
+import { css, type Variants, type TokenamiStyle } from '@/css';
 
 /* -------------------------------------------------------------------------------------------------
  * Frame
  * -----------------------------------------------------------------------------------------------*/
 
-interface FrameProps extends TokenamiStyle<React.ComponentProps<'div'>> {
+interface FrameProps
+  extends Omit<TokenamiStyle<React.ComponentProps<'div'>>, 'color'>,
+    Variants<typeof frame> {
   asChild?: boolean;
-  color?: Color;
 }
 
 const Frame = ({ asChild = false, color, ...props }: FrameProps) => {
   const Comp = asChild ? Slot : 'div';
-  const [cn, css] = frame();
-  return (
-    <Comp
-      {...props}
-      className={cn(props.className)}
-      style={css(color && { '--gradient-from': COLORS[color] }, props.style)}
-    />
-  );
+  const [cn, sx] = frame({ color });
+  return <Comp {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 Frame.displayName = 'Frame';
@@ -48,6 +31,17 @@ const frame = css.compose({
   '--overflow-y': 'auto',
   '--size': 'var(--size_full)',
   '--p': 2,
+
+  variants: {
+    color: {
+      green: { '--gradient-from': 'var(--color_green9)' },
+      sky: { '--gradient-from': 'var(--color_sky9)' },
+      orange: { '--gradient-from': 'var(--color_orange9)' },
+      yellow: { '--gradient-from': 'var(--color_yellow9)' },
+      iris: { '--gradient-from': 'var(--color_iris9)' },
+      crimson: { '--gradient-from': 'var(--color_crimson9)' },
+    },
+  },
 });
 
 export { Frame };

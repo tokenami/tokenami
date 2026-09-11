@@ -30,10 +30,13 @@
   - [Arbitrary selectors](#user-content-arbitrary-selectors)
   - [Arbitrary values](#user-content-arbitrary-values)
 - [Styling](#user-content-styling)
-  - [CSS utility](#user-content-css-utility)
-  - [Composing components](#user-content-composing-components)
+  - [Components](#user-content-components)
     - [Variants](#user-content-variants)
+    - [Overrides](#user-content-overrides)
     - [Extending styles](#user-content-extending-styles)
+  - [CSS utility](#user-content-css-utility)
+    - [Layout](#user-content-layout)
+    - [createCss](#user-content-createcss)
 - [Design systems](#user-content-design-systems)
   - [Using the official system](#user-content-using-the-official-system)
   - [Building your own system](#user-content-building-your-own-system)
@@ -222,7 +225,7 @@ Benefits include:
 
 Utility-first solutions (like Tailwind) and CSS-in-JS both eventually run into the same challenge: composition. As reusable styles, variants, overrides, and composition across component boundaries accumulate, ensuring styles compose predictably without cascade or specificity issues becomes increasingly difficult.
 
-Tokenami is a styling toolkit for teams building design systems that need to scale without specificity creep. It provides first-class primitives for [component styles](#user-content-composing-components), [utilities](#user-content-css-utility), [variants](#user-content-variants), [selectors](#user-content-named-selectors), and [overrides](#user-content-overrides), while keeping styles colocated with the components that use them.
+Tokenami is a styling toolkit for teams building design systems that need to scale without specificity creep. It provides first-class primitives for [component styles](#user-content-components), [utilities](#user-content-css-utility), [variants](#user-content-variants), [selectors](#user-content-named-selectors), and [overrides](#user-content-overrides), while keeping styles colocated with the components that use them.
 
 It extracts what can live in the stylesheet, leaves dynamic values inline when needed, and _manages the cascade for you_. Name complex selectors in your config, then compose styles without having to think about the cascade or specificity again.
 
@@ -330,17 +333,17 @@ export default createConfig({
 
 ### Arbitrary selectors
 
-Use arbitrary selectors to prototype quickly:
+Use arbitrary selectors for one-off callsite overrides:
 
 ```tsx
-<div
-  style={css({
+<Card
+  style={{
     '--{&:hover}_color': 'var(--color_primary)',
     '--{&:has(:focus)}_border-color': 'var(--color_highlight)',
     '--{&[data-state=open]}_border-color': 'var(--color_primary)',
     // use underscore for spaces in your selector
     '--{&_p}_color': 'var(--color_primary)',
-  })}
+  }}
 />
 ```
 
@@ -369,84 +372,17 @@ export default createConfig({
 
 ## Styling
 
-### CSS utility
+Use `css.compose` for component styles, including their states and variants. Pass component overrides directly through the `style` prop. Use `css` for layout on native elements and reusable style utilities.
 
-The `css` utility is used to author your styles and helps with overrides and avoiding specificity issues. Use `css` for inline styles.
+### Components
 
-#### Usage
-
-Pass your base styles as the first parameter, then any overrides:
-
-```tsx
-function Button(props) {
-  return (
-    <button
-      {...props}
-      style={css(
-        { '--padding': 4 }, // Base styles
-        props.style // Overrides
-      )}
-    />
-  );
-}
-```
-
-#### Overrides
-
-Add conditional styles as extra parameters. The last override wins:
-
-```tsx
-function Button(props) {
-  const disabled = props.disabled && {
-    '--opacity': 0.5,
-    '--pointer-events': 'none',
-  };
-
-  return (
-    <button
-      {...props}
-      style={css(
-        { '--padding': 4 }, // Base styles
-        disabled, // Conditional styles
-        props.style // Props override
-      )}
-    />
-  );
-}
-```
-
-#### createCss
-
-Configure the CSS utility using `createCss` when your Tokenami config changes how properties are parsed, e.g. [property aliases](#user-content-property-aliases).
-
-```ts
-// css.ts
-import { createCss } from '@tokenami/css';
-import config from '../.tokenami/tokenami.config';
-
-export const css = createCss(config);
-```
-
-This ensures runtime styles are transformed the same way as your generated stylesheet.
-
-`createCss` also accepts an optional `escapeSpecialChars` setting. It defaults to `true`, which makes Tokenami escape special characters in generated property names for runtimes that pass style attributes as written.
-
-When using Vite, set `escapeSpecialChars` to `false` because Vite already escapes special characters in style attributes:
-
-```ts
-export const css = createCss(config, { escapeSpecialChars: false });
-```
-
-This is important because leaving Tokenami's escaping enabled in Vite can double-escape the property names, and inline styles won't match the generated stylesheet.
-
-### Composing components
-
-The `css.compose` API helps you build reusable components with variants. Styles in the compose block are extracted into your stylesheet and replaced with a class name to reduce repetition in your markup.
+Define component styles with `css.compose`. Keep base styles, interaction states, and variants together in the component definition. Base styles are extracted into your stylesheet and referenced by a class name, while selected variants and prop overrides are resolved by the returned style function.
 
 Here's a basic example:
 
 ```tsx
 const button = css.compose({
+  '--padding': 4,
   '--background': 'var(--color_primary)',
   '--hover_background': 'var(--color_primary-dark)',
 });
@@ -457,7 +393,7 @@ function Button(props) {
 }
 ```
 
-Output:
+With no overrides, the output uses the extracted class, for example:
 
 ```html
 <button class="tk-abc">click me</button>
@@ -465,7 +401,7 @@ Output:
 
 #### Variants
 
-The `variants` object lets you define different style variations:
+The `variants` object lets you define different style variations or boolean states:
 
 ```tsx
 const card = css.compose({
@@ -482,6 +418,13 @@ const card = css.compose({
       small: { '--padding': 2 },
       large: { '--padding': 6 },
     },
+    emphasised: {
+      true: {
+        '--outline': '2px solid',
+        '--outline-color': 'var(--color_white)',
+        '--outline-offset': '2px',
+      },
+    },
   },
 });
 ```
@@ -489,52 +432,104 @@ const card = css.compose({
 Use multiple variants together:
 
 ```tsx
-function Card(props) {
-  const [cn, sx] = card({ color: 'blue', size: 'large' });
+function Card({ color = 'blue', size = 'small', emphasised = false, ...props }) {
+  const [cn, sx] = card({ color, size, emphasised });
   return <div {...props} className={cn(props.className)} style={sx(props.style)} />;
 }
 ```
 
-Variants are treated like overrides, so appear inline:
+#### Overrides
 
-```html
-<div class="tk-abc" style="--background-color: var(--color_blue); --padding: 6;">boop</div>
+For components whose props use [TokenamiStyle](#user-content-tokenamistyle), pass Tokenami properties directly through `style`:
+
+```tsx
+<Button style={{ '--margin-left': 'auto', '--padding-inline': 6 }}>Save playlist</Button>
 ```
+
+The component passes `props.style` to the style function returned by `compose`, which processes the Tokenami properties and resolves them against the component styles. The caller does not need to wrap them in `css`. Use variants for recurring choices such as size or appearance, and the `style` prop for callsite-specific adjustments.
 
 #### Extending styles
 
-Use `includes` to combine styles from multiple components or `css` utilities.
+Use `includes` to combine component style definitions and reusable `css` utilities:
 
 ```tsx
-// Reusable focus styles (will appear inline)
+// Reusable focus utility
 const focusable = css({
   '--focus_outline': 'var(--outline_sm)',
   '--outline-offset': 'var(--outline-offset_sm)',
 });
 
-// Base button styles (composed so will be extracted into stylesheet)
 const button = css.compose({
   '--background': 'var(--color_primary)',
   '--color': 'var(--color_white)',
   '--padding': 4,
 });
 
-// New button that includes both
 const tomatoButton = css.compose({
   includes: [button, focusable],
   '--background': 'var(--color_tomato)',
 });
+
+function TomatoButton(props) {
+  const [cn, sx] = tomatoButton();
+  return <button {...props} className={cn(props.className)} style={sx(props.style)} />;
+}
 ```
 
-Conflicting styles (e.g. `--background`) are moved inline to override:
+Included component definitions contribute their extracted classes. The focus utility and conflicting declarations, such as the new background, appear inline so the extending definition takes precedence. For example:
 
 ```html
 <button
-  class="tk-abc"
+  class="tk-button tk-tomato-button"
   style="--focus_outline: var(--outline_sm); --outline-offset: var(--outline-offset_sm); --background: var(--color_tomato);"
 >
   click me
 </button>
+```
+
+### CSS utility
+
+Use the base `css` utility for one-off layout styling where components are used. Component defaults, states, and variants belong in `css.compose`.
+
+#### Layout
+
+Arrange components at the callsite:
+
+```tsx
+<div
+  style={css({
+    '--display': 'flex',
+    '--align-items': 'center',
+    '--justify-content': 'flex-end',
+    '--gap': 2,
+    '--padding': 4,
+  })}
+>
+  <Button style={{ '--background': 'red' }}>Cancel</Button>
+  <Button>Save</Button>
+</div>
+```
+
+You can pass Tokenami properties directly to components whose props use `TokenamiStyle`, without wrapping them in `css`. See [component overrides](#user-content-overrides).
+
+#### createCss
+
+Configure `css` and `css.compose` using `createCss` when your Tokenami config changes how properties are parsed, e.g. [property aliases](#user-content-property-aliases).
+
+```ts
+// css.ts
+import { createCss } from '@tokenami/css';
+import config from '../.tokenami/tokenami.config';
+
+export const css = createCss(config);
+```
+
+This ensures runtime styles are transformed the same way as your generated stylesheet.
+
+`escapeSpecialChars` defaults to `true`. With Vite, disable it to avoid double-escaping property names, which prevents inline styles from matching the generated stylesheet:
+
+```ts
+export const css = createCss(config, { escapeSpecialChars: false });
 ```
 
 ## Design systems
@@ -636,10 +631,12 @@ export default createConfig({
 });
 ```
 
-Apply the animation to an element:
+Use the animation:
 
 ```tsx
-<div style={css({ '--animation': 'var(--anim_wiggle)' })} />
+const notification = css.compose({
+  '--animation': 'var(--anim_wiggle)',
+});
 ```
 
 ## Advanced usage
@@ -648,7 +645,8 @@ Tokenami has some advanced features that can help you build more powerful design
 
 ### Named selectors
 
-Named selectors let you give complex selectors simple names and controls their override order. Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-node/stubs/tokenami.config.ts#L34)
+Named selectors let you give complex selectors simple names and controls their override order.
+Some [common selectors](https://github.com/tokenami/tokenami/blob/main/packages/@tokenami-node/stubs/tokenami.config.ts#L34)
 are included, but you can configure your own. Use the ampersand (`&`) to mark where the current
 element's selector should be injected:
 
@@ -662,13 +660,22 @@ export default createConfig({
 });
 ```
 
-Use them in your components:
+Using the named selectors:
 
 ```tsx
+const previewButton = css.compose({
+  '--parent-hover_color': 'var(--color_primary)',
+});
+
+function PreviewButton(props) {
+  const [cn, sx] = previewButton();
+  return <button {...props} className={cn(props.className)} style={sx(props.style)} />;
+}
+
 <div className="parent">
   <img src="..." alt="" />
-  <button style={css({ '--parent-hover_color': 'var(--color_primary)' })} />
-</div>
+  <PreviewButton>Preview</PreviewButton>
+</div>;
 ```
 
 #### Selector specificity
@@ -698,13 +705,11 @@ export default createConfig({
 ```
 
 ```tsx
-<button
-  style={css({
-    '--color': 'var(--color_neutral-700)',
-    '--focus_color': 'var(--color_primary)',
-    '--hover_color': 'var(--color_neutral-800)',
-  })}
-/>
+const button = css.compose({
+  '--color': 'var(--color_neutral-700)',
+  '--focus_color': 'var(--color_primary)',
+  '--hover_color': 'var(--color_neutral-800)',
+});
 ```
 
 With `focus` listed after `hover` in config, `--focus_color` overrides `--hover_color` when the element is both hovered and focused.
@@ -796,16 +801,25 @@ export default createConfig({
 });
 ```
 
-Then use them as follows:
+Then use the gradient properties:
 
 ```tsx
-<div
-  style={css({
-    '--background-image': 'var(--gradient_radial)',
-    '--gradient-from': 'var(--color_primary)',
-    '--gradient-to': 'var(--color_secondary)',
-  })}
-/>
+const banner = css.compose({
+  '--background-image': 'var(--gradient_radial)',
+  '--gradient-from': 'var(--color_primary)',
+  '--gradient-to': 'var(--color_secondary)',
+});
+
+function Banner(props) {
+  const [cn, sx] = banner();
+  return <div {...props} className={cn(props.className)} style={sx(props.style)} />;
+}
+```
+
+Override a gradient color at a particular callsite:
+
+```tsx
+<Banner style={{ '--gradient-from': 'var(--color_secondary)' }} />
 ```
 
 ## TypeScript integration
@@ -825,15 +839,18 @@ interface ButtonProps extends ButtonElementProps, Variants<typeof button> {}
 
 #### TokenamiStyle
 
-Components styled with the `css` utility can use `TokenamiStyle` to type their style prop if you want it to accept Tokenami properties.
+Components defined with `css.compose` can use `TokenamiStyle` to accept overrides as Tokenami properties on their `style` prop.
 
 ```tsx
 import { type TokenamiStyle, css } from '@tokenami/css';
 
 interface ButtonProps extends TokenamiStyle<React.ComponentProps<'button'>> {}
 
+const button = css.compose({ '--padding': 4 });
+
 function Button(props: ButtonProps) {
-  return <button {...props} style={css({}, props.style)} />;
+  const [cn, sx] = button();
+  return <button {...props} className={cn(props.className)} style={sx(props.style)} />;
 }
 ```
 
@@ -841,36 +858,6 @@ Now you can pass Tokenami properties with type checking:
 
 ```tsx
 <Button style={{ '--padding': 4 }} />
-```
-
-#### TokenValue
-
-Use `TokenValue` to get a union of CSS variable tokens based on your theme.
-
-Given this theme:
-
-```ts
-export default createConfig({
-  theme: {
-    color: {
-      'slate-100': '#f1f5f9',
-      'slate-700': '#334155',
-    },
-    radii: {
-      rounded: '10px',
-      circle: '9999px',
-    },
-  },
-});
-```
-
-It will output the following types:
-
-```ts
-import { type TokenValue } from '@tokenami/css';
-
-type Color = TokenValue<'color'>; // var(--color_slate-100) | var(--color_slate-700)
-type Radii = TokenValue<'radii'>; // var(--radii_rounded) | var(--radii_circle)
 ```
 
 ### CI setup

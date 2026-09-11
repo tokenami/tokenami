@@ -10,9 +10,9 @@ interface HeadingProps extends TokenamiStyle<React.ComponentProps<'h1'>>, Varian
 }
 
 const Heading = ({ level = 2, variant = level, ...props }: HeadingProps) => {
-  const [cn, css] = heading({ variant });
+  const [cn, sx] = heading({ variant });
   const Comp = `h${level}` as const;
-  return <Comp {...props} className={cn(props.className)} style={css(props.style)} />;
+  return <Comp {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 Heading.displayName = 'Heading';

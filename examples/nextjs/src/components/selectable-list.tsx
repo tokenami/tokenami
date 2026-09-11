@@ -9,8 +9,8 @@ import { Slot } from '@radix-ui/react-slot';
 interface SelectableListProps extends TokenamiStyle<React.ComponentProps<'ol'>> {}
 
 const SelectableList = (props: SelectableListProps) => {
-  const [cn, css] = selectableList();
-  return <ol {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = selectableList();
+  return <ol {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 SelectableList.displayName = 'SelectableList';
@@ -24,12 +24,12 @@ interface SelectableListItemProps extends TokenamiStyle<React.ComponentProps<'li
 }
 
 const SelectableListItem = ({ isSelected, ...props }: SelectableListItemProps) => {
-  const [cn, css] = selectableListItem();
+  const [cn, sx] = selectableListItem();
   return (
     <li
       {...props}
       className={cn('group', props.className)}
-      style={css(props.style)}
+      style={sx(props.style)}
       data-selected={isSelected ? '' : undefined}
     />
   );
@@ -46,9 +46,9 @@ interface SelectableListTriggerProps extends TokenamiStyle<React.ComponentProps<
 }
 
 const SelectableListTrigger = ({ asChild = false, ...props }: SelectableListTriggerProps) => {
-  const [cn, css] = selectableListTrigger();
+  const [cn, sx] = selectableListTrigger();
   const Comp = asChild ? Slot : 'button';
-  return <Comp {...props} className={cn(props.className)} style={css(props.style)} />;
+  return <Comp {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 SelectableListTrigger.displayName = 'SelectableListTrigger';

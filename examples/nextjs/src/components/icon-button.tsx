@@ -15,9 +15,9 @@ interface IconButtonProps
 }
 
 function IconButton({ size, icon, ...props }: IconButtonProps) {
-  const [cn, css] = iconButton({ size });
+  const [cn, sx] = iconButton({ size });
   return (
-    <button type="button" {...props} className={cn(props.className)} style={css(props.style)}>
+    <button type="button" {...props} className={cn(props.className)} style={sx(props.style)}>
       <Icon name={icon} size={size} />
       <span className={cssUtil.srOnly()}>{props.children}</span>
     </button>

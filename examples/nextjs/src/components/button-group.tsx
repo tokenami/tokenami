@@ -7,8 +7,8 @@ import { css, type TokenamiStyle } from '@/css';
  * -----------------------------------------------------------------------------------------------*/
 
 const ButtonGroup = (props: TokenamiStyle<React.ComponentProps<'div'>>) => {
-  const [cn, css] = buttonGroup();
-  return <div {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = buttonGroup();
+  return <div {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 const buttonGroup = css.compose({

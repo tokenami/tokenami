@@ -33,9 +33,9 @@ interface SliderTrackProps
   extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Track>> {}
 
 const SliderTrack = (props: SliderTrackProps) => {
-  const [cn, compose] = sliderTrack();
+  const [cn, sx] = sliderTrack();
   const { className, style, ...rest } = props;
-  return <SliderPrimitive.Track {...rest} className={cn()} style={compose(style)} />;
+  return <SliderPrimitive.Track {...rest} className={cn()} style={sx(style)} />;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -46,9 +46,9 @@ interface SliderIndicatorProps
   extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Indicator>> {}
 
 const SliderIndicator = (props: SliderIndicatorProps) => {
-  const [cn, compose] = sliderIndicator();
+  const [cn, sx] = sliderIndicator();
   const { className, style, ...rest } = props;
-  return <SliderPrimitive.Indicator {...rest} className={cn()} style={compose(style)} />;
+  return <SliderPrimitive.Indicator {...rest} className={cn()} style={sx(style)} />;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -59,9 +59,9 @@ interface SliderThumbProps
   extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Thumb>> {}
 
 const SliderThumb = (props: SliderThumbProps) => {
-  const [cn, compose] = sliderThumb();
+  const [cn, sx] = sliderThumb();
   const { className, style, ...rest } = props;
-  return <SliderPrimitive.Thumb {...rest} className={cn()} style={compose(style)} />;
+  return <SliderPrimitive.Thumb {...rest} className={cn()} style={sx(style)} />;
 };
 
 /* ---------------------------------------------------------------------------------------------- */

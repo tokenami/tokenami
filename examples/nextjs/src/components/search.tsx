@@ -7,10 +7,10 @@ import { Icon } from '@/components/icon';
  * -----------------------------------------------------------------------------------------------*/
 
 const Search = (props: TokenamiStyle<React.ComponentProps<'input'>>) => {
-  const [formCn, formCss] = searchForm();
-  const [inputCn, inputCss] = searchInput();
+  const [formCn, formSx] = searchForm();
+  const [inputCn, inputSx] = searchInput();
   return (
-    <form className={formCn('group')} style={formCss()}>
+    <form className={formCn('group')} style={formSx()}>
       <Icon
         name="search-line"
         size="lg"
@@ -25,7 +25,7 @@ const Search = (props: TokenamiStyle<React.ComponentProps<'input'>>) => {
         placeholder="What do you want to play?"
         {...props}
         className={inputCn(props.className)}
-        style={inputCss(props.style)}
+        style={inputSx(props.style)}
       />
     </form>
   );
