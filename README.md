@@ -440,7 +440,7 @@ function Card({ color = 'blue', size = 'small', emphasised = false, ...props }) 
 
 #### Overrides
 
-For components whose props use [TokenamiStyle](#user-content-tokenamistyle), pass Tokenami properties directly through `style`:
+For components whose props use [TokenamiStyle](#user-content-tokenamistyle), pass overrides directly through `style`:
 
 ```tsx
 <Button style={{ '--margin-left': 'auto', '--padding-inline': 6 }}>Save playlist</Button>
