@@ -371,7 +371,7 @@ export default createConfig({
 
 ## Styling
 
-Keep component defaults, interaction states, and variants together in `css.compose`, so base styles can be extracted into the stylesheet. Use `css` for one-off styles on native elements and reusable style utilities, and pass component overrides directly through the `style` prop. One-off styles and overrides are applied inline.
+Keep component defaults, interaction states, and variants together in `css.compose`, so base styles can be extracted into the stylesheet. Use `css` for one-off styles on native elements and reusable style utilities.
 
 ### Components
 
