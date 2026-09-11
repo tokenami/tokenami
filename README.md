@@ -34,9 +34,8 @@
     - [Variants](#user-content-variants)
     - [Overrides](#user-content-overrides)
     - [Extending styles](#user-content-extending-styles)
-  - [CSS utility](#user-content-css-utility)
-    - [Layout](#user-content-layout)
-    - [createCss](#user-content-createcss)
+  - [Layout](#user-content-layout)
+  - [createCss](#user-content-createcss)
 - [Design systems](#user-content-design-systems)
   - [Using the official system](#user-content-using-the-official-system)
   - [Building your own system](#user-content-building-your-own-system)
@@ -225,7 +224,7 @@ Benefits include:
 
 Utility-first solutions (like Tailwind) and CSS-in-JS both eventually run into the same challenge: composition. As reusable styles, variants, overrides, and composition across component boundaries accumulate, ensuring styles compose predictably without cascade or specificity issues becomes increasingly difficult.
 
-Tokenami is a styling toolkit for teams building design systems that need to scale without specificity creep. It provides first-class primitives for [component styles](#user-content-components), [utilities](#user-content-css-utility), [variants](#user-content-variants), [selectors](#user-content-named-selectors), and [overrides](#user-content-overrides), while keeping styles colocated with the components that use them.
+Tokenami is a styling toolkit for teams building design systems that need to scale without specificity creep. It provides first-class primitives for [component styles](#user-content-components), [utilities](#user-content-layout), [variants](#user-content-variants), [selectors](#user-content-named-selectors), and [overrides](#user-content-overrides), while keeping styles colocated with the components that use them.
 
 It extracts what can live in the stylesheet, leaves dynamic values inline when needed, and _manages the cascade for you_. Name complex selectors in your config, then compose styles without having to think about the cascade or specificity again.
 
@@ -487,11 +486,9 @@ Included component definitions contribute their extracted classes. The focus uti
 </button>
 ```
 
-### CSS utility
+### Layout
 
 Use the base `css` utility for one-off layout styling where components are used. Component defaults, states, and variants belong in `css.compose`.
-
-#### Layout
 
 Arrange components at the callsite:
 
@@ -512,7 +509,7 @@ Arrange components at the callsite:
 
 You can pass Tokenami properties directly to components whose props use `TokenamiStyle`, without wrapping them in `css`. See [component overrides](#user-content-overrides).
 
-#### createCss
+### createCss
 
 Configure `css` and `css.compose` using `createCss` when your Tokenami config changes how properties are parsed, e.g. [property aliases](#user-content-property-aliases).
 
