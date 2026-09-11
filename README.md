@@ -371,11 +371,11 @@ export default createConfig({
 
 ## Styling
 
-Use `css.compose` for component styles, including their states and variants. Use `css` for one-off styles on native elements and reusable style utilities. Pass component overrides directly through the `style` prop.
+Keep component defaults, interaction states, and variants together in `css.compose`, so base styles can be extracted into the stylesheet. Use `css` for one-off styles on native elements and reusable style utilities, and pass component overrides directly through the `style` prop. One-off styles and overrides are applied inline.
 
 ### Components
 
-Define component styles with `css.compose`. Keep base styles, interaction states, and variants together in the component definition. Base styles are extracted into your stylesheet and referenced by a class name, while selected variants and prop overrides are resolved by the returned style function.
+`css.compose` returns a function that provides a class name helper for the extracted styles and a style helper for resolving selected variants and prop overrides.
 
 Here's a basic example:
 
@@ -488,7 +488,7 @@ Included component definitions contribute their extracted classes. The focus uti
 
 ### One-off styles
 
-Use `css` for one-off styles on native elements, such as layout, spacing, or appearance specific to a callsite. Define reusable component styles, states, and variants with `css.compose`.
+Use `css` for one-off styles on native elements, such as layout, spacing, or appearance specific to a callsite.
 
 ```tsx
 <div
