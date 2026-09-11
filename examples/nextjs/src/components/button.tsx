@@ -11,8 +11,8 @@ interface ButtonProps
     Variants<typeof button> {}
 
 const Button = (props: ButtonProps) => {
-  const [cn, css] = button();
-  return <button {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = button();
+  return <button {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 Button.displayName = 'Button';
@@ -26,8 +26,8 @@ interface ButtonIconProps
     Variants<typeof buttonIcon> {}
 
 const ButtonIcon = (props: ButtonIconProps) => {
-  const [cn, css] = buttonIcon();
-  return <Icon size="md" {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = buttonIcon();
+  return <Icon size="md" {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 /* ---------------------------------------------------------------------------------------------- */

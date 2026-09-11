@@ -67,7 +67,7 @@ function createCss(config: Pick<Tokenami.Config, 'aliases'>, options?: CreateCss
    * css
    * -----------------------------------------------------------------------------------------------*/
 
-  function css(...styles: [TokenamiProperties, ...TokenamiOverride[]]): TokenamiCSS {
+  function css(...styles: TokenamiOverride[]): TokenamiCSS {
     let id = styleId(styles);
     if (id === lastId) return lastResult!;
 

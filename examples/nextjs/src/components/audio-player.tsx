@@ -27,8 +27,8 @@ const AudioPlayer = ({ asChild = false, ...props }: AudioPlayerProps) => {
 interface AudioPlayerPlayerProps extends TokenamiStyle<React.ComponentProps<'div'>> {}
 
 const AudioPlayerPlayer = (props: AudioPlayerPlayerProps) => {
-  const [cn, compose] = audioPlayerPlayer();
-  return <div {...props} className={cn(props.className)} style={compose(props.style)} />;
+  const [cn, sx] = audioPlayerPlayer();
+  return <div {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -39,10 +39,10 @@ interface AudioPlayerControlsProps extends TokenamiStyle<React.ComponentProps<'d
 
 const AudioPlayerControls = (props: AudioPlayerControlsProps) => {
   const [isPlaying, setIsPlaying] = React.useState(false);
-  const [cn, compose] = audioPlayerControls();
+  const [cn, sx] = audioPlayerControls();
 
   return (
-    <div {...props} className={cn(props.className)} style={compose(props.style)}>
+    <div {...props} className={cn(props.className)} style={sx(props.style)}>
       <IconButton icon="shuffle-line" size="sm">
         Shuffle
       </IconButton>
@@ -80,19 +80,19 @@ interface AudioPlayerScrubberProps extends TokenamiStyle<React.ComponentProps<'d
 
 const AudioPlayerScrubber = (props: AudioPlayerScrubberProps) => {
   const [value, setValue] = React.useState(149);
-  const [cn, compose] = audioPlayerScrubber();
+  const [cn, sx] = audioPlayerScrubber();
   const [timestampCn] = audioPlayerTimestamp();
   const duration = 272;
 
   return (
-    <div {...props} className={cn(props.className)} style={compose(props.style)}>
+    <div {...props} className={cn(props.className)} style={sx(props.style)}>
       <time className={timestampCn()}>{formatTime(value)}</time>
       <Slider.Root
         value={value}
         onValueChange={(newValue) => setValue(newValue as number)}
         min={0}
         max={duration}
-        style={css({ '--flex': 'var(--flex_1)' })}
+        style={{ '--flex': 'var(--flex_1)' }}
       >
         <Slider.Control>
           <Slider.Track>
@@ -114,10 +114,10 @@ interface AudioPlayerVolumeProps extends TokenamiStyle<React.ComponentProps<'div
 
 const AudioPlayerVolume = (props: AudioPlayerVolumeProps) => {
   const [volume, setVolume] = React.useState(70);
-  const [cn, compose] = audioPlayerVolume();
+  const [cn, sx] = audioPlayerVolume();
 
   return (
-    <div {...props} className={cn(props.className)} style={compose(props.style)}>
+    <div {...props} className={cn(props.className)} style={sx(props.style)}>
       <Icon
         name="volume-up-line"
         size="lg"
