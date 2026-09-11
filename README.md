@@ -449,7 +449,7 @@ The component passes `props.style` to the style function returned by `compose`, 
 
 #### Extending styles
 
-Use `includes` to combine component style definitions and reusable `css` utilities. This example uses tokens from the Next.js example theme and the CSS color `tomato`:
+Use `includes` to combine component style definitions and reusable `css` utilities:
 
 ```tsx
 // Reusable focus utility
