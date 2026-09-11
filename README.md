@@ -490,8 +490,6 @@ Included component definitions contribute their extracted classes. The focus uti
 
 Use `css` for one-off styles on native elements, such as layout, spacing, or appearance specific to a callsite. Define reusable component styles, states, and variants with `css.compose`.
 
-Arrange components at the callsite:
-
 ```tsx
 <div
   style={css({
