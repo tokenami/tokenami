@@ -395,7 +395,7 @@ function Button(props) {
 With no overrides, the output uses the extracted class, for example:
 
 ```html
-<button class="tk-abc">click me</button>
+<button class="tk-button">click me</button>
 ```
 
 #### Variants
