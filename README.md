@@ -449,24 +449,24 @@ The component passes `props.style` to the style function returned by `compose`, 
 
 #### Extending styles
 
-Use `includes` to combine component style definitions and reusable `css` utilities:
+Use `includes` to combine component style definitions and reusable `css` utilities. This example uses tokens from the Next.js example theme and the CSS color `tomato`:
 
 ```tsx
 // Reusable focus utility
 const focusable = css({
-  '--focus_outline': 'var(--outline_sm)',
-  '--outline-offset': 'var(--outline-offset_sm)',
+  '--focus_outline': 'var(--line_ring)',
+  '--outline-offset': 'var(--offset_ring)',
 });
 
 const button = css.compose({
-  '--background': 'var(--color_primary)',
+  '--background': 'var(--color_iris9)',
   '--color': 'var(--color_white)',
   '--padding': 4,
 });
 
 const tomatoButton = css.compose({
   includes: [button, focusable],
-  '--background': 'var(--color_tomato)',
+  '--background': 'tomato',
 });
 
 function TomatoButton(props) {
@@ -480,7 +480,7 @@ Included component definitions contribute their extracted classes. The focus uti
 ```html
 <button
   class="tk-button tk-tomato-button"
-  style="--focus_outline: var(--outline_sm); --outline-offset: var(--outline-offset_sm); --background: var(--color_tomato);"
+  style="--focus_outline: var(--line_ring); --outline-offset: var(--offset_ring); --background: tomato;"
 >
   click me
 </button>
