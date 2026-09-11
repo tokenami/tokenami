@@ -34,12 +34,12 @@ const frame = css.compose({
 
   variants: {
     color: {
-      green: { '--gradient-from': 'var(--color_green9)' },
-      sky: { '--gradient-from': 'var(--color_sky9)' },
-      orange: { '--gradient-from': 'var(--color_orange9)' },
-      yellow: { '--gradient-from': 'var(--color_yellow9)' },
-      iris: { '--gradient-from': 'var(--color_iris9)' },
-      crimson: { '--gradient-from': 'var(--color_crimson9)' },
+      green: { '--gradient-from': 'var(--color_green8)' },
+      sky: { '--gradient-from': 'var(--color_sky8)' },
+      orange: { '--gradient-from': 'var(--color_orange8)' },
+      yellow: { '--gradient-from': 'var(--color_yellow8)' },
+      iris: { '--gradient-from': 'var(--color_iris8)' },
+      crimson: { '--gradient-from': 'var(--color_crimson8)' },
     },
   },
 });
