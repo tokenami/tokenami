@@ -93,7 +93,7 @@ export default async function LibraryItemPage({ params }: { params: Promise<{ id
             '--transition': 'var(--morph_colors)',
           }}
         >
-          PLay
+          Play
         </IconButton>
 
         <ButtonGroup.Root>
@@ -158,8 +158,8 @@ export default async function LibraryItemPage({ params }: { params: Promise<{ id
  * -----------------------------------------------------------------------------------------------*/
 
 const Table = (props: TokenamiStyle<React.ComponentProps<'table'>>) => {
-  const [cn, css] = table();
-  return <table {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = table();
+  return <table {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 const table = css.compose({
@@ -172,8 +172,8 @@ const table = css.compose({
  * -----------------------------------------------------------------------------------------------*/
 
 const TableHeader = (props: TokenamiStyle<React.ComponentProps<'thead'>>) => {
-  const [cn, css] = tableHeader();
-  return <thead {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = tableHeader();
+  return <thead {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 const tableHeader = css.compose({
@@ -186,8 +186,8 @@ const tableHeader = css.compose({
  * -----------------------------------------------------------------------------------------------*/
 
 const TableBody = (props: TokenamiStyle<React.ComponentProps<'tbody'>>) => {
-  const [cn, css] = tableBody();
-  return <tbody {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = tableBody();
+  return <tbody {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 const tableBody = css.compose({
@@ -199,8 +199,8 @@ const tableBody = css.compose({
  * -----------------------------------------------------------------------------------------------*/
 
 const TableRow = (props: TokenamiStyle<React.ComponentProps<'tr'>>) => {
-  const [cn, css] = tableRow();
-  return <tr {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = tableRow();
+  return <tr {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 const tableRow = css.compose({
@@ -213,8 +213,8 @@ const tableRow = css.compose({
  * -----------------------------------------------------------------------------------------------*/
 
 const TableHead = (props: TokenamiStyle<React.ComponentProps<'th'>>) => {
-  const [cn, css] = tableHead();
-  return <th {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = tableHead();
+  return <th {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 const tableHead = css.compose({
@@ -230,8 +230,8 @@ const tableHead = css.compose({
  * -----------------------------------------------------------------------------------------------*/
 
 const TableCell = (props: TokenamiStyle<React.ComponentProps<'td'>>) => {
-  const [cn, css] = tableCell();
-  return <td {...props} className={cn(props.className)} style={css(props.style)} />;
+  const [cn, sx] = tableCell();
+  return <td {...props} className={cn(props.className)} style={sx(props.style)} />;
 };
 
 const tableCell = css.compose({

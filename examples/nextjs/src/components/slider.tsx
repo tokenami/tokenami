@@ -6,10 +6,10 @@ import { css, type TokenamiStyle } from '@/css';
  * Slider
  * -----------------------------------------------------------------------------------------------*/
 
-interface SliderProps extends React.ComponentProps<typeof SliderPrimitive.Root> {}
+interface SliderProps extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Root>> {}
 
 const Slider = (props: SliderProps) => {
-  return <SliderPrimitive.Root {...props} />;
+  return <SliderPrimitive.Root {...props} style={css(props.style)} />;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -17,12 +17,14 @@ const Slider = (props: SliderProps) => {
  * -----------------------------------------------------------------------------------------------*/
 
 interface SliderControlProps
-  extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Control>> {}
+  extends TokenamiStyle<Omit<React.ComponentProps<typeof SliderPrimitive.Control>, 'className'>> {
+  className?: string;
+}
 
 const SliderControl = (props: SliderControlProps) => {
-  const [cn, compose] = sliderControl();
+  const [cn, sx] = sliderControl();
   const { className, style, ...rest } = props;
-  return <SliderPrimitive.Control {...rest} className={cn()} style={compose(style)} />;
+  return <SliderPrimitive.Control {...rest} className={cn(className)} style={sx(style)} />;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -30,12 +32,14 @@ const SliderControl = (props: SliderControlProps) => {
  * -----------------------------------------------------------------------------------------------*/
 
 interface SliderTrackProps
-  extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Track>> {}
+  extends TokenamiStyle<Omit<React.ComponentProps<typeof SliderPrimitive.Track>, 'className'>> {
+  className?: string;
+}
 
 const SliderTrack = (props: SliderTrackProps) => {
   const [cn, sx] = sliderTrack();
   const { className, style, ...rest } = props;
-  return <SliderPrimitive.Track {...rest} className={cn()} style={sx(style)} />;
+  return <SliderPrimitive.Track {...rest} className={cn(className)} style={sx(style)} />;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -43,12 +47,14 @@ const SliderTrack = (props: SliderTrackProps) => {
  * -----------------------------------------------------------------------------------------------*/
 
 interface SliderIndicatorProps
-  extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Indicator>> {}
+  extends TokenamiStyle<Omit<React.ComponentProps<typeof SliderPrimitive.Indicator>, 'className'>> {
+  className?: string;
+}
 
 const SliderIndicator = (props: SliderIndicatorProps) => {
   const [cn, sx] = sliderIndicator();
   const { className, style, ...rest } = props;
-  return <SliderPrimitive.Indicator {...rest} className={cn()} style={sx(style)} />;
+  return <SliderPrimitive.Indicator {...rest} className={cn(className)} style={sx(style)} />;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -56,12 +62,14 @@ const SliderIndicator = (props: SliderIndicatorProps) => {
  * -----------------------------------------------------------------------------------------------*/
 
 interface SliderThumbProps
-  extends TokenamiStyle<React.ComponentProps<typeof SliderPrimitive.Thumb>> {}
+  extends TokenamiStyle<Omit<React.ComponentProps<typeof SliderPrimitive.Thumb>, 'className'>> {
+  className?: string;
+}
 
 const SliderThumb = (props: SliderThumbProps) => {
   const [cn, sx] = sliderThumb();
   const { className, style, ...rest } = props;
-  return <SliderPrimitive.Thumb {...rest} className={cn()} style={sx(style)} />;
+  return <SliderPrimitive.Thumb {...rest} className={cn(className)} style={sx(style)} />;
 };
 
 /* ---------------------------------------------------------------------------------------------- */

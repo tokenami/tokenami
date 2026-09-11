@@ -92,7 +92,7 @@ const AudioPlayerScrubber = (props: AudioPlayerScrubberProps) => {
         onValueChange={(newValue) => setValue(newValue as number)}
         min={0}
         max={duration}
-        style={css({ '--flex': 'var(--flex_1)' })}
+        style={{ '--flex': 'var(--flex_1)' }}
       >
         <Slider.Control>
           <Slider.Track>
