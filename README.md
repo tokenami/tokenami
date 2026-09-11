@@ -467,6 +467,7 @@ const button = css.compose({
 const tomatoButton = css.compose({
   includes: [button, focusable],
   '--background': 'tomato',
+  '--font-weight': 'bold',
 });
 
 function TomatoButton(props) {
@@ -475,7 +476,7 @@ function TomatoButton(props) {
 }
 ```
 
-Included component definitions contribute their extracted classes. The focus utility and conflicting declarations, such as the new background, appear inline so the extending definition takes precedence. For example:
+Included component definitions contribute their extracted classes. The non-conflicting `font-weight` stays in the stylesheet. The focus utility and conflicting background appear inline so the extending definition takes precedence. For example:
 
 ```html
 <button
